@@ -10,12 +10,18 @@ public class DowngradeModOrganizer(ProgressService progressService)
     public async Task DowngradeAsync(string version = "v2.4.4")
     {
         progressService.UpdateProgress($"Downgrading ModOrganizer to {version}");
-        var hc = new HttpClient { BaseAddress = new Uri("https://api.github.com"), DefaultRequestHeaders =
+        var hc = new HttpClient
         {
-            {"User-Agent", "stalker-gamma-installer/0.1.0"}
-        }};
-        var getReleaseByTagResponse = await hc.GetAsync($"repos/ModOrganizer2/modorganizer/releases/tags/{version}");
-        var getReleaseByTag = await JsonSerializer.DeserializeAsync(await getReleaseByTagResponse.Content.ReadAsStreamAsync(), jsonTypeInfo: GetReleaseByTagCtx.Default.GetReleaseByTag);
+            BaseAddress = new Uri("https://api.github.com"),
+            DefaultRequestHeaders = { { "User-Agent", "stalker-gamma-installer/0.1.0" } },
+        };
+        var getReleaseByTagResponse = await hc.GetAsync(
+            $"repos/ModOrganizer2/modorganizer/releases/tags/{version}"
+        );
+        var getReleaseByTag = await JsonSerializer.DeserializeAsync(
+            await getReleaseByTagResponse.Content.ReadAsStreamAsync(),
+            jsonTypeInfo: GetReleaseByTagCtx.Default.GetReleaseByTag
+        );
         var dlUrl = getReleaseByTag
             ?.Assets?.FirstOrDefault(x =>
                 x.Name == $"Mod.Organizer-{(version.StartsWith('v') ? version[1..] : version)}.7z"
@@ -26,7 +32,7 @@ public class DowngradeModOrganizer(ProgressService progressService)
             progressService.UpdateProgress("Failed to find download url");
             return;
         }
-        
+
         progressService.UpdateProgress($"Downloading ModOrganizer");
 
         await using (var fs = File.Create(getReleaseByTag!.Name!))

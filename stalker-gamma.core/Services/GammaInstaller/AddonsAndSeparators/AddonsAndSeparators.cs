@@ -46,7 +46,7 @@ public partial class AddonsAndSeparators(ProgressService progressService, ModDb 
         var counter = 0;
 
         var extractChannel = Channel.CreateUnbounded<(DownloadableRecord, string, int, int)>();
-        var reader = Task.Run(() => ExtractChannelReader(extractChannel.Reader)) ;
+        var reader = Task.Run(() => ExtractChannelReader(extractChannel.Reader));
         var writer = Task.Run(async () =>
         {
             foreach (var file in files)
@@ -57,9 +57,9 @@ public partial class AddonsAndSeparators(ProgressService progressService, ModDb 
                 {
                     progressService.UpdateProgress(
                         $"""
-                         _______________ {separator.Name} separator _______________
-                         Creating MO2 separator in {Path.Join(modsPaths, separator.FolderName)}
-                         """
+                        _______________ {separator.Name} separator _______________
+                        Creating MO2 separator in {Path.Join(modsPaths, separator.FolderName)}
+                        """
                     );
                     separator.WriteMetaIni(modsPaths, counter);
                     progressService.UpdateProgress(" ");
@@ -79,12 +79,10 @@ public partial class AddonsAndSeparators(ProgressService progressService, ModDb 
 
                 if (forceZipExtraction || extract)
                 {
-                    extractChannel.Writer.TryWrite(
-                        (downloadableRecord, modsPaths, total, counter)
-                    );
+                    extractChannel.Writer.TryWrite((downloadableRecord, modsPaths, total, counter));
                 }
             }
-        extractChannel.Writer.Complete();
+            extractChannel.Writer.Complete();
         });
 
         await Task.WhenAll(writer, reader);
@@ -103,7 +101,7 @@ public partial class AddonsAndSeparators(ProgressService progressService, ModDb 
                 var modsPaths = vars.Item2;
                 var total = vars.Item3;
                 var counter = vars.Item4;
-            
+
                 var extractPath = Path.Join(
                     modsPaths,
                     $"{counter}-{downloadableRecord.AddonName}{downloadableRecord.Patch}"
