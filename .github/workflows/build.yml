@@ -50,11 +50,11 @@ jobs:
 
       - name: Publish
         run: |
-          dotnet publish ${{ env.PROJECT_FOLDER}}/${{ env.PROJECT_NAME }} \
-          -c ${{ env.CONFIGURATION }} \
-          -r win-x64 \
-          -p:Version=${{ steps.gitversion.outputs.SemVer }} \
-          -p:AssemblyVersion=${{ steps.gitversion.outputs.AssemblySemFileVer }} \
+          dotnet publish ${{ env.PROJECT_FOLDER}}/${{ env.PROJECT_NAME }} `
+          -c ${{ env.CONFIGURATION }} `
+          -r win-x64 `
+          -p:Version=${{ steps.gitversion.outputs.SemVer }} `
+          -p:AssemblyVersion=${{ steps.gitversion.outputs.AssemblySemFileVer }} `
           -o bin
 
       - name: Upload build artifacts
