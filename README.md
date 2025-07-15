@@ -8,7 +8,7 @@ A clone of Grokitach's Stalker GAMMA Launcher with WINE compatibility.
 
 ### Windows
 
-1. Download the latest version from the releases page
+1. Download the latest version from the [releases](https://github.com/FaithBeam/stalker-gamma-launcher-clone/releases) page
 2. Extract the zip in the same directory as the `.Grok's Modpack Installer` folder so `stalker-gamma-gui.exe` is next to `G.A.M.M.A. Launcher.exe`
 3. Run `stalker-gamma-gui.exe`
 4. First install initialization
