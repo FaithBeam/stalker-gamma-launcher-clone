@@ -46,7 +46,7 @@ jobs:
         uses: gittools/actions/gitversion/execute@v0
 
       - name: Restore the application
-        run: dotnet restore -r ${{ matrix.rid }}  
+        run: dotnet restore -r win-x64
 
       - name: Publish
         run: |
