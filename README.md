@@ -15,3 +15,7 @@ A clone of Grokitach's Stalker GAMMA Launcher with WINE compatibility.
 5. Install / Update GAMMA (x2)
     - A working install takes two full installs. Idk why lol. 2nd install is faster though. 
 7. Play
+
+### MacOS
+
+Installation instructions in the wiki: [MacOS install](https://github.com/FaithBeam/stalker-gamma-launcher-clone/wiki/MacOS-Install)
