@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "stalker-gamma-gui", "stalker-gamma-gui\stalker-gamma-gui.csproj", "{682C9EBD-3E08-4736-86D5-5AF77309B0A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "stalker-gamma.core", "stalker-gamma.core\stalker-gamma.core.csproj", "{1E66FA48-F259-4334-9F91-B962E3C20FE6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "stalker-gamma.core.tests", "stalker-gamma.core.tests\stalker-gamma.core.tests.csproj", "{098074DE-31F4-4FF0-9318-2E9B9AD5D241}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "stalker-gamma.cli", "stalker-gamma.cli\stalker-gamma.cli.csproj", "{01BB0441-EF21-499F-BE5F-D760B0EF881F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{682C9EBD-3E08-4736-86D5-5AF77309B0A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{682C9EBD-3E08-4736-86D5-5AF77309B0A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{682C9EBD-3E08-4736-86D5-5AF77309B0A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{682C9EBD-3E08-4736-86D5-5AF77309B0A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E66FA48-F259-4334-9F91-B962E3C20FE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E66FA48-F259-4334-9F91-B962E3C20FE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E66FA48-F259-4334-9F91-B962E3C20FE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E66FA48-F259-4334-9F91-B962E3C20FE6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{098074DE-31F4-4FF0-9318-2E9B9AD5D241}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{098074DE-31F4-4FF0-9318-2E9B9AD5D241}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{098074DE-31F4-4FF0-9318-2E9B9AD5D241}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{098074DE-31F4-4FF0-9318-2E9B9AD5D241}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01BB0441-EF21-499F-BE5F-D760B0EF881F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01BB0441-EF21-499F-BE5F-D760B0EF881F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01BB0441-EF21-499F-BE5F-D760B0EF881F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01BB0441-EF21-499F-BE5F-D760B0EF881F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
