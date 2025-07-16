@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Linq;
-using System.Runtime.InteropServices;
 using AsyncAwaitBestPractices;
 using CliWrap;
 using ReactiveUI;
