@@ -9,6 +9,7 @@ using stalker_gamma.core.Models;
 using stalker_gamma.core.Services;
 using stalker_gamma.core.Services.DowngradeModOrganizer;
 using stalker_gamma.core.Services.GammaInstaller;
+using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma.core.ViewModels.MainWindow;
 
@@ -35,7 +36,7 @@ public class MainWindowViewModel : ViewModelBase
         _gammaInstaller = gammaInstaller;
         _versionString = "0.2.0 (Based on 6.7.0.0)";
 
-        OpenUrlCmd = ReactiveCommand.Create<string>(OpenUrl);
+        OpenUrlCmd = ReactiveCommand.Create<string>(OpenUrlUtility.OpenUrl);
 
         var canFirstInstallInitialization = this.WhenAnyValue(
             x => x.IsBusy,
@@ -199,34 +200,4 @@ public class MainWindowViewModel : ViewModelBase
     public ReactiveCommand<Unit, Unit> Play { get; }
     public ReactiveCommand<string, Unit> OpenUrlCmd { get; }
     public ReactiveCommand<Unit, Unit> DowngradeModOrganizerCmd { get; }
-
-    // https://stackoverflow.com/a/43232486
-    private static void OpenUrl(string url)
-    {
-        try
-        {
-            Process.Start(url);
-        }
-        catch
-        {
-            // hack because of this: https://github.com/dotnet/corefx/issues/10361
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                url = url.Replace("&", "^&");
-                Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                Process.Start("xdg-open", url);
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                Process.Start("open", url);
-            }
-            else
-            {
-                throw;
-            }
-        }
-    }
 }
