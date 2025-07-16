@@ -32,7 +32,6 @@ public class MainWindowViewModel : ViewModelBase
         DowngradeModOrganizer downgradeModOrganizer
     )
     {
-        Activator = new ViewModelActivator();
         _gammaInstaller = gammaInstaller;
         _versionString = "0.2.0 (Based on 6.7.0.0)";
 
@@ -200,7 +199,6 @@ public class MainWindowViewModel : ViewModelBase
     public ReactiveCommand<Unit, Unit> Play { get; }
     public ReactiveCommand<string, Unit> OpenUrlCmd { get; }
     public ReactiveCommand<Unit, Unit> DowngradeModOrganizerCmd { get; }
-    public ViewModelActivator Activator { get; }
 
     // https://stackoverflow.com/a/43232486
     private static void OpenUrl(string url)
