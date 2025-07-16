@@ -212,7 +212,6 @@ public class GammaInstaller(
             "mods.txt",
             useCurlImpersonate
         );
-        await CheckGammaData("", useCurlImpersonate);
     }
 
     /// <summary>

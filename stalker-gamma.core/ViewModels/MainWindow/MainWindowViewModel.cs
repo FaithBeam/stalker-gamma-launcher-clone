@@ -69,6 +69,7 @@ public class MainWindowViewModel : ViewModelBase
                         globalSettings.UseCurlImpersonate
                     )
                 );
+                await CheckUpdates();
                 IsBusy = false;
             },
             canInstallUpdateGamma
