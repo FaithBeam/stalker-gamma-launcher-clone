@@ -17,7 +17,6 @@ public class MainWindowViewModel : ViewModelBase
     private bool _checkMd5 = true;
     private bool _forceGitDownload = true;
     private bool _forceZipExtraction = true;
-    private readonly ObservableAsPropertyHelper<string> _forceZipExtractionToolTip;
     private bool _updateLargeFiles = true;
     private bool _deleteReshadeDlls = true;
     private readonly ObservableAsPropertyHelper<double?> _progress;
@@ -135,14 +134,6 @@ public class MainWindowViewModel : ViewModelBase
             .WhereNotNull()
             .Subscribe(async x => await AppendLineInteraction.Handle(x));
 
-        _forceZipExtractionToolTip = this.WhenAnyValue(x => x.ForceZipExtraction)
-            .Select(x =>
-                x
-                    ? " ZIPs will be forcefully extracted for each addon (good if you want to fix your install)."
-                    : " ZIPs will be extracted only after updating / downloading an addon (good if you want to update and everything works already)."
-            )
-            .ToProperty(this, x => x.ForceZipExtractionToolTip);
-
         CheckUpdates().SafeFireAndForget();
     }
 
@@ -192,8 +183,6 @@ public class MainWindowViewModel : ViewModelBase
         get => _forceZipExtraction;
         set => this.RaiseAndSetIfChanged(ref _forceZipExtraction, value);
     }
-
-    public string ForceZipExtractionToolTip => _forceZipExtractionToolTip.Value;
 
     public bool UpdateLargeFiles
     {
