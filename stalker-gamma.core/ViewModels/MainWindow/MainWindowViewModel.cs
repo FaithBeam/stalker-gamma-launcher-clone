@@ -36,7 +36,7 @@ public class MainWindowViewModel : ViewModelBase
     {
         Activator = new ViewModelActivator();
         _gammaInstaller = gammaInstaller;
-        _versionString = "0.1.0 (Based on 6.7.0.0)";
+        _versionString = "0.2.0 (Based on 6.7.0.0)";
 
         OpenUrlCmd = ReactiveCommand.Create<string>(OpenUrl);
 
