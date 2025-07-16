@@ -78,40 +78,26 @@ public class MainWindowViewModel : ViewModelBase
             progressService.UpdateProgress($"{x.Message}\n{x.StackTrace}")
         );
 
-        var canPlay = this.WhenAnyValue(
-            x => x.IsBusy,
-            selector: isBusy =>
-                !isBusy
-                && File.Exists(
-                    Path.Join(
-                        Path.GetDirectoryName(AppContext.BaseDirectory),
-                        "..",
-                        "ModOrganizer.exe"
-                    )
-                )
-        );
-        Play = ReactiveCommand.CreateFromTask(
-            async () =>
-            {
-                IsBusy = true;
-                await Cli.Wrap(
-                        Path.Join(
-                            Path.GetDirectoryName(AppContext.BaseDirectory),
-                            "..",
-                            "ModOrganizer.exe"
-                        )
-                    )
-                    .ExecuteAsync();
-                IsBusy = false;
-            },
-            canPlay
-        );
-
         var mo2Path = Path.Join(
             Path.GetDirectoryName(AppContext.BaseDirectory),
             "..",
             "ModOrganizer.exe"
         );
+
+        var canPlay = this.WhenAnyValue(
+            x => x.IsBusy,
+            selector: isBusy => !isBusy && File.Exists(mo2Path)
+        );
+        Play = ReactiveCommand.CreateFromTask(
+            async () =>
+            {
+                IsBusy = true;
+                await Cli.Wrap(mo2Path).ExecuteAsync();
+                IsBusy = false;
+            },
+            canPlay
+        );
+
         var canDowngradeModOrganizer = this.WhenAnyValue(
             x => x.IsBusy,
             selector: isBusy =>
@@ -162,7 +148,7 @@ public class MainWindowViewModel : ViewModelBase
 
     private async Task CheckUpdates()
     {
-        var needUpdates = await _gammaInstaller.CheckGammaData("", true);
+        var needUpdates = await _gammaInstaller.CheckGammaData(true);
         NeedUpdate = needUpdates.NeedUpdate;
         NeedModDbUpdate = needUpdates.NeedModDBUpdate;
     }
