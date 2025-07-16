@@ -17,7 +17,6 @@ public class MainWindowViewModel : ViewModelBase
     private bool _checkMd5 = true;
     private bool _forceGitDownload = true;
     private bool _forceZipExtraction = true;
-    private bool _updateLargeFiles = true;
     private bool _deleteReshadeDlls = true;
     private readonly ObservableAsPropertyHelper<double?> _progress;
     private bool _isBusy;
@@ -182,12 +181,6 @@ public class MainWindowViewModel : ViewModelBase
     {
         get => _forceZipExtraction;
         set => this.RaiseAndSetIfChanged(ref _forceZipExtraction, value);
-    }
-
-    public bool UpdateLargeFiles
-    {
-        get => _updateLargeFiles;
-        set => this.RaiseAndSetIfChanged(ref _updateLargeFiles, value);
     }
 
     public bool DeleteReshadeDlls
