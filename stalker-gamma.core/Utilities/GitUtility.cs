@@ -1,7 +1,6 @@
 using System.Text;
 using CliWrap;
 using stalker_gamma.core.Services;
-using stalker_gamma.core.Services.GammaInstaller.Utilities;
 
 namespace stalker_gamma.core.Utilities;
 
@@ -75,10 +74,9 @@ public class GitUtility(ProgressService progressService)
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            Console.WriteLine(stdOut);
-            Console.WriteLine(stdErr);
-            throw;
+            throw new GitException($"{stdOut}\n{stdErr}\n{e}");
         }
     }
 }
+
+public class GitException(string message) : Exception(message);
