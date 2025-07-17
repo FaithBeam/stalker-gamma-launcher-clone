@@ -88,7 +88,11 @@ public abstract class DownloadableRecord : ModlistRecord
     public string? DlPath { get; set; }
     public string? Dl => DlLink;
 
-    public async Task<bool> ShouldDownloadAsync(string downloadsPath, bool checkMd5)
+    public virtual async Task<bool> ShouldDownloadAsync(
+        string downloadsPath,
+        bool checkMd5,
+        bool forceGitDownload
+    )
     {
         DlPath ??= Path.Join(downloadsPath, Name);
 
@@ -283,6 +287,14 @@ public class Separator : ModlistRecord
 public class GithubRecord : DownloadableRecord
 {
     public override string Name => $"{DlLink!.Split('/')[4]}.zip";
+
+    public override async Task<bool> ShouldDownloadAsync(
+        string downloadsPath,
+        bool checkMd5,
+        bool forceGitDownload
+    ) =>
+        forceGitDownload
+        || await base.ShouldDownloadAsync(downloadsPath, checkMd5, forceGitDownload);
 }
 
 public class GammaLargeFile : DownloadableRecord
@@ -299,7 +311,7 @@ public class ModDbRecord(ModDb modDb) : DownloadableRecord
         DlPath ??= Path.Join(downloadsPath, Name);
         await modDb.GetModDbLinkCurl(DlLink!, DlPath);
 
-        if (await ShouldDownloadAsync(downloadsPath, true))
+        if (await ShouldDownloadAsync(downloadsPath, true, false))
         {
             await modDb.GetModDbLinkCurl(DlLink!, DlPath);
         }
