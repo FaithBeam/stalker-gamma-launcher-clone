@@ -1,4 +1,3 @@
-using System.Net.Http.Json;
 using System.Text.Json;
 using stalker_gamma.core.Services.DowngradeModOrganizer.Models.Github;
 using stalker_gamma.core.Utilities;
@@ -33,15 +32,17 @@ public class DowngradeModOrganizer(ProgressService progressService)
             return;
         }
 
-        progressService.UpdateProgress($"Downloading ModOrganizer");
+        progressService.UpdateProgress("Downloading ModOrganizer");
 
-        await using (var fs = File.Create($"{getReleaseByTag!.Name!}.7z"))
+        var mo2ArchivePath = $"{getReleaseByTag!.Name!}.7z";
+
+        await using (var fs = File.Create(mo2ArchivePath))
         {
             using var response = await hc.GetAsync(dlUrl);
             await response.Content.CopyToAsync(fs);
         }
 
-        progressService.UpdateProgress($"Removing previous ModOrganizer installation");
+        progressService.UpdateProgress("Removing previous ModOrganizer installation");
         var dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
         var mo2Path = Path.Join(dir, "..");
         foreach (var folder in _foldersToDelete)
@@ -73,8 +74,8 @@ public class DowngradeModOrganizer(ProgressService progressService)
             }
         }
 
-        progressService.UpdateProgress($"Extracting {getReleaseByTag.Name!} to {mo2Path}");
-        await ArchiveUtility.ExtractAsync(getReleaseByTag.Name!, mo2Path);
+        progressService.UpdateProgress($"Extracting {mo2ArchivePath} to {mo2Path}");
+        await ArchiveUtility.ExtractAsync(mo2ArchivePath, mo2Path);
         progressService.UpdateProgress("Finished downgrading ModOrganizer");
     }
 
