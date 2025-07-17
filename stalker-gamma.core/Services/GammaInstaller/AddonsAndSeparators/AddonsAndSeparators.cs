@@ -68,8 +68,14 @@ public partial class AddonsAndSeparators(ProgressService progressService, ModDb 
 
                 var downloadableRecord = (DownloadableRecord)file;
                 var extract = false;
-                
-                if (await downloadableRecord.ShouldDownloadAsync(downloadsPath, checkMd5, forceGitDownload))
+
+                if (
+                    await downloadableRecord.ShouldDownloadAsync(
+                        downloadsPath,
+                        checkMd5,
+                        forceGitDownload
+                    )
+                )
                 {
                     progressService.UpdateProgress(
                         $"_______________ {downloadableRecord.AddonName} _______________"
