@@ -13,7 +13,7 @@ public class DowngradeModOrganizer(ProgressService progressService)
         var hc = new HttpClient
         {
             BaseAddress = new Uri("https://api.github.com"),
-            DefaultRequestHeaders = { { "User-Agent", "stalker-gamma-installer/0.1.0" } },
+            DefaultRequestHeaders = { { "User-Agent", "stalker-gamma-installer/0.2.0" } },
         };
         var getReleaseByTagResponse = await hc.GetAsync(
             $"repos/ModOrganizer2/modorganizer/releases/tags/{version}"

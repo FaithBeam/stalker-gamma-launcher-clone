@@ -22,7 +22,6 @@ public class GammaInstaller(
     /// Checks for G.A.M.M.A. updates.
     /// </summary>
     public async Task<(bool NeedUpdate, bool NeedModDBUpdate)> CheckGammaData(
-        string modDbApiKey,
         bool useCurlImpersonate
     )
     {
@@ -48,9 +47,8 @@ public class GammaInstaller(
         if (File.Exists(modsFile))
         {
             var modsHash = await Md5Utility.CalculateFileMd5Async(modsFile);
-            var key = modDbApiKey.Replace(" ", "");
             var modsToCheck = await Curl.GetStringAsync(
-                $"https://stalker-gamma.com/api/list?key={key}",
+                "https://stalker-gamma.com/api/list?key=",
                 useCurlImpersonate: useCurlImpersonate
             );
             var modsToCheckHash = await Md5Utility.CalculateStringMd5(modsToCheck);
@@ -212,7 +210,6 @@ public class GammaInstaller(
             "mods.txt",
             useCurlImpersonate
         );
-        await CheckGammaData("", useCurlImpersonate);
     }
 
     /// <summary>
