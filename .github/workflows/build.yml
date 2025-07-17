@@ -4,9 +4,6 @@ on:
   push:
     paths-ignore:
       - README.md
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
   workflow_dispatch:
 
 jobs:
@@ -60,5 +57,5 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4.3.1
         with:
-          name: "${{ env.APP_NAME }}.${{ steps.gitversion.outputs.semVer }}+${{ matrix.rid }}"
+          name: "${{ env.APP_NAME }}.${{ steps.gitversion.outputs.semVer }}"
           path: bin/
