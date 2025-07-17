@@ -46,14 +46,13 @@ public class GammaInstaller(
         var modsFile = Path.Combine(_dir, "mods.txt");
         if (File.Exists(modsFile))
         {
-            var modsHash = await Md5Utility.CalculateFileMd5Async(modsFile);
+            var modsContent = await File.ReadAllTextAsync(modsFile);
             var modsToCheck = await Curl.GetStringAsync(
                 "https://stalker-gamma.com/api/list?key=",
                 useCurlImpersonate: useCurlImpersonate
             );
-            var modsToCheckHash = await Md5Utility.CalculateStringMd5(modsToCheck);
 
-            needModDbUpdate = modsHash != modsToCheckHash;
+            needModDbUpdate = modsContent.Trim() != modsToCheck.Trim();
         }
         else
         {
