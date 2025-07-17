@@ -35,7 +35,7 @@ public class DowngradeModOrganizer(ProgressService progressService)
 
         progressService.UpdateProgress($"Downloading ModOrganizer");
 
-        await using (var fs = File.Create(getReleaseByTag!.Name!))
+        await using (var fs = File.Create($"{getReleaseByTag!.Name!}.7z"))
         {
             using var response = await hc.GetAsync(dlUrl);
             await response.Content.CopyToAsync(fs);
