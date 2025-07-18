@@ -22,16 +22,19 @@ public class Anomaly(ProgressService progressService)
             """
         );
 
+        var modOrganizerIni = Path.Join(dir, "..", "ModOrganizer.ini");
         progressService.UpdateProgress("\tLocating Anomaly folder from ModOrganizer.ini");
-        var mo2Ini = await File.ReadAllTextAsync(Path.Join(dir, "..", "ModOrganizer.ini"));
-        var anomalyPath = Regex
-            .Match(
-                mo2Ini,
-                @"\r?\ngamePath=@ByteArray\((C:\\?\\anomaly)\)\r?\n",
-                RegexOptions.IgnoreCase
-            )
-            .Groups[1]
-            .Value.Replace(@"\\", "\\");
+        var mo2Ini = await File.ReadAllTextAsync(modOrganizerIni);
+        var anomalyPath =
+            Regex
+                .Match(
+                    mo2Ini,
+                    @"\r?\ngamePath=@ByteArray\((C:\\?\\anomaly)\)\r?\n",
+                    RegexOptions.IgnoreCase
+                )
+                .Groups[1]
+                .Value.Replace(@"\\", "\\")
+            ?? throw new AnomalyException($"Anomaly folder not found in {modOrganizerIni}");
         progressService.UpdateProgress(
             $"\tCopying user profile, reshade files, and patched exes from {Path.Join(modPackPath, modOrganizerListFile)} to {anomalyPath}"
         );
@@ -58,3 +61,5 @@ public class Anomaly(ProgressService progressService)
         }
     }
 }
+
+public class AnomalyException(string message) : Exception(message);

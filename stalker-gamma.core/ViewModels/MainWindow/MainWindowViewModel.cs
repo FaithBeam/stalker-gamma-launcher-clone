@@ -33,7 +33,7 @@ public class MainWindowViewModel : ViewModelBase
     )
     {
         _gammaInstaller = gammaInstaller;
-        _versionString = "0.3.1 (Based on 6.7.0.0)";
+        _versionString = "0.4.0 (Based on 6.7.0.0)";
 
         OpenUrlCmd = ReactiveCommand.Create<string>(OpenUrlUtility.OpenUrl);
 
