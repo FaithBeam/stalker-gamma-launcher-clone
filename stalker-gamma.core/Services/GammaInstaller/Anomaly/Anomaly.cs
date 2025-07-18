@@ -27,11 +27,7 @@ public class Anomaly(ProgressService progressService)
         var mo2Ini = await File.ReadAllTextAsync(modOrganizerIni);
         var anomalyPath =
             Regex
-                .Match(
-                    mo2Ini,
-                    @"\r?\ngamePath=@ByteArray\((C:\\?\\anomaly)\)\r?\n",
-                    RegexOptions.IgnoreCase
-                )
+                .Match(mo2Ini, @"\r?\ngamePath=@ByteArray\((.*)\)\r?\n", RegexOptions.IgnoreCase)
                 .Groups[1]
                 .Value.Replace(@"\\", "\\")
             ?? throw new AnomalyException($"Anomaly folder not found in {modOrganizerIni}");
