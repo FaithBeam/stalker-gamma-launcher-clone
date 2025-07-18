@@ -25,7 +25,11 @@ public class Anomaly(ProgressService progressService)
         progressService.UpdateProgress("\tLocating Anomaly folder from ModOrganizer.ini");
         var mo2Ini = await File.ReadAllTextAsync(Path.Join(dir, "..", "ModOrganizer.ini"));
         var anomalyPath = Regex
-            .Match(mo2Ini, @"\r?\ngamePath=@ByteArray\((C:\\?\\anomaly)\)\r?\n")
+            .Match(
+                mo2Ini,
+                @"\r?\ngamePath=@ByteArray\((C:\\?\\anomaly)\)\r?\n",
+                RegexOptions.IgnoreCase
+            )
             .Groups[1]
             .Value.Replace(@"\\", "\\");
         progressService.UpdateProgress(
