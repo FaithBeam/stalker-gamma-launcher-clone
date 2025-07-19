@@ -81,6 +81,11 @@ public partial class AddonsAndSeparators(ProgressService progressService, ModDb 
                         $"_______________ {downloadableRecord.AddonName} _______________"
                     );
                     await downloadableRecord.DownloadAsync(downloadsPath, useCurlImpersonate);
+                    if (await downloadableRecord.ShouldDownloadAsync(downloadsPath, checkMd5, forceGitDownload))
+                    {
+                        progressService.UpdateProgress($"Md5 mismatch in downloaded file: {downloadableRecord.DlPath}. Downloading again.");
+                        await downloadableRecord.DownloadAsync(downloadsPath, useCurlImpersonate);
+                    }
                     extract = true;
                 }
 
