@@ -118,7 +118,7 @@ public abstract class DownloadableRecord : ModlistRecord
         return true;
     }
 
-    public virtual async Task DownloadAsync(string downloadsPath, bool useCurlImpersonate)
+    public virtual async Task<bool> DownloadAsync(string downloadsPath, bool useCurlImpersonate)
     {
         DlPath ??= Path.Join(downloadsPath, Name);
         if (string.IsNullOrWhiteSpace(Dl))
@@ -131,6 +131,7 @@ public abstract class DownloadableRecord : ModlistRecord
             Path.GetFileName(DlPath),
             useCurlImpersonate
         );
+        return true;
     }
 
     public async Task ExtractAsync(string extractPath)
@@ -306,7 +307,7 @@ public class ModDbRecord(ModDb modDb) : DownloadableRecord
 {
     public override string Name => ZipName!;
 
-    public override async Task DownloadAsync(string downloadsPath, bool useCurlImpersonate)
+    public override async Task<bool> DownloadAsync(string downloadsPath, bool useCurlImpersonate)
     {
         DlPath ??= Path.Join(downloadsPath, Name);
         await modDb.GetModDbLinkCurl(DlLink!, DlPath);
@@ -315,5 +316,7 @@ public class ModDbRecord(ModDb modDb) : DownloadableRecord
         {
             await modDb.GetModDbLinkCurl(DlLink!, DlPath);
         }
+
+        return true;
     }
 }

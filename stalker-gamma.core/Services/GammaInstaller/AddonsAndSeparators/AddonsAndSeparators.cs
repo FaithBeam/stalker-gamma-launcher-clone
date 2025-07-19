@@ -80,9 +80,9 @@ public partial class AddonsAndSeparators(ProgressService progressService, ModDb 
                     progressService.UpdateProgress(
                         $"_______________ {downloadableRecord.AddonName} _______________"
                     );
-                    await downloadableRecord.DownloadAsync(downloadsPath, useCurlImpersonate);
                     if (
-                        await downloadableRecord.ShouldDownloadAsync(
+                        await downloadableRecord.DownloadAsync(downloadsPath, useCurlImpersonate)
+                        && await downloadableRecord.ShouldDownloadAsync(
                             downloadsPath,
                             checkMd5,
                             forceGitDownload
