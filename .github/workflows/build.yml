@@ -59,3 +59,4 @@ jobs:
         with:
           name: "${{ env.APP_NAME }}.${{ steps.gitversion.outputs.semVer }}"
           path: bin/
+          compression-level: '9'
