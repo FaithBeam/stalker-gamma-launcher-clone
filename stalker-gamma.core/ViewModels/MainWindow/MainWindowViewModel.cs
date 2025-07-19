@@ -29,11 +29,12 @@ public class MainWindowViewModel : ViewModelBase
         GammaInstaller gammaInstaller,
         ProgressService progressService,
         GlobalSettings globalSettings,
-        DowngradeModOrganizer downgradeModOrganizer
+        DowngradeModOrganizer downgradeModOrganizer,
+        VersionService versionService
     )
     {
         _gammaInstaller = gammaInstaller;
-        _versionString = "0.4.1 (Based on 6.7.0.0)";
+        _versionString = $"{versionService.GetVersion()} (Based on 6.7.0.0)";
 
         OpenUrlCmd = ReactiveCommand.Create<string>(OpenUrlUtility.OpenUrl);
 
