@@ -17,6 +17,13 @@ public static class CreateShortcutWindows
         using var shortcut = new WindowsShortcut();
         shortcut.Path = exePath;
         shortcut.IconLocation = iconPath;
+        shortcut.WorkingDirectory =
+            Directory.GetParent(exePath)?.FullName
+            ?? throw new CreateShortcutException(
+                $"Unable to get parent directory of path: {exePath} for working directory shortcut."
+            );
         shortcut.Save(savePath);
     }
 }
+
+public class CreateShortcutException(string message) : Exception(message);

@@ -4,7 +4,7 @@ using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma.core.Services.DowngradeModOrganizer;
 
-public class DowngradeModOrganizer(ProgressService progressService)
+public class DowngradeModOrganizer(ProgressService progressService, VersionService versionService)
 {
     public async Task DowngradeAsync(string version = "v2.4.4")
     {
@@ -12,7 +12,10 @@ public class DowngradeModOrganizer(ProgressService progressService)
         var hc = new HttpClient
         {
             BaseAddress = new Uri("https://api.github.com"),
-            DefaultRequestHeaders = { { "User-Agent", "stalker-gamma-installer/0.3.1" } },
+            DefaultRequestHeaders =
+            {
+                { "User-Agent", $"stalker-gamma-installer/{versionService.GetVersion()}" },
+            },
         };
         var getReleaseByTagResponse = await hc.GetAsync(
             $"repos/ModOrganizer2/modorganizer/releases/tags/{version}"
