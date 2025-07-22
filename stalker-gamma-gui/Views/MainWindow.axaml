@@ -11,7 +11,7 @@
         x:Class="stalker_gamma_gui.Views.MainWindow"
         x:DataType="mainWindow:MainWindowViewModel"
         Icon="/Assets/gamma-icon.png"
-        Title="STALKER GAMMA Launcher">
+        Title="STALKER GAMMA Launcher Clone">
 
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
