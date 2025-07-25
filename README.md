@@ -23,3 +23,4 @@ Installation instructions in the wiki: [Linux install](https://github.com/FaithB
 ### MacOS
 
 Installation instructions in the wiki: [MacOS install](https://github.com/FaithBeam/stalker-gamma-launcher-clone/wiki/MacOS-Install)
+

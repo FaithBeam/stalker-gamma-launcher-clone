@@ -10,9 +10,9 @@ using stalker_gamma.core.Services.DowngradeModOrganizer;
 using stalker_gamma.core.Services.GammaInstaller;
 using stalker_gamma.core.Utilities;
 
-namespace stalker_gamma.core.ViewModels.MainWindow;
+namespace stalker_gamma.core.ViewModels.Tabs;
 
-public class MainWindowViewModel : ViewModelBase
+public class MainTabVm : ViewModelBase
 {
     private bool _checkMd5 = true;
     private bool _forceGitDownload = true;
@@ -25,7 +25,7 @@ public class MainWindowViewModel : ViewModelBase
     private readonly GammaInstaller _gammaInstaller;
     private string _versionString;
 
-    public MainWindowViewModel(
+    public MainTabVm(
         GammaInstaller gammaInstaller,
         ProgressService progressService,
         GlobalSettings globalSettings,
