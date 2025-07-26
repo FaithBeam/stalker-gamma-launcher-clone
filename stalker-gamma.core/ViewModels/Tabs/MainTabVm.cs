@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Reactive;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using AsyncAwaitBestPractices;
 using CliWrap;
@@ -33,6 +34,7 @@ public class MainTabVm : ViewModelBase
         VersionService versionService
     )
     {
+        // Activator = new ViewModelActivator();
         _gammaInstaller = gammaInstaller;
         _versionString = $"{versionService.GetVersion()} (Based on 6.7.0.0)";
 
@@ -127,11 +129,16 @@ public class MainTabVm : ViewModelBase
             .Select(x => x.Progress)
             .WhereNotNull()
             .ToProperty(this, x => x.Progress);
-        progressService
+        var progressServiceDisposable = progressService
             .ProgressObservable.ObserveOn(RxApp.MainThreadScheduler)
             .Select(x => x.Message)
             .WhereNotNull()
             .Subscribe(async x => await AppendLineInteraction.Handle(x));
+        // this.WhenActivated(d =>
+        // {
+        //
+        //     progressServiceDisposable.DisposeWith(d);
+        // });
 
         CheckUpdates().SafeFireAndForget();
     }
@@ -200,4 +207,5 @@ public class MainTabVm : ViewModelBase
     public ReactiveCommand<Unit, Unit> Play { get; }
     public ReactiveCommand<string, Unit> OpenUrlCmd { get; }
     public ReactiveCommand<Unit, Unit> DowngradeModOrganizerCmd { get; }
+    // public ViewModelActivator Activator { get; }
 }

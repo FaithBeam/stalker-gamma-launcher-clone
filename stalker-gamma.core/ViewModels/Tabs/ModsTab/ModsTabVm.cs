@@ -1,34 +1,44 @@
 ﻿using System.Collections.ObjectModel;
 using System.Reactive;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using DynamicData;
 using ReactiveUI;
+using stalker_gamma.core.Services;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
 using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma.core.ViewModels.Tabs.ModsTab;
 
-public class ModsTabVm : ViewModelBase
+public class ModsTabVm : ViewModelBase, IActivatableViewModel
 {
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
     private readonly ReadOnlyObservableCollection<UpdateableModVm> _updateableMods;
 
-    public ModsTabVm(ModDb modDb)
+    public ModsTabVm(ModDb modDb, ProgressService progressService)
     {
+        Activator = new ViewModelActivator();
         var modDb1 = modDb;
         var modListFile = Path.Join(_dir, "mods.txt");
 
         SourceCache<UpdateableModVm, string> modsSourceCache = new(x => x.AddonName);
         var obs = modsSourceCache.Connect().Bind(out _updateableMods).Subscribe();
 
-        LocalModListRecords = File.ReadAllLines(modListFile)
-            .Select(x => ParseModListRecord.ParseLine(x, modDb))
-            .Where(x => x is DownloadableRecord)
-            .Cast<DownloadableRecord>()
-            .ToList();
-
         GetOnlineModsCmd = ReactiveCommand.CreateFromTask(async () =>
         {
+            if (!File.Exists(modListFile))
+            {
+                progressService.UpdateProgress($"Mods list file not found: {modListFile}");
+                return;
+            }
+
+            var localModListRecords = File.ReadAllLines(modListFile)
+                .Select(x => ParseModListRecord.ParseLine(x, modDb))
+                .Where(x => x is DownloadableRecord)
+                .Cast<DownloadableRecord>()
+                .ToList();
+
             var updatedRecords = (
                 await Curl.GetStringAsync("https://stalker-gamma.com/api/list?key=")
             )
@@ -36,10 +46,10 @@ public class ModsTabVm : ViewModelBase
                 .Select(x => ParseModListRecord.ParseLine(x, modDb1))
                 .Where(x => x is DownloadableRecord)
                 .Cast<DownloadableRecord>()
-                .Where(onlineRec => ShouldUpdateModFilter(LocalModListRecords, onlineRec))
+                .Where(onlineRec => ShouldUpdateModFilter(localModListRecords, onlineRec))
                 .Select(onlineRec => new UpdateableModVm(
                     onlineRec.AddonName!,
-                    GetLocalDlRecordFromFilter(LocalModListRecords, onlineRec)?.Md5ModDb,
+                    GetLocalDlRecordFromFilter(localModListRecords, onlineRec)?.Md5ModDb,
                     onlineRec.Md5ModDb!,
                     onlineRec.ModDbUrl!,
                     onlineRec.ZipName!
@@ -50,8 +60,16 @@ public class ModsTabVm : ViewModelBase
                 inner.AddOrUpdate(updatedRecords);
             });
         });
+        GetOnlineModsCmd.ThrownExceptions.Subscribe(ex =>
+            progressService.UpdateProgress(ex.ToString())
+        );
 
-        GetOnlineModsCmd.Execute().Subscribe();
+        this.WhenActivated(
+            (CompositeDisposable d) =>
+            {
+                GetOnlineModsCmd.Execute().Subscribe();
+            }
+        );
     }
 
     private static readonly Func<
@@ -71,9 +89,9 @@ public class ModsTabVm : ViewModelBase
         localModListRecords.Any(localRec =>
             localRec.AddonName! == onlineRec.AddonName! && localRec.Md5ModDb != onlineRec.Md5ModDb
         ) || localModListRecords.All(localRec => localRec.AddonName! != onlineRec.AddonName!);
-    public List<DownloadableRecord> LocalModListRecords { get; set; }
 
     public ReactiveCommand<Unit, Unit> GetOnlineModsCmd { get; }
 
     public ReadOnlyObservableCollection<UpdateableModVm> UpdateableMods => _updateableMods;
+    public ViewModelActivator Activator { get; }
 }
