@@ -2,7 +2,15 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:stalker_gamma.core.ViewModels.Tabs;assembly=stalker-gamma.core"
+             xmlns:modsTab="clr-namespace:stalker_gamma.core.ViewModels.Tabs.ModsTab;assembly=stalker-gamma.core"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="stalker_gamma_gui.Controls.Tabs.ModsTab">
-    <DataGrid></DataGrid>
+             x:Class="stalker_gamma_gui.Controls.Tabs.ModsTab"
+             x:DataType="modsTab:ModsTabVm">
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <modsTab:ModsTabVm />
+    </Design.DataContext>
+    <DataGrid ItemsSource="{Binding UpdateableMods}" AutoGenerateColumns="True"></DataGrid>
 </UserControl>

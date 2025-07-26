@@ -1,4 +1,5 @@
 ﻿using stalker_gamma.core.ViewModels.Tabs;
+using stalker_gamma.core.ViewModels.Tabs.ModsTab;
 
 namespace stalker_gamma.core.ViewModels.MainWindow;
 

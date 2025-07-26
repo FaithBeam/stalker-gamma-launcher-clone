@@ -24,7 +24,7 @@
             <TabItem x:Name="MainTabItem" Header="Main">
                 <tabs:MainTab DataContext="{Binding MainTabVm}" />
             </TabItem>
-            <TabItem x:Name="ModsTabItem" Header="Mods">
+            <TabItem x:Name="ModsTabItem" Header="Updates">
                 <tabs:ModsTab DataContext="{Binding ModsTabVm}" />
             </TabItem>
         </TabControl>

@@ -12,6 +12,8 @@ namespace stalker_gamma_gui.Controls.Tabs;
 
 public partial class MainTab : ReactiveUserControl<MainTabVm>
 {
+    private bool _loaded = false;
+
     public MainTab()
     {
         InitializeComponent();
@@ -21,6 +23,13 @@ public partial class MainTab : ReactiveUserControl<MainTabVm>
             {
                 return;
             }
+
+            if (_loaded)
+            {
+                return;
+            }
+
+            _loaded = true;
 
             d(ViewModel.AppendLineInteraction.RegisterHandler(AppendLineHandler));
             ConsoleOutput.AppendText(
