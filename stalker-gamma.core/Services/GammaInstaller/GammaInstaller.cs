@@ -114,7 +114,8 @@ public class GammaInstaller(
         bool updateLargeFiles,
         bool forceZipExtraction,
         bool deleteReshadeDlls,
-        bool useCurlImpersonate
+        bool useCurlImpersonate,
+        bool preserveUserLtx
     )
     {
         if (Directory.Exists(Path.Join(_dir, ".modpack_installer.log")))
@@ -189,7 +190,13 @@ public class GammaInstaller(
         );
 
         // Patch anomaly
-        await anomaly.Patch(_dir, modPackPath, modOrganizerListFile, deleteReshadeDlls);
+        await anomaly.Patch(
+            _dir,
+            modPackPath,
+            modOrganizerListFile,
+            deleteReshadeDlls,
+            preserveUserLtx
+        );
 
         // create shortcut
         shortcut.Create(_dir, modPackPath);

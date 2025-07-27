@@ -2,7 +2,12 @@ namespace stalker_gamma.core.Services.GammaInstaller.Utilities;
 
 public static class DirUtils
 {
-    public static void CopyDirectory(string sourceDir, string destDir, bool overwrite = true)
+    public static void CopyDirectory(
+        string sourceDir,
+        string destDir,
+        bool overwrite = true,
+        string? fileFilter = null
+    )
     {
         if (sourceDir.Contains(".git"))
         {
@@ -14,6 +19,11 @@ public static class DirUtils
 
         foreach (var file in sourceDirInfo.GetFiles())
         {
+            if (!string.IsNullOrWhiteSpace(fileFilter) && file.Name == fileFilter)
+            {
+                continue;
+            }
+
             if (File.Exists(Path.Combine(destDir, file.Name)))
             {
                 if (overwrite)
@@ -32,7 +42,12 @@ public static class DirUtils
             // only copy directories if they're not empty
             if (subDir.EnumerateFiles("*.*", SearchOption.AllDirectories).Any())
             {
-                CopyDirectory(subDir.FullName, Path.Combine(destDir, subDir.Name), overwrite);
+                CopyDirectory(
+                    subDir.FullName,
+                    Path.Combine(destDir, subDir.Name),
+                    overwrite,
+                    fileFilter: fileFilter
+                );
             }
         }
     }

@@ -7,26 +7,26 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="stalker_gamma_gui.Controls.Tabs.MainTab"
              x:DataType="vm:MainTabVm">
-    
+
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
         <vm:MainTabVm />
     </Design.DataContext>
-    
+
     <UserControl.Styles>
         <Styles>
             <Style Selector="Label.CanUpdate">
-                <Setter Property="Foreground" Value="#ff8c00"/>
+                <Setter Property="Foreground" Value="#ff8c00" />
             </Style>
             <Style Selector="Label.NoUpdate">
-                <Setter Property="Foreground" Value="#85fb98"/>
+                <Setter Property="Foreground" Value="#85fb98" />
             </Style>
         </Styles>
     </UserControl.Styles>
-    
+
     <Grid ColumnDefinitions="150,*" Margin="5">
-        <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto,*,Auto,Auto,Auto,Auto,*,*,*,*,*,*,*">
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto,*,Auto,Auto,Auto,Auto,Auto,*,*,*,*,*,*,*">
             <Image Source="/Assets/stalker-gamma-gamma_logo.png" Width="150" />
             <Label Grid.Row="1" Content="{Binding VersionString}" FontSize="10" Foreground="#696969"
                    HorizontalAlignment="Center" />
@@ -34,7 +34,8 @@
             <Button Grid.Row="3" Content="Downgrade ModOrganizer" HorizontalAlignment="Stretch"
                     Background="#242424"
                     Foreground="#85fb98"
-                    BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center" FontSize="10" Command="{Binding DowngradeModOrganizerCmd}">
+                    BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center" FontSize="10"
+                    Command="{Binding DowngradeModOrganizerCmd}">
                 <ToolTip.Tip>
                     Downgrade ModOrganizer to 2.4.4. Required for Linux and MacOs users.
                 </ToolTip.Tip>
@@ -79,25 +80,29 @@
                         Text="If enabled, the installer will always install all addons. Use it if GAMMA is crashing on launch or if you have addons with red crosses." />
                 </ToolTip.Tip>
             </CheckBox>
-            <!-- <CheckBox Grid.Row="8" IsEnabled="{Binding !IsBusy}" Foreground="#ff8c00" -->
-            <!--           IsChecked="{Binding UpdateLargeFiles}" FontSize="10"> -->
-            <!--     Update large files -->
-            <!-- </CheckBox> -->
             <CheckBox Grid.Row="10" IsEnabled="{Binding !IsBusyService.IsBusy}" Foreground="#ff8c00"
                       IsChecked="{Binding DeleteReshadeDlls}" FontSize="10">
                 Delete reshade dlls
             </CheckBox>
-            <Separator Grid.Row="11" />
-            <Button Grid.Row="12" IsEnabled="{Binding !IsBusyService.IsBusy}" Background="#242424" Foreground="#00ff00"
+            <CheckBox Grid.Row="11" IsEnabled="{Binding !IsBusyService.IsBusy}" FontSize="10" Foreground="#ff8c00"
+                      IsChecked="{Binding PreserveUserLtx}">
+                Preserve user.ltx
+                <ToolTip.Tip>
+                    If enabled, the installer will not overwrite your user.ltx, preserving your settings.
+                </ToolTip.Tip>
+            </CheckBox>
+            <Separator Grid.Row="12" />
+            <Button Grid.Row="13" IsEnabled="{Binding !IsBusyService.IsBusy}" Background="#242424" Foreground="#00ff00"
                     BorderBrush="#00ff00" BorderThickness="1" HorizontalContentAlignment="Center"
                     HorizontalAlignment="Stretch" Command="{Binding Play}" Height="60"
                     VerticalContentAlignment="Center">
                 Play
             </Button>
-            <Button Grid.Row="13" Background="#242424" Foreground="#00ff00"
+            <Button Grid.Row="14" Background="#242424" Foreground="#00ff00"
                     BorderBrush="#00ff00" BorderThickness="1" HorizontalContentAlignment="Center"
                     HorizontalAlignment="Stretch" Command="{Binding OpenUrlCmd}"
-                    CommandParameter="https://paypal.me/GrokitachGAMMA" Height="50" FontSize="12" VerticalContentAlignment="Center">
+                    CommandParameter="https://paypal.me/GrokitachGAMMA" Height="50" FontSize="12"
+                    VerticalContentAlignment="Center">
                 <TextBlock>
                     Support GAMMA:<LineBreak />
                     Donate
@@ -107,8 +112,8 @@
                         Text="The money goes to Grok directly. A portion of the donations goes to add-ons makers every month." />
                 </ToolTip.Tip>
             </Button>
-            <Separator Grid.Row="14" />
-            <Button Grid.Row="15" Background="#242424"
+            <Separator Grid.Row="15" />
+            <Button Grid.Row="16" Background="#242424"
                     Foreground="#85fb98"
                     BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center"
                     HorizontalAlignment="Stretch" FontSize="10" Command="{Binding OpenUrlCmd}"
@@ -118,7 +123,7 @@
                     and on the advertisements
                 </TextBlock>
             </Button>
-            <Button Grid.Row="16" Background="#242424"
+            <Button Grid.Row="17" Background="#242424"
                     Foreground="#85fb98"
                     BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center"
                     HorizontalAlignment="Stretch" FontSize="10" Command="{Binding OpenUrlCmd}"
@@ -129,11 +134,12 @@
                     to this project
                 </TextBlock>
             </Button>
-            <Button Grid.Row="17" Background="#242424"
+            <Button Grid.Row="18" Background="#242424"
                     Foreground="#85fb98"
                     BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center"
                     HorizontalAlignment="Stretch" FontSize="10" Command="{Binding OpenUrlCmd}"
-                    CommandParameter="https://store.steampowered.com/franchise/stalker" VerticalContentAlignment="Center">
+                    CommandParameter="https://store.steampowered.com/franchise/stalker"
+                    VerticalContentAlignment="Center">
                 <TextBlock>
                     Support GSC Game World:<LineBreak />
                     buy the original STALKER<LineBreak />
@@ -152,9 +158,12 @@
                 </Grid>
                 <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto,*">
                     <Label Content="G.A.M.M.A. addons update available: " FontSize="10" />
-                    <Label Grid.Column="1" Classes.CanUpdate="{Binding NeedUpdate}" Classes.NoUpdate="{Binding !NeedUpdate}" Content="{Binding NeedUpdate}" FontSize="10" />
+                    <Label Grid.Column="1" Classes.CanUpdate="{Binding NeedUpdate}"
+                           Classes.NoUpdate="{Binding !NeedUpdate}" Content="{Binding NeedUpdate}" FontSize="10" />
                     <Label Grid.Column="2" Content="ModDB addons update available:" FontSize="10" />
-                    <Label Grid.Column="3" Classes.CanUpdate="{Binding NeedModDbUpdate}" Classes.NoUpdate="{Binding !NeedModDbUpdate}" Content="{Binding NeedModDbUpdate}" FontSize="10" />
+                    <Label Grid.Column="3" Classes.CanUpdate="{Binding NeedModDbUpdate}"
+                           Classes.NoUpdate="{Binding !NeedModDbUpdate}" Content="{Binding NeedModDbUpdate}"
+                           FontSize="10" />
                 </Grid>
                 <avaloniaEdit:TextEditor Grid.Row="2" x:Name="ConsoleOutput"
                                          IsReadOnly="True" HorizontalScrollBarVisibility="Disabled"

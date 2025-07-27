@@ -18,6 +18,7 @@ public class MainTabVm : ViewModelBase
     private bool _forceGitDownload = true;
     private bool _forceZipExtraction = true;
     private bool _deleteReshadeDlls = true;
+    private bool _preserveUserLtx;
     private readonly ObservableAsPropertyHelper<double?> _progress;
     private bool _needUpdate;
     private bool _needModDbUpdate;
@@ -61,6 +62,7 @@ public class MainTabVm : ViewModelBase
             async () =>
             {
                 IsBusyService.IsBusy = true;
+                progressService.UpdateProgress($"Preserve User LTX: {PreserveUserLtx}");
                 await Task.Run(() =>
                     gammaInstaller.InstallUpdateGammaAsync(
                         ForceGitDownload,
@@ -68,7 +70,8 @@ public class MainTabVm : ViewModelBase
                         true,
                         ForceZipExtraction,
                         DeleteReshadeDlls,
-                        globalSettings.UseCurlImpersonate
+                        globalSettings.UseCurlImpersonate,
+                        PreserveUserLtx
                     )
                 );
                 await CheckUpdates();
@@ -169,6 +172,12 @@ public class MainTabVm : ViewModelBase
     {
         get => _checkMd5;
         set => this.RaiseAndSetIfChanged(ref _checkMd5, value);
+    }
+
+    public bool PreserveUserLtx
+    {
+        get => _preserveUserLtx;
+        set => this.RaiseAndSetIfChanged(ref _preserveUserLtx, value);
     }
 
     public bool ForceGitDownload
