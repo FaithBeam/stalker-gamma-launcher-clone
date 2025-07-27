@@ -15,7 +15,7 @@ A clone of Grokitach's Stalker GAMMA Launcher with WINE compatibility.
 4. First install initialization
 5. Install / Update GAMMA (x2)
     - A working install takes two full installs. Idk why lol. 2nd install is faster though. 
-7. Play
+6. Play
 
 ### Linux
 
@@ -25,3 +25,23 @@ Installation instructions in the wiki: [Linux install](https://github.com/FaithB
 
 Installation instructions in the wiki: [MacOS install](https://github.com/FaithBeam/stalker-gamma-launcher-clone/wiki/MacOS-Install)
 
+## Publishing an Exe
+
+### Requirements
+
+- [.NET SDK 9](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
+
+### Command
+
+`dotnet publish stalker-gamma-gui/stalker-gamma-gui.csproj -c Release -r win-x64 -o bin`
+
+stalker-gamma-gui.exe is in the bin folder.
+
+## Development
+
+Development is only supported on Windows for now.
+
+### Requirements
+
+- [.NET SDK 9](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
+- Gamma RC3 extracted to the `stalker-gamma-gui/bin/Debug/net9.0` folder
