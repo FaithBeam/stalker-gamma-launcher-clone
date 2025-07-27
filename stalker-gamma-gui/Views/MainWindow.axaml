@@ -20,11 +20,11 @@
     </Design.DataContext>
     
     <Grid>
-        <TabControl>
-            <TabItem x:Name="MainTabItem" Header="Main" IsEnabled="{Binding !IsBusyService.IsBusy}">
+        <TabControl Padding="0" >
+            <TabItem x:Name="MainTabItem" FontSize="16" Header="Main" IsEnabled="{Binding !IsBusyService.IsBusy}">
                 <tabs:MainTab DataContext="{Binding MainTabVm}" />
             </TabItem>
-            <TabItem x:Name="ModsTabItem" Header="Updates" IsEnabled="{Binding !IsBusyService.IsBusy}">
+            <TabItem x:Name="ModsTabItem" FontSize="16" Header="ModDB Updates" IsEnabled="{Binding !IsBusyService.IsBusy}">
                 <tabs:ModsTab DataContext="{Binding ModsTabVm}" />
             </TabItem>
         </TabControl>

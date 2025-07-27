@@ -12,14 +12,22 @@
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
         <modsTab:ModsTabVm />
     </Design.DataContext>
-    <DataGrid ItemsSource="{Binding UpdateableMods}" IsReadOnly="True" CanUserReorderColumns="True"
-              CanUserResizeColumns="True" CanUserSortColumns="True" GridLinesVisibility="All" >
-        <DataGrid.Columns>
-            <DataGridTextColumn Header="Addon Name" Binding="{Binding AddonName}" />
-            <DataGridTextColumn Header="Archive" Binding="{Binding ArchiveName}" />
-            <DataGridTextColumn Header="Url" Binding="{Binding Url}" />
-            <DataGridTextColumn Header="Local Hash" Binding="{Binding LocalMd5}" />
-            <DataGridTextColumn Header="New Hash" Binding="{Binding RemoteMd5}" />
-        </DataGrid.Columns>
-    </DataGrid>
+    <Grid RowDefinitions="Auto,*">
+        <Label>
+            <TextBlock>
+                This only compares the content of mods.txt against the Stalker GAMMA api.<LineBreak />
+                This does not determine if your downloaded and extracted mods match mods.txt.
+            </TextBlock>
+        </Label>
+        <DataGrid Grid.Row="1" ItemsSource="{Binding UpdateableMods}" IsReadOnly="True" CanUserReorderColumns="True"
+                  CanUserResizeColumns="True" CanUserSortColumns="True" GridLinesVisibility="All">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Addon Name" Binding="{Binding AddonName}" />
+                <DataGridTextColumn Header="Archive" Binding="{Binding ArchiveName}" />
+                <DataGridTextColumn Header="Url" Binding="{Binding Url}" />
+                <DataGridTextColumn Header="Local Hash" Binding="{Binding LocalMd5}" />
+                <DataGridTextColumn Header="New Hash" Binding="{Binding RemoteMd5}" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
 </UserControl>
