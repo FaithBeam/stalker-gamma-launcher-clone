@@ -9,7 +9,8 @@ public class Anomaly(ProgressService progressService)
         string dir,
         string modPackPath,
         string modOrganizerListFile,
-        bool deleteReshadeDlls
+        bool deleteReshadeDlls,
+        bool preserveUserLtx
     )
     {
         progressService.UpdateProgress(
@@ -34,7 +35,11 @@ public class Anomaly(ProgressService progressService)
         progressService.UpdateProgress(
             $"\tCopying user profile, reshade files, and patched exes from {Path.Join(modPackPath, modOrganizerListFile)} to {anomalyPath}"
         );
-        DirUtils.CopyDirectory(Path.Join(modPackPath, "modpack_patches"), anomalyPath);
+        DirUtils.CopyDirectory(
+            Path.Join(modPackPath, "modpack_patches"),
+            anomalyPath,
+            fileFilter: preserveUserLtx ? "user.ltx" : null
+        );
 
         if (deleteReshadeDlls)
         {
