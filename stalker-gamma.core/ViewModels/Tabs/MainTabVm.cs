@@ -10,53 +10,57 @@ using stalker_gamma.core.Services.DowngradeModOrganizer;
 using stalker_gamma.core.Services.GammaInstaller;
 using stalker_gamma.core.Utilities;
 
-namespace stalker_gamma.core.ViewModels.MainWindow;
+namespace stalker_gamma.core.ViewModels.Tabs;
 
-public class MainWindowViewModel : ViewModelBase
+public class MainTabVm : ViewModelBase
 {
     private bool _checkMd5 = true;
     private bool _forceGitDownload = true;
     private bool _forceZipExtraction = true;
     private bool _deleteReshadeDlls = true;
     private readonly ObservableAsPropertyHelper<double?> _progress;
-    private bool _isBusy;
     private bool _needUpdate;
     private bool _needModDbUpdate;
     private readonly GammaInstaller _gammaInstaller;
     private string _versionString;
 
-    public MainWindowViewModel(
+    public MainTabVm(
         GammaInstaller gammaInstaller,
         ProgressService progressService,
         GlobalSettings globalSettings,
         DowngradeModOrganizer downgradeModOrganizer,
-        VersionService versionService
+        VersionService versionService,
+        IsBusyService isBusyService
     )
     {
+        IsBusyService = isBusyService;
         _gammaInstaller = gammaInstaller;
         _versionString = $"{versionService.GetVersion()} (Based on 6.7.0.0)";
 
         OpenUrlCmd = ReactiveCommand.Create<string>(OpenUrlUtility.OpenUrl);
 
         var canFirstInstallInitialization = this.WhenAnyValue(
-            x => x.IsBusy,
+            x => x.IsBusyService.IsBusy,
             selector: isBusy => !isBusy
         );
         FirstInstallInitialization = ReactiveCommand.CreateFromTask(
             async () =>
             {
-                IsBusy = true;
+                IsBusyService.IsBusy = true;
                 await gammaInstaller.FirstInstallInitialization();
-                IsBusy = false;
+                IsBusyService.IsBusy = false;
             },
             canFirstInstallInitialization
         );
 
-        var canInstallUpdateGamma = this.WhenAnyValue(x => x.IsBusy, selector: isBusy => !isBusy);
+        var canInstallUpdateGamma = this.WhenAnyValue(
+            x => x.IsBusyService.IsBusy,
+            selector: isBusy => !isBusy
+        );
         InstallUpdateGamma = ReactiveCommand.CreateFromTask(
             async () =>
             {
-                IsBusy = true;
+                IsBusyService.IsBusy = true;
                 await Task.Run(() =>
                     gammaInstaller.InstallUpdateGammaAsync(
                         ForceGitDownload,
@@ -68,7 +72,7 @@ public class MainWindowViewModel : ViewModelBase
                     )
                 );
                 await CheckUpdates();
-                IsBusy = false;
+                IsBusyService.IsBusy = false;
             },
             canInstallUpdateGamma
         );
@@ -83,21 +87,21 @@ public class MainWindowViewModel : ViewModelBase
         );
 
         var canPlay = this.WhenAnyValue(
-            x => x.IsBusy,
+            x => x.IsBusyService.IsBusy,
             selector: isBusy => !isBusy && File.Exists(mo2Path)
         );
         Play = ReactiveCommand.CreateFromTask(
             async () =>
             {
-                IsBusy = true;
+                IsBusyService.IsBusy = true;
                 await Cli.Wrap(mo2Path).ExecuteAsync();
-                IsBusy = false;
+                IsBusyService.IsBusy = false;
             },
             canPlay
         );
 
         var canDowngradeModOrganizer = this.WhenAnyValue(
-            x => x.IsBusy,
+            x => x.IsBusyService.IsBusy,
             selector: isBusy =>
                 !isBusy
                 && (
@@ -110,9 +114,9 @@ public class MainWindowViewModel : ViewModelBase
         DowngradeModOrganizerCmd = ReactiveCommand.CreateFromTask(
             async () =>
             {
-                IsBusy = true;
+                IsBusyService.IsBusy = true;
                 await Task.Run(() => downgradeModOrganizer.DowngradeAsync());
-                IsBusy = false;
+                IsBusyService.IsBusy = false;
             },
             canDowngradeModOrganizer
         );
@@ -127,7 +131,7 @@ public class MainWindowViewModel : ViewModelBase
             .Select(x => x.Progress)
             .WhereNotNull()
             .ToProperty(this, x => x.Progress);
-        progressService
+        var progressServiceDisposable = progressService
             .ProgressObservable.ObserveOn(RxApp.MainThreadScheduler)
             .Select(x => x.Message)
             .WhereNotNull()
@@ -155,11 +159,7 @@ public class MainWindowViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _needModDbUpdate, value);
     }
 
-    public bool IsBusy
-    {
-        get => _isBusy;
-        private set => this.RaiseAndSetIfChanged(ref _isBusy, value);
-    }
+    public IsBusyService IsBusyService { get; }
 
     public Interaction<string, Unit> AppendLineInteraction { get; }
 
@@ -200,4 +200,5 @@ public class MainWindowViewModel : ViewModelBase
     public ReactiveCommand<Unit, Unit> Play { get; }
     public ReactiveCommand<string, Unit> OpenUrlCmd { get; }
     public ReactiveCommand<Unit, Unit> DowngradeModOrganizerCmd { get; }
+    // public ViewModelActivator Activator { get; }
 }

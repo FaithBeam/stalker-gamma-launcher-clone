@@ -23,6 +23,8 @@ using stalker_gamma.core.Services.GammaInstaller.Shortcut;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
 using stalker_gamma.core.Utilities;
 using stalker_gamma.core.ViewModels.MainWindow;
+using stalker_gamma.core.ViewModels.Tabs;
+using stalker_gamma.core.ViewModels.Tabs.ModsTab;
 
 namespace stalker_gamma_gui;
 
@@ -55,9 +57,9 @@ public partial class App : Application
                     }
                 );
 
-                s.AddSingleton<Logging>();
                 s.AddSingleton<ProgressService>();
                 s.AddSingleton<VersionService>();
+                s.AddSingleton<IsBusyService>();
                 s.AddScoped<DowngradeModOrganizer>();
                 s.AddScoped<GitUtility>();
                 s.AddScoped<ModDb>();
@@ -68,7 +70,9 @@ public partial class App : Application
                 s.AddScoped<Shortcut>();
                 s.AddScoped<GammaInstaller>();
 
-                s.AddScoped<MainWindowViewModel>();
+                s.AddScoped<MainTabVm>();
+                s.AddScoped<ModsTabVm>();
+                s.AddScoped<MainWindowVm>();
 
                 var resolver = Locator.CurrentMutable;
                 resolver.InitializeSplat();
@@ -87,7 +91,7 @@ public partial class App : Application
         {
             desktop.MainWindow = new MainWindow
             {
-                DataContext = _container.GetRequiredService<MainWindowViewModel>(),
+                DataContext = _container.GetRequiredService<MainWindowVm>(),
             };
         }
 
