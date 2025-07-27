@@ -59,6 +59,7 @@ public partial class App : Application
 
                 s.AddSingleton<ProgressService>();
                 s.AddSingleton<VersionService>();
+                s.AddSingleton<IsBusyService>();
                 s.AddScoped<DowngradeModOrganizer>();
                 s.AddScoped<GitUtility>();
                 s.AddScoped<ModDb>();

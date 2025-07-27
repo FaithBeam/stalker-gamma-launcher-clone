@@ -54,7 +54,7 @@
                     GAMMA
                 </TextBlock>
             </Button>
-            <CheckBox Grid.Row="7" IsEnabled="{Binding !IsBusy}" Foreground="#ff8c00"
+            <CheckBox Grid.Row="7" IsEnabled="{Binding !IsBusyService.IsBusy}" Foreground="#ff8c00"
                       IsChecked="{Binding CheckMd5}" FontSize="10">
                 Check MD5
                 <ToolTip.Tip>
@@ -63,7 +63,7 @@
                     </TextBlock>
                 </ToolTip.Tip>
             </CheckBox>
-            <CheckBox Grid.Row="8" IsEnabled="{Binding !IsBusy}" Foreground="#ff8c00"
+            <CheckBox Grid.Row="8" IsEnabled="{Binding !IsBusyService.IsBusy}" Foreground="#ff8c00"
                       IsChecked="{Binding ForceGitDownload}" FontSize="10">
                 Force git download
                 <ToolTip.Tip>
@@ -71,7 +71,7 @@
                         Text="If enabled, the installer will always get the latest version of add-ons stored on GitHub. Turn it off if you do not want to update git add-ons." />
                 </ToolTip.Tip>
             </CheckBox>
-            <CheckBox Grid.Row="9" IsEnabled="{Binding !IsBusy}" Foreground="#ff8c00"
+            <CheckBox Grid.Row="9" IsEnabled="{Binding !IsBusyService.IsBusy}" Foreground="#ff8c00"
                       IsChecked="{Binding ForceZipExtraction}" FontSize="10">
                 Force zip extraction
                 <ToolTip.Tip>
@@ -83,12 +83,12 @@
             <!--           IsChecked="{Binding UpdateLargeFiles}" FontSize="10"> -->
             <!--     Update large files -->
             <!-- </CheckBox> -->
-            <CheckBox Grid.Row="10" IsEnabled="{Binding !IsBusy}" Foreground="#ff8c00"
+            <CheckBox Grid.Row="10" IsEnabled="{Binding !IsBusyService.IsBusy}" Foreground="#ff8c00"
                       IsChecked="{Binding DeleteReshadeDlls}" FontSize="10">
                 Delete reshade dlls
             </CheckBox>
             <Separator Grid.Row="11" />
-            <Button Grid.Row="12" IsEnabled="{Binding !IsBusy}" Background="#242424" Foreground="#00ff00"
+            <Button Grid.Row="12" IsEnabled="{Binding !IsBusyService.IsBusy}" Background="#242424" Foreground="#00ff00"
                     BorderBrush="#00ff00" BorderThickness="1" HorizontalContentAlignment="Center"
                     HorizontalAlignment="Stretch" Command="{Binding Play}" Height="60"
                     VerticalContentAlignment="Center">

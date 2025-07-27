@@ -1,7 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Reactive.Disposables;
-using System.Reactive.Linq;
 using DynamicData;
 using ReactiveUI;
 using stalker_gamma.core.Services;
@@ -78,7 +77,7 @@ public class ModsTabVm : ViewModelBase, IActivatableViewModel
         DownloadableRecord?
     > GetLocalDlRecordFromFilter = (localModListRecs, onlineRec) =>
         localModListRecs.FirstOrDefault(localRec =>
-            localRec.AddonName! == onlineRec.AddonName! && localRec.Md5ModDb != onlineRec.Md5ModDb
+            localRec.ModDbUrl! == onlineRec.ModDbUrl! && localRec.Md5ModDb != onlineRec.Md5ModDb
         );
 
     private static readonly Func<
@@ -87,8 +86,8 @@ public class ModsTabVm : ViewModelBase, IActivatableViewModel
         bool
     > ShouldUpdateModFilter = (localModListRecords, onlineRec) =>
         localModListRecords.Any(localRec =>
-            localRec.AddonName! == onlineRec.AddonName! && localRec.Md5ModDb != onlineRec.Md5ModDb
-        ) || localModListRecords.All(localRec => localRec.AddonName! != onlineRec.AddonName!);
+            localRec.ModDbUrl! == onlineRec.ModDbUrl! && localRec.Md5ModDb != onlineRec.Md5ModDb
+        ) || localModListRecords.All(localRec => localRec.ModDbUrl! != onlineRec.ModDbUrl!);
 
     public ReactiveCommand<Unit, Unit> GetOnlineModsCmd { get; }
 

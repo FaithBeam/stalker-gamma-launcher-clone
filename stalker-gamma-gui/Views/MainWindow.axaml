@@ -21,10 +21,10 @@
     
     <Grid>
         <TabControl>
-            <TabItem x:Name="MainTabItem" Header="Main">
+            <TabItem x:Name="MainTabItem" Header="Main" IsEnabled="{Binding !IsBusyService.IsBusy}">
                 <tabs:MainTab DataContext="{Binding MainTabVm}" />
             </TabItem>
-            <TabItem x:Name="ModsTabItem" Header="Updates">
+            <TabItem x:Name="ModsTabItem" Header="Updates" IsEnabled="{Binding !IsBusyService.IsBusy}">
                 <tabs:ModsTab DataContext="{Binding ModsTabVm}" />
             </TabItem>
         </TabControl>

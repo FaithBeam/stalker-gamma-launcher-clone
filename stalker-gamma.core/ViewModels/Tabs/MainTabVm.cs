@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Reactive;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using AsyncAwaitBestPractices;
 using CliWrap;
@@ -20,7 +19,6 @@ public class MainTabVm : ViewModelBase
     private bool _forceZipExtraction = true;
     private bool _deleteReshadeDlls = true;
     private readonly ObservableAsPropertyHelper<double?> _progress;
-    private bool _isBusy;
     private bool _needUpdate;
     private bool _needModDbUpdate;
     private readonly GammaInstaller _gammaInstaller;
@@ -31,34 +29,38 @@ public class MainTabVm : ViewModelBase
         ProgressService progressService,
         GlobalSettings globalSettings,
         DowngradeModOrganizer downgradeModOrganizer,
-        VersionService versionService
+        VersionService versionService,
+        IsBusyService isBusyService
     )
     {
-        // Activator = new ViewModelActivator();
+        IsBusyService = isBusyService;
         _gammaInstaller = gammaInstaller;
         _versionString = $"{versionService.GetVersion()} (Based on 6.7.0.0)";
 
         OpenUrlCmd = ReactiveCommand.Create<string>(OpenUrlUtility.OpenUrl);
 
         var canFirstInstallInitialization = this.WhenAnyValue(
-            x => x.IsBusy,
+            x => x.IsBusyService.IsBusy,
             selector: isBusy => !isBusy
         );
         FirstInstallInitialization = ReactiveCommand.CreateFromTask(
             async () =>
             {
-                IsBusy = true;
+                IsBusyService.IsBusy = true;
                 await gammaInstaller.FirstInstallInitialization();
-                IsBusy = false;
+                IsBusyService.IsBusy = false;
             },
             canFirstInstallInitialization
         );
 
-        var canInstallUpdateGamma = this.WhenAnyValue(x => x.IsBusy, selector: isBusy => !isBusy);
+        var canInstallUpdateGamma = this.WhenAnyValue(
+            x => x.IsBusyService.IsBusy,
+            selector: isBusy => !isBusy
+        );
         InstallUpdateGamma = ReactiveCommand.CreateFromTask(
             async () =>
             {
-                IsBusy = true;
+                IsBusyService.IsBusy = true;
                 await Task.Run(() =>
                     gammaInstaller.InstallUpdateGammaAsync(
                         ForceGitDownload,
@@ -70,7 +72,7 @@ public class MainTabVm : ViewModelBase
                     )
                 );
                 await CheckUpdates();
-                IsBusy = false;
+                IsBusyService.IsBusy = false;
             },
             canInstallUpdateGamma
         );
@@ -85,21 +87,21 @@ public class MainTabVm : ViewModelBase
         );
 
         var canPlay = this.WhenAnyValue(
-            x => x.IsBusy,
+            x => x.IsBusyService.IsBusy,
             selector: isBusy => !isBusy && File.Exists(mo2Path)
         );
         Play = ReactiveCommand.CreateFromTask(
             async () =>
             {
-                IsBusy = true;
+                IsBusyService.IsBusy = true;
                 await Cli.Wrap(mo2Path).ExecuteAsync();
-                IsBusy = false;
+                IsBusyService.IsBusy = false;
             },
             canPlay
         );
 
         var canDowngradeModOrganizer = this.WhenAnyValue(
-            x => x.IsBusy,
+            x => x.IsBusyService.IsBusy,
             selector: isBusy =>
                 !isBusy
                 && (
@@ -112,9 +114,9 @@ public class MainTabVm : ViewModelBase
         DowngradeModOrganizerCmd = ReactiveCommand.CreateFromTask(
             async () =>
             {
-                IsBusy = true;
+                IsBusyService.IsBusy = true;
                 await Task.Run(() => downgradeModOrganizer.DowngradeAsync());
-                IsBusy = false;
+                IsBusyService.IsBusy = false;
             },
             canDowngradeModOrganizer
         );
@@ -134,11 +136,6 @@ public class MainTabVm : ViewModelBase
             .Select(x => x.Message)
             .WhereNotNull()
             .Subscribe(async x => await AppendLineInteraction.Handle(x));
-        // this.WhenActivated(d =>
-        // {
-        //
-        //     progressServiceDisposable.DisposeWith(d);
-        // });
 
         CheckUpdates().SafeFireAndForget();
     }
@@ -162,11 +159,7 @@ public class MainTabVm : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _needModDbUpdate, value);
     }
 
-    public bool IsBusy
-    {
-        get => _isBusy;
-        private set => this.RaiseAndSetIfChanged(ref _isBusy, value);
-    }
+    public IsBusyService IsBusyService { get; }
 
     public Interaction<string, Unit> AppendLineInteraction { get; }
 
