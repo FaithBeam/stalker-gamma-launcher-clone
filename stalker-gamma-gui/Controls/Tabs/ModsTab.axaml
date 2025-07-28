@@ -23,10 +23,9 @@
                   CanUserResizeColumns="True" CanUserSortColumns="True" GridLinesVisibility="All">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Addon Name" Binding="{Binding AddonName}" />
-                <DataGridTextColumn Header="Archive" Binding="{Binding ArchiveName}" />
+                <DataGridTextColumn Header="Local Version" Binding="{Binding LocalVersion}" />
+                <DataGridTextColumn Header="Remote Version" Binding="{Binding RemoteVersion}" />
                 <DataGridTextColumn Header="Url" Binding="{Binding Url}" />
-                <DataGridTextColumn Header="Local Hash" Binding="{Binding LocalMd5}" />
-                <DataGridTextColumn Header="New Hash" Binding="{Binding RemoteMd5}" />
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

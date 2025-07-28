@@ -4,17 +4,15 @@ namespace stalker_gamma.core.ViewModels.Tabs.ModsTab;
 
 public class UpdateableModVm(
     string addonName,
-    string? localMd5,
-    string? remoteMd5,
     string url,
-    string archiveName
+    string? localVersion,
+    string? remoteVersion
 ) : ViewModelBase
 {
     private string _addonName = addonName;
-    private string? _localMd5 = localMd5;
-    private string? _remoteMd5 = remoteMd5;
     private string _url = url;
-    private string _archiveName = archiveName;
+    private string? _localVersion = localVersion;
+    private string? _remoteVersion = remoteVersion;
 
     public string AddonName
     {
@@ -22,27 +20,21 @@ public class UpdateableModVm(
         set => this.RaiseAndSetIfChanged(ref _addonName, value);
     }
 
-    public string? LocalMd5
+    public string? LocalVersion
     {
-        get => _localMd5;
-        set => this.RaiseAndSetIfChanged(ref _localMd5, value);
+        get => _localVersion;
+        set => this.RaiseAndSetIfChanged(ref _localVersion, value);
     }
 
-    public string? RemoteMd5
+    public string? RemoteVersion
     {
-        get => _remoteMd5;
-        set => this.RaiseAndSetIfChanged(ref _remoteMd5, value);
+        get => _remoteVersion;
+        set => this.RaiseAndSetIfChanged(ref _remoteVersion, value);
     }
 
     public string Url
     {
         get => _url;
         set => this.RaiseAndSetIfChanged(ref _url, value);
-    }
-
-    public string ArchiveName
-    {
-        get => _archiveName;
-        set => this.RaiseAndSetIfChanged(ref _archiveName, value);
     }
 }

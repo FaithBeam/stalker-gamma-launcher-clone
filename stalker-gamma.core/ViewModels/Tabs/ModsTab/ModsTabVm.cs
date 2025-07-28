@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Reactive.Disposables;
+using System.Text.RegularExpressions;
 using DynamicData;
 using ReactiveUI;
 using stalker_gamma.core.Services;
@@ -10,7 +11,7 @@ using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma.core.ViewModels.Tabs.ModsTab;
 
-public class ModsTabVm : ViewModelBase, IActivatableViewModel
+public partial class ModsTabVm : ViewModelBase, IActivatableViewModel
 {
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
     private readonly ReadOnlyObservableCollection<UpdateableModVm> _updateableMods;
@@ -46,13 +47,30 @@ public class ModsTabVm : ViewModelBase, IActivatableViewModel
                 .Where(x => x is DownloadableRecord)
                 .Cast<DownloadableRecord>()
                 .Where(onlineRec => ShouldUpdateModFilter(localModListRecords, onlineRec))
-                .Select(onlineRec => new UpdateableModVm(
-                    onlineRec.AddonName!,
-                    GetLocalDlRecordFromFilter(localModListRecords, onlineRec)?.Md5ModDb,
-                    onlineRec.Md5ModDb!,
-                    onlineRec.ModDbUrl!,
-                    onlineRec.ZipName!
-                ));
+                .Select(onlineRec =>
+                {
+                    var localDlRec = GetLocalDlRecordFromFilter(localModListRecords, onlineRec);
+                    var localVersion = FileNameVersionRx()
+                        .Match(Path.GetFileNameWithoutExtension(localDlRec?.ZipName ?? ""))
+                        .Groups[1]
+                        .Value;
+                    localVersion = string.IsNullOrWhiteSpace(localVersion)
+                        ? Path.GetFileNameWithoutExtension(localDlRec?.ZipName ?? "")
+                        : localVersion;
+                    var remoteVersion = FileNameVersionRx()
+                        .Match(Path.GetFileNameWithoutExtension(onlineRec.ZipName ?? ""))
+                        .Groups[1]
+                        .Value;
+                    remoteVersion = string.IsNullOrWhiteSpace(remoteVersion)
+                        ? Path.GetFileNameWithoutExtension(onlineRec.ZipName ?? "")
+                        : remoteVersion;
+                    return new UpdateableModVm(
+                        onlineRec.AddonName!,
+                        onlineRec.ModDbUrl!,
+                        localVersion,
+                        remoteVersion
+                    );
+                });
             modsSourceCache.Edit(inner =>
             {
                 inner.Clear();
@@ -93,4 +111,7 @@ public class ModsTabVm : ViewModelBase, IActivatableViewModel
 
     public ReadOnlyObservableCollection<UpdateableModVm> UpdateableMods => _updateableMods;
     public ViewModelActivator Activator { get; }
+
+    [GeneratedRegex(@"^.+(\d+\.\d+\.\d*.*)$")]
+    private static partial Regex FileNameVersionRx();
 }
