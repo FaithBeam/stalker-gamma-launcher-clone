@@ -44,7 +44,7 @@ public class ModListTabVm : ViewModelBase, IActivatableViewModel
         );
     }
 
-    private ReactiveCommand<Unit, Unit> GetModListCmd { get; }
+    public ReactiveCommand<Unit, Unit> GetModListCmd { get; }
 
     public ReadOnlyObservableCollection<string> ModsList => _modsList;
     public ViewModelActivator Activator { get; }

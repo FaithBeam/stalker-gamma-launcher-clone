@@ -9,5 +9,5 @@
     <Design.DataContext>
         <vm:ModListTabVm />
     </Design.DataContext>
-    <DataGrid ItemsSource="{Binding  ModsList}"></DataGrid>
+    <DataGrid ItemsSource="{Binding  ModsList}" AutoGenerateColumns="True"></DataGrid>
 </UserControl>
