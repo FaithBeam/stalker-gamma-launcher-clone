@@ -1,6 +1,6 @@
 ﻿using ReactiveUI;
 
-namespace stalker_gamma.core.ViewModels.Tabs.ModsTab;
+namespace stalker_gamma.core.ViewModels.Tabs.ModDbUpdatesTab;
 
 public class UpdateableModVm(
     string addonName,

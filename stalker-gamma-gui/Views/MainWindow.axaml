@@ -25,7 +25,7 @@
                 <tabs:MainTab DataContext="{Binding MainTabVm}" />
             </TabItem>
             <TabItem x:Name="ModsTabItem" FontSize="16" Header="ModDB Updates" IsEnabled="{Binding !IsBusyService.IsBusy}">
-                <tabs:ModsTab DataContext="{Binding ModsTabVm}" />
+                <tabs:ModDbUpdatesTab DataContext="{Binding ModDbUpdatesTabVm}" />
             </TabItem>
         </TabControl>
     </Grid>
