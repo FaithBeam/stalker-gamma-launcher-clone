@@ -25,6 +25,7 @@ using stalker_gamma.core.Utilities;
 using stalker_gamma.core.ViewModels.MainWindow;
 using stalker_gamma.core.ViewModels.Tabs;
 using stalker_gamma.core.ViewModels.Tabs.ModDbUpdatesTab;
+using stalker_gamma.core.ViewModels.Tabs.ModListTab;
 
 namespace stalker_gamma_gui;
 
@@ -71,6 +72,7 @@ public partial class App : Application
                 s.AddScoped<GammaInstaller>();
 
                 s.AddScoped<MainTabVm>();
+                s.AddScoped<ModListTabVm>();
                 s.AddScoped<ModDbUpdatesTabVm>();
                 s.AddScoped<MainWindowVm>();
 
