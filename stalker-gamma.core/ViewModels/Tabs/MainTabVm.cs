@@ -2,7 +2,6 @@
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using AsyncAwaitBestPractices;
 using CliWrap;
 using ReactiveUI;
 using stalker_gamma.core.Models;
