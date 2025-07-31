@@ -23,6 +23,7 @@ public class MainTabVm : ViewModelBase
     private bool _needUpdate;
     private bool _needModDbUpdate;
     private readonly GammaInstaller _gammaInstaller;
+    private readonly GlobalSettings _globalSettings;
     private string _versionString;
 
     public MainTabVm(
@@ -36,6 +37,7 @@ public class MainTabVm : ViewModelBase
     {
         IsBusyService = isBusyService;
         _gammaInstaller = gammaInstaller;
+        _globalSettings = globalSettings;
         _versionString = $"{versionService.GetVersion()} (Based on 6.7.0.0)";
 
         OpenUrlCmd = ReactiveCommand.Create<string>(OpenUrlUtility.OpenUrl);
@@ -145,7 +147,7 @@ public class MainTabVm : ViewModelBase
 
     private async Task CheckUpdates()
     {
-        var needUpdates = await _gammaInstaller.CheckGammaData(true);
+        var needUpdates = await _gammaInstaller.CheckGammaData(_globalSettings.UseCurlImpersonate);
         NeedUpdate = needUpdates.NeedUpdate;
         NeedModDbUpdate = needUpdates.NeedModDBUpdate;
     }

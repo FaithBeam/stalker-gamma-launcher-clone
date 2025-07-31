@@ -10,6 +10,8 @@ namespace stalker_gamma.core.ViewModels.Tabs.ModListTab;
 public class ModListTabVm : ViewModelBase, IActivatableViewModel
 {
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
+    private int _modsActive;
+    private int _totalMods;
 
     public ModListTabVm(ProgressService progressService)
     {
@@ -56,6 +58,8 @@ public class ModListTabVm : ViewModelBase, IActivatableViewModel
             modNodes.Reverse();
             ModsList.Clear();
             ModsList.AddRange(modNodes);
+            ModsActive = ModsList.SelectMany(x => x.SubNodes ?? []).Count(x => x.Enabled);
+            TotalMods = ModsList.SelectMany(x => x.SubNodes ?? []).Count();
         });
 
         this.WhenActivated(
@@ -70,4 +74,16 @@ public class ModListTabVm : ViewModelBase, IActivatableViewModel
 
     public ObservableCollection<ModNode> ModsList { get; set; }
     public ViewModelActivator Activator { get; }
+
+    public int ModsActive
+    {
+        get => _modsActive;
+        set => this.RaiseAndSetIfChanged(ref _modsActive, value);
+    }
+
+    public int TotalMods
+    {
+        get => _totalMods;
+        set => this.RaiseAndSetIfChanged(ref _totalMods, value);
+    }
 }
