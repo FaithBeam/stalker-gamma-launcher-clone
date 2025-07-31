@@ -9,7 +9,7 @@
     <Design.DataContext>
         <vm:ModListTabVm />
     </Design.DataContext>
-    <Grid RowDefinitions="Auto,*">
+    <Grid RowDefinitions="Auto,*,Auto">
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
             <Label Content="Active:" />
             <Label Content="{Binding ModsActive}" />
@@ -27,5 +27,6 @@
                 </TreeDataTemplate>
             </TreeView.ItemTemplate>
         </TreeView>
+        <Button Grid.Row="2" Command="{Binding SaveCmd}" Content="Save" />
     </Grid>
 </UserControl>
