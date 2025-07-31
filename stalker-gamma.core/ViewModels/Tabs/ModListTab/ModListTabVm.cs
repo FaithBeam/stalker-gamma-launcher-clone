@@ -12,6 +12,7 @@ public class ModListTabVm : ViewModelBase, IActivatableViewModel
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
     private int _modsActive;
     private int _totalMods;
+    private string _modsToolTip = "";
 
     public ModListTabVm(ProgressService progressService)
     {
@@ -60,6 +61,11 @@ public class ModListTabVm : ViewModelBase, IActivatableViewModel
             ModsList.AddRange(modNodes);
             ModsActive = ModsList.SelectMany(x => x.SubNodes ?? []).Count(x => x.Enabled);
             TotalMods = ModsList.SelectMany(x => x.SubNodes ?? []).Count();
+            ModsToolTip = $"""
+            Total: {TotalMods}
+            Active: {ModsActive}
+            Separators: {ModsList.Count(x => x.Separator)}
+            """;
         });
 
         this.WhenActivated(
@@ -85,5 +91,11 @@ public class ModListTabVm : ViewModelBase, IActivatableViewModel
     {
         get => _totalMods;
         set => this.RaiseAndSetIfChanged(ref _totalMods, value);
+    }
+
+    public string ModsToolTip
+    {
+        get => _modsToolTip;
+        set => this.RaiseAndSetIfChanged(ref _modsToolTip, value);
     }
 }

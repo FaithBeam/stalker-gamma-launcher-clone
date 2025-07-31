@@ -10,9 +10,12 @@
         <vm:ModListTabVm />
     </Design.DataContext>
     <Grid RowDefinitions="Auto,*">
-        <StackPanel Orientation="Horizontal">
-            <Label Content="{Binding TotalMods}" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Label Content="Active:" />
             <Label Content="{Binding ModsActive}" />
+            <ToolTip.Tip>
+                <TextBlock Text="{Binding ModsToolTip}" />
+            </ToolTip.Tip>
         </StackPanel>
         <TreeView Grid.Row="1" ItemsSource="{Binding ModsList}">
             <TreeView.ItemTemplate>
