@@ -14,6 +14,7 @@ public class ModListTabVm : ViewModelBase, IActivatableViewModel
     public ModListTabVm(ProgressService progressService)
     {
         Activator = new ViewModelActivator();
+        ModsList = [];
         var mo2ModsFile = Path.Join(_dir, "..", "profiles", "G.A.M.M.A", "modlist.txt");
         GetModListCmd = ReactiveCommand.CreateFromTask(async () =>
         {
@@ -23,11 +24,38 @@ public class ModListTabVm : ViewModelBase, IActivatableViewModel
                 return;
             }
 
-            var modsList = (await File.ReadAllLinesAsync(mo2ModsFile)).Where(x =>
-                x.StartsWith('-') || x.StartsWith('+')
-            );
-            ModsList = [];
-            foreach (var mod in modsList) { }
+            var modsList = (await File.ReadAllLinesAsync(mo2ModsFile))
+                .Where(x => x.StartsWith('-') || x.StartsWith('+'))
+                .ToList();
+            var separators = modsList
+                .Select((x, idx) => (x, idx))
+                .Where(x => x.x.EndsWith("_separator"))
+                .ToList();
+            List<ModNode> modNodes = [];
+            foreach (var separator in separators)
+            {
+                var start =
+                    separators.IndexOf(separator) > 0
+                        ? separators[separators.IndexOf(separator) - 1].idx + 1
+                        : 0;
+                var end = separator.idx;
+                var chosen = modsList
+                    .GetRange(start, end - start)
+                    .Select(x => new ModNode(x[1..], x.StartsWith('+'), false));
+                chosen = chosen.Reverse();
+                modNodes.Add(
+                    new ModNode(
+                        separator.x[1..^"_separator".Length],
+                        separator.x.StartsWith('+'),
+                        separator: true,
+                        new ObservableCollection<ModNode>(chosen)
+                    )
+                );
+            }
+
+            modNodes.Reverse();
+            ModsList.Clear();
+            ModsList.AddRange(modNodes);
         });
 
         this.WhenActivated(
