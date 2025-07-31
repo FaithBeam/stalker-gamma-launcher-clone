@@ -35,26 +35,20 @@ public class ModListTabVm : ViewModelBase, IActivatableViewModel
                 .Where(x => x.x.EndsWith("_separator"))
                 .ToList();
             List<ModNode> modNodes = [];
-            foreach (var separator in separators)
-            {
-                var start =
-                    separators.IndexOf(separator) > 0
-                        ? separators[separators.IndexOf(separator) - 1].idx + 1
-                        : 0;
-                var end = separator.idx;
-                var chosen = modsList
-                    .GetRange(start, end - start)
-                    .Select(x => new ModNode(x[1..], x.StartsWith('+'), false));
-                chosen = chosen.Reverse();
-                modNodes.Add(
-                    new ModNode(
-                        separator.x[1..^"_separator".Length],
-                        separator.x.StartsWith('+'),
-                        separator: true,
-                        new ObservableCollection<ModNode>(chosen)
-                    )
-                );
-            }
+            modNodes.AddRange(
+                from separator in separators
+                let sepIdx = separators.IndexOf(separator)
+                let start = sepIdx > 0 ? separators[sepIdx - 1].idx + 1 : 0
+                let chosen = modsList
+                    .GetRange(start, separator.idx - start)
+                    .Select(x => new ModNode(x[1..], x.StartsWith('+'), false))
+                select new ModNode(
+                    separator.x[1..^"_separator".Length],
+                    separator.x.StartsWith('+'),
+                    separator: true,
+                    new ObservableCollection<ModNode>(chosen.Reverse())
+                )
+            );
 
             modNodes.Reverse();
             ModsList.Clear();
@@ -80,6 +74,11 @@ public class ModListTabVm : ViewModelBase, IActivatableViewModel
                 """
             );
         });
+
+        ModsList.CollectionChanged += (sender, args) =>
+        {
+            ;
+        };
 
         this.WhenActivated(
             (CompositeDisposable d) =>
