@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Reactive;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using AsyncAwaitBestPractices;
 using CliWrap;
@@ -12,7 +13,7 @@ using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma.core.ViewModels.Tabs;
 
-public class MainTabVm : ViewModelBase
+public class MainTabVm : ViewModelBase, IActivatableViewModel
 {
     private bool _checkMd5 = true;
     private bool _forceGitDownload = true;
@@ -22,8 +23,6 @@ public class MainTabVm : ViewModelBase
     private readonly ObservableAsPropertyHelper<double?> _progress;
     private bool _needUpdate;
     private bool _needModDbUpdate;
-    private readonly GammaInstaller _gammaInstaller;
-    private readonly GlobalSettings _globalSettings;
     private string _versionString;
 
     public MainTabVm(
@@ -35,9 +34,10 @@ public class MainTabVm : ViewModelBase
         IsBusyService isBusyService
     )
     {
+        Activator = new ViewModelActivator();
         IsBusyService = isBusyService;
-        _gammaInstaller = gammaInstaller;
-        _globalSettings = globalSettings;
+        var gammaInstaller1 = gammaInstaller;
+        var globalSettings1 = globalSettings;
         _versionString = $"{versionService.GetVersion()} (Based on 6.7.0.0)";
 
         OpenUrlCmd = ReactiveCommand.Create<string>(OpenUrlUtility.OpenUrl);
@@ -54,6 +54,18 @@ public class MainTabVm : ViewModelBase
                 IsBusyService.IsBusy = false;
             },
             canFirstInstallInitialization
+        );
+
+        BackgroundCheckUpdatesCmd = ReactiveCommand.CreateFromTask(async () =>
+        {
+            var needUpdates = await gammaInstaller1.CheckGammaData(
+                globalSettings1.UseCurlImpersonate
+            );
+            NeedUpdate = needUpdates.NeedUpdate;
+            NeedModDbUpdate = needUpdates.NeedModDBUpdate;
+        });
+        BackgroundCheckUpdatesCmd.ThrownExceptions.Subscribe(x =>
+            progressService.UpdateProgress(x.Message)
         );
 
         var canInstallUpdateGamma = this.WhenAnyValue(
@@ -76,7 +88,7 @@ public class MainTabVm : ViewModelBase
                         PreserveUserLtx
                     )
                 );
-                await CheckUpdates();
+                BackgroundCheckUpdatesCmd.Execute().Subscribe();
                 IsBusyService.IsBusy = false;
             },
             canInstallUpdateGamma
@@ -142,14 +154,12 @@ public class MainTabVm : ViewModelBase
             .WhereNotNull()
             .Subscribe(async x => await AppendLineInteraction.Handle(x));
 
-        CheckUpdates().SafeFireAndForget();
-    }
-
-    private async Task CheckUpdates()
-    {
-        var needUpdates = await _gammaInstaller.CheckGammaData(_globalSettings.UseCurlImpersonate);
-        NeedUpdate = needUpdates.NeedUpdate;
-        NeedModDbUpdate = needUpdates.NeedModDBUpdate;
+        this.WhenActivated(
+            (CompositeDisposable d) =>
+            {
+                BackgroundCheckUpdatesCmd.Execute().Subscribe();
+            }
+        );
     }
 
     public bool NeedUpdate
@@ -211,5 +221,6 @@ public class MainTabVm : ViewModelBase
     public ReactiveCommand<Unit, Unit> Play { get; }
     public ReactiveCommand<string, Unit> OpenUrlCmd { get; }
     public ReactiveCommand<Unit, Unit> DowngradeModOrganizerCmd { get; }
-    // public ViewModelActivator Activator { get; }
+    public ReactiveCommand<Unit, Unit> BackgroundCheckUpdatesCmd { get; }
+    public ViewModelActivator Activator { get; }
 }

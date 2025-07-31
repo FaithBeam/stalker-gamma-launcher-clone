@@ -64,6 +64,7 @@ public class ModListTabVm : ViewModelBase, IActivatableViewModel
             ModsToolTip = $"""
             Total: {TotalMods}
             Active: {ModsActive}
+            Inactive: {ModsList.SelectMany(x => x.SubNodes ?? []).Count(x => !x.Enabled)}
             Separators: {ModsList.Count(x => x.Separator)}
             """;
         });
