@@ -1,9 +1,8 @@
 # Stalker GAMMA Launcher Clone
 
-A clone of Grokitach's Stalker GAMMA Launcher with WINE compatibility.
+A clone of Grokitach's Stalker GAMMA Launcher with WINE compatibility and extra features.
 
-<img width="1604" height="1460" alt="image" src="https://github.com/user-attachments/assets/0237b9f1-490c-433e-adf7-b7f866930092" />
-
+<img width="1604" height="1460" alt="image" src="https://github.com/user-attachments/assets/d02d36e8-b786-4247-bda3-945d1a503aae" />
 
 ## Usage
 
