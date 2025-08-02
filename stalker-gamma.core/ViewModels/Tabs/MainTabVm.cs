@@ -18,6 +18,8 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
     private bool _forceGitDownload = true;
     private bool _forceZipExtraction = true;
     private bool _deleteReshadeDlls = true;
+    private bool _inGrokModDir;
+    private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
     private bool _preserveUserLtx;
     private readonly ObservableAsPropertyHelper<double?> _progress;
     private bool _needUpdate;
@@ -41,9 +43,16 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
 
         OpenUrlCmd = ReactiveCommand.Create<string>(OpenUrlUtility.OpenUrl);
 
+        var mo2Path = Path.Join(
+            Path.GetDirectoryName(AppContext.BaseDirectory),
+            "..",
+            "ModOrganizer.exe"
+        );
+
         var canFirstInstallInitialization = this.WhenAnyValue(
             x => x.IsBusyService.IsBusy,
-            selector: isBusy => !isBusy
+            x => x.InGrokModDir,
+            selector: (isBusy, inGrokModDir) => !isBusy && File.Exists(mo2Path) && inGrokModDir
         );
         FirstInstallInitialization = ReactiveCommand.CreateFromTask(
             async () =>
@@ -53,6 +62,14 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
                 IsBusyService.IsBusy = false;
             },
             canFirstInstallInitialization
+        );
+        FirstInstallInitialization.ThrownExceptions.Subscribe(x =>
+            progressService.UpdateProgress(
+                $"""
+                Error in first install initialization:
+                {x}
+                """
+            )
         );
 
         BackgroundCheckUpdatesCmd = ReactiveCommand.CreateFromTask(async () =>
@@ -69,13 +86,13 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
 
         var canInstallUpdateGamma = this.WhenAnyValue(
             x => x.IsBusyService.IsBusy,
-            selector: isBusy => !isBusy
+            x => x.InGrokModDir,
+            selector: (isBusy, inGrokModDir) => !isBusy && inGrokModDir
         );
         InstallUpdateGamma = ReactiveCommand.CreateFromTask(
             async () =>
             {
                 IsBusyService.IsBusy = true;
-                progressService.UpdateProgress($"Preserve User LTX: {PreserveUserLtx}");
                 await Task.Run(() =>
                     gammaInstaller.InstallUpdateGammaAsync(
                         ForceGitDownload,
@@ -93,18 +110,19 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
             canInstallUpdateGamma
         );
         InstallUpdateGamma.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress($"{x.Message}\n{x.StackTrace}")
-        );
-
-        var mo2Path = Path.Join(
-            Path.GetDirectoryName(AppContext.BaseDirectory),
-            "..",
-            "ModOrganizer.exe"
+            progressService.UpdateProgress(
+                $"""
+                ERROR INSTALLING/UPDATING GAMMA:
+                {x.Message}
+                {x.StackTrace}
+                """
+            )
         );
 
         var canPlay = this.WhenAnyValue(
             x => x.IsBusyService.IsBusy,
-            selector: isBusy => !isBusy && File.Exists(mo2Path)
+            x => x.InGrokModDir,
+            selector: (isBusy, inGrokModDir) => !isBusy && File.Exists(mo2Path) && inGrokModDir
         );
         Play = ReactiveCommand.CreateFromTask(
             async () =>
@@ -115,10 +133,19 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
             },
             canPlay
         );
+        Play.ThrownExceptions.Subscribe(x =>
+            progressService.UpdateProgress(
+                $"""
+                ERROR PLAYING:
+                {x}
+                """
+            )
+        );
 
         var canDowngradeModOrganizer = this.WhenAnyValue(
             x => x.IsBusyService.IsBusy,
-            selector: isBusy =>
+            x => x.InGrokModDir,
+            selector: (isBusy, inGrokModDir) =>
                 !isBusy
                 && (
                     (
@@ -126,6 +153,7 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
                         && FileVersionInfo.GetVersionInfo(mo2Path).FileVersion != "2.4.4"
                     ) || !File.Exists(mo2Path)
                 )
+                && inGrokModDir
         );
         DowngradeModOrganizerCmd = ReactiveCommand.CreateFromTask(
             async () =>
@@ -153,9 +181,29 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
             .WhereNotNull()
             .Subscribe(async x => await AppendLineInteraction.Handle(x));
 
+        InGroksModPackDir = ReactiveCommand.CreateFromTask(async () =>
+            await Task.Run(() =>
+            {
+                if (!InGrokModDir)
+                {
+                    progressService.UpdateProgress(
+                        """
+                        ERROR: This launcher is not put in the correct directory.
+                        It needs to be in the .Grok's Modpack Installer directory which is from GAMMA RC3 archive in the discord.
+                        """
+                    );
+                }
+            })
+        );
+
         this.WhenActivated(
             (CompositeDisposable d) =>
             {
+                InGrokModDir = _dir.Contains(
+                    ".Grok's Modpack Installer",
+                    StringComparison.OrdinalIgnoreCase
+                );
+                InGroksModPackDir.Execute().Subscribe();
                 BackgroundCheckUpdatesCmd.Execute().Subscribe();
             }
         );
@@ -171,6 +219,12 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
     {
         get => _needModDbUpdate;
         set => this.RaiseAndSetIfChanged(ref _needModDbUpdate, value);
+    }
+
+    public bool InGrokModDir
+    {
+        get => _inGrokModDir;
+        set => this.RaiseAndSetIfChanged(ref _inGrokModDir, value);
     }
 
     public IsBusyService IsBusyService { get; }
@@ -221,5 +275,6 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
     public ReactiveCommand<string, Unit> OpenUrlCmd { get; }
     public ReactiveCommand<Unit, Unit> DowngradeModOrganizerCmd { get; }
     public ReactiveCommand<Unit, Unit> BackgroundCheckUpdatesCmd { get; }
+    public ReactiveCommand<Unit, Unit> InGroksModPackDir { get; }
     public ViewModelActivator Activator { get; }
 }
