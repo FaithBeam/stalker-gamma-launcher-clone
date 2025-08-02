@@ -13,7 +13,7 @@ A clone of Grokitach's Stalker GAMMA Launcher with WINE compatibility and extra 
 3. Run `stalker-gamma-gui.exe`
 4. First install initialization
 5. Install / Update GAMMA (x2)
-    - A working install takes two full installs. Idk why lol. 2nd install is faster though. 
+    - A working install takes two installs. 2nd install you can deselect force git download and force zip extraction
 6. Play
 
 ### Linux
