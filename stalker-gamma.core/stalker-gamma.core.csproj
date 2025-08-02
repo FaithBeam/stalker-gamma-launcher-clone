@@ -14,7 +14,6 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AsyncAwaitBestPractices" Version="9.0.0" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="11.3.0" />
     <PackageReference Include="CliWrap" Version="3.9.0" />
     <PackageReference Include="WindowsShortcutFactory" Version="1.2.0" />

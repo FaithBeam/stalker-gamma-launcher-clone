@@ -9,14 +9,14 @@ using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
 using stalker_gamma.core.Utilities;
 
-namespace stalker_gamma.core.ViewModels.Tabs.ModsTab;
+namespace stalker_gamma.core.ViewModels.Tabs.ModDbUpdatesTab;
 
-public partial class ModsTabVm : ViewModelBase, IActivatableViewModel
+public partial class ModDbUpdatesTabVm : ViewModelBase, IActivatableViewModel
 {
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
     private readonly ReadOnlyObservableCollection<UpdateableModVm> _updateableMods;
 
-    public ModsTabVm(ModDb modDb, ProgressService progressService)
+    public ModDbUpdatesTabVm(ModDb modDb, ProgressService progressService)
     {
         Activator = new ViewModelActivator();
         var modDb1 = modDb;
