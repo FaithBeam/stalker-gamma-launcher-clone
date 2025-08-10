@@ -65,23 +65,24 @@ public class AddonsAndSeparators(ProgressService progressService, ModDb modDb)
             var extract = false;
 
             if (
-                await downloadableRecord.ShouldDownloadAsync(
-                    downloadsPath,
-                    checkMd5,
-                    forceGitDownload
-                )
+                downloadableRecord
+                    .ShouldDownloadAsync(downloadsPath, checkMd5, forceGitDownload)
+                    .GetAwaiter()
+                    .GetResult()
             )
             {
                 progressService.UpdateProgress(
                     $"_______________ {downloadableRecord.AddonName} _______________"
                 );
                 if (
-                    await downloadableRecord.DownloadAsync(downloadsPath, useCurlImpersonate)
-                    && await downloadableRecord.ShouldDownloadAsync(
-                        downloadsPath,
-                        checkMd5,
-                        forceGitDownload
-                    )
+                    downloadableRecord
+                        .DownloadAsync(downloadsPath, useCurlImpersonate)
+                        .GetAwaiter()
+                        .GetResult()
+                    && downloadableRecord
+                        .ShouldDownloadAsync(downloadsPath, checkMd5, forceGitDownload)
+                        .GetAwaiter()
+                        .GetResult()
                 )
                 {
                     progressService.UpdateProgress(
