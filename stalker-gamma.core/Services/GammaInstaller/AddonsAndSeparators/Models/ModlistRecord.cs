@@ -4,11 +4,15 @@ using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
 
-public interface IModlistRecord { }
+public interface IModlistRecord;
 
 public static class ParseModListRecord
 {
-    public static IModlistRecord ParseLine(string line, ModDb modDb)
+    public static IModlistRecord ParseLine(
+        string line,
+        ModDb modDb,
+        ProgressService progressService
+    )
     {
         var lineSplit = line.Split('\t');
         var dlLink = lineSplit[0];
@@ -27,7 +31,7 @@ public static class ParseModListRecord
 
         if (dlLink.Contains("moddb"))
         {
-            return new ModDbRecord(modDb)
+            return new ModDbRecord(modDb, progressService)
             {
                 DlLink = dlLink,
                 Instructions = instructions,
@@ -303,14 +307,33 @@ public class GammaLargeFile : DownloadableRecord
     public override string Name => $"{DlLink!.Split('/')[6]}.zip";
 }
 
-public class ModDbRecord(ModDb modDb) : DownloadableRecord
+public class ModDbRecord(ModDb modDb, ProgressService progressService) : DownloadableRecord
 {
     public override string Name => ZipName!;
 
     public override async Task<bool> DownloadAsync(string downloadsPath, bool useCurlImpersonate)
     {
         DlPath ??= Path.Join(downloadsPath, Name);
-        await modDb.GetModDbLinkCurl(DlLink!, DlPath);
+        var retryCount = 0;
+        do
+        {
+            try
+            {
+                await modDb.GetModDbLinkCurl(DlLink!, DlPath);
+            }
+            catch (CurlPartialFileException) when (retryCount >= 3)
+            {
+                throw;
+            }
+            catch (CurlPartialFileException)
+            {
+                retryCount++;
+                progressService.UpdateProgress(
+                    $"Warning: curl partial file exception. Retrying download in 1 second. {DlLink} {DlPath}"
+                );
+                await Task.Delay(1000);
+            }
+        } while (retryCount != 0);
 
         if (await ShouldDownloadAsync(downloadsPath, true, false))
         {

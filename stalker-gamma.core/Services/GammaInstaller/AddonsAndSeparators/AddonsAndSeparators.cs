@@ -37,7 +37,7 @@ public class AddonsAndSeparators(ProgressService progressService, ModDb modDb)
         }
 
         var files = (await File.ReadAllLinesAsync(modListFile))
-            .Select(x => ParseModListRecord.ParseLine(x, modDb))
+            .Select(x => ParseModListRecord.ParseLine(x, modDb, progressService))
             .ToList();
 
         var total = files.Count;

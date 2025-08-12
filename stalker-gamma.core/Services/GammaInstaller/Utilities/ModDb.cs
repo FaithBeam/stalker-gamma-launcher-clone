@@ -30,6 +30,7 @@ public partial class ModDb(ProgressService progressService)
         {
             parentPath.Create();
         }
+
         await Curl.DownloadFileAsync(
             downloadLink,
             parentPath?.FullName ?? "./",

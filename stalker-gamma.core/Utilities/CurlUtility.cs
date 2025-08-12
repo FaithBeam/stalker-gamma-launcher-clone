@@ -40,7 +40,11 @@ public static class Curl
             var result = await cmd.ExecuteAsync();
             if (!result.IsSuccess)
             {
-                throw new Exception($"{stdErr}\n{stdOut}");
+                throw result.ExitCode switch
+                {
+                    18 => new CurlPartialFileException($"{stdErr}\n{stdOut}"),
+                    _ => new Exception($"{stdErr}\n{stdOut}"),
+                };
             }
         }
         else
@@ -68,6 +72,14 @@ public static class Curl
                 .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOut))
                 .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErr));
             var result = await cmd.ExecuteAsync();
+            if (!result.IsSuccess)
+            {
+                throw result.ExitCode switch
+                {
+                    18 => new CurlPartialFileException($"{stdErr}\n{stdOut}"),
+                    _ => new Exception($"{stdErr}\n{stdOut}"),
+                };
+            }
             return stdOut.ToString();
         }
 
@@ -95,3 +107,5 @@ public static class Curl
         : OperatingSystem.IsMacOS() ? MacosGetStringCmd
         : LinuxGetStringCmd;
 }
+
+public class CurlPartialFileException(string message) : Exception(message);
