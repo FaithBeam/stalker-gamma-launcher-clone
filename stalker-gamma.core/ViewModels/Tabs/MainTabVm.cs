@@ -199,10 +199,14 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
         this.WhenActivated(
             (CompositeDisposable d) =>
             {
+#if DEBUG
+                InGrokModDir = true;
+#else
                 InGrokModDir = _dir.Contains(
                     ".Grok's Modpack Installer",
                     StringComparison.OrdinalIgnoreCase
                 );
+#endif
                 InGroksModPackDir.Execute().Subscribe();
                 BackgroundCheckUpdatesCmd.Execute().Subscribe();
             }
