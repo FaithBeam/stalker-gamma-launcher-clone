@@ -1,14 +1,15 @@
 ﻿using System.Text;
+using System.Text.RegularExpressions;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
 using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
 
-public interface IModlistRecord { }
+public interface IModListRecord;
 
 public static class ParseModListRecord
 {
-    public static IModlistRecord ParseLine(string line, ModDb modDb)
+    public static IModListRecord ParseLine(string line, ModDb modDb)
     {
         var lineSplit = line.Split('\t');
         var dlLink = lineSplit[0];
@@ -71,7 +72,7 @@ public static class ParseModListRecord
     }
 }
 
-public class ModlistRecord : IModlistRecord
+public class ModListRecord : IModListRecord
 {
     public string? DlLink { get; set; }
     public string? Instructions { get; set; }
@@ -82,7 +83,7 @@ public class ModlistRecord : IModlistRecord
     public string? Md5ModDb { get; set; }
 }
 
-public abstract class DownloadableRecord : ModlistRecord
+public abstract partial class DownloadableRecord : ModListRecord
 {
     public abstract string Name { get; }
     public string? DlPath { get; set; }
@@ -91,7 +92,8 @@ public abstract class DownloadableRecord : ModlistRecord
     public virtual async Task<bool> ShouldDownloadAsync(
         string downloadsPath,
         bool checkMd5,
-        bool forceGitDownload
+        bool forceGitDownload,
+        bool alternateMd5Check
     )
     {
         DlPath ??= Path.Join(downloadsPath, Name);
@@ -100,11 +102,35 @@ public abstract class DownloadableRecord : ModlistRecord
         {
             if (checkMd5)
             {
-                var md5 = await Md5Utility.CalculateFileMd5Async(DlPath);
-                if (!string.IsNullOrWhiteSpace(Md5ModDb))
+                var localMd5 = await Md5Utility.CalculateFileMd5Async(DlPath);
+
+                if (alternateMd5Check)
                 {
-                    // file exists, download if local archive md5 does not match md5moddb
-                    return md5 != Md5ModDb;
+                    // check md5 of the moddb mod page
+                    // hits api
+                    var modDbModPage = await Curl.GetStringAsync(ModDbUrl!);
+                    var modDbModPageMd5 = ModDbModMd5HashRx().Match(modDbModPage);
+                    if (modDbModPageMd5.Success)
+                    {
+                        return localMd5 != modDbModPageMd5.Groups[1].Value;
+                    }
+
+                    throw new Exception(
+                        $"""
+                        Error parsing moddb mod page for md5:
+                        {AddonName}
+                        {ModDbUrl}
+                        """
+                    );
+                }
+                else
+                {
+                    // check md5 using md5 from stalker-gamma.com api
+                    if (!string.IsNullOrWhiteSpace(Md5ModDb))
+                    {
+                        // file exists, download if local archive md5 does not match md5moddb
+                        return localMd5 != Md5ModDb;
+                    }
                 }
             }
             else
@@ -118,7 +144,11 @@ public abstract class DownloadableRecord : ModlistRecord
         return true;
     }
 
-    public virtual async Task<bool> DownloadAsync(string downloadsPath, bool useCurlImpersonate)
+    public virtual async Task<bool> DownloadAsync(
+        string downloadsPath,
+        bool useCurlImpersonate,
+        bool alternateMd5Check
+    )
     {
         DlPath ??= Path.Join(downloadsPath, Name);
         if (string.IsNullOrWhiteSpace(Dl))
@@ -264,9 +294,15 @@ public abstract class DownloadableRecord : ModlistRecord
         "db",
         "fomod",
     ];
+
+    [GeneratedRegex(
+        """<h5>MD5 Hash<\/h5>\s*<span class="summary">\s*([\d\w]*).*?<\/span>""",
+        RegexOptions.Multiline | RegexOptions.Compiled
+    )]
+    private static partial Regex ModDbModMd5HashRx();
 }
 
-public class Separator : ModlistRecord
+public class Separator : ModListRecord
 {
     public string Name => DlLink!;
     public string FolderName => $"{DlLink}_separator";
@@ -292,10 +328,16 @@ public class GithubRecord : DownloadableRecord
     public override async Task<bool> ShouldDownloadAsync(
         string downloadsPath,
         bool checkMd5,
-        bool forceGitDownload
+        bool forceGitDownload,
+        bool alternateMd5Check
     ) =>
         forceGitDownload
-        || await base.ShouldDownloadAsync(downloadsPath, checkMd5, forceGitDownload);
+        || await base.ShouldDownloadAsync(
+            downloadsPath,
+            checkMd5,
+            forceGitDownload,
+            alternateMd5Check
+        );
 }
 
 public class GammaLargeFile : DownloadableRecord
@@ -307,12 +349,16 @@ public class ModDbRecord(ModDb modDb) : DownloadableRecord
 {
     public override string Name => ZipName!;
 
-    public override async Task<bool> DownloadAsync(string downloadsPath, bool useCurlImpersonate)
+    public override async Task<bool> DownloadAsync(
+        string downloadsPath,
+        bool useCurlImpersonate,
+        bool alternateMd5Check
+    )
     {
         DlPath ??= Path.Join(downloadsPath, Name);
         await modDb.GetModDbLinkCurl(DlLink!, DlPath);
 
-        if (await ShouldDownloadAsync(downloadsPath, true, false))
+        if (await ShouldDownloadAsync(downloadsPath, true, false, alternateMd5Check))
         {
             await modDb.GetModDbLinkCurl(DlLink!, DlPath);
         }

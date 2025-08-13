@@ -1,9 +1,14 @@
+using stalker_gamma.core.Models;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
 
 namespace stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators;
 
-public class AddonsAndSeparators(ProgressService progressService, ModDb modDb)
+public class AddonsAndSeparators(
+    ProgressService progressService,
+    ModDb modDb,
+    GlobalSettings settings
+)
 {
     public async Task Install(
         string downloadsPath,
@@ -66,7 +71,12 @@ public class AddonsAndSeparators(ProgressService progressService, ModDb modDb)
 
             if (
                 downloadableRecord
-                    .ShouldDownloadAsync(downloadsPath, checkMd5, forceGitDownload)
+                    .ShouldDownloadAsync(
+                        downloadsPath,
+                        checkMd5,
+                        forceGitDownload,
+                        settings.AlternateMd5Check
+                    )
                     .GetAwaiter()
                     .GetResult()
             )
@@ -76,11 +86,20 @@ public class AddonsAndSeparators(ProgressService progressService, ModDb modDb)
                 );
                 if (
                     downloadableRecord
-                        .DownloadAsync(downloadsPath, useCurlImpersonate)
+                        .DownloadAsync(
+                            downloadsPath,
+                            useCurlImpersonate,
+                            settings.AlternateMd5Check
+                        )
                         .GetAwaiter()
                         .GetResult()
                     && downloadableRecord
-                        .ShouldDownloadAsync(downloadsPath, checkMd5, forceGitDownload)
+                        .ShouldDownloadAsync(
+                            downloadsPath,
+                            checkMd5,
+                            forceGitDownload,
+                            settings.AlternateMd5Check
+                        )
                         .GetAwaiter()
                         .GetResult()
                 )
@@ -89,7 +108,11 @@ public class AddonsAndSeparators(ProgressService progressService, ModDb modDb)
                         $"Md5 mismatch in downloaded file: {downloadableRecord.DlPath}. Downloading again."
                     );
                     downloadableRecord
-                        .DownloadAsync(downloadsPath, useCurlImpersonate)
+                        .DownloadAsync(
+                            downloadsPath,
+                            useCurlImpersonate,
+                            settings.AlternateMd5Check
+                        )
                         .GetAwaiter()
                         .GetResult();
                 }
