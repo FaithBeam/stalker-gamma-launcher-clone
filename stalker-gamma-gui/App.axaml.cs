@@ -54,6 +54,7 @@ public partial class App : Application
                     {
 #pragma warning disable IL2026
                         UseCurlImpersonate = configuration.GetValue<bool>("useCurlImpersonate"),
+                        AlternateMd5Check = configuration.GetValue<bool>("alternateMd5Check"),
 #pragma warning restore IL2026
                     }
                 );
