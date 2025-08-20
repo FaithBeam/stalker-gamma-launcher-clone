@@ -6,7 +6,7 @@ namespace stalker_gamma.core.Utilities;
 
 public class GitUtility(ProgressService progressService)
 {
-    public async Task UpdateGitRepo(string dir, string repoName, string repoUrl, string branch)
+    public async Task UpdateGitRepoAsync(string dir, string repoName, string repoUrl, string branch)
     {
         var repoPath = Path.Combine(dir, "resources", repoName);
         var resourcesPath = Path.Combine(dir, "resources");
@@ -19,7 +19,7 @@ public class GitUtility(ProgressService progressService)
         if (Directory.Exists(repoPath))
         {
             progressService.UpdateProgress($" Updating {repoName.Replace('_', ' ')}.");
-            await RunGitCommand(
+            await RunGitCommandAsync(
                 repoPath,
                 [
                     .. gitConfig,
@@ -35,12 +35,12 @@ public class GitUtility(ProgressService progressService)
             progressService.UpdateProgress(
                 $" Cloning {repoName.Replace('_', ' ')} (can take some time)."
             );
-            await RunGitCommand(resourcesPath, [.. gitConfig, $"clone {repoUrl}"]);
-            await RunGitCommand(repoPath, [.. gitConfig, $"checkout {branch}"]);
+            await RunGitCommandAsync(resourcesPath, [.. gitConfig, $"clone {repoUrl}"]);
+            await RunGitCommandAsync(repoPath, [.. gitConfig, $"checkout {branch}"]);
         }
     }
 
-    public async Task RunGitCommand(string workingDir, string[] commands)
+    public static async Task RunGitCommandAsync(string workingDir, string[] commands)
     {
         var stdOut = new StringBuilder();
         var stdErr = new StringBuilder();

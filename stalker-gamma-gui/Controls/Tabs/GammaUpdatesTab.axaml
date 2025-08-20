@@ -1,0 +1,23 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:stalker_gamma.core.ViewModels.Tabs.GammaUpdatesTab;assembly=stalker-gamma.core"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="stalker_gamma_gui.Controls.Tabs.GammaUpdatesTab"
+             x:DataType="vm:GammaUpdatesTabVm">
+    <Design.DataContext>
+        <vm:GammaUpdatesTabVm />
+    </Design.DataContext>
+
+    <Grid RowDefinitions="Auto,*">
+        <Label Content="CHANGEME" />
+        <DataGrid Grid.Row="1" ItemsSource="{Binding UpdateableRecords}" IsReadOnly="True" CanUserReorderColumns="True"
+                  CanUserResizeColumns="True" CanUserSortColumns="True" GridLinesVisibility="All">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Type" Binding="{Binding UpdateType}" />
+                <DataGridTextColumn Header="Path" Binding="{Binding Path}" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

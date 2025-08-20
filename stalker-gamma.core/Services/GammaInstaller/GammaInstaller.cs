@@ -225,20 +225,20 @@ public class GammaInstaller(
     {
         progressService.UpdateProgress(" Updating Github Repositories");
         const string branch = "main";
-        await gitUtility.UpdateGitRepo(
+        await gitUtility.UpdateGitRepoAsync(
             _dir,
             "Stalker_GAMMA",
             "https://github.com/Grokitach/Stalker_GAMMA",
             branch
         );
 
-        await gitUtility.UpdateGitRepo(
+        await gitUtility.UpdateGitRepoAsync(
             _dir,
             "gamma_large_files_v2",
             "https://github.com/Grokitach/gamma_large_files_v2",
             "main"
         );
-        await gitUtility.UpdateGitRepo(
+        await gitUtility.UpdateGitRepoAsync(
             _dir,
             "teivaz_anomaly_gunslinger",
             "https://github.com/Grokitach/teivaz_anomaly_gunslinger",
