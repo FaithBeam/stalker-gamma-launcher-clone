@@ -24,6 +24,9 @@ public class BackupTabVm : ViewModelBase
         "Full"
     );
 
+    private List<string> _modBackups;
+    private string? _selectedModBackup;
+
     private readonly ObservableAsPropertyHelper<BackupType> _selectedBackup;
     private bool _modsIsChecked = true;
     private bool _fullIsChecked;
@@ -41,6 +44,8 @@ public class BackupTabVm : ViewModelBase
         {
             Directory.CreateDirectory(_fullBackupPath);
         }
+
+        _modBackups = Directory.EnumerateFiles(_modsBackupPath).ToList();
 
         _selectedBackup = this.WhenAnyValue(
                 x => x.ModsIsChecked,
@@ -75,6 +80,8 @@ public class BackupTabVm : ViewModelBase
             backupTabProgressService.UpdateProgress(x.Message)
         );
 
+        // RestoreCmd = ReactiveCommand.CreateFromTask();
+
         AppendLineInteraction = new Interaction<string, Unit>();
         backupTabProgressService
             .BackupProgressObservable.ObserveOn(RxApp.MainThreadScheduler)
@@ -85,32 +92,65 @@ public class BackupTabVm : ViewModelBase
         _estimates = this.WhenAnyValue(
                 x => x.SelectedCompressor,
                 x => x.SelectedCompressionLevel,
-                selector: (selComp, selLevel) =>
-                    selComp switch
+                x => x.SelectedBackup,
+                selector: (selComp, selLevel, selBackup) =>
+                    selBackup switch
                     {
-                        Compressor.Lzma2 => selLevel switch
+                        BackupType.Mods => selComp switch
                         {
-                            CompressionLevel.None => "changeme",
-                            CompressionLevel.Fast => "≈ 15 minutes, 54gb 8c/16t CPU",
-                            CompressionLevel.Max => "≈ 50 minutes, 50gb 8c/16t CPU",
+                            Compressor.Lzma2 => "",
+                            Compressor.Zstd => selLevel switch
+                            {
+                                CompressionLevel.None => "",
+                                CompressionLevel.Fast => "≈ 1 minute, 36gb 8c/16t CPU",
+                                CompressionLevel.Max => "",
+                                _ => throw new ArgumentOutOfRangeException(
+                                    nameof(selLevel),
+                                    selLevel,
+                                    null
+                                ),
+                            },
                             _ => throw new ArgumentOutOfRangeException(
-                                nameof(selLevel),
-                                selLevel,
+                                nameof(selComp),
+                                selComp,
                                 null
                             ),
                         },
-                        Compressor.Zstd => selLevel switch
+                        BackupType.Full => selComp switch
                         {
-                            CompressionLevel.None => "changeme",
-                            CompressionLevel.Fast => "≈ 10 minutes, 65gb 8c/16t CPU",
-                            CompressionLevel.Max => "changeme",
+                            Compressor.Lzma2 => selLevel switch
+                            {
+                                CompressionLevel.None => "changeme",
+                                CompressionLevel.Fast => "≈ 15 minutes, 54gb 8c/16t CPU",
+                                CompressionLevel.Max => "≈ 50 minutes, 50gb 8c/16t CPU",
+                                _ => throw new ArgumentOutOfRangeException(
+                                    nameof(selLevel),
+                                    selLevel,
+                                    null
+                                ),
+                            },
+                            Compressor.Zstd => selLevel switch
+                            {
+                                CompressionLevel.None => "changeme",
+                                CompressionLevel.Fast => "≈ 10 minutes, 65gb 8c/16t CPU",
+                                CompressionLevel.Max => "≈ 135 minutes, 42gb 8c/16t CPU",
+                                _ => throw new ArgumentOutOfRangeException(
+                                    nameof(selLevel),
+                                    selLevel,
+                                    null
+                                ),
+                            },
                             _ => throw new ArgumentOutOfRangeException(
-                                nameof(selLevel),
-                                selLevel,
+                                nameof(selComp),
+                                selComp,
                                 null
                             ),
                         },
-                        _ => throw new ArgumentOutOfRangeException(nameof(selComp), selComp, null),
+                        _ => throw new ArgumentOutOfRangeException(
+                            nameof(selBackup),
+                            selBackup,
+                            null
+                        ),
                     }
             )
             .ToProperty(this, x => x.Estimates);
@@ -119,7 +159,17 @@ public class BackupTabVm : ViewModelBase
     public Interaction<string, Unit> AppendLineInteraction { get; }
     public ReactiveCommand<Unit, Unit> BackupCmd { get; }
     public ReactiveCommand<Unit, Unit> CancelBackupCmd { get; }
+
+    // public ReactiveCommand<Unit, Unit> RestoreCmd { get; }
     public IReadOnlyList<Compressor> Compressors { get; } = [Compressor.Lzma2, Compressor.Zstd];
+
+    public List<string> ModBackups => _modBackups;
+
+    public string? SelectedModBackup
+    {
+        get => _selectedModBackup;
+        set => this.RaiseAndSetIfChanged(ref _selectedModBackup, value);
+    }
 
     public Compressor SelectedCompressor
     {

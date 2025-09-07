@@ -12,24 +12,35 @@
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
         <vm:BackupTabVm />
     </Design.DataContext>
-    <Grid RowDefinitions="Auto,*,Auto">
+    <Grid RowDefinitions="Auto,2*,Auto" ColumnDefinitions="Auto,Auto">
         <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto">
             <ComboBox ItemsSource="{Binding Compressors}" SelectedItem="{Binding SelectedCompressor}" />
             <ComboBox Grid.Column="1" ItemsSource="{Binding CompressionLevels}"
                       SelectedItem="{Binding SelectedCompressionLevel}" />
             <Label Grid.Column="2" Content="{Binding Estimates}" />
             <TextBlock Grid.Column="3">
-                <RadioButton Content="Mods" IsChecked="{Binding ModsIsChecked}" GroupName="BackupType" />
-                <RadioButton Content="Full" IsChecked="{Binding FullIsChecked}" GroupName="BackupType"/>
+                <RadioButton Content="Mods" IsChecked="{Binding ModsIsChecked}" GroupName="BackupType">
+                    <ToolTip.Tip>
+                        Backup just the Gamma/mods folder. This is probably what you want.
+                    </ToolTip.Tip>
+                </RadioButton>
+                <RadioButton Content="Full" IsChecked="{Binding FullIsChecked}" GroupName="BackupType">
+                    <ToolTip.Tip>
+                        Backup the anomaly and gamma folders.
+                    </ToolTip.Tip>
+                </RadioButton>
             </TextBlock>
         </Grid>
-        <avaloniaEdit:TextEditor Grid.Row="1" x:Name="BackupTxt" IsReadOnly="True"
+        <avaloniaEdit:TextEditor Grid.Column="0" Grid.Row="1" x:Name="BackupTxt" IsReadOnly="True"
                                  HorizontalScrollBarVisibility="Disabled"
                                  HorizontalAlignment="Stretch" Foreground="#85fb98" Background="#242424"
                                  VerticalScrollBarVisibility="Visible" FontSize="12" FontFamily="Consolas" />
-        <Grid Grid.Row="2" ColumnDefinitions="Auto,Auto">
+        <ListBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding ModBackups}"
+                 SelectedItem="{Binding SelectedModBackup}" />
+        <Grid Grid.Column="0" Grid.Row="2" ColumnDefinitions="Auto,Auto,Auto">
             <Button Command="{Binding BackupCmd}" Content="Backup" />
             <Button Grid.Column="1" Command="{Binding CancelBackupCmd}" Content="Cancel" />
+            <Button Grid.Column="2" Command="{Binding }" Content="Restore" />
         </Grid>
     </Grid>
 </UserControl>
