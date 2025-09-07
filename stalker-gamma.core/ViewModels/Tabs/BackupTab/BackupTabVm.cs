@@ -103,7 +103,7 @@ public class BackupTabVm : ViewModelBase
                             {
                                 CompressionLevel.None => "",
                                 CompressionLevel.Fast => "≈ 1 minute, 36gb 8c/16t CPU",
-                                CompressionLevel.Max => "",
+                                CompressionLevel.Max => "≈ 80 minutes, 20gb 8c/16t CPU",
                                 _ => throw new ArgumentOutOfRangeException(
                                     nameof(selLevel),
                                     selLevel,
