@@ -1,11 +1,13 @@
 ﻿using System.Reactive;
 using System.Reactive.Linq;
+using System.Text.RegularExpressions;
 using ReactiveUI;
 
 namespace stalker_gamma.core.ViewModels.Tabs.BackupTab;
 
 public class BackupTabVm : ViewModelBase
 {
+    private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
     private readonly BackupService _backupService;
     private readonly BackupTabProgressService _backupTabProgressService;
     private Compressor _selectedCompressor;
@@ -22,7 +24,14 @@ public class BackupTabVm : ViewModelBase
         _selectedCompressor = Compressors.First(x => x == Compressor.Lzma2);
         _selectedCompressionLevel = CompressionLevels.First(x => x == CompressionLevel.Fast);
         BackupCmd = ReactiveCommand.CreateFromTask(() =>
-            _backupService.Backup(new BackupSettings(SelectedCompressionLevel, SelectedCompressor))
+            _backupService.Backup(
+                new BackupSettings(
+                    GetAnomalyPath()!,
+                    GetGammaPath()!,
+                    SelectedCompressionLevel,
+                    SelectedCompressor
+                )
+            )
         );
         BackupCmd.ThrownExceptions.Subscribe(x =>
             _backupTabProgressService.UpdateProgress(x.Message)
@@ -89,4 +98,29 @@ public class BackupTabVm : ViewModelBase
     }
 
     public string? Estimates => _estimates.Value;
+
+    private string? GetAnomalyPath()
+    {
+        var modOrganizerIniPath = Path.Join(_dir, "..", "ModOrganizer.ini");
+        if (!File.Exists(modOrganizerIniPath))
+        {
+            return null;
+        }
+
+        var modOrganizerIniTxt = File.ReadAllText(modOrganizerIniPath);
+        return Regex
+            .Match(
+                modOrganizerIniTxt,
+                @"\r?\ngamePath=@ByteArray\((.*)\)\r?\n",
+                RegexOptions.IgnoreCase
+            )
+            .Groups[1]
+            .Value;
+    }
+
+    private string? GetGammaPath()
+    {
+        var gammaPath = Path.GetFullPath(Path.Join(_dir, ".."));
+        return gammaPath;
+    }
 }

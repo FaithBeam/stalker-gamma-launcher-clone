@@ -17,7 +17,12 @@ public enum CompressionLevel
     Max,
 }
 
-public record BackupSettings(CompressionLevel CompressionLevel, Compressor Compressor);
+public record BackupSettings(
+    string AnomalyPath,
+    string GammaPath,
+    CompressionLevel CompressionLevel,
+    Compressor Compressor
+);
 
 public class BackupService
 {
@@ -45,7 +50,7 @@ public class BackupService
     {
         await ArchiveUtility
             .Archive(
-                [@"C:\anomaly", @"C:\gamma"],
+                [backupSettings.AnomalyPath, backupSettings.GammaPath],
                 Path.Join(_backupPath, DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss")),
                 backupSettings.Compressor.ToString().ToLower(),
                 GetCompressionLevel(backupSettings.Compressor, backupSettings.CompressionLevel),
