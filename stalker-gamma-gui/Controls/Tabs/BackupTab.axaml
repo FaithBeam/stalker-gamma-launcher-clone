@@ -13,11 +13,15 @@
         <vm:BackupTabVm />
     </Design.DataContext>
     <Grid RowDefinitions="Auto,*,Auto">
-        <Grid ColumnDefinitions="Auto,Auto,Auto">
+        <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto">
             <ComboBox ItemsSource="{Binding Compressors}" SelectedItem="{Binding SelectedCompressor}" />
             <ComboBox Grid.Column="1" ItemsSource="{Binding CompressionLevels}"
                       SelectedItem="{Binding SelectedCompressionLevel}" />
             <Label Grid.Column="2" Content="{Binding Estimates}" />
+            <TextBlock Grid.Column="3">
+                <RadioButton Content="Mods" IsChecked="{Binding ModsIsChecked}" GroupName="BackupType" />
+                <RadioButton Content="Full" IsChecked="{Binding FullIsChecked}" GroupName="BackupType"/>
+            </TextBlock>
         </Grid>
         <avaloniaEdit:TextEditor Grid.Row="1" x:Name="BackupTxt" IsReadOnly="True"
                                  HorizontalScrollBarVisibility="Disabled"

@@ -8,39 +8,71 @@ namespace stalker_gamma.core.ViewModels.Tabs.BackupTab;
 public class BackupTabVm : ViewModelBase
 {
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
-    private readonly BackupService _backupService;
-    private readonly BackupTabProgressService _backupTabProgressService;
     private Compressor _selectedCompressor;
     private CompressionLevel _selectedCompressionLevel;
     private readonly ObservableAsPropertyHelper<string?> _estimates;
     private CancellationTokenSource _backupCancellationTokenSource = new();
-    private CancellationToken _backupCancellationToken => _backupCancellationTokenSource.Token;
+    private CancellationToken BackupCancellationToken => _backupCancellationTokenSource.Token;
+    private readonly string _modsBackupPath = Path.Join(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "GAMMA",
+        "Mods"
+    );
+    private readonly string _fullBackupPath = Path.Join(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "GAMMA",
+        "Full"
+    );
+
+    private readonly ObservableAsPropertyHelper<BackupType> _selectedBackup;
+    private bool _modsIsChecked = true;
+    private bool _fullIsChecked;
 
     public BackupTabVm(
         BackupService backupService,
         BackupTabProgressService backupTabProgressService
     )
     {
-        _backupService = backupService;
-        _backupTabProgressService = backupTabProgressService;
+        if (!Directory.Exists(_modsBackupPath))
+        {
+            Directory.CreateDirectory(_modsBackupPath);
+        }
+        if (!Directory.Exists(_fullBackupPath))
+        {
+            Directory.CreateDirectory(_fullBackupPath);
+        }
+
+        _selectedBackup = this.WhenAnyValue(
+                x => x.ModsIsChecked,
+                x => x.FullIsChecked,
+                selector: (mods, full) =>
+                    mods ? BackupType.Mods
+                    : full ? BackupType.Full
+                    : BackupType.Mods
+            )
+            .ToProperty(this, x => x.SelectedBackup);
         _selectedCompressor = Compressors.First(x => x == Compressor.Lzma2);
         _selectedCompressionLevel = CompressionLevels.First(x => x == CompressionLevel.Fast);
         CancelBackupCmd = ReactiveCommand.Create(() => _backupCancellationTokenSource.Cancel());
         BackupCmd = ReactiveCommand.CreateFromTask(() =>
         {
             _backupCancellationTokenSource = new CancellationTokenSource();
-            return _backupService.Backup(
+            return backupService.Backup(
                 new BackupSettings(
-                    GetAnomalyPath()!,
-                    GetGammaPath()!,
+                    SelectedBackup == BackupType.Full
+                        ? [GetAnomalyPath()!, GetGammaPath()!]
+                        : [Path.Join("..", "mods")],
+                    SelectedBackup == BackupType.Full
+                        ? Path.Join(_fullBackupPath, DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"))
+                        : Path.Join(_modsBackupPath, DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss")),
                     SelectedCompressionLevel,
                     SelectedCompressor,
-                    _backupCancellationToken
+                    BackupCancellationToken
                 )
             );
         });
         BackupCmd.ThrownExceptions.Subscribe(x =>
-            _backupTabProgressService.UpdateProgress(x.Message)
+            backupTabProgressService.UpdateProgress(x.Message)
         );
 
         AppendLineInteraction = new Interaction<string, Unit>();
@@ -60,7 +92,7 @@ public class BackupTabVm : ViewModelBase
                         {
                             CompressionLevel.None => "changeme",
                             CompressionLevel.Fast => "≈ 15 minutes, 54gb 8c/16t CPU",
-                            CompressionLevel.Max => "changeme",
+                            CompressionLevel.Max => "≈ 50 minutes, 50gb 8c/16t CPU",
                             _ => throw new ArgumentOutOfRangeException(
                                 nameof(selLevel),
                                 selLevel,
@@ -130,4 +162,24 @@ public class BackupTabVm : ViewModelBase
         var gammaPath = Path.GetFullPath(Path.Join(_dir, ".."));
         return gammaPath;
     }
+
+    public BackupType SelectedBackup => _selectedBackup.Value;
+
+    public bool ModsIsChecked
+    {
+        get => _modsIsChecked;
+        set => this.RaiseAndSetIfChanged(ref _modsIsChecked, value);
+    }
+
+    public bool FullIsChecked
+    {
+        get => _fullIsChecked;
+        set => this.RaiseAndSetIfChanged(ref _fullIsChecked, value);
+    }
+}
+
+public enum BackupType
+{
+    Mods,
+    Full,
 }

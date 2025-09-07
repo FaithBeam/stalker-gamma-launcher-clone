@@ -18,8 +18,8 @@ public enum CompressionLevel
 }
 
 public record BackupSettings(
-    string AnomalyPath,
-    string GammaPath,
+    string[] BackupPaths,
+    string Destination,
     CompressionLevel CompressionLevel,
     Compressor Compressor,
     CancellationToken CancellationToken
@@ -51,8 +51,8 @@ public class BackupService
     {
         await ArchiveUtility
             .Archive(
-                [backupSettings.AnomalyPath, backupSettings.GammaPath],
-                Path.Join(_backupPath, DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss")),
+                backupSettings.BackupPaths,
+                backupSettings.Destination,
                 backupSettings.Compressor.ToString().ToLower(),
                 GetCompressionLevel(backupSettings.Compressor, backupSettings.CompressionLevel),
                 ["downloads"],
@@ -62,15 +62,11 @@ public class BackupService
             {
                 switch (cmdEvent)
                 {
-                    case StartedCommandEvent started:
-                        break;
                     case StandardOutputCommandEvent standardOutput:
                         _progress.UpdateProgress(standardOutput.Text);
                         break;
                     case StandardErrorCommandEvent standardError:
                         _progress.UpdateProgress(standardError.Text);
-                        break;
-                    case ExitedCommandEvent exited:
                         break;
                 }
             });
