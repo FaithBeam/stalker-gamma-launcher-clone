@@ -24,6 +24,9 @@ public class BackupTabVm : ViewModelBase
         BackupCmd = ReactiveCommand.CreateFromTask(() =>
             _backupService.Backup(new BackupSettings(SelectedCompressionLevel, SelectedCompressor))
         );
+        BackupCmd.ThrownExceptions.Subscribe(x =>
+            _backupTabProgressService.UpdateProgress(x.Message)
+        );
 
         AppendLineInteraction = new Interaction<string, Unit>();
         backupTabProgressService
