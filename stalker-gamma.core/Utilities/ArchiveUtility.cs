@@ -29,13 +29,15 @@ public static class ArchiveUtility
     /// <param name="compressor"></param>
     /// <param name="compressionLevel"></param>
     /// <param name="exclusions">Folders/items to exclude</param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
     public static IObservable<CommandEvent> Archive(
         string[] paths,
         string destination,
         string compressor,
         string compressionLevel,
-        string[]? exclusions = null
+        string[]? exclusions = null,
+        CancellationToken? cancellationToken = null
     )
     {
         var cli =
@@ -48,7 +50,7 @@ public static class ArchiveUtility
             + $"-mx{compressionLevel} "
             + $"{(exclusions?.Length == 0 ? "" : string.Join(" ", exclusions!.Select(x => $"-xr!{x}")))}";
         var cmd = Cli.Wrap(SevenZip).WithArguments(cli);
-        return cmd.Observe();
+        return cancellationToken is not null ? cmd.Observe(cancellationToken.Value) : cmd.Observe();
     }
 
     private const string Macos7Zip = "7zz";

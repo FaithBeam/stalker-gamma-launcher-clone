@@ -23,6 +23,9 @@
                                  HorizontalScrollBarVisibility="Disabled"
                                  HorizontalAlignment="Stretch" Foreground="#85fb98" Background="#242424"
                                  VerticalScrollBarVisibility="Visible" FontSize="12" FontFamily="Consolas" />
-        <Button Grid.Row="2" Command="{Binding BackupCmd}" Content="Backup" />
+        <Grid Grid.Row="2" ColumnDefinitions="Auto,Auto">
+            <Button Command="{Binding BackupCmd}" Content="Backup" />
+            <Button Grid.Column="1" Command="{Binding CancelBackupCmd}" Content="Cancel" />
+        </Grid>
     </Grid>
 </UserControl>

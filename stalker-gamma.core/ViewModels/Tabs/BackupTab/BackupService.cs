@@ -21,7 +21,8 @@ public record BackupSettings(
     string AnomalyPath,
     string GammaPath,
     CompressionLevel CompressionLevel,
-    Compressor Compressor
+    Compressor Compressor,
+    CancellationToken CancellationToken
 );
 
 public class BackupService
@@ -54,7 +55,8 @@ public class BackupService
                 Path.Join(_backupPath, DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss")),
                 backupSettings.Compressor.ToString().ToLower(),
                 GetCompressionLevel(backupSettings.Compressor, backupSettings.CompressionLevel),
-                ["downloads"]
+                ["downloads"],
+                backupSettings.CancellationToken
             )
             .ForEachAsync(cmdEvent =>
             {

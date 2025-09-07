@@ -13,6 +13,8 @@ public class BackupTabVm : ViewModelBase
     private Compressor _selectedCompressor;
     private CompressionLevel _selectedCompressionLevel;
     private readonly ObservableAsPropertyHelper<string?> _estimates;
+    private CancellationTokenSource _backupCancellationTokenSource = new();
+    private CancellationToken _backupCancellationToken => _backupCancellationTokenSource.Token;
 
     public BackupTabVm(
         BackupService backupService,
@@ -23,16 +25,20 @@ public class BackupTabVm : ViewModelBase
         _backupTabProgressService = backupTabProgressService;
         _selectedCompressor = Compressors.First(x => x == Compressor.Lzma2);
         _selectedCompressionLevel = CompressionLevels.First(x => x == CompressionLevel.Fast);
+        CancelBackupCmd = ReactiveCommand.Create(() => _backupCancellationTokenSource.Cancel());
         BackupCmd = ReactiveCommand.CreateFromTask(() =>
-            _backupService.Backup(
+        {
+            _backupCancellationTokenSource = new CancellationTokenSource();
+            return _backupService.Backup(
                 new BackupSettings(
                     GetAnomalyPath()!,
                     GetGammaPath()!,
                     SelectedCompressionLevel,
-                    SelectedCompressor
+                    SelectedCompressor,
+                    _backupCancellationToken
                 )
-            )
-        );
+            );
+        });
         BackupCmd.ThrownExceptions.Subscribe(x =>
             _backupTabProgressService.UpdateProgress(x.Message)
         );
@@ -53,7 +59,7 @@ public class BackupTabVm : ViewModelBase
                         Compressor.Lzma2 => selLevel switch
                         {
                             CompressionLevel.None => "changeme",
-                            CompressionLevel.Fast => "changeme",
+                            CompressionLevel.Fast => "≈ 15 minutes, 54gb 8c/16t CPU",
                             CompressionLevel.Max => "changeme",
                             _ => throw new ArgumentOutOfRangeException(
                                 nameof(selLevel),
@@ -64,7 +70,7 @@ public class BackupTabVm : ViewModelBase
                         Compressor.Zstd => selLevel switch
                         {
                             CompressionLevel.None => "changeme",
-                            CompressionLevel.Fast => "≈ 10 minutes, 65gb 7800X3D CPU",
+                            CompressionLevel.Fast => "≈ 10 minutes, 65gb 8c/16t CPU",
                             CompressionLevel.Max => "changeme",
                             _ => throw new ArgumentOutOfRangeException(
                                 nameof(selLevel),
@@ -80,6 +86,7 @@ public class BackupTabVm : ViewModelBase
 
     public Interaction<string, Unit> AppendLineInteraction { get; }
     public ReactiveCommand<Unit, Unit> BackupCmd { get; }
+    public ReactiveCommand<Unit, Unit> CancelBackupCmd { get; }
     public IReadOnlyList<Compressor> Compressors { get; } = [Compressor.Lzma2, Compressor.Zstd];
 
     public Compressor SelectedCompressor
