@@ -45,7 +45,10 @@ public class BackupTabVm : ViewModelBase
             Directory.CreateDirectory(_fullBackupPath);
         }
 
-        _modBackups = Directory.EnumerateFiles(_modsBackupPath).ToList();
+        _modBackups = Directory
+            .EnumerateFiles(_modsBackupPath)
+            .Select(x => Path.GetFileName(x))
+            .ToList();
 
         _selectedBackup = this.WhenAnyValue(
                 x => x.ModsIsChecked,
