@@ -30,6 +30,9 @@
             <TabItem x:Name="ModsTabItem" FontSize="16" Header="ModDB Updates" IsEnabled="{Binding !IsBusyService.IsBusy}">
                 <tabs:ModDbUpdatesTab DataContext="{Binding ModDbUpdatesTabVm}" />
             </TabItem>
+            <TabItem x:Name="BackupTabItem" FontSize="16" Header="Backup" IsEnabled="{Binding !IsBusyService.IsBusy}">
+                <tabs:BackupTab DataContext="{Binding BackupTabVm}" />
+            </TabItem>
         </TabControl>
     </Grid>
 </Window>

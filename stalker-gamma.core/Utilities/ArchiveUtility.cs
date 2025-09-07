@@ -1,5 +1,6 @@
 using System.Text;
 using CliWrap;
+using CliWrap.EventStream;
 
 namespace stalker_gamma.core.Utilities;
 
@@ -18,6 +19,36 @@ public static class ArchiveUtility
         {
             throw new Exception($"{stdErr}\n{stdOut}");
         }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="paths">The paths to add to the archive</param>
+    /// <param name="destination">The output path</param>
+    /// <param name="compressor"></param>
+    /// <param name="compressionLevel"></param>
+    /// <param name="exclusions">Folders/items to exclude</param>
+    /// <returns></returns>
+    public static IObservable<CommandEvent> Archive(
+        string[] paths,
+        string destination,
+        string compressor,
+        string compressionLevel,
+        string[]? exclusions = null
+    )
+    {
+        var cli =
+            $"a "
+            + $"-bsp1 "
+            + $"{destination} "
+            + $"{string.Join(" ", paths.Select(x => $"\"{x}\""))} "
+            + $"-m0={(compressor == "zstd" ? "bcj" : compressor)} "
+            + $"{(compressor == "zstd" ? "-m1=zstd " : "")}"
+            + $"-mx{compressionLevel} "
+            + $"{(exclusions?.Length == 0 ? "" : string.Join(" ", exclusions!.Select(x => $"-xr!{x}")))}";
+        var cmd = Cli.Wrap(SevenZip).WithArguments(cli);
+        return cmd.Observe();
     }
 
     private const string Macos7Zip = "7zz";

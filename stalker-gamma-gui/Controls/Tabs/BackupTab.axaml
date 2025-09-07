@@ -1,0 +1,28 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:stalker_gamma.core.ViewModels.Tabs.BackupTab;assembly=stalker-gamma.core"
+             xmlns:avaloniaEdit="https://github.com/avaloniaui/avaloniaedit"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="stalker_gamma_gui.Controls.Tabs.BackupTab"
+             x:DataType="vm:BackupTabVm">
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <vm:BackupTabVm />
+    </Design.DataContext>
+    <Grid RowDefinitions="Auto,*,Auto">
+        <Grid ColumnDefinitions="Auto,Auto,Auto">
+            <ComboBox ItemsSource="{Binding Compressors}" SelectedItem="{Binding SelectedCompressor}" />
+            <ComboBox Grid.Column="1" ItemsSource="{Binding CompressionLevels}"
+                      SelectedItem="{Binding SelectedCompressionLevel}" />
+            <Label Grid.Column="2" Content="{Binding Estimates}" />
+        </Grid>
+        <avaloniaEdit:TextEditor Grid.Row="1" x:Name="BackupTxt" IsReadOnly="True"
+                                 HorizontalScrollBarVisibility="Disabled"
+                                 HorizontalAlignment="Stretch" Foreground="#85fb98" Background="#242424"
+                                 VerticalScrollBarVisibility="Visible" FontSize="12" FontFamily="Consolas" />
+        <Button Grid.Row="2" Command="{Binding BackupCmd}" Content="Backup" />
+    </Grid>
+</UserControl>

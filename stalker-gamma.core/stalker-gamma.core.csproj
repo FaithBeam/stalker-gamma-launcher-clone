@@ -18,4 +18,7 @@
     <PackageReference Include="CliWrap" Version="3.9.0" />
     <PackageReference Include="WindowsShortcutFactory" Version="1.2.0" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="resources\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>
