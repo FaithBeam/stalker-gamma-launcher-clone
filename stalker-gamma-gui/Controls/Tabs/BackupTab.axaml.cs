@@ -23,7 +23,7 @@ public partial class BackupTab : ReactiveUserControl<BackupTabVm>
                     return;
                 }
 
-                ViewModel.AppendLineInteraction.RegisterHandler(AppendLineHandler).DisposeWith(d);
+                ViewModel.AppendLineInteraction.RegisterHandler(AppendLineHandler);
             }
         );
     }
