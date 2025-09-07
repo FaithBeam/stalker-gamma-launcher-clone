@@ -12,39 +12,58 @@ public class BackupTabVm : ViewModelBase
     private CompressionLevel _selectedCompressionLevel;
     private readonly ObservableAsPropertyHelper<string?> _estimates;
 
-    public BackupTabVm(BackupService backupService, BackupTabProgressService backupTabProgressService)
+    public BackupTabVm(
+        BackupService backupService,
+        BackupTabProgressService backupTabProgressService
+    )
     {
         _backupService = backupService;
         _backupTabProgressService = backupTabProgressService;
         _selectedCompressor = Compressors.First(x => x == Compressor.Lzma2);
         _selectedCompressionLevel = CompressionLevels.First(x => x == CompressionLevel.Fast);
         BackupCmd = ReactiveCommand.CreateFromTask(() =>
-            _backupService.Backup(new BackupSettings(SelectedCompressionLevel, SelectedCompressor)));
+            _backupService.Backup(new BackupSettings(SelectedCompressionLevel, SelectedCompressor))
+        );
 
         AppendLineInteraction = new Interaction<string, Unit>();
-        backupTabProgressService.BackupProgressObservable.ObserveOn(RxApp.MainThreadScheduler).Select(x => x.Message)
-            .WhereNotNull().Subscribe(async x => await AppendLineInteraction.Handle(x));
+        backupTabProgressService
+            .BackupProgressObservable.ObserveOn(RxApp.MainThreadScheduler)
+            .Select(x => x.Message)
+            .WhereNotNull()
+            .Subscribe(async x => await AppendLineInteraction.Handle(x));
 
-        _estimates = this
-            .WhenAnyValue(x => x.SelectedCompressor, x => x.SelectedCompressionLevel,
-                selector: (selComp, selLevel) => selComp switch
-                {
-                    Compressor.Lzma2 => selLevel switch
+        _estimates = this.WhenAnyValue(
+                x => x.SelectedCompressor,
+                x => x.SelectedCompressionLevel,
+                selector: (selComp, selLevel) =>
+                    selComp switch
                     {
-                        CompressionLevel.None => "changeme",
-                        CompressionLevel.Fast => "changeme",
-                        CompressionLevel.Max => "changeme",
-                        _ => throw new ArgumentOutOfRangeException(nameof(selLevel), selLevel, null)
-                    },
-                    Compressor.Zstd => selLevel switch
-                    {
-                        CompressionLevel.None => "changeme",
-                        CompressionLevel.Fast => "≈ 10 minutes, 65gb 7800X3D CPU",
-                        CompressionLevel.Max => "changeme",
-                        _ => throw new ArgumentOutOfRangeException(nameof(selLevel), selLevel, null)
-                    },
-                    _ => throw new ArgumentOutOfRangeException(nameof(selComp), selComp, null)
-                }).ToProperty(this, x => x.Estimates);
+                        Compressor.Lzma2 => selLevel switch
+                        {
+                            CompressionLevel.None => "changeme",
+                            CompressionLevel.Fast => "changeme",
+                            CompressionLevel.Max => "changeme",
+                            _ => throw new ArgumentOutOfRangeException(
+                                nameof(selLevel),
+                                selLevel,
+                                null
+                            ),
+                        },
+                        Compressor.Zstd => selLevel switch
+                        {
+                            CompressionLevel.None => "changeme",
+                            CompressionLevel.Fast => "≈ 10 minutes, 65gb 7800X3D CPU",
+                            CompressionLevel.Max => "changeme",
+                            _ => throw new ArgumentOutOfRangeException(
+                                nameof(selLevel),
+                                selLevel,
+                                null
+                            ),
+                        },
+                        _ => throw new ArgumentOutOfRangeException(nameof(selComp), selComp, null),
+                    }
+            )
+            .ToProperty(this, x => x.Estimates);
     }
 
     public Interaction<string, Unit> AppendLineInteraction { get; }
