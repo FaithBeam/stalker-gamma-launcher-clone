@@ -12,7 +12,7 @@
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
         <vm:BackupTabVm />
     </Design.DataContext>
-    <Grid RowDefinitions="Auto,2*,Auto" ColumnDefinitions="Auto,Auto">
+    <Grid RowDefinitions="Auto,2*,Auto" ColumnDefinitions="Auto,*">
         <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto">
             <ComboBox ItemsSource="{Binding Compressors}" SelectedItem="{Binding SelectedCompressor}" />
             <ComboBox Grid.Column="1" ItemsSource="{Binding CompressionLevels}"
@@ -31,9 +31,8 @@
                 </RadioButton>
             </TextBlock>
         </Grid>
-        <avaloniaEdit:TextEditor Grid.Column="0" Grid.Row="1" x:Name="BackupTxt" IsReadOnly="True"
-                                 HorizontalScrollBarVisibility="Disabled"
-                                 HorizontalAlignment="Stretch" Foreground="#85fb98" Background="#242424"
+        <avaloniaEdit:TextEditor Grid.Column="0" Grid.Row="1" MaxWidth="500" Width="500" x:Name="BackupTxt" IsReadOnly="True"
+                                 HorizontalScrollBarVisibility="Auto" Foreground="#85fb98" Background="#242424"
                                  VerticalScrollBarVisibility="Visible" FontSize="12" FontFamily="Consolas" />
         <ListBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding ModBackups}"
                  SelectedItem="{Binding SelectedModBackup}" />

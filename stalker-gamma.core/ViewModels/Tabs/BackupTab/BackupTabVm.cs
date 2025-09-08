@@ -1,11 +1,15 @@
-﻿using System.Reactive;
+﻿using System.Collections.ObjectModel;
+using System.Reactive;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Text.RegularExpressions;
+using DynamicData;
+using DynamicData.Binding;
 using ReactiveUI;
 
 namespace stalker_gamma.core.ViewModels.Tabs.BackupTab;
 
-public class BackupTabVm : ViewModelBase
+public class BackupTabVm : ViewModelBase, IActivatableViewModel
 {
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
     private Compressor _selectedCompressor;
@@ -24,7 +28,7 @@ public class BackupTabVm : ViewModelBase
         "Full"
     );
 
-    private List<string> _modBackups;
+    private readonly ReadOnlyObservableCollection<string> _modBackups;
     private string? _selectedModBackup;
 
     private readonly ObservableAsPropertyHelper<BackupType> _selectedBackup;
@@ -36,6 +40,7 @@ public class BackupTabVm : ViewModelBase
         BackupTabProgressService backupTabProgressService
     )
     {
+        Activator = new ViewModelActivator();
         if (!Directory.Exists(_modsBackupPath))
         {
             Directory.CreateDirectory(_modsBackupPath);
@@ -45,10 +50,23 @@ public class BackupTabVm : ViewModelBase
             Directory.CreateDirectory(_fullBackupPath);
         }
 
-        _modBackups = Directory
-            .EnumerateFiles(_modsBackupPath)
-            .Select(x => Path.GetFileName(x))
-            .ToList();
+        var backupsSrcList = new SourceList<string>();
+
+        backupsSrcList
+            .Connect()
+            .Transform(x => Path.GetFileName(x))
+            .Sort(SortExpressionComparer<string>.Descending(x => x))
+            .Bind(out _modBackups)
+            .Subscribe();
+
+        CheckModsList = ReactiveCommand.Create(() =>
+        {
+            backupsSrcList.Edit(inner =>
+            {
+                inner.Clear();
+                inner.AddRange(Directory.GetFiles(_modsBackupPath));
+            });
+        });
 
         _selectedBackup = this.WhenAnyValue(
                 x => x.ModsIsChecked,
@@ -82,6 +100,7 @@ public class BackupTabVm : ViewModelBase
         BackupCmd.ThrownExceptions.Subscribe(x =>
             backupTabProgressService.UpdateProgress(x.Message)
         );
+        BackupCmd.Subscribe(_ => CheckModsList.Execute().Subscribe());
 
         // RestoreCmd = ReactiveCommand.CreateFromTask();
 
@@ -105,7 +124,7 @@ public class BackupTabVm : ViewModelBase
                             Compressor.Zstd => selLevel switch
                             {
                                 CompressionLevel.None => "",
-                                CompressionLevel.Fast => "≈ 1 minute, 36gb 8c/16t CPU",
+                                CompressionLevel.Fast => "≈ 5 minute, 34gb 8c/16t CPU",
                                 CompressionLevel.Max => "≈ 80 minutes, 20gb 8c/16t CPU",
                                 _ => throw new ArgumentOutOfRangeException(
                                     nameof(selLevel),
@@ -157,6 +176,13 @@ public class BackupTabVm : ViewModelBase
                     }
             )
             .ToProperty(this, x => x.Estimates);
+
+        this.WhenActivated(
+            (CompositeDisposable d) =>
+            {
+                CheckModsList.Execute().Subscribe();
+            }
+        );
     }
 
     public Interaction<string, Unit> AppendLineInteraction { get; }
@@ -166,7 +192,7 @@ public class BackupTabVm : ViewModelBase
     // public ReactiveCommand<Unit, Unit> RestoreCmd { get; }
     public IReadOnlyList<Compressor> Compressors { get; } = [Compressor.Lzma2, Compressor.Zstd];
 
-    public List<string> ModBackups => _modBackups;
+    public ReadOnlyObservableCollection<string> ModBackups => _modBackups;
 
     public string? SelectedModBackup
     {
@@ -190,6 +216,8 @@ public class BackupTabVm : ViewModelBase
     }
 
     public string? Estimates => _estimates.Value;
+
+    public ReactiveCommand<Unit, Unit> CheckModsList { get; }
 
     private string? GetAnomalyPath()
     {
@@ -229,6 +257,8 @@ public class BackupTabVm : ViewModelBase
         get => _fullIsChecked;
         set => this.RaiseAndSetIfChanged(ref _fullIsChecked, value);
     }
+
+    public ViewModelActivator Activator { get; }
 }
 
 public enum BackupType
