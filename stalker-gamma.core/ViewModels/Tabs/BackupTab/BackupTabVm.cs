@@ -17,16 +17,12 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
     private readonly ObservableAsPropertyHelper<string?> _estimates;
     private CancellationTokenSource _backupCancellationTokenSource = new();
     private CancellationToken BackupCancellationToken => _backupCancellationTokenSource.Token;
-    private readonly string _modsBackupPath = Path.Join(
+    private string _gammaFolder = Path.Join(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "GAMMA",
-        "Mods"
+        "GAMMA"
     );
-    private readonly string _fullBackupPath = Path.Join(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "GAMMA",
-        "Full"
-    );
+    private string _modsBackupPath;
+    private string _fullBackupPath;
 
     private readonly ReadOnlyObservableCollection<string> _modBackups;
     private string? _selectedModBackup;
@@ -41,6 +37,8 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
     )
     {
         Activator = new ViewModelActivator();
+        _modsBackupPath = Path.Join(_gammaFolder, "Mods");
+        _fullBackupPath = Path.Join(_gammaFolder, "Full");
         if (!Directory.Exists(_modsBackupPath))
         {
             Directory.CreateDirectory(_modsBackupPath);
@@ -67,6 +65,18 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
                 inner.AddRange(Directory.GetFiles(_modsBackupPath));
             });
         });
+
+        ChangeGammaBackupDirectoryInteraction = new Interaction<Unit, string?>();
+        ChangeGammaBackupDirectoryCmd = ReactiveCommand.CreateFromTask<string?>(async () =>
+            await ChangeGammaBackupDirectoryInteraction.Handle(Unit.Default)
+        );
+        ChangeGammaBackupDirectoryCmd
+            .WhereNotNull()
+            .Subscribe(x =>
+            {
+                GammaFolder = x;
+                CheckModsList.Execute().Subscribe();
+            });
 
         _selectedBackup = this.WhenAnyValue(
                 x => x.ModsIsChecked,
@@ -186,6 +196,7 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
     }
 
     public Interaction<string, Unit> AppendLineInteraction { get; }
+    public Interaction<Unit, string?> ChangeGammaBackupDirectoryInteraction { get; }
     public ReactiveCommand<Unit, Unit> BackupCmd { get; }
     public ReactiveCommand<Unit, Unit> CancelBackupCmd { get; }
 
@@ -218,6 +229,8 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
     public string? Estimates => _estimates.Value;
 
     public ReactiveCommand<Unit, Unit> CheckModsList { get; }
+
+    public ReactiveCommand<Unit, string?> ChangeGammaBackupDirectoryCmd { get; }
 
     private string? GetAnomalyPath()
     {
@@ -256,6 +269,12 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
     {
         get => _fullIsChecked;
         set => this.RaiseAndSetIfChanged(ref _fullIsChecked, value);
+    }
+
+    public string GammaFolder
+    {
+        get => _gammaFolder;
+        set => this.RaiseAndSetIfChanged(ref _gammaFolder, value);
     }
 
     public ViewModelActivator Activator { get; }

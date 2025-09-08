@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using Avalonia.Platform.Storage;
 using Avalonia.ReactiveUI;
 using ReactiveUI;
 using stalker_gamma.core.ViewModels.Tabs.BackupTab;
@@ -24,8 +27,25 @@ public partial class BackupTab : ReactiveUserControl<BackupTabVm>
                 }
 
                 ViewModel.AppendLineInteraction.RegisterHandler(AppendLineHandler);
+                ViewModel.ChangeGammaBackupDirectoryInteraction.RegisterHandler(
+                    ChangeGammaBackupDirectory
+                );
             }
         );
+    }
+
+    private async Task ChangeGammaBackupDirectory(IInteractionContext<Unit, string?> ctx)
+    {
+        var fileNames = await TopLevel
+            .GetTopLevel(this)!
+            .StorageProvider.OpenFolderPickerAsync(
+                new FolderPickerOpenOptions
+                {
+                    Title = "Select your GAMMA backup folder",
+                    AllowMultiple = false,
+                }
+            );
+        ctx.SetOutput(fileNames.Any() ? fileNames[0].TryGetLocalPath() : null);
     }
 
     private void AppendLineHandler(IInteractionContext<string, Unit> interactionCtx)

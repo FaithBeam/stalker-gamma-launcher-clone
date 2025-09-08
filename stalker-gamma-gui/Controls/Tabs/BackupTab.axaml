@@ -12,8 +12,8 @@
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
         <vm:BackupTabVm />
     </Design.DataContext>
-    <Grid RowDefinitions="Auto,2*,Auto" ColumnDefinitions="Auto,*">
-        <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto">
+    <Grid RowDefinitions="Auto,*,Auto" ColumnDefinitions="Auto,*">
+        <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" ColumnSpan="2">
             <ComboBox ItemsSource="{Binding Compressors}" SelectedItem="{Binding SelectedCompressor}" />
             <ComboBox Grid.Column="1" ItemsSource="{Binding CompressionLevels}"
                       SelectedItem="{Binding SelectedCompressionLevel}" />
@@ -30,12 +30,21 @@
                     </ToolTip.Tip>
                 </RadioButton>
             </TextBlock>
+                <TextBox Grid.Column="4" Margin="5 0" Text="{Binding GammaFolder}" VerticalAlignment="Center" />
+            <Button Grid.Column="5" Content="Browse" Command="{Binding ChangeGammaBackupDirectoryCmd}" />
         </Grid>
-        <avaloniaEdit:TextEditor Grid.Column="0" Grid.Row="1" MaxWidth="500" Width="500" x:Name="BackupTxt" IsReadOnly="True"
-                                 HorizontalScrollBarVisibility="Auto" Foreground="#85fb98" Background="#242424"
-                                 VerticalScrollBarVisibility="Visible" FontSize="12" FontFamily="Consolas" />
-        <ListBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding ModBackups}"
-                 SelectedItem="{Binding SelectedModBackup}" />
+        <Grid Grid.Column="0" Grid.Row="1" RowDefinitions="Auto,*">
+            <Label Content="Console" />
+            <avaloniaEdit:TextEditor Grid.Row="1" VerticalAlignment="Stretch" MaxWidth="500" Width="500"
+                                     x:Name="BackupTxt" IsReadOnly="True"
+                                     HorizontalScrollBarVisibility="Auto" Foreground="#85fb98" Background="#242424"
+                                     VerticalScrollBarVisibility="Visible" FontSize="12" FontFamily="Consolas" />
+        </Grid>
+        <Grid Grid.Row="1" Grid.Column="1" RowDefinitions="Auto,*">
+            <Label Content="Backups" />
+            <ListBox Grid.Row="1" ItemsSource="{Binding ModBackups}"
+                     SelectedItem="{Binding SelectedModBackup}" />
+        </Grid>
         <Grid Grid.Column="0" Grid.Row="2" ColumnDefinitions="Auto,Auto,Auto">
             <Button Command="{Binding BackupCmd}" Content="Backup" />
             <Button Grid.Column="1" Command="{Binding CancelBackupCmd}" Content="Cancel" />
