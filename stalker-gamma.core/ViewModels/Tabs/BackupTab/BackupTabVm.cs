@@ -21,8 +21,8 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "GAMMA"
     );
-    private string _modsBackupPath;
-    private string _fullBackupPath;
+    private readonly ObservableAsPropertyHelper<string> _modsBackupPath;
+    private readonly ObservableAsPropertyHelper<string> _fullBackupPath;
 
     private readonly ReadOnlyObservableCollection<string> _modBackups;
     private string? _selectedModBackup;
@@ -37,16 +37,6 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
     )
     {
         Activator = new ViewModelActivator();
-        _modsBackupPath = Path.Join(_gammaFolder, "Mods");
-        _fullBackupPath = Path.Join(_gammaFolder, "Full");
-        if (!Directory.Exists(_modsBackupPath))
-        {
-            Directory.CreateDirectory(_modsBackupPath);
-        }
-        if (!Directory.Exists(_fullBackupPath))
-        {
-            Directory.CreateDirectory(_fullBackupPath);
-        }
 
         var backupsSrcList = new SourceList<string>();
 
@@ -62,8 +52,26 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
             backupsSrcList.Edit(inner =>
             {
                 inner.Clear();
-                inner.AddRange(Directory.GetFiles(_modsBackupPath));
+                inner.AddRange(Directory.GetFiles(ModsBackupPath));
             });
+        });
+
+        CreateBackupFolders = ReactiveCommand.Create(() =>
+        {
+            if (!Directory.Exists(GammaFolder))
+            {
+                Directory.CreateDirectory(GammaFolder);
+            }
+
+            if (!Directory.Exists(ModsBackupPath))
+            {
+                Directory.CreateDirectory(ModsBackupPath);
+            }
+
+            if (!Directory.Exists(FullBackupPath))
+            {
+                Directory.CreateDirectory(FullBackupPath);
+            }
         });
 
         ChangeGammaBackupDirectoryInteraction = new Interaction<Unit, string?>();
@@ -75,8 +83,23 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
             .Subscribe(x =>
             {
                 GammaFolder = x;
-                CheckModsList.Execute().Subscribe();
             });
+
+        _modsBackupPath = this.WhenAnyValue(
+                x => x.GammaFolder,
+                selector: folder => Path.Join(folder, "Mods")
+            )
+            .ToProperty(this, x => x.ModsBackupPath);
+        _fullBackupPath = this.WhenAnyValue(
+                x => x.GammaFolder,
+                selector: folder => Path.Join(folder, "Full")
+            )
+            .ToProperty(this, x => x.FullBackupPath);
+
+        CreateBackupFolders.Subscribe(_ => CheckModsList.Execute().Subscribe());
+
+        this.WhenAnyValue(x => x.GammaFolder, x => x.ModsBackupPath, x => x.FullBackupPath)
+            .Subscribe(_ => CreateBackupFolders.Execute().Subscribe());
 
         _selectedBackup = this.WhenAnyValue(
                 x => x.ModsIsChecked,
@@ -99,8 +122,8 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
                         ? [GetAnomalyPath()!, GetGammaPath()!]
                         : [Path.Join("..", "mods")],
                     SelectedBackup == BackupType.Full
-                        ? Path.Join(_fullBackupPath, DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"))
-                        : Path.Join(_modsBackupPath, DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss")),
+                        ? Path.Join(FullBackupPath, DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"))
+                        : Path.Join(ModsBackupPath, DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss")),
                     SelectedCompressionLevel,
                     SelectedCompressor,
                     BackupCancellationToken
@@ -190,6 +213,7 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
         this.WhenActivated(
             (CompositeDisposable d) =>
             {
+                CreateBackupFolders.Execute().Subscribe();
                 CheckModsList.Execute().Subscribe();
             }
         );
@@ -258,6 +282,11 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
     }
 
     public BackupType SelectedBackup => _selectedBackup.Value;
+
+    private string ModsBackupPath => _modsBackupPath.Value;
+    private string FullBackupPath => _fullBackupPath.Value;
+
+    private ReactiveCommand<Unit, Unit> CreateBackupFolders { get; }
 
     public bool ModsIsChecked
     {
