@@ -168,7 +168,7 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
         // RestoreCmd = ReactiveCommand.CreateFromTask();
 
         var canDelete = this.WhenAnyValue(
-            x => x.GammaFolder,
+            x => x.ModsBackupPath,
             x => x.SelectedModBackup,
             selector: (folder, backup) => File.Exists(Path.Join(folder, backup))
         );
