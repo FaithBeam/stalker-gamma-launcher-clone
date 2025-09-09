@@ -23,7 +23,7 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
     );
     private readonly ObservableAsPropertyHelper<string> _modsBackupPath;
     private readonly ObservableAsPropertyHelper<string> _fullBackupPath;
-    private ObservableAsPropertyHelper<DriveSpaceStats>? _driveStats;
+    private ObservableAsPropertyHelper<DriveSpaceStats> _driveStats;
     private readonly ObservableAsPropertyHelper<string?> _driveSpaceStatsString;
     private readonly ObservableAsPropertyHelper<string?> _totalModsSpace;
 
@@ -59,14 +59,14 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
         _driveSpaceStatsString = this.WhenAnyValue(
                 x => x.DriveSpaceStats,
                 selector: dst =>
-                    $"{dst.TotalSpace / 1024 / 1024 / 1024}/{dst.UsedSpace / 1024 / 1024 / 1024} GB"
+                    $"{dst?.TotalSpace / 1024 / 1024 / 1024}/{dst?.UsedSpace / 1024 / 1024 / 1024} GB"
             )
             .ToProperty(this, x => x.DriveStats);
         _totalModsSpace = this.WhenAnyValue(
                 x => x.DriveSpaceStats,
-                selector: dst => $"{dst.ModsSize / 1024 / 1024 / 1024} GB"
+                selector: dst => $"{dst?.ModsSize / 1024 / 1024 / 1024} GB"
             )
-            .ToProperty(this, x => x.DriveStats);
+            .ToProperty(this, x => x.TotalModsSpace);
         backupsSrcList
             .Connect()
             .Transform(x => Path.GetFileName(x))
@@ -170,18 +170,19 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
             x => x.SelectedModBackup,
             selector: (folder, backup) => File.Exists(Path.Join(folder, backup))
         );
-        DeleteBackupCmd = ReactiveCommand.Create<(string BackupModPath, string BackupName)>(
+        DeleteBackupCmd = ReactiveCommand.CreateFromTask<(string BackupModPath, string BackupName)>(
             pathToBackupToDelete =>
-            {
-                var joined = Path.Join(
-                    pathToBackupToDelete.BackupModPath,
-                    pathToBackupToDelete.BackupName
-                );
-                if (File.Exists(joined))
+                Task.Run(() =>
                 {
-                    File.Delete(joined);
-                }
-            },
+                    var joined = Path.Join(
+                        pathToBackupToDelete.BackupModPath,
+                        pathToBackupToDelete.BackupName
+                    );
+                    if (File.Exists(joined))
+                    {
+                        File.Delete(joined);
+                    }
+                }),
             canDelete
         );
         DeleteBackupCmd.Subscribe(_ => CheckModsList.Execute().Subscribe());
@@ -359,7 +360,7 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
         get => _gammaFolder;
         set => this.RaiseAndSetIfChanged(ref _gammaFolder, value);
     }
-    private DriveSpaceStats DriveSpaceStats => _driveStats?.Value ?? new DriveSpaceStats(0, 0, 0);
+    private DriveSpaceStats DriveSpaceStats => _driveStats.Value;
 
     private ReactiveCommand<string, DriveSpaceStats> GetDriveSpaceStatsCmd { get; }
 
