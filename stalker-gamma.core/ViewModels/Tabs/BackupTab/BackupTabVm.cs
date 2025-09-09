@@ -137,6 +137,21 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
 
         // RestoreCmd = ReactiveCommand.CreateFromTask();
 
+        DeleteBackupCmd = ReactiveCommand.Create<(string BackupModPath, string BackupName)>(
+            pathToBackupToDelete =>
+            {
+                var joined = Path.Join(
+                    pathToBackupToDelete.BackupModPath,
+                    pathToBackupToDelete.BackupName
+                );
+                if (File.Exists(joined))
+                {
+                    File.Delete(joined);
+                }
+            }
+        );
+        DeleteBackupCmd.Subscribe(_ => CheckModsList.Execute().Subscribe());
+
         AppendLineInteraction = new Interaction<string, Unit>();
         backupTabProgressService
             .BackupProgressObservable.ObserveOn(RxApp.MainThreadScheduler)
@@ -223,6 +238,7 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
     public Interaction<Unit, string?> ChangeGammaBackupDirectoryInteraction { get; }
     public ReactiveCommand<Unit, Unit> BackupCmd { get; }
     public ReactiveCommand<Unit, Unit> CancelBackupCmd { get; }
+    public ReactiveCommand<(string BackupModPath, string BackupName), Unit> DeleteBackupCmd { get; }
 
     // public ReactiveCommand<Unit, Unit> RestoreCmd { get; }
     public IReadOnlyList<Compressor> Compressors { get; } = [Compressor.Lzma2, Compressor.Zstd];
@@ -283,7 +299,7 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
 
     public BackupType SelectedBackup => _selectedBackup.Value;
 
-    private string ModsBackupPath => _modsBackupPath.Value;
+    public string ModsBackupPath => _modsBackupPath.Value;
     private string FullBackupPath => _fullBackupPath.Value;
 
     private ReactiveCommand<Unit, Unit> CreateBackupFolders { get; }

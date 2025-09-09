@@ -3,15 +3,17 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:stalker_gamma.core.ViewModels.Tabs.BackupTab;assembly=stalker-gamma.core"
+             xmlns:converters="clr-namespace:stalker_gamma_gui.Converters"
              xmlns:avaloniaEdit="https://github.com/avaloniaui/avaloniaedit"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="stalker_gamma_gui.Controls.Tabs.BackupTab"
              x:DataType="vm:BackupTabVm">
     <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
         <vm:BackupTabVm />
     </Design.DataContext>
+    <UserControl.Resources>
+        <converters:DeleteModConverter x:Key="DeleteModConverter" />
+    </UserControl.Resources>
     <Grid RowDefinitions="Auto,*,Auto" ColumnDefinitions="Auto,*">
         <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" ColumnSpan="2">
             <ComboBox ItemsSource="{Binding Compressors}" SelectedItem="{Binding SelectedCompressor}" />
@@ -45,10 +47,19 @@
             <ListBox Grid.Row="1" ItemsSource="{Binding ModBackups}"
                      SelectedItem="{Binding SelectedModBackup}" />
         </Grid>
-        <Grid Grid.Column="0" Grid.Row="2" ColumnDefinitions="Auto,Auto,Auto">
+        <Grid Grid.Column="0" Grid.Row="2" ColumnDefinitions="Auto,Auto,Auto,Auto">
             <Button Command="{Binding BackupCmd}" Content="Backup" />
             <Button Grid.Column="1" Command="{Binding CancelBackupCmd}" Content="Cancel" />
             <Button Grid.Column="2" Command="{Binding }" Content="Restore" />
+            <Button Grid.Column="3" Command="{Binding DeleteBackupCmd}">
+                <Button.Content>Delete</Button.Content>
+                <Button.CommandParameter>
+                    <MultiBinding Converter="{StaticResource DeleteModConverter}">
+                        <Binding Path="ModsBackupPath" />
+                        <Binding Path="SelectedModBackup" />
+                    </MultiBinding>
+                </Button.CommandParameter>
+            </Button>
         </Grid>
     </Grid>
 </UserControl>
