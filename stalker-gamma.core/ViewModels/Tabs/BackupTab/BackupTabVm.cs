@@ -124,9 +124,7 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
             .ToProperty(this, x => x.FullBackupPath);
 
         CreateBackupFolders.Subscribe(_ => CheckModsList.Execute().Subscribe());
-        CheckModsList
-            .Execute()
-            .Subscribe(_ => GetDriveSpaceStatsCmd.Execute(GammaFolder).Subscribe());
+        CheckModsList.Subscribe(_ => GetDriveSpaceStatsCmd.Execute(GammaFolder).Subscribe());
 
         this.WhenAnyValue(x => x.GammaFolder, x => x.ModsBackupPath, x => x.FullBackupPath)
             .Subscribe(_ => CreateBackupFolders.Execute().Subscribe());
