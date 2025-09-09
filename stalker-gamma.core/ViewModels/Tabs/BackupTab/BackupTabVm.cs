@@ -23,6 +23,9 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
     );
     private readonly ObservableAsPropertyHelper<string> _modsBackupPath;
     private readonly ObservableAsPropertyHelper<string> _fullBackupPath;
+    private ObservableAsPropertyHelper<DriveSpaceStats>? _driveStats;
+    private readonly ObservableAsPropertyHelper<string?> _driveSpaceStatsString;
+    private readonly ObservableAsPropertyHelper<string?> _totalModsSpace;
 
     private readonly ReadOnlyObservableCollection<string> _modBackups;
     private string? _selectedModBackup;
@@ -39,7 +42,31 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
         Activator = new ViewModelActivator();
 
         var backupsSrcList = new SourceList<string>();
-
+        GetDriveSpaceStatsCmd = ReactiveCommand.Create<string, DriveSpaceStats>(gammaFolder =>
+        {
+            var pathRoot = Path.GetPathRoot(gammaFolder);
+            DriveInfo drive = new(pathRoot!);
+            var backupSize = Directory
+                .GetFiles(gammaFolder, "*.7z", SearchOption.AllDirectories)
+                .Sum(x => new FileInfo(x).Length);
+            return new DriveSpaceStats(
+                drive.TotalSize,
+                drive.TotalSize - drive.TotalFreeSpace,
+                backupSize
+            );
+        });
+        _driveStats = GetDriveSpaceStatsCmd.ToProperty(this, x => x.DriveSpaceStats);
+        _driveSpaceStatsString = this.WhenAnyValue(
+                x => x.DriveSpaceStats,
+                selector: dst =>
+                    $"{dst.TotalSpace / 1024 / 1024 / 1024}/{dst.UsedSpace / 1024 / 1024 / 1024} GB"
+            )
+            .ToProperty(this, x => x.DriveStats);
+        _totalModsSpace = this.WhenAnyValue(
+                x => x.DriveSpaceStats,
+                selector: dst => $"{dst.ModsSize / 1024 / 1024 / 1024} GB"
+            )
+            .ToProperty(this, x => x.DriveStats);
         backupsSrcList
             .Connect()
             .Transform(x => Path.GetFileName(x))
@@ -97,6 +124,9 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
             .ToProperty(this, x => x.FullBackupPath);
 
         CreateBackupFolders.Subscribe(_ => CheckModsList.Execute().Subscribe());
+        CheckModsList
+            .Execute()
+            .Subscribe(_ => GetDriveSpaceStatsCmd.Execute(GammaFolder).Subscribe());
 
         this.WhenAnyValue(x => x.GammaFolder, x => x.ModsBackupPath, x => x.FullBackupPath)
             .Subscribe(_ => CreateBackupFolders.Execute().Subscribe());
@@ -137,6 +167,11 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
 
         // RestoreCmd = ReactiveCommand.CreateFromTask();
 
+        var canDelete = this.WhenAnyValue(
+            x => x.GammaFolder,
+            x => x.SelectedModBackup,
+            selector: (folder, backup) => File.Exists(Path.Join(folder, backup))
+        );
         DeleteBackupCmd = ReactiveCommand.Create<(string BackupModPath, string BackupName)>(
             pathToBackupToDelete =>
             {
@@ -148,7 +183,8 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
                 {
                     File.Delete(joined);
                 }
-            }
+            },
+            canDelete
         );
         DeleteBackupCmd.Subscribe(_ => CheckModsList.Execute().Subscribe());
 
@@ -230,6 +266,7 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
             {
                 CreateBackupFolders.Execute().Subscribe();
                 CheckModsList.Execute().Subscribe();
+                GetDriveSpaceStatsCmd.Execute(GammaFolder).Subscribe();
             }
         );
     }
@@ -244,6 +281,7 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
     public IReadOnlyList<Compressor> Compressors { get; } = [Compressor.Lzma2, Compressor.Zstd];
 
     public ReadOnlyObservableCollection<string> ModBackups => _modBackups;
+    public string? TotalModsSpace => _totalModsSpace.Value;
 
     public string? SelectedModBackup
     {
@@ -271,6 +309,8 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
     public ReactiveCommand<Unit, Unit> CheckModsList { get; }
 
     public ReactiveCommand<Unit, string?> ChangeGammaBackupDirectoryCmd { get; }
+
+    public string? DriveStats => _driveSpaceStatsString.Value;
 
     private string? GetAnomalyPath()
     {
@@ -321,9 +361,14 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
         get => _gammaFolder;
         set => this.RaiseAndSetIfChanged(ref _gammaFolder, value);
     }
+    private DriveSpaceStats DriveSpaceStats => _driveStats?.Value ?? new DriveSpaceStats(0, 0, 0);
+
+    private ReactiveCommand<string, DriveSpaceStats> GetDriveSpaceStatsCmd { get; }
 
     public ViewModelActivator Activator { get; }
 }
+
+public record DriveSpaceStats(long TotalSpace, long UsedSpace, long ModsSize);
 
 public enum BackupType
 {

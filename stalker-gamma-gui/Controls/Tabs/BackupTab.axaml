@@ -47,7 +47,7 @@
             <ListBox Grid.Row="1" ItemsSource="{Binding ModBackups}"
                      SelectedItem="{Binding SelectedModBackup}" />
         </Grid>
-        <Grid Grid.Column="0" Grid.Row="2" ColumnDefinitions="Auto,Auto,Auto,Auto">
+        <Grid Grid.Column="0" Grid.Row="2" ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
             <Button Command="{Binding BackupCmd}" Content="Backup" />
             <Button Grid.Column="1" Command="{Binding CancelBackupCmd}" Content="Cancel" />
             <Button Grid.Column="2" Command="{Binding }" Content="Restore" />
@@ -60,6 +60,8 @@
                     </MultiBinding>
                 </Button.CommandParameter>
             </Button>
+            <Label Grid.Column="4" Content="{Binding DriveStats}" />
+            <Label Grid.Column="5" Content="{Binding TotalModsSpace}" />
         </Grid>
     </Grid>
 </UserControl>
