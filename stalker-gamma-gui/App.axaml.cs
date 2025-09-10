@@ -60,7 +60,6 @@ public partial class App : Application
                 );
 
                 s.AddSingleton<ProgressService>();
-                s.AddSingleton<BackupTabProgressService>();
                 s.AddSingleton<VersionService>();
                 s.AddSingleton<IsBusyService>();
                 s.AddScoped<BackupService>();
@@ -73,6 +72,8 @@ public partial class App : Application
                 s.AddScoped<ModpackSpecific>();
                 s.AddScoped<Shortcut>();
                 s.AddScoped<GammaInstaller>();
+
+                s.RegisterBackupTabServices();
 
                 s.AddScoped<MainTabVm>();
                 s.AddScoped<BackupTabVm>();

@@ -13,14 +13,14 @@
     </Design.DataContext>
     <UserControl.Resources>
         <converters:DeleteModConverter x:Key="DeleteModConverter" />
+        <converters:RestoreCommandConverter x:Key="RestoreCommandConverter" />
     </UserControl.Resources>
-    <Grid RowDefinitions="Auto,*,Auto" ColumnDefinitions="Auto,*">
-        <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" ColumnSpan="2">
+    <Grid RowDefinitions="Auto,*,Auto" ColumnDefinitions="Auto,Auto,*">
+        <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnSpan="2">
             <ComboBox ItemsSource="{Binding Compressors}" SelectedItem="{Binding SelectedCompressor}" />
             <ComboBox Grid.Column="1" ItemsSource="{Binding CompressionLevels}"
                       SelectedItem="{Binding SelectedCompressionLevel}" />
-            <Label Grid.Column="2" Content="{Binding Estimates}" />
-            <TextBlock Grid.Column="3">
+            <TextBlock Grid.Column="2">
                 <RadioButton Content="Mods" IsChecked="{Binding ModsIsChecked}" GroupName="BackupType">
                     <ToolTip.Tip>
                         Backup just the Gamma/mods folder. This is probably what you want.
@@ -32,25 +32,38 @@
                     </ToolTip.Tip>
                 </RadioButton>
             </TextBlock>
-                <TextBox Grid.Column="4" Margin="5 0" Text="{Binding GammaFolder}" VerticalAlignment="Center" />
-            <Button Grid.Column="5" Content="Browse" Command="{Binding ChangeGammaBackupDirectoryCmd}" />
+                <TextBox Grid.Column="3" Margin="5 0" Text="{Binding GammaBackupFolder}" VerticalAlignment="Center" />
+            <Button Grid.Column="4" Content="Browse" Command="{Binding ChangeGammaBackupDirectoryCmd}" />
         </Grid>
         <Grid Grid.Column="0" Grid.Row="1" RowDefinitions="Auto,*">
             <Label Content="Console" />
-            <avaloniaEdit:TextEditor Grid.Row="1" VerticalAlignment="Stretch" MaxWidth="500" Width="500"
+            <avaloniaEdit:TextEditor Grid.Row="1" VerticalAlignment="Stretch" MinWidth="200"
                                      x:Name="BackupTxt" IsReadOnly="True"
                                      HorizontalScrollBarVisibility="Auto" Foreground="#85fb98" Background="#242424"
                                      VerticalScrollBarVisibility="Visible" FontSize="12" FontFamily="Consolas" />
         </Grid>
-        <Grid Grid.Row="1" Grid.Column="1" RowDefinitions="Auto,*">
+        <GridSplitter Grid.Row="1" Grid.Column="1"></GridSplitter>
+        <Grid Grid.Row="1" Grid.Column="2" RowDefinitions="Auto,*">
             <Label Content="Backups" />
             <ListBox Grid.Row="1" ItemsSource="{Binding ModBackups}"
                      SelectedItem="{Binding SelectedModBackup}" />
         </Grid>
         <Grid Grid.Column="0" Grid.Row="2" ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
-            <Button Command="{Binding BackupCmd}" Content="Backup" />
+            <Button Command="{Binding BackupCmd}" Content="Backup">
+                <ToolTip.Tip>
+                    <TextBlock Text="{Binding Estimates}" />
+                </ToolTip.Tip>
+            </Button>
             <Button Grid.Column="1" Command="{Binding CancelBackupCmd}" Content="Cancel" />
-            <Button Grid.Column="2" Command="{Binding }" Content="Restore" />
+            <Button Grid.Column="2" Command="{Binding RestoreBackupCmd}" Content="Restore">
+                <Button.CommandParameter>
+                    <MultiBinding Converter="{StaticResource RestoreCommandConverter}">
+                        <Binding Path="ModsBackupPath" />
+                        <Binding Path="SelectedModBackup" />
+                        <Binding Path="GammaFolderPath" />
+                    </MultiBinding>
+                </Button.CommandParameter>
+            </Button>
             <Button Grid.Column="3" Command="{Binding DeleteBackupCmd}">
                 <Button.Content>Delete</Button.Content>
                 <Button.CommandParameter>

@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using DynamicData;
 using DynamicData.Binding;
 using ReactiveUI;
+using stalker_gamma.core.ViewModels.Tabs.BackupTab.Commands;
 
 namespace stalker_gamma.core.ViewModels.Tabs.BackupTab;
 
@@ -17,7 +18,7 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
     private readonly ObservableAsPropertyHelper<string?> _estimates;
     private CancellationTokenSource _backupCancellationTokenSource = new();
     private CancellationToken BackupCancellationToken => _backupCancellationTokenSource.Token;
-    private string _gammaFolder = Path.Join(
+    private string _gammaBackupFolder = Path.Join(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "GAMMA"
     );
@@ -36,11 +37,12 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
 
     public BackupTabVm(
         BackupService backupService,
-        BackupTabProgressService backupTabProgressService
+        BackupTabProgressService backupTabProgressService,
+        RestoreBackup.Handler restoreBackupHandler
     )
     {
         Activator = new ViewModelActivator();
-
+        GammaFolderPath = Path.GetFullPath(Path.Combine(_dir, ".."));
         var backupsSrcList = new SourceList<string>();
         GetDriveSpaceStatsCmd = ReactiveCommand.Create<string, DriveSpaceStats>(gammaFolder =>
         {
@@ -85,9 +87,9 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
 
         CreateBackupFolders = ReactiveCommand.Create(() =>
         {
-            if (!Directory.Exists(GammaFolder))
+            if (!Directory.Exists(GammaBackupFolder))
             {
-                Directory.CreateDirectory(GammaFolder);
+                Directory.CreateDirectory(GammaBackupFolder);
             }
 
             if (!Directory.Exists(ModsBackupPath))
@@ -109,24 +111,24 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
             .WhereNotNull()
             .Subscribe(x =>
             {
-                GammaFolder = x;
+                GammaBackupFolder = x;
             });
 
         _modsBackupPath = this.WhenAnyValue(
-                x => x.GammaFolder,
+                x => x.GammaBackupFolder,
                 selector: folder => Path.Join(folder, "Mods")
             )
             .ToProperty(this, x => x.ModsBackupPath);
         _fullBackupPath = this.WhenAnyValue(
-                x => x.GammaFolder,
+                x => x.GammaBackupFolder,
                 selector: folder => Path.Join(folder, "Full")
             )
             .ToProperty(this, x => x.FullBackupPath);
 
         CreateBackupFolders.Subscribe(_ => CheckModsList.Execute().Subscribe());
-        CheckModsList.Subscribe(_ => GetDriveSpaceStatsCmd.Execute(GammaFolder).Subscribe());
+        CheckModsList.Subscribe(_ => GetDriveSpaceStatsCmd.Execute(GammaBackupFolder).Subscribe());
 
-        this.WhenAnyValue(x => x.GammaFolder, x => x.ModsBackupPath, x => x.FullBackupPath)
+        this.WhenAnyValue(x => x.GammaBackupFolder, x => x.ModsBackupPath, x => x.FullBackupPath)
             .Subscribe(_ => CreateBackupFolders.Execute().Subscribe());
 
         _selectedBackup = this.WhenAnyValue(
@@ -140,7 +142,7 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
             .ToProperty(this, x => x.SelectedBackup);
         _selectedCompressor = Compressors.First(x => x == Compressor.Lzma2);
         _selectedCompressionLevel = CompressionLevels.First(x => x == CompressionLevel.Fast);
-        CancelBackupCmd = ReactiveCommand.Create(() => _backupCancellationTokenSource.Cancel());
+
         BackupCmd = ReactiveCommand.CreateFromTask(() =>
         {
             _backupCancellationTokenSource = new CancellationTokenSource();
@@ -148,7 +150,12 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
                 new BackupSettings(
                     SelectedBackup == BackupType.Full
                         ? [GetAnomalyPath()!, GetGammaPath()!]
-                        : [Path.Join("..", "mods")],
+                        :
+                        [
+                            Path.Join("..", ".Grok's Modpack Installer", "version.txt"),
+                            Path.Join("..", ".Grok's Modpack Installer", "mods.txt"),
+                            Path.Join("..", "mods"),
+                        ],
                     SelectedBackup == BackupType.Full
                         ? Path.Join(FullBackupPath, DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"))
                         : Path.Join(ModsBackupPath, DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss")),
@@ -163,7 +170,22 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
         );
         BackupCmd.Subscribe(_ => CheckModsList.Execute().Subscribe());
 
-        // RestoreCmd = ReactiveCommand.CreateFromTask();
+        var canCancel = BackupCmd.IsExecuting;
+        CancelBackupCmd = ReactiveCommand.Create(
+            () => _backupCancellationTokenSource.Cancel(),
+            canCancel
+        );
+
+        var canRestore = this.WhenAnyValue(
+            x => x.GammaBackupFolder,
+            x => x.SelectedModBackup,
+            selector: (folder, backup) =>
+                !string.IsNullOrWhiteSpace(folder) && !string.IsNullOrWhiteSpace(backup)
+        );
+        RestoreBackupCmd = ReactiveCommand.CreateFromTask<RestoreBackup.Command>(
+            restoreBackupHandler.ExecuteAsync,
+            canRestore
+        );
 
         var canDelete = this.WhenAnyValue(
             x => x.ModsBackupPath,
@@ -184,6 +206,9 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
                     }
                 }),
             canDelete
+        );
+        DeleteBackupCmd.ThrownExceptions.Subscribe(x =>
+            backupTabProgressService.UpdateProgress(x.ToString())
         );
         DeleteBackupCmd.Subscribe(_ => CheckModsList.Execute().Subscribe());
 
@@ -265,7 +290,7 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
             {
                 CreateBackupFolders.Execute().Subscribe();
                 CheckModsList.Execute().Subscribe();
-                GetDriveSpaceStatsCmd.Execute(GammaFolder).Subscribe();
+                GetDriveSpaceStatsCmd.Execute(GammaBackupFolder).Subscribe();
             }
         );
     }
@@ -276,7 +301,6 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
     public ReactiveCommand<Unit, Unit> CancelBackupCmd { get; }
     public ReactiveCommand<(string BackupModPath, string BackupName), Unit> DeleteBackupCmd { get; }
 
-    // public ReactiveCommand<Unit, Unit> RestoreCmd { get; }
     public IReadOnlyList<Compressor> Compressors { get; } = [Compressor.Lzma2, Compressor.Zstd];
 
     public ReadOnlyObservableCollection<string> ModBackups => _modBackups;
@@ -354,15 +378,16 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
         get => _fullIsChecked;
         set => this.RaiseAndSetIfChanged(ref _fullIsChecked, value);
     }
-
-    public string GammaFolder
+    public string GammaFolderPath { get; }
+    public string GammaBackupFolder
     {
-        get => _gammaFolder;
-        set => this.RaiseAndSetIfChanged(ref _gammaFolder, value);
+        get => _gammaBackupFolder;
+        set => this.RaiseAndSetIfChanged(ref _gammaBackupFolder, value);
     }
     private DriveSpaceStats DriveSpaceStats => _driveStats.Value;
 
     private ReactiveCommand<string, DriveSpaceStats> GetDriveSpaceStatsCmd { get; }
+    public ReactiveCommand<RestoreBackup.Command, Unit> RestoreBackupCmd { get; }
 
     public ViewModelActivator Activator { get; }
 }
