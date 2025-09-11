@@ -17,9 +17,21 @@
     </UserControl.Resources>
     <Grid RowDefinitions="Auto,*,Auto" ColumnDefinitions="Auto,Auto,*">
         <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnSpan="2">
-            <ComboBox ItemsSource="{Binding Compressors}" SelectedItem="{Binding SelectedCompressor}" />
+            <ComboBox ItemsSource="{Binding Compressors}" SelectedItem="{Binding SelectedCompressor}">
+                <ToolTip.Tip>
+                    <TextBlock Text="{Binding CompressorToolTip}" />
+                </ToolTip.Tip>
+            </ComboBox>
             <ComboBox Grid.Column="1" ItemsSource="{Binding CompressionLevels}"
-                      SelectedItem="{Binding SelectedCompressionLevel}" />
+                      SelectedItem="{Binding SelectedCompressionLevel}">
+                <ToolTip.Tip>
+                    <TextBlock>
+                        Fast is recommended for both lzma2 and zstd because it is a nice tradeoff between compression size and compression time.
+                        <LineBreak />
+                        Only choose max if you're going to distribute archives across the internet.
+                    </TextBlock>
+                </ToolTip.Tip>
+            </ComboBox>
             <TextBlock Grid.Column="2">
                 <RadioButton Content="Mods" IsChecked="{Binding ModsIsChecked}" GroupName="BackupType">
                     <ToolTip.Tip>
@@ -73,8 +85,8 @@
                     </MultiBinding>
                 </Button.CommandParameter>
             </Button>
-            <Label Grid.Column="4" Content="{Binding DriveStats}" />
-            <Label Grid.Column="5" Content="{Binding TotalModsSpace}" />
+            <Label Grid.Column="4" Content="{Binding DriveStats}" VerticalAlignment="Center" />
+            <Label Grid.Column="5" Content="{Binding TotalModsSpace}" VerticalAlignment="Center" />
         </Grid>
     </Grid>
 </UserControl>

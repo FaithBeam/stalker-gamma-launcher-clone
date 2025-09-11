@@ -25,7 +25,4 @@
   <ItemGroup>
     <Content Include="resources\**" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ViewModels\Tabs\BackupTab\Queries\" />
-  </ItemGroup>
 </Project>

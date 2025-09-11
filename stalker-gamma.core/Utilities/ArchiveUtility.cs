@@ -41,6 +41,7 @@ public static class ArchiveUtility
     /// <param name="compressionLevel"></param>
     /// <param name="exclusions">Folders/items to exclude</param>
     /// <param name="cancellationToken"></param>
+    /// <param name="workDirectory"></param>
     /// <returns></returns>
     public static IObservable<CommandEvent> Archive(
         string[] paths,
@@ -48,7 +49,8 @@ public static class ArchiveUtility
         string compressor,
         string compressionLevel,
         string[]? exclusions = null,
-        CancellationToken? cancellationToken = null
+        CancellationToken? cancellationToken = null,
+        string? workDirectory = null
     )
     {
         var cli =
@@ -61,6 +63,10 @@ public static class ArchiveUtility
             + $"-mx{compressionLevel} "
             + $"{(exclusions?.Length == 0 ? "" : string.Join(" ", exclusions!.Select(x => $"-xr!{x}")))}";
         var cmd = Cli.Wrap(SevenZip).WithArguments(cli);
+        if (workDirectory is not null)
+        {
+            cmd = cmd.WithWorkingDirectory(workDirectory);
+        }
         return cancellationToken is not null ? cmd.Observe(cancellationToken.Value) : cmd.Observe();
     }
 
