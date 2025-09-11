@@ -152,8 +152,13 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
                         ? [GetAnomalyPath()!, GetGammaPath()!]
                         :
                         [
+#if DEBUG
+                            Path.Join("..", "net9.0", "version.txt"),
+                            Path.Join("..", "net9.0", "mods.txt"),
+#else
                             Path.Join("..", ".Grok's Modpack Installer", "version.txt"),
                             Path.Join("..", ".Grok's Modpack Installer", "mods.txt"),
+#endif
                             Path.Join("..", "mods"),
                         ],
                     SelectedBackup == BackupType.Full
