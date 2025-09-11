@@ -32,9 +32,15 @@
                 </ToolTip.Tip>
             </ComboBox>
             <TextBlock Grid.Column="2">
-                <RadioButton Content="Mods" IsChecked="{Binding ModsIsChecked}" GroupName="BackupType">
+                <RadioButton Content="Partial" IsChecked="{Binding PartialIsChecked}" GroupName="BackupType">
                     <ToolTip.Tip>
-                        Backup just the Gamma/mods folder. This is probably what you want.
+                        <TextBlock>
+                            Backup the folders:
+                            <LineBreak />- Anomaly/bin
+                            <LineBreak />- Gamma/mods
+                            <LineBreak />- Gamma/profiles
+                            <LineBreak />- Gamma/.Groks Modpack Installer/*.txt
+                        </TextBlock>
                     </ToolTip.Tip>
                 </RadioButton>
                 <RadioButton Content="Full" IsChecked="{Binding FullIsChecked}" GroupName="BackupType">

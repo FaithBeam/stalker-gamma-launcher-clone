@@ -31,7 +31,7 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
     private string? _selectedModBackup;
 
     private readonly ObservableAsPropertyHelper<BackupType> _selectedBackup;
-    private bool _modsIsChecked = true;
+    private bool _partialIsChecked = true;
     private bool _fullIsChecked;
 
     public BackupTabVm(
@@ -49,7 +49,7 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
     )
     {
         Activator = new ViewModelActivator();
-        GammaFolderPath = Path.GetFullPath(Path.Combine(_dir, ".."));
+        Path.GetFullPath(Path.Combine(_dir, ".."));
         var backupsSrcList = new SourceList<string>();
         GetDriveSpaceStatsCmd = ReactiveCommand.CreateFromTask<string, DriveSpaceStats>(
             gammaFolder =>
@@ -124,7 +124,7 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
             .Subscribe(_ => CreateBackupFolders.Execute().Subscribe());
 
         _selectedBackup = this.WhenAnyValue(
-                x => x.ModsIsChecked,
+                x => x.PartialIsChecked,
                 x => x.FullIsChecked,
                 selector: (mods, full) =>
                     mods ? BackupType.Mods
@@ -399,10 +399,10 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
 
     private ReactiveCommand<Unit, Unit> CreateBackupFolders { get; }
 
-    public bool ModsIsChecked
+    public bool PartialIsChecked
     {
-        get => _modsIsChecked;
-        set => this.RaiseAndSetIfChanged(ref _modsIsChecked, value);
+        get => _partialIsChecked;
+        set => this.RaiseAndSetIfChanged(ref _partialIsChecked, value);
     }
 
     public bool FullIsChecked
@@ -410,7 +410,7 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
         get => _fullIsChecked;
         set => this.RaiseAndSetIfChanged(ref _fullIsChecked, value);
     }
-    public string GammaFolderPath { get; }
+
     public string GammaBackupFolder => _gammaBackupFolder.Value;
     private DriveSpaceStats DriveSpaceStats => _driveStats.Value;
 
