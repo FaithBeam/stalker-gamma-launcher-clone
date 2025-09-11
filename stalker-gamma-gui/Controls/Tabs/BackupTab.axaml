@@ -13,7 +13,6 @@
     </Design.DataContext>
     <UserControl.Resources>
         <converters:DeleteModConverter x:Key="DeleteModConverter" />
-        <converters:RestoreCommandConverter x:Key="RestoreCommandConverter" />
     </UserControl.Resources>
     <Grid RowDefinitions="Auto,*,Auto" ColumnDefinitions="Auto,Auto,*">
         <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnSpan="2">
@@ -67,15 +66,7 @@
                 </ToolTip.Tip>
             </Button>
             <Button Grid.Column="1" Command="{Binding CancelBackupCmd}" Content="Cancel" />
-            <Button Grid.Column="2" Command="{Binding RestoreBackupCmd}" Content="Restore">
-                <Button.CommandParameter>
-                    <MultiBinding Converter="{StaticResource RestoreCommandConverter}">
-                        <Binding Path="ModsBackupPath" />
-                        <Binding Path="SelectedModBackup" />
-                        <Binding Path="GammaFolderPath" />
-                    </MultiBinding>
-                </Button.CommandParameter>
-            </Button>
+            <Button Grid.Column="2" Command="{Binding RestoreBackupCmd}" Content="Restore"/>
             <Button Grid.Column="3" Command="{Binding DeleteBackupCmd}">
                 <Button.Content>Delete</Button.Content>
                 <Button.CommandParameter>

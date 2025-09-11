@@ -10,7 +10,12 @@ public static class RestoreBackup
     /// </summary>
     /// <param name="PathToArchive">Path to .7z file</param>
     /// <param name="DirectoryToExtractTo">Path to GAMMA RC3 folder</param>
-    public sealed record Command(string PathToArchive, string DirectoryToExtractTo);
+    public sealed record Command(
+        string PathToArchive,
+        string DirectoryToExtractTo,
+        string WorkingDirectory,
+        string[] DirsToClean
+    );
 
     public sealed class Handler(BackupTabProgressService progress)
     {
@@ -27,13 +32,10 @@ public static class RestoreBackup
                 throw new RestoreBackupException($"Backup archive doesn't exist {c.PathToArchive}");
             }
 
-            var dirToExtractToWithMods = Path.Join(c.DirectoryToExtractTo, "mods");
-            if (Directory.Exists(dirToExtractToWithMods))
+            foreach (var dir in c.DirsToClean)
             {
-                progress.UpdateProgress(
-                    $"Deleting current mods directory: {dirToExtractToWithMods}"
-                );
-                new DirectoryInfo(dirToExtractToWithMods)
+                progress.UpdateProgress($"Deleting directory: {dir}");
+                new DirectoryInfo(dir)
                     .GetDirectories("*", SearchOption.AllDirectories)
                     .ToList()
                     .ForEach(di =>
@@ -43,11 +45,15 @@ public static class RestoreBackup
                             .ToList()
                             .ForEach(fi => fi.IsReadOnly = false);
                     });
-                Directory.Delete(dirToExtractToWithMods, true);
+                Directory.Delete(dir, true);
             }
 
             await Utilities
-                .ArchiveUtility.Extract(c.PathToArchive, c.DirectoryToExtractTo)
+                .ArchiveUtility.Extract(
+                    c.PathToArchive,
+                    c.DirectoryToExtractTo,
+                    workingDirectory: c.WorkingDirectory
+                )
                 .ForEachAsync(cmdEvt =>
                 {
                     switch (cmdEvt)

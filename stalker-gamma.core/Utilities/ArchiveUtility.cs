@@ -24,11 +24,16 @@ public static class ArchiveUtility
     public static IObservable<CommandEvent> Extract(
         string archivePath,
         string destinationFolder,
-        CancellationToken? ct = null
+        CancellationToken? ct = null,
+        string? workingDirectory = null
     )
     {
         var cli = $"x " + $"-y " + $"{archivePath} " + $"-o{destinationFolder} ";
         var cmd = Cli.Wrap(SevenZip).WithArguments(cli);
+        if (!string.IsNullOrWhiteSpace(workingDirectory))
+        {
+            cmd = cmd.WithWorkingDirectory(workingDirectory);
+        }
         return ct is not null ? cmd.Observe(ct.Value) : cmd.Observe();
     }
 

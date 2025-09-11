@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using DynamicData;
 using DynamicData.Binding;
 using ReactiveUI;
+using stalker_gamma.core.Utilities;
 using stalker_gamma.core.ViewModels.Tabs.BackupTab.Enums;
 
 namespace stalker_gamma.core.ViewModels.Tabs.BackupTab;
@@ -26,7 +27,6 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
     private readonly ObservableAsPropertyHelper<string?> _totalModsSpace;
     private readonly ReadOnlyObservableCollection<CompressionLevel> _compressionLevels;
     private readonly ObservableAsPropertyHelper<string?> _compressorToolTip;
-
     private readonly ReadOnlyObservableCollection<string> _modBackups;
     private string? _selectedModBackup;
 
@@ -222,25 +222,32 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
                         _ => throw new ArgumentOutOfRangeException(),
                     } + ".7z";
                 _backupCancellationTokenSource = new CancellationTokenSource();
-                var anomalyPath = getAnomalyPathHandler.Execute()!;
+                var anomalyPath = getAnomalyPathHandler.Execute()!.Replace(@"\\", "\\");
                 var gammaPath = getGammaPathHandler.Execute();
+                var commonDir = PathUtils.GetCommonDirectory(anomalyPath, gammaPath) ?? "";
+                anomalyPath = anomalyPath.Replace(commonDir, "");
+                gammaPath = gammaPath.Replace(commonDir, "");
                 createBackupHandler
                     .ExecuteAsync(
                         new Commands.CreateBackup.Command(
                             SelectedBackup == BackupType.Full
                                 ? [anomalyPath, gammaPath]
-                                : [
+                                :
+                                [
+                                    Path.Join(anomalyPath, "bin"),
 #if DEBUG
-                                    Path.Join("net9.0", "*.txt"),
+                                    Path.Join(gammaPath, "net9.0", "*.txt"),
 #else
-                                    Path.Join(".Grok's Modpack Installer", "*.txt"),
+                                    Path.Join(gammaPath, ".Grok's Modpack Installer", "*.txt"),
 #endif
-                                    "mods", "profiles"],
+                                    Path.Join(gammaPath, "mods"),
+                                    Path.Join(gammaPath, "profiles"),
+                                ],
                             dstArchive,
                             SelectedCompressionLevel,
                             SelectedCompressor,
                             BackupCancellationToken,
-                            WorkingDirectory: Path.GetFullPath("..")
+                            WorkingDirectory: Path.GetFullPath(commonDir)
                         )
                     )
                     .GetAwaiter()
@@ -266,8 +273,28 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
             selector: (folder, backup) =>
                 !string.IsNullOrWhiteSpace(folder) && !string.IsNullOrWhiteSpace(backup)
         );
-        RestoreBackupCmd = ReactiveCommand.CreateFromTask<Commands.RestoreBackup.Command>(
-            c => Task.Run(() => restoreBackupHandler.ExecuteAsync(c).GetAwaiter().GetResult()),
+        RestoreBackupCmd = ReactiveCommand.CreateFromTask(
+            c =>
+                Task.Run(() =>
+                {
+                    var gammaPath = getGammaPathHandler.Execute();
+                    var anomalyPath = getAnomalyPathHandler.Execute()?.Replace(@"\\", "\\") ?? "";
+                    var archivePath = Path.Join(ModsBackupPath, SelectedModBackup);
+                    var workDir = PathUtils.GetCommonDirectory(anomalyPath, gammaPath)!;
+                    var anomalyBinFolder = Path.Join(anomalyPath, "bin");
+                    var gammaModsFolder = Path.Join(gammaPath, "mods");
+                    restoreBackupHandler
+                        .ExecuteAsync(
+                            new Commands.RestoreBackup.Command(
+                                archivePath,
+                                ".",
+                                workDir,
+                                DirsToClean: [anomalyBinFolder, gammaModsFolder]
+                            )
+                        )
+                        .GetAwaiter()
+                        .GetResult();
+                }),
             canRestore
         );
         RestoreBackupCmd.Subscribe(_ =>
@@ -388,7 +415,7 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
     private DriveSpaceStats DriveSpaceStats => _driveStats.Value;
 
     private ReactiveCommand<string, DriveSpaceStats> GetDriveSpaceStatsCmd { get; }
-    public ReactiveCommand<Commands.RestoreBackup.Command, Unit> RestoreBackupCmd { get; }
+    public ReactiveCommand<Unit, Unit> RestoreBackupCmd { get; }
 
     public ViewModelActivator Activator { get; }
 }
