@@ -12,7 +12,7 @@ using stalker_gamma.core.ViewModels.Tabs.BackupTab.Enums;
 
 namespace stalker_gamma.core.ViewModels.Tabs.BackupTab;
 
-public class BackupTabVm : ViewModelBase, IActivatableViewModel
+public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
 {
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
     private Compressor _selectedCompressor;
@@ -28,7 +28,7 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
     private readonly ObservableAsPropertyHelper<string?> _totalModsSpace;
     private readonly ReadOnlyObservableCollection<CompressionLevel> _compressionLevels;
     private readonly ObservableAsPropertyHelper<string?> _compressorToolTip;
-    private readonly ReadOnlyObservableCollection<string> _modBackups;
+    private readonly ReadOnlyObservableCollection<ModBackupVm> _modBackups;
     private string? _selectedModBackup;
 
     private readonly ObservableAsPropertyHelper<BackupType> _selectedBackup;
@@ -76,8 +76,19 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
             .ToProperty(this, x => x.TotalModsSpace);
         backupsSrcList
             .Connect()
-            .Transform(x => Path.GetFileName(x))
-            .Sort(SortExpressionComparer<string>.Descending(x => x))
+            .Transform(path =>
+            {
+                var fileName = Path.GetFileName(path);
+                var fileSize = new FileInfo(path).Length;
+                var match = MyRegex().Match(fileName);
+                return new ModBackupVm(
+                    fileName,
+                    fileSize,
+                    path,
+                    int.Parse(match.Groups["gammaVersion"].Value)
+                );
+            })
+            .Sort(SortExpressionComparer<ModBackupVm>.Descending(x => x.FileName))
             .Bind(out _modBackups)
             .Subscribe();
 
@@ -397,7 +408,7 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
 
     public IReadOnlyList<Compressor> Compressors { get; } = [Compressor.Lzma2, Compressor.Zstd];
 
-    public ReadOnlyObservableCollection<string> ModBackups => _modBackups;
+    public ReadOnlyObservableCollection<ModBackupVm> ModBackups => _modBackups;
     public string? TotalModsSpace => _totalModsSpace.Value;
 
     public string? SelectedModBackup
@@ -454,6 +465,11 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
     public ReactiveCommand<Unit, Unit> RestoreBackupCmd { get; }
 
     public ViewModelActivator Activator { get; }
+
+    [GeneratedRegex(
+        @"^(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})-(?<hour>\d{2})-(?<minute>\d{2})-(?<second>\d{2})\+(?<gammaVersion>\d+).7z$"
+    )]
+    private static partial Regex MyRegex();
 }
 
 public record DriveSpaceStats(long TotalSpace, long UsedSpace, long ModsSize);

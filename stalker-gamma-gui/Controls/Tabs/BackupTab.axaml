@@ -13,6 +13,7 @@
     </Design.DataContext>
     <UserControl.Resources>
         <converters:DeleteModConverter x:Key="DeleteModConverter" />
+        <converters:ModBackupFileSizeConverter x:Key="ModBackupFileSizeConverter" />
     </UserControl.Resources>
     <Grid RowDefinitions="Auto,*,Auto" ColumnDefinitions="Auto,Auto,*">
         <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto">
@@ -64,8 +65,14 @@
         <GridSplitter Grid.Row="1" Grid.Column="1" ResizeDirection="Columns" />
         <Grid Grid.Row="1" Grid.Column="2" RowDefinitions="Auto,*">
             <Label Content="Backups" />
-            <ListBox Grid.Row="1" ItemsSource="{Binding ModBackups}"
-                     SelectedItem="{Binding SelectedModBackup}" IsEnabled="{Binding !IsBusyService.IsBusy}" />
+            <DataGrid Grid.Row="1" ItemsSource="{Binding ModBackups}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="File Name" Binding="{Binding FileName}" />
+                    <DataGridTextColumn Header="File Size"
+                                        Binding="{Binding FileSize, Converter={StaticResource ModBackupFileSizeConverter}}" />
+                    <DataGridTextColumn Header="GAMMA Version" Binding="{Binding GammaVersion}" />
+                </DataGrid.Columns>
+            </DataGrid>
         </Grid>
         <Grid Grid.Column="0" Grid.Row="2" ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
             <Button Command="{Binding BackupCmd}" Content="Backup">
