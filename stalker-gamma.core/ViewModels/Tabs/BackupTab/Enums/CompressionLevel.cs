@@ -4,5 +4,5 @@ public enum CompressionLevel
 {
     None,
     Fast,
-    Max,
+    Ultra,
 }

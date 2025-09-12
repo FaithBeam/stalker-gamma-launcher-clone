@@ -15,23 +15,24 @@
         <converters:DeleteModConverter x:Key="DeleteModConverter" />
     </UserControl.Resources>
     <Grid RowDefinitions="Auto,*,Auto" ColumnDefinitions="Auto,Auto,*">
-        <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnSpan="2">
-            <ComboBox ItemsSource="{Binding Compressors}" SelectedItem="{Binding SelectedCompressor}">
+        <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto">
+            <ComboBox ItemsSource="{Binding Compressors}" SelectedItem="{Binding SelectedCompressor}"
+                      IsEnabled="{Binding !IsBusyService.IsBusy}">
                 <ToolTip.Tip>
                     <TextBlock Text="{Binding CompressorToolTip}" />
                 </ToolTip.Tip>
             </ComboBox>
             <ComboBox Grid.Column="1" ItemsSource="{Binding CompressionLevels}"
-                      SelectedItem="{Binding SelectedCompressionLevel}">
+                      SelectedItem="{Binding SelectedCompressionLevel}" IsEnabled="{Binding !IsBusyService.IsBusy}">
                 <ToolTip.Tip>
                     <TextBlock>
                         Fast is recommended for both lzma2 and zstd because it is a nice tradeoff between compression size and compression time.
                         <LineBreak />
-                        Only choose max if you're going to distribute archives across the internet.
+                        Only choose ultra if you're going to distribute archives across the internet and like to wait a while.
                     </TextBlock>
                 </ToolTip.Tip>
             </ComboBox>
-            <TextBlock Grid.Column="2">
+            <TextBlock Grid.Column="2" IsEnabled="{Binding !IsBusyService.IsBusy}">
                 <RadioButton Content="Partial" IsChecked="{Binding PartialIsChecked}" GroupName="BackupType">
                     <ToolTip.Tip>
                         <TextBlock>
@@ -49,21 +50,22 @@
                     </ToolTip.Tip>
                 </RadioButton>
             </TextBlock>
-                <TextBox Grid.Column="3" Margin="5 0" Text="{Binding GammaBackupFolder}" VerticalAlignment="Center" />
+            <TextBox Grid.Column="3" Margin="5 0" Text="{Binding GammaBackupFolder}" VerticalAlignment="Center"
+                     IsEnabled="{Binding !IsBusyService.IsBusy}" />
             <Button Grid.Column="4" Content="Browse" Command="{Binding ChangeGammaBackupDirectoryCmd}" />
         </Grid>
-        <Grid Grid.Column="0" Grid.Row="1" RowDefinitions="Auto,*">
+        <Grid Grid.Row="1" Grid.Column="0" RowDefinitions="Auto,*">
             <Label Content="Console" />
             <avaloniaEdit:TextEditor Grid.Row="1" VerticalAlignment="Stretch" MinWidth="200"
                                      x:Name="BackupTxt" IsReadOnly="True"
                                      HorizontalScrollBarVisibility="Auto" Foreground="#85fb98" Background="#242424"
                                      VerticalScrollBarVisibility="Visible" FontSize="12" FontFamily="Consolas" />
         </Grid>
-        <GridSplitter Grid.Row="1" Grid.Column="1"></GridSplitter>
+        <GridSplitter Grid.Row="1" Grid.Column="1" ResizeDirection="Columns" />
         <Grid Grid.Row="1" Grid.Column="2" RowDefinitions="Auto,*">
             <Label Content="Backups" />
             <ListBox Grid.Row="1" ItemsSource="{Binding ModBackups}"
-                     SelectedItem="{Binding SelectedModBackup}" />
+                     SelectedItem="{Binding SelectedModBackup}" IsEnabled="{Binding !IsBusyService.IsBusy}" />
         </Grid>
         <Grid Grid.Column="0" Grid.Row="2" ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
             <Button Command="{Binding BackupCmd}" Content="Backup">
@@ -72,12 +74,12 @@
                 </ToolTip.Tip>
             </Button>
             <Button Grid.Column="1" Command="{Binding CancelBackupCmd}" Content="Cancel" />
-            <Button Grid.Column="2" Command="{Binding RestoreBackupCmd}" Content="Restore"/>
+            <Button Grid.Column="2" Command="{Binding RestoreBackupCmd}" Content="Restore" />
             <Button Grid.Column="3" Command="{Binding DeleteBackupCmd}">
                 <Button.Content>Delete</Button.Content>
                 <Button.CommandParameter>
                     <MultiBinding Converter="{StaticResource DeleteModConverter}">
-                        <Binding Path="ModsBackupPath" />
+                        <Binding Path="PartialBackupPath" />
                         <Binding Path="SelectedModBackup" />
                     </MultiBinding>
                 </Button.CommandParameter>

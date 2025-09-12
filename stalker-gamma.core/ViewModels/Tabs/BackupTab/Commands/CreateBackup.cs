@@ -55,7 +55,7 @@ public static class CreateBackup
             {
                 CompressionLevel.None => "0",
                 CompressionLevel.Fast => "1",
-                CompressionLevel.Max => "9",
+                CompressionLevel.Ultra => "9",
                 _ => throw new ArgumentOutOfRangeException(
                     nameof(compressionLevel),
                     compressionLevel,
@@ -66,7 +66,7 @@ public static class CreateBackup
             {
                 CompressionLevel.None => "0",
                 CompressionLevel.Fast => "1",
-                CompressionLevel.Max => "22",
+                CompressionLevel.Ultra => "22",
                 _ => throw new ArgumentOutOfRangeException(
                     nameof(compressionLevel),
                     compressionLevel,

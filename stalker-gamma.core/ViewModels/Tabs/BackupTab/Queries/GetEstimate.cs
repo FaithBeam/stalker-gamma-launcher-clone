@@ -21,7 +21,7 @@ public static class GetEstimate
                     {
                         CompressionLevel.None => "",
                         CompressionLevel.Fast => "≈ 5 minutes, 28gb 8c/16t CPU",
-                        CompressionLevel.Max => "",
+                        CompressionLevel.Ultra => "",
                         _ => throw new ArgumentOutOfRangeException(
                             nameof(q.CompressionLevel),
                             q.CompressionLevel,
@@ -32,7 +32,7 @@ public static class GetEstimate
                     {
                         CompressionLevel.None => "",
                         CompressionLevel.Fast => "≈ 3 minute, 34gb 8c/16t CPU",
-                        CompressionLevel.Max => "≈ 80 minutes, 20gb 8c/16t CPU",
+                        CompressionLevel.Ultra => "≈ 80 minutes, 20gb 8c/16t CPU",
                         _ => throw new ArgumentOutOfRangeException(
                             nameof(q.CompressionLevel),
                             q.CompressionLevel,
@@ -51,7 +51,7 @@ public static class GetEstimate
                     {
                         CompressionLevel.None => "changeme",
                         CompressionLevel.Fast => "≈ 15 minutes, 54gb 8c/16t CPU",
-                        CompressionLevel.Max => "≈ 50 minutes, 50gb 8c/16t CPU",
+                        CompressionLevel.Ultra => "≈ 50 minutes, 50gb 8c/16t CPU",
                         _ => throw new ArgumentOutOfRangeException(
                             nameof(q.CompressionLevel),
                             q.CompressionLevel,
@@ -62,7 +62,7 @@ public static class GetEstimate
                     {
                         CompressionLevel.None => "changeme",
                         CompressionLevel.Fast => "≈ 10 minutes, 65gb 8c/16t CPU",
-                        CompressionLevel.Max => "≈ 135 minutes, 42gb 8c/16t CPU",
+                        CompressionLevel.Ultra => "≈ 135 minutes, 42gb 8c/16t CPU",
                         _ => throw new ArgumentOutOfRangeException(
                             nameof(q.CompressionLevel),
                             q.CompressionLevel,

@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using DynamicData;
 using DynamicData.Binding;
 using ReactiveUI;
+using stalker_gamma.core.Services;
 using stalker_gamma.core.Utilities;
 using stalker_gamma.core.ViewModels.Tabs.BackupTab.Enums;
 
@@ -20,7 +21,7 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
     private CancellationTokenSource _backupCancellationTokenSource = new();
     private CancellationToken BackupCancellationToken => _backupCancellationTokenSource.Token;
     private readonly ObservableAsPropertyHelper<string> _gammaBackupFolder;
-    private readonly ObservableAsPropertyHelper<string> _modsBackupPath;
+    private readonly ObservableAsPropertyHelper<string> _partialBackupPath;
     private readonly ObservableAsPropertyHelper<string> _fullBackupPath;
     private readonly ObservableAsPropertyHelper<DriveSpaceStats> _driveStats;
     private readonly ObservableAsPropertyHelper<string?> _driveSpaceStatsString;
@@ -35,6 +36,7 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
     private bool _fullIsChecked;
 
     public BackupTabVm(
+        IsBusyService isBusyService,
         BackupTabProgressService backupTabProgressService,
         Queries.GetEstimate.Handler getEstimateHandler,
         Queries.GetAnomalyPath.Handler getAnomalyPathHandler,
@@ -48,6 +50,7 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
         Commands.CreateBackup.Handler createBackupHandler
     )
     {
+        IsBusyService = isBusyService;
         Activator = new ViewModelActivator();
         Path.GetFullPath(Path.Combine(_dir, ".."));
         var backupsSrcList = new SourceList<string>();
@@ -80,7 +83,7 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
 
         CheckModsList = ReactiveCommand.Create(() =>
             checkModsListHandler.Execute(
-                new Queries.CheckModsList.Query(backupsSrcList, ModsBackupPath)
+                new Queries.CheckModsList.Query(backupsSrcList, PartialBackupPath)
             )
         );
 
@@ -88,15 +91,20 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
             createBackupFolderHandler.Execute(
                 new Commands.CreateBackupFolders.Command(
                     GammaBackupFolder,
-                    ModsBackupPath,
+                    PartialBackupPath,
                     FullBackupPath
                 )
             )
         );
 
         ChangeGammaBackupDirectoryInteraction = new Interaction<Unit, string?>();
-        ChangeGammaBackupDirectoryCmd = ReactiveCommand.CreateFromTask<string?>(async () =>
-            await ChangeGammaBackupDirectoryInteraction.Handle(Unit.Default)
+        var canChangeBackupDirectory = this.WhenAnyValue(
+            x => x.IsBusyService.IsBusy,
+            selector: isBusy => !isBusy
+        );
+        ChangeGammaBackupDirectoryCmd = ReactiveCommand.CreateFromTask<string?>(
+            async () => await ChangeGammaBackupDirectoryInteraction.Handle(Unit.Default),
+            canChangeBackupDirectory
         );
         _gammaBackupFolder = ChangeGammaBackupDirectoryCmd
             .WhereNotNull()
@@ -106,11 +114,11 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
                 initialValue: getGammaBackupFolderHandler.Execute()
             );
 
-        _modsBackupPath = this.WhenAnyValue(
+        _partialBackupPath = this.WhenAnyValue(
                 x => x.GammaBackupFolder,
-                selector: folder => Path.Join(folder, "Mods")
+                selector: folder => Path.Join(folder, "Partial")
             )
-            .ToProperty(this, x => x.ModsBackupPath);
+            .ToProperty(this, x => x.PartialBackupPath);
         _fullBackupPath = this.WhenAnyValue(
                 x => x.GammaBackupFolder,
                 selector: folder => Path.Join(folder, "Full")
@@ -120,7 +128,7 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
         CreateBackupFolders.Subscribe(_ => CheckModsList.Execute().Subscribe());
         CheckModsList.Subscribe(_ => GetDriveSpaceStatsCmd.Execute(GammaBackupFolder).Subscribe());
 
-        this.WhenAnyValue(x => x.GammaBackupFolder, x => x.ModsBackupPath, x => x.FullBackupPath)
+        this.WhenAnyValue(x => x.GammaBackupFolder, x => x.PartialBackupPath, x => x.FullBackupPath)
             .Subscribe(_ => CreateBackupFolders.Execute().Subscribe());
 
         _selectedBackup = this.WhenAnyValue(
@@ -134,7 +142,7 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
             .ToProperty(this, x => x.SelectedBackup);
         var compressionLvlSrcList = new SourceList<CompressionLevel>();
         compressionLvlSrcList.AddRange(
-            [CompressionLevel.None, CompressionLevel.Fast, CompressionLevel.Max]
+            [CompressionLevel.None, CompressionLevel.Fast, CompressionLevel.Ultra]
         );
 
         compressionLvlSrcList
@@ -161,9 +169,9 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
                             {
                                 inner.Add(CompressionLevel.Fast);
                             }
-                            if (!inner.Contains(CompressionLevel.Max))
+                            if (!inner.Contains(CompressionLevel.Ultra))
                             {
-                                inner.Add(CompressionLevel.Max);
+                                inner.Add(CompressionLevel.Ultra);
                             }
 
                             break;
@@ -172,7 +180,7 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
                         {
                             SelectedCompressionLevel = inner.First(x => x == CompressionLevel.Fast);
                             inner.Remove(CompressionLevel.None);
-                            inner.Remove(CompressionLevel.Max);
+                            inner.Remove(CompressionLevel.Ultra);
 
                             if (!inner.Contains(CompressionLevel.Fast))
                             {
@@ -205,73 +213,97 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
             .Subscribe(lvls =>
                 SelectedCompressionLevel = lvls.First(x => x == CompressionLevel.Fast)
             );
-        BackupCmd = ReactiveCommand.CreateFromTask(() =>
-            Task.Run(() =>
-            {
-                var dstArchive =
-                    SelectedBackup switch
+        var canBackup = this.WhenAnyValue(
+            x => x.IsBusyService.IsBusy,
+            selector: (isBusy) => !isBusy
+        );
+        BackupCmd = ReactiveCommand.CreateFromTask(
+            () =>
+                Task.Run(() =>
+                {
+                    var now = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
+                    var gammaVersion = File.Exists("version.txt")
+                        ? File.ReadAllText("version.txt").Trim()
+                        : "NA";
+                    now = $"{now}+{gammaVersion}";
+                    var dstArchive =
+                        SelectedBackup switch
+                        {
+                            BackupType.Mods => Path.Join(PartialBackupPath, now),
+                            BackupType.Full => Path.Join(FullBackupPath, now),
+                            _ => throw new ArgumentOutOfRangeException(),
+                        } + ".7z";
+                    _backupCancellationTokenSource = new CancellationTokenSource();
+                    var anomalyPath = getAnomalyPathHandler.Execute()!.Replace(@"\\", "\\");
+                    var gammaPath = getGammaPathHandler.Execute();
+                    var commonDir = PathUtils.GetCommonDirectory(anomalyPath, gammaPath) ?? "";
+                    anomalyPath = anomalyPath.Replace(commonDir, "");
+                    gammaPath = gammaPath.Replace(commonDir, "");
+                    try
                     {
-                        BackupType.Mods => Path.Join(
-                            ModsBackupPath,
-                            DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss")
-                        ),
-                        BackupType.Full => Path.Join(
-                            FullBackupPath,
-                            DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss")
-                        ),
-                        _ => throw new ArgumentOutOfRangeException(),
-                    } + ".7z";
-                _backupCancellationTokenSource = new CancellationTokenSource();
-                var anomalyPath = getAnomalyPathHandler.Execute()!.Replace(@"\\", "\\");
-                var gammaPath = getGammaPathHandler.Execute();
-                var commonDir = PathUtils.GetCommonDirectory(anomalyPath, gammaPath) ?? "";
-                anomalyPath = anomalyPath.Replace(commonDir, "");
-                gammaPath = gammaPath.Replace(commonDir, "");
-                createBackupHandler
-                    .ExecuteAsync(
-                        new Commands.CreateBackup.Command(
-                            SelectedBackup == BackupType.Full
-                                ? [anomalyPath, gammaPath]
-                                :
-                                [
-                                    Path.Join(anomalyPath, "bin"),
+                        createBackupHandler
+                            .ExecuteAsync(
+                                new Commands.CreateBackup.Command(
+                                    SelectedBackup == BackupType.Full
+                                        ? [anomalyPath, gammaPath]
+                                        :
+                                        [
+                                            Path.Join(anomalyPath, "bin"),
 #if DEBUG
-                                    Path.Join(gammaPath, "net9.0", "*.txt"),
+                                            Path.Join(gammaPath, "net9.0", "*.txt"),
 #else
-                                    Path.Join(gammaPath, ".Grok's Modpack Installer", "*.txt"),
+                                            Path.Join(
+                                                gammaPath,
+                                                ".Grok's Modpack Installer",
+                                                "*.txt"
+                                            ),
 #endif
-                                    Path.Join(gammaPath, "mods"),
-                                    Path.Join(gammaPath, "profiles"),
-                                ],
-                            dstArchive,
-                            SelectedCompressionLevel,
-                            SelectedCompressor,
-                            BackupCancellationToken,
-                            WorkingDirectory: Path.GetFullPath(commonDir)
-                        )
-                    )
-                    .GetAwaiter()
-                    .GetResult();
-                return Task.FromResult(dstArchive);
-            })
+                                            Path.Join(gammaPath, "mods"),
+                                            Path.Join(gammaPath, "profiles"),
+                                        ],
+                                    dstArchive,
+                                    SelectedCompressionLevel,
+                                    SelectedCompressor,
+                                    BackupCancellationToken,
+                                    WorkingDirectory: Path.GetFullPath(commonDir)
+                                )
+                            )
+                            .GetAwaiter()
+                            .GetResult();
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        backupTabProgressService.UpdateProgress("Backup Cancelled");
+                        // delete archive if the backup was cancelled
+                        if (File.Exists(dstArchive))
+                        {
+                            File.Delete(dstArchive);
+                            dstArchive = null;
+                        }
+                    }
+
+                    return Task.FromResult(dstArchive);
+                }),
+            canBackup
         );
         BackupCmd.ThrownExceptions.Subscribe(x =>
             backupTabProgressService.UpdateProgress(x.Message)
         );
-        BackupCmd.Subscribe(_ => CheckModsList.Execute().Subscribe());
+        BackupCmd.WhereNotNull().Subscribe(_ => CheckModsList.Execute().Subscribe());
+        BackupCmd.IsExecuting.Subscribe(isExecuting => IsBusyService.IsBusy = isExecuting);
 
         var canCancel = BackupCmd.IsExecuting;
         CancelBackupCmd = ReactiveCommand.CreateFromTask(
             () => Task.Run(() => _backupCancellationTokenSource.Cancel()),
             canCancel
         );
-        CancelBackupCmd.Subscribe(_ => CheckModsList.Execute().Subscribe());
 
         var canRestore = this.WhenAnyValue(
             x => x.GammaBackupFolder,
             x => x.SelectedModBackup,
-            selector: (folder, backup) =>
-                !string.IsNullOrWhiteSpace(folder) && !string.IsNullOrWhiteSpace(backup)
+            x => x.IsBusyService.IsBusy,
+            selector: (folder, backup, isBusy) =>
+                !string.IsNullOrWhiteSpace(folder) && !string.IsNullOrWhiteSpace(backup) && !isBusy
         );
         RestoreBackupCmd = ReactiveCommand.CreateFromTask(
             c =>
@@ -279,7 +311,7 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
                 {
                     var gammaPath = getGammaPathHandler.Execute();
                     var anomalyPath = getAnomalyPathHandler.Execute()?.Replace(@"\\", "\\") ?? "";
-                    var archivePath = Path.Join(ModsBackupPath, SelectedModBackup);
+                    var archivePath = Path.Join(PartialBackupPath, SelectedModBackup);
                     var workDir = PathUtils.GetCommonDirectory(anomalyPath, gammaPath)!;
                     var anomalyBinFolder = Path.Join(anomalyPath, "bin");
                     var gammaModsFolder = Path.Join(gammaPath, "mods");
@@ -300,11 +332,13 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
         RestoreBackupCmd.Subscribe(_ =>
             GetDriveSpaceStatsCmd.Execute(GammaBackupFolder).Subscribe()
         );
+        RestoreBackupCmd.IsExecuting.Subscribe(isExecuting => IsBusyService.IsBusy = isExecuting);
 
         var canDelete = this.WhenAnyValue(
-            x => x.ModsBackupPath,
+            x => x.PartialBackupPath,
             x => x.SelectedModBackup,
-            selector: (folder, backup) => File.Exists(Path.Join(folder, backup))
+            x => x.IsBusyService.IsBusy,
+            selector: (folder, backup, isBusy) => File.Exists(Path.Join(folder, backup)) && !isBusy
         );
         DeleteBackupCmd = ReactiveCommand.CreateFromTask<(string BackupModPath, string BackupName)>(
             pathToBackupToDelete =>
@@ -323,6 +357,7 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
             backupTabProgressService.UpdateProgress(x.ToString())
         );
         DeleteBackupCmd.Subscribe(_ => CheckModsList.Execute().Subscribe());
+        DeleteBackupCmd.IsExecuting.Subscribe(isExecuting => IsBusyService.IsBusy = isExecuting);
 
         AppendLineInteraction = new Interaction<string, Unit>();
         backupTabProgressService
@@ -352,9 +387,10 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
         );
     }
 
+    public IsBusyService IsBusyService { get; }
     public Interaction<string, Unit> AppendLineInteraction { get; }
     public Interaction<Unit, string?> ChangeGammaBackupDirectoryInteraction { get; }
-    public ReactiveCommand<Unit, string> BackupCmd { get; }
+    public ReactiveCommand<Unit, string?> BackupCmd { get; }
     public ReactiveCommand<Unit, Unit> CancelBackupCmd { get; }
     public ReactiveCommand<(string BackupModPath, string BackupName), Unit> DeleteBackupCmd { get; }
     public string? CompressorToolTip => _compressorToolTip.Value;
@@ -394,7 +430,7 @@ public class BackupTabVm : ViewModelBase, IActivatableViewModel
 
     public BackupType SelectedBackup => _selectedBackup.Value;
 
-    public string ModsBackupPath => _modsBackupPath.Value;
+    public string PartialBackupPath => _partialBackupPath.Value;
     private string FullBackupPath => _fullBackupPath.Value;
 
     private ReactiveCommand<Unit, Unit> CreateBackupFolders { get; }
