@@ -65,9 +65,9 @@
         <GridSplitter Grid.Row="1" Grid.Column="1" ResizeDirection="Columns" />
         <Grid Grid.Row="1" Grid.Column="2" RowDefinitions="Auto,*">
             <Label Content="Backups" />
-            <DataGrid Grid.Row="1" ItemsSource="{Binding ModBackups}">
+            <DataGrid Grid.Row="1" ItemsSource="{Binding ModBackups}" SelectedItem="{Binding SelectedModBackup}">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="File Name" Binding="{Binding FileName}" />
+                    <DataGridTextColumn Header="Date" Binding="{Binding DateTime}" />
                     <DataGridTextColumn Header="File Size"
                                         Binding="{Binding FileSize, Converter={StaticResource ModBackupFileSizeConverter}}" />
                     <DataGridTextColumn Header="GAMMA Version" Binding="{Binding GammaVersion}" />

@@ -2,13 +2,19 @@
 
 namespace stalker_gamma.core.ViewModels.Tabs.BackupTab;
 
-public class ModBackupVm(string fileName, long fileSize, string path, int gammaVersion)
-    : ReactiveObject
+public class ModBackupVm(
+    string fileName,
+    long fileSize,
+    string path,
+    int gammaVersion,
+    DateTime dateTime
+) : ReactiveObject
 {
     private string _fileName = fileName;
     private long _fileSize = fileSize;
     private string _path = path;
     private int _gammaVersion = gammaVersion;
+    private DateTime _dateTime = dateTime;
 
     public string FileName
     {
@@ -32,5 +38,11 @@ public class ModBackupVm(string fileName, long fileSize, string path, int gammaV
     {
         get => _gammaVersion;
         set => this.RaiseAndSetIfChanged(ref _gammaVersion, value);
+    }
+
+    public DateTime DateTime
+    {
+        get => _dateTime;
+        set => this.RaiseAndSetIfChanged(ref _dateTime, value);
     }
 }
