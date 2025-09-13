@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -44,6 +45,7 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
         Queries.GetDriveSpaceStats.Handler getDriveSpaceStatsHandler,
         Queries.CheckModsList.Handler checkModsListHandler,
         Queries.GetGammaBackupFolder.Handler getGammaBackupFolderHandler,
+        Queries.GetArchiveCompressionMethod.Handler getArchiveCompressionMethodHandler,
         Commands.RestoreBackup.Handler restoreBackupHandler,
         Commands.DeleteBackup.Handler deleteBackupHandler,
         Commands.CreateBackupFolders.Handler createBackupFolderHandler,
@@ -84,20 +86,24 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
                 var fileName = Path.GetFileName(path);
                 var fileSize = new FileInfo(path).Length;
                 var match = MyRegex().Match(fileName);
-                var date = new DateTime(
-                    int.Parse(match.Groups["year"].Value),
-                    int.Parse(match.Groups["month"].Value),
-                    int.Parse(match.Groups["day"].Value),
-                    int.Parse(match.Groups["hour"].Value),
-                    int.Parse(match.Groups["minute"].Value),
-                    int.Parse(match.Groups["second"].Value)
-                );
+                var date = match.Success
+                    ? new DateTime(
+                        int.Parse(match.Groups["year"].Value),
+                        int.Parse(match.Groups["month"].Value),
+                        int.Parse(match.Groups["day"].Value),
+                        int.Parse(match.Groups["hour"].Value),
+                        int.Parse(match.Groups["minute"].Value),
+                        int.Parse(match.Groups["second"].Value)
+                    ).ToString(CultureInfo.CurrentCulture)
+                    : "N/A";
+                var compressionMethod = "N/A";
                 return new ModBackupVm(
                     fileName,
                     fileSize,
                     path,
                     int.Parse(match.Groups["gammaVersion"].Value),
-                    date
+                    date,
+                    compressionMethod
                 );
             })
             .Sort(SortExpressionComparer<ModBackupVm>.Descending(x => x.FileName))
@@ -167,9 +173,9 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
                 x => x.PartialIsChecked,
                 x => x.FullIsChecked,
                 selector: (mods, full) =>
-                    mods ? BackupType.Mods
+                    mods ? BackupType.Partial
                     : full ? BackupType.Full
-                    : BackupType.Mods
+                    : BackupType.Partial
             )
             .ToProperty(this, x => x.SelectedBackup);
         var compressionLvlSrcList = new SourceList<CompressionLevel>();
@@ -261,7 +267,7 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
                     var dstArchive =
                         SelectedBackup switch
                         {
-                            BackupType.Mods => Path.Join(PartialBackupPath, now),
+                            BackupType.Partial => Path.Join(PartialBackupPath, now),
                             BackupType.Full => Path.Join(FullBackupPath, now),
                             _ => throw new ArgumentOutOfRangeException(),
                         } + ".7z";
@@ -507,6 +513,6 @@ public record DriveSpaceStats(long TotalSpace, long UsedSpace, long ModsSize);
 
 public enum BackupType
 {
-    Mods,
+    Partial,
     Full,
 }

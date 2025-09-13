@@ -37,6 +37,13 @@ public static class ArchiveUtility
         return ct is not null ? cmd.Observe(ct.Value) : cmd.Observe();
     }
 
+    public static IObservable<CommandEvent> List(string archivePath, CancellationToken? ct = null)
+    {
+        var cli = $"l -slt {archivePath}";
+        var cmd = Cli.Wrap(SevenZip).WithArguments(cli);
+        return ct is not null ? cmd.Observe(ct.Value) : cmd.Observe();
+    }
+
     /// <summary>
     ///
     /// </summary>

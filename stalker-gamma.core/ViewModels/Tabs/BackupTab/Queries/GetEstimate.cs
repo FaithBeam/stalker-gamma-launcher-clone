@@ -15,11 +15,11 @@ public static class GetEstimate
         public string Execute(Query q) =>
             q.BackupType switch
             {
-                BackupType.Mods => q.Compressor switch
+                BackupType.Partial => q.Compressor switch
                 {
                     Compressor.Lzma2 => q.CompressionLevel switch
                     {
-                        CompressionLevel.None => "",
+                        CompressionLevel.None => "≈ 6 minutes, 28gb 8c/16t CPU",
                         CompressionLevel.Fast => "≈ 5 minutes, 28gb 8c/16t CPU",
                         CompressionLevel.Ultra => "",
                         _ => throw new ArgumentOutOfRangeException(
@@ -30,9 +30,9 @@ public static class GetEstimate
                     },
                     Compressor.Zstd => q.CompressionLevel switch
                     {
-                        CompressionLevel.None => "",
+                        CompressionLevel.None => "not used",
                         CompressionLevel.Fast => "≈ 3 minute, 34gb 8c/16t CPU",
-                        CompressionLevel.Ultra => "≈ 80 minutes, 20gb 8c/16t CPU",
+                        CompressionLevel.Ultra => "not used",
                         _ => throw new ArgumentOutOfRangeException(
                             nameof(q.CompressionLevel),
                             q.CompressionLevel,
@@ -49,7 +49,7 @@ public static class GetEstimate
                 {
                     Compressor.Lzma2 => q.CompressionLevel switch
                     {
-                        CompressionLevel.None => "changeme",
+                        CompressionLevel.None => "CHANGEME",
                         CompressionLevel.Fast => "≈ 15 minutes, 54gb 8c/16t CPU",
                         CompressionLevel.Ultra => "≈ 50 minutes, 50gb 8c/16t CPU",
                         _ => throw new ArgumentOutOfRangeException(
