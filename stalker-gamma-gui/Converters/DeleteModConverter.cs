@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using Avalonia.Data;
 using Avalonia.Data.Converters;
+using stalker_gamma.core.ViewModels.Tabs.BackupTab;
 
 namespace stalker_gamma_gui.Converters;
 
@@ -14,13 +15,8 @@ public class DeleteModConverter : IMultiValueConverter
         Type targetType,
         object? parameter,
         CultureInfo culture
-    )
-    {
-        if (values.Count != 2 || values.Any(x => x is not string))
-        {
-            return BindingOperations.DoNothing;
-        }
-
-        return ((string)values[0]!, (string)values[1]!);
-    }
+    ) =>
+        values is not [string pathToDelete, ModBackupVm modBackupVm]
+            ? BindingOperations.DoNothing
+            : (pathToDelete, modBackupVm.FileName);
 }

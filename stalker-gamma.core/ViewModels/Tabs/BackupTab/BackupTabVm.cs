@@ -71,12 +71,12 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
         _driveSpaceStatsString = this.WhenAnyValue(
                 x => x.DriveSpaceStats,
                 selector: dst =>
-                    $"{dst?.TotalSpace / 1024 / 1024 / 1024}/{dst?.UsedSpace / 1024 / 1024 / 1024} GB"
+                    $"{dst?.TotalSpace / 1024 / 1024 / 1024 - dst?.UsedSpace / 1024 / 1024 / 1024} GB free of {dst?.TotalSpace / 1024 / 1024 / 1024} GB"
             )
             .ToProperty(this, x => x.DriveStats);
         _totalModsSpace = this.WhenAnyValue(
                 x => x.DriveSpaceStats,
-                selector: dst => $"{dst?.ModsSize / 1024 / 1024 / 1024} GB"
+                selector: dst => $"Total backups size {dst?.ModsSize / 1024 / 1024 / 1024} GB"
             )
             .ToProperty(this, x => x.TotalModsSpace);
         backupsSrcList
