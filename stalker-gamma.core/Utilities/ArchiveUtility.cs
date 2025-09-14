@@ -28,7 +28,7 @@ public static class ArchiveUtility
         string? workingDirectory = null
     )
     {
-        var cli = $"x " + $"-y " + $"{archivePath} " + $"-o{destinationFolder} ";
+        var cli = $"x " + $"-y " + $"\"{archivePath}\" " + $"-o\"{destinationFolder}\" ";
         var cmd = Cli.Wrap(SevenZip).WithArguments(cli);
         if (!string.IsNullOrWhiteSpace(workingDirectory))
         {
@@ -68,7 +68,7 @@ public static class ArchiveUtility
         var cli =
             $"a "
             + $"-bsp1 "
-            + $"{destination} "
+            + $"\"{destination}\" "
             + $"{string.Join(" ", paths.Select(x => $"\"{x}\""))} "
             + $"-m0={(compressor == "zstd" ? "bcj" : compressor)} "
             + $"{(compressor == "zstd" ? "-m1=zstd " : "")}"

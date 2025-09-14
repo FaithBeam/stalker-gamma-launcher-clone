@@ -55,6 +55,7 @@ public partial class App : Application
                     {
 #pragma warning disable IL2026
                         UseCurlImpersonate = configuration.GetValue<bool>("useCurlImpersonate"),
+                        GammaBackupPath = configuration.GetValue<string>("gammaBackupPath"),
 #pragma warning restore IL2026
                     }
                 );

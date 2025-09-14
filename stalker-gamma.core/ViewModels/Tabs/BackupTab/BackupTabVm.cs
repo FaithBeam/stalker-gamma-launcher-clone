@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using DynamicData;
 using DynamicData.Binding;
 using ReactiveUI;
+using stalker_gamma.core.Models;
 using stalker_gamma.core.Services;
 using stalker_gamma.core.Utilities;
 using stalker_gamma.core.ViewModels.Tabs.BackupTab.Enums;
@@ -37,6 +38,7 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
     private bool _fullIsChecked;
 
     public BackupTabVm(
+        GlobalSettings globalSettings,
         IsBusyService isBusyService,
         BackupTabProgressService backupTabProgressService,
         Queries.GetEstimate.Handler getEstimateHandler,
@@ -46,6 +48,7 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
         Queries.CheckModsList.Handler checkModsListHandler,
         Queries.GetGammaBackupFolder.Handler getGammaBackupFolderHandler,
         Queries.GetArchiveCompressionMethod.Handler getArchiveCompressionMethodHandler,
+        Commands.UpdateGammaBackupPathInAppSettings.Handler updateGammaBackupPathInAppSettingsHandler,
         Commands.RestoreBackup.Handler restoreBackupHandler,
         Commands.DeleteBackup.Handler deleteBackupHandler,
         Commands.CreateBackupFolders.Handler createBackupFolderHandler,
@@ -81,6 +84,7 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
             .ToProperty(this, x => x.TotalModsSpace);
         backupsSrcList
             .Connect()
+            .Filter(path => MyRegex().Match(Path.GetFileName(path)).Success)
             .Transform(path =>
             {
                 var fileName = Path.GetFileName(path);
@@ -144,12 +148,19 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
         ChangeGammaBackupDirectoryCmd.ThrownExceptions.Subscribe(x =>
             backupTabProgressService.UpdateProgress(x.ToString())
         );
+        ChangeGammaBackupDirectoryCmd.Subscribe(async newPath =>
+            await updateGammaBackupPathInAppSettingsHandler.ExecuteAsync(
+                new Commands.UpdateGammaBackupPathInAppSettings.Command(newPath)
+            )
+        );
         _gammaBackupFolder = ChangeGammaBackupDirectoryCmd
             .WhereNotNull()
             .ToProperty(
                 this,
                 x => x.GammaBackupFolder,
-                initialValue: getGammaBackupFolderHandler.Execute()
+                initialValue: string.IsNullOrWhiteSpace(globalSettings.GammaBackupPath)
+                    ? getGammaBackupFolderHandler.Execute()
+                    : globalSettings.GammaBackupPath
             );
 
         _partialBackupPath = this.WhenAnyValue(

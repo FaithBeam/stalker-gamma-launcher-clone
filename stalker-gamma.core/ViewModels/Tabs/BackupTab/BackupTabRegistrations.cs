@@ -10,6 +10,7 @@ public static class BackupTabRegistrations
             .AddScoped<Commands.DeleteBackup.Handler>()
             .AddScoped<Commands.CreateBackupFolders.Handler>()
             .AddScoped<Commands.CreateBackup.Handler>()
+            .AddScoped<Commands.UpdateGammaBackupPathInAppSettings.Handler>()
             .AddScoped<Queries.GetEstimate.Handler>()
             .AddScoped<Queries.GetAnomalyPath.Handler>()
             .AddScoped<Queries.GetGammaPath.Handler>()

@@ -53,7 +53,13 @@
             </TextBlock>
             <TextBox Grid.Column="3" Margin="5 0" Text="{Binding GammaBackupFolder}" VerticalAlignment="Center"
                      IsEnabled="{Binding !IsBusyService.IsBusy}" />
-            <Button Grid.Column="4" Content="Browse" Command="{Binding ChangeGammaBackupDirectoryCmd}" />
+            <Button Grid.Column="4" Content="Browse" Command="{Binding ChangeGammaBackupDirectoryCmd}">
+                <ToolTip.Tip>
+                    <TextBlock>
+                        Change the base gamma backup folder.
+                    </TextBlock>
+                </ToolTip.Tip>
+            </Button>
         </Grid>
         <Grid Grid.Row="1" Grid.Column="0" RowDefinitions="Auto,*">
             <Label Content="Console" />
