@@ -4,7 +4,7 @@ namespace stalker_gamma.core.ViewModels.Tabs.BackupTab.Commands;
 
 public static class UpdateGammaBackupPathInAppSettings
 {
-    public sealed record Command(string? NewPath);
+    public sealed record Command(string NewPath);
 
     public sealed class Handler(GlobalSettings gs)
     {

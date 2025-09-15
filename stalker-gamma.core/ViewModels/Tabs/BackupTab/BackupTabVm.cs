@@ -149,11 +149,13 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
         ChangeGammaBackupDirectoryCmd.ThrownExceptions.Subscribe(x =>
             backupTabProgressService.UpdateProgress(x.ToString())
         );
-        ChangeGammaBackupDirectoryCmd.Subscribe(async newPath =>
-            await updateGammaBackupPathInAppSettingsHandler.ExecuteAsync(
-                new Commands.UpdateGammaBackupPathInAppSettings.Command(newPath)
-            )
-        );
+        ChangeGammaBackupDirectoryCmd
+            .WhereNotNull()
+            .Subscribe(async newPath =>
+                await updateGammaBackupPathInAppSettingsHandler.ExecuteAsync(
+                    new Commands.UpdateGammaBackupPathInAppSettings.Command(newPath)
+                )
+            );
         _gammaBackupFolder = ChangeGammaBackupDirectoryCmd
             .WhereNotNull()
             .ToProperty(
