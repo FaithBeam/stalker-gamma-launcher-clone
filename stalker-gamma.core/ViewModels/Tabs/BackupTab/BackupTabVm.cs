@@ -11,6 +11,7 @@ using stalker_gamma.core.Models;
 using stalker_gamma.core.Services;
 using stalker_gamma.core.Utilities;
 using stalker_gamma.core.ViewModels.Tabs.BackupTab.Enums;
+using stalker_gamma.core.ViewModels.Tabs.BackupTab.Models;
 
 namespace stalker_gamma.core.ViewModels.Tabs.BackupTab;
 
@@ -518,12 +519,4 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
         @"^(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})-(?<hour>\d{2})-(?<minute>\d{2})-(?<second>\d{2})\+(?<gammaVersion>\d+).7z$"
     )]
     private static partial Regex MyRegex();
-}
-
-public record DriveSpaceStats(long TotalSpace, long UsedSpace, long ModsSize);
-
-public enum BackupType
-{
-    Partial,
-    Full,
 }

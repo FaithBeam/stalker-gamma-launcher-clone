@@ -1,4 +1,6 @@
-﻿namespace stalker_gamma.core.ViewModels.Tabs.BackupTab.Queries;
+﻿using stalker_gamma.core.ViewModels.Tabs.BackupTab.Models;
+
+namespace stalker_gamma.core.ViewModels.Tabs.BackupTab.Queries;
 
 public static class GetDriveSpaceStats
 {
