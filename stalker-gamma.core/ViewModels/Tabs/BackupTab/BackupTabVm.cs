@@ -291,8 +291,8 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
                     backupTabProgressService.UpdateProgress(
                         $"{anomalyPath}\n{gammaPath}\n{commonDir}"
                     );
-                    anomalyPath = anomalyPath.Replace(commonDir, "");
-                    gammaPath = gammaPath.Replace(commonDir, "");
+                    anomalyPath = anomalyPath.Replace(commonDir, "").TrimStart('\\');
+                    gammaPath = gammaPath.Replace(commonDir, "").TrimStart('\\');
                     backupTabProgressService.UpdateProgress(
                         $"{anomalyPath}\n{gammaPath}\n{commonDir}"
                     );
