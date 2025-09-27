@@ -527,7 +527,7 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
     public ViewModelActivator Activator { get; }
 
     [GeneratedRegex(
-        @"^(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})-(?<hour>\d{2})-(?<minute>\d{2})-(?<second>\d{2})\+(?<gammaVersion>\d+).(lzma|zst)$"
+        @"^(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})-(?<hour>\d{2})-(?<minute>\d{2})-(?<second>\d{2})\+(?<gammaVersion>\d+).(7z|zst)$"
     )]
     private static partial Regex MyRegex();
 }
