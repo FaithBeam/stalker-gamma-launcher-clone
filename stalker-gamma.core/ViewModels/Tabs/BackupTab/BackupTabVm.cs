@@ -288,14 +288,8 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
                     var anomalyPath = getAnomalyPathHandler.Execute()!.Replace(@"\\", "\\");
                     var gammaPath = getGammaPathHandler.Execute();
                     var commonDir = PathUtils.GetCommonDirectory(anomalyPath, gammaPath) ?? "";
-                    backupTabProgressService.UpdateProgress(
-                        $"{anomalyPath}\n{gammaPath}\n{commonDir}"
-                    );
                     anomalyPath = anomalyPath.Replace(commonDir, "").TrimStart('\\');
                     gammaPath = gammaPath.Replace(commonDir, "").TrimStart('\\');
-                    backupTabProgressService.UpdateProgress(
-                        $"{anomalyPath}\n{gammaPath}\n{commonDir}"
-                    );
                     try
                     {
                         createBackupHandler
@@ -372,8 +366,8 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
             c =>
                 Task.Run(() =>
                 {
-                    var gammaPath = getGammaPathHandler.Execute();
-                    var anomalyPath = getAnomalyPathHandler.Execute()?.Replace(@"\\", "\\") ?? "";
+                    var gammaPath = getGammaPathHandler.Execute().TrimStart('\\');
+                    var anomalyPath = getAnomalyPathHandler.Execute()?.Replace(@"\\", "\\").TrimStart('\\') ?? "";
                     var archivePath = Path.Join(PartialBackupPath, SelectedModBackup!.FileName);
                     backupTabProgressService.UpdateProgress($"{anomalyPath}\n{gammaPath}");
                     var workDir = PathUtils.GetCommonDirectory(anomalyPath, gammaPath)!;
