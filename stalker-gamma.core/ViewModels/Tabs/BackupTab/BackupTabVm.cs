@@ -288,8 +288,10 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
                     var anomalyPath = getAnomalyPathHandler.Execute()!.Replace(@"\\", "\\");
                     var gammaPath = getGammaPathHandler.Execute();
                     var commonDir = PathUtils.GetCommonDirectory(anomalyPath, gammaPath) ?? "";
+                    backupTabProgressService.UpdateProgress($"{anomalyPath}\n{gammaPath}\n{commonDir}");
                     anomalyPath = anomalyPath.Replace(commonDir, "");
                     gammaPath = gammaPath.Replace(commonDir, "");
+                    backupTabProgressService.UpdateProgress($"{anomalyPath}\n{gammaPath}\n{commonDir}");
                     try
                     {
                         createBackupHandler
