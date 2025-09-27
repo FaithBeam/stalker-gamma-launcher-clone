@@ -58,7 +58,6 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
     {
         IsBusyService = isBusyService;
         Activator = new ViewModelActivator();
-        Path.GetFullPath(Path.Combine(_dir, ".."));
         var backupsSrcList = new SourceList<string>();
         GetDriveSpaceStatsCmd = ReactiveCommand.CreateFromTask<string, DriveSpaceStats>(
             gammaFolder =>
@@ -370,6 +369,7 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
                     var gammaPath = getGammaPathHandler.Execute();
                     var anomalyPath = getAnomalyPathHandler.Execute()?.Replace(@"\\", "\\") ?? "";
                     var archivePath = Path.Join(PartialBackupPath, SelectedModBackup!.FileName);
+                    backupTabProgressService.UpdateProgress($"{anomalyPath}\n{gammaPath}");
                     var workDir = PathUtils.GetCommonDirectory(anomalyPath, gammaPath)!;
                     var anomalyBinFolder = Path.Join(anomalyPath, "bin");
                     var gammaModsFolder = Path.Join(gammaPath, "mods");
