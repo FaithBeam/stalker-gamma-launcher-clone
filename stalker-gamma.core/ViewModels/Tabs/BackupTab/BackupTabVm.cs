@@ -102,7 +102,7 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
                     : "N/A";
                 var compressionMethod = Path.GetExtension(path) switch
                 {
-                    ".lzma" => "lzma2",
+                    ".7z" => "lzma2",
                     ".zst" => "zstd",
                     _ => "N/A",
                 };
@@ -289,7 +289,7 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
                         }
                         + SelectedCompressor switch
                         {
-                            Compressor.Lzma2 => ".lzma",
+                            Compressor.Lzma2 => ".7z",
                             Compressor.Zstd => ".zst",
                             _ => throw new ArgumentOutOfRangeException(),
                         };
