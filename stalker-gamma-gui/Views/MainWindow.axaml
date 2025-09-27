@@ -6,7 +6,7 @@
         xmlns:tabs="clr-namespace:stalker_gamma_gui.Controls.Tabs"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         Width="800"
-        Height="700"
+        Height="800"
         CanResize="False"
         x:Class="stalker_gamma_gui.Views.MainWindow"
         x:DataType="mainWindow:MainWindowVm"
