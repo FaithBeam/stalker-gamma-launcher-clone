@@ -23,10 +23,11 @@
                 <Setter Property="Foreground" Value="#85fb98" />
             </Style>
         </Styles>
+        <StyleInclude Source="../../Styles/CheckboxStyles.axaml" />
     </UserControl.Styles>
 
     <Grid ColumnDefinitions="150,*" Margin="5">
-        <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto,*,Auto,Auto,Auto,Auto,Auto,*,*,*,*,*,*,*">
+        <Grid RowDefinitions="Auto,Auto,Auto,*,*,Auto,*,Auto,Auto,Auto,Auto,Auto,Auto,*,*,*,*,*,*" Margin="0,0,5,0">
             <Image Source="/Assets/stalker-gamma-gamma_logo.png" Width="150" />
             <Label Grid.Row="1" Content="{Binding VersionString}" FontSize="10" Foreground="#696969"
                    HorizontalAlignment="Center" />
@@ -46,10 +47,10 @@
                     BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center" FontSize="10">
                 First install initialization
             </Button>
-            <Separator Grid.Row="5" />
+            <Separator Grid.Row="5" Margin="12,4,12,20" />
             <Button Grid.Row="6" Command="{Binding InstallUpdateGamma}" Foreground="#ff8c00" Background="#242424"
                     BorderBrush="#ff8c00" BorderThickness="1" HorizontalContentAlignment="Center"
-                    HorizontalAlignment="Stretch" Height="60" VerticalContentAlignment="Center">
+                    HorizontalAlignment="Stretch" Height="60" VerticalContentAlignment="Center" Margin="0,0,0,10">
                 <TextBlock>
                     Install / Update<LineBreak />
                     GAMMA
@@ -91,11 +92,11 @@
                     If enabled, the installer will not overwrite your user.ltx, preserving your settings.
                 </ToolTip.Tip>
             </CheckBox>
-            <Separator Grid.Row="12" />
+            <Separator Grid.Row="12" Margin="12,4,12,20" />
             <Button Grid.Row="13" IsEnabled="{Binding !IsBusyService.IsBusy}" Background="#242424" Foreground="#00ff00"
                     BorderBrush="#00ff00" BorderThickness="1" HorizontalContentAlignment="Center"
                     HorizontalAlignment="Stretch" Command="{Binding Play}" Height="60"
-                    VerticalContentAlignment="Center">
+                    VerticalContentAlignment="Center" Margin="0,0,0,20">
                 Play
             </Button>
             <Button Grid.Row="14" Background="#242424" Foreground="#00ff00"
@@ -112,7 +113,7 @@
                         Text="The money goes to Grok directly. A portion of the donations goes to add-ons makers every month." />
                 </ToolTip.Tip>
             </Button>
-            <Separator Grid.Row="15" />
+            <Separator Grid.Row="15" Margin="12,4,12,0" />
             <Button Grid.Row="16" Background="#242424"
                     Foreground="#85fb98"
                     BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center"
