@@ -13,7 +13,7 @@ public static class GetDriveSpaceStats
             var pathRoot = Path.GetPathRoot(q.GammaFolder);
             DriveInfo drive = new(pathRoot!);
             var backupSize = Directory
-                .GetFiles(q.GammaFolder, "*.7z", SearchOption.AllDirectories)
+                .GetFiles(q.GammaFolder, "*.*", SearchOption.AllDirectories)
                 .Sum(x => new FileInfo(x).Length);
             return new DriveSpaceStats(
                 drive.TotalSize,

@@ -100,7 +100,13 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
                         int.Parse(match.Groups["second"].Value)
                     ).ToString(CultureInfo.CurrentCulture)
                     : "N/A";
-                var compressionMethod = "N/A";
+                var compressionMethod = Path.GetExtension(path) switch
+                {
+                    ".lzma" => "lzma2",
+                    ".zst" => "zstd",
+                    _ => "N/A",
+                };
+
                 return new ModBackupVm(
                     fileName,
                     fileSize,
@@ -264,10 +270,7 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
             .Subscribe(lvls =>
                 SelectedCompressionLevel = lvls.First(x => x == CompressionLevel.Fast)
             );
-        var canBackup = this.WhenAnyValue(
-            x => x.IsBusyService.IsBusy,
-            selector: (isBusy) => !isBusy
-        );
+        var canBackup = this.WhenAnyValue(x => x.IsBusyService.IsBusy, selector: isBusy => !isBusy);
         BackupCmd = ReactiveCommand.CreateFromTask(
             () =>
                 Task.Run(() =>
@@ -283,7 +286,13 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
                             BackupType.Partial => Path.Join(PartialBackupPath, now),
                             BackupType.Full => Path.Join(FullBackupPath, now),
                             _ => throw new ArgumentOutOfRangeException(),
-                        } + ".7z";
+                        }
+                        + SelectedCompressor switch
+                        {
+                            Compressor.Lzma2 => ".lzma",
+                            Compressor.Zstd => ".zst",
+                            _ => throw new ArgumentOutOfRangeException(),
+                        };
                     _backupCancellationTokenSource = new CancellationTokenSource();
                     var anomalyPath = getAnomalyPathHandler.Execute()!.Replace(@"\\", "\\");
                     var gammaPath = getGammaPathHandler.Execute();
