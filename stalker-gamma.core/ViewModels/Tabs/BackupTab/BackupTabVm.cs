@@ -367,7 +367,8 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
                 Task.Run(() =>
                 {
                     var gammaPath = getGammaPathHandler.Execute().TrimStart('\\');
-                    var anomalyPath = getAnomalyPathHandler.Execute()?.Replace(@"\\", "\\").TrimStart('\\') ?? "";
+                    var anomalyPath =
+                        getAnomalyPathHandler.Execute()?.Replace(@"\\", "\\").TrimStart('\\') ?? "";
                     var archivePath = Path.Join(PartialBackupPath, SelectedModBackup!.FileName);
                     backupTabProgressService.UpdateProgress($"{anomalyPath}\n{gammaPath}");
                     var workDir = PathUtils.GetCommonDirectory(anomalyPath, gammaPath)!;
