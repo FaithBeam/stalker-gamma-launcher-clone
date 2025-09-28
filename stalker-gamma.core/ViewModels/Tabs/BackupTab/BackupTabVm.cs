@@ -34,7 +34,7 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
     private readonly ReadOnlyObservableCollection<ModBackupVm> _modBackups;
     private ModBackupVm? _selectedModBackup;
     private double _backupsListColWidth;
-    private string _toggleBackupsListBtnTxt = "<";
+    private readonly ObservableAsPropertyHelper<string> _toggleBackupsListBtnTxt;
 
     private readonly ObservableAsPropertyHelper<BackupType> _selectedBackup;
     private bool _partialIsChecked = true;
@@ -63,8 +63,11 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
         ToggleShowBackupsListCmd = ReactiveCommand.Create(() =>
         {
             BackupsListColWidth = BackupsListColWidth == 0 ? 400 : 0;
-            ToggleBackupsListBtnTxt = BackupsListColWidth == 0 ? "<" : ">";
+            return BackupsListColWidth;
         });
+        _toggleBackupsListBtnTxt = ToggleShowBackupsListCmd
+            .Select(width => width == 0 ? "<" : ">")
+            .ToProperty(this, x => x.ToggleBackupsListBtnTxt, initialValue: "<");
         var backupsSrcList = new SourceList<string>();
         GetDriveSpaceStatsCmd = ReactiveCommand.CreateFromTask<string, DriveSpaceStats>(
             gammaFolder =>
@@ -471,11 +474,7 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
         set => this.RaiseAndSetIfChanged(ref _backupsListColWidth, value);
     }
 
-    public string ToggleBackupsListBtnTxt
-    {
-        get => _toggleBackupsListBtnTxt;
-        set => this.RaiseAndSetIfChanged(ref _toggleBackupsListBtnTxt, value);
-    }
+    public string ToggleBackupsListBtnTxt => _toggleBackupsListBtnTxt.Value;
 
     public IsBusyService IsBusyService { get; }
     public Interaction<string, Unit> AppendLineInteraction { get; }
@@ -484,7 +483,7 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
     public ReactiveCommand<Unit, Unit> CancelBackupCmd { get; }
     public ReactiveCommand<(string BackupModPath, string BackupName), Unit> DeleteBackupCmd { get; }
     public string? CompressorToolTip => _compressorToolTip.Value;
-    public ReactiveCommand<Unit, Unit> ToggleShowBackupsListCmd { get; }
+    public ReactiveCommand<Unit, double> ToggleShowBackupsListCmd { get; }
 
     public IReadOnlyList<Compressor> Compressors { get; } = [Compressor.Lzma2, Compressor.Zstd];
 
