@@ -14,10 +14,9 @@
     <UserControl.Resources>
         <converters:DeleteModConverter x:Key="DeleteModConverter" />
         <converters:ModBackupFileSizeConverter x:Key="ModBackupFileSizeConverter" />
-        <converters:GridSizeConverter x:Key="GridSizeConverter" />
     </UserControl.Resources>
     <Grid RowDefinitions="Auto,*,Auto">
-        <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
+        <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto">
             <ComboBox ItemsSource="{Binding Compressors}" SelectedItem="{Binding SelectedCompressor}"
                       IsEnabled="{Binding !IsBusyService.IsBusy}">
                 <ToolTip.Tip>
@@ -61,7 +60,8 @@
                     </TextBlock>
                 </ToolTip.Tip>
             </Button>
-            <Button Grid.Column="5" Content="{Binding ToggleModListBtnTxt}" Command="{Binding ToggleShowModListCmd}">
+            <Button Grid.Column="5" IsVisible="False" HorizontalAlignment="Stretch" />
+            <Button Grid.Column="6" Content="{Binding ToggleBackupsListBtnTxt}" Command="{Binding ToggleShowBackupsListCmd}">
                 <ToolTip.Tip>
                     <TextBlock>Toggle mod list</TextBlock>
                 </ToolTip.Tip>
@@ -72,7 +72,7 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition
-                    Width="{Binding ModListColWidth, Mode=TwoWay, Converter={x:Static converters:GridSizeConverter.Instance}}" />
+                    Width="{Binding BackupsListColWidth, Mode=TwoWay, Converter={x:Static converters:GridSizeConverter.Instance}}" />
             </Grid.ColumnDefinitions>
             <Grid RowDefinitions="Auto,*">
                 <Label Content="Console" />
