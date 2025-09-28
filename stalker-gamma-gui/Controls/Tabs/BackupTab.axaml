@@ -63,7 +63,7 @@
             <Button Grid.Column="5" IsVisible="False" HorizontalAlignment="Stretch" />
             <Button Grid.Column="6" Content="{Binding ToggleBackupsListBtnTxt}" Command="{Binding ToggleShowBackupsListCmd}">
                 <ToolTip.Tip>
-                    <TextBlock>Toggle mod list</TextBlock>
+                    <TextBlock>Toggle backups list</TextBlock>
                 </ToolTip.Tip>
             </Button>
         </Grid>
