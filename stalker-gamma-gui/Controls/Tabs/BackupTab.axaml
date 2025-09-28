@@ -17,23 +17,23 @@
     </UserControl.Resources>
     <Grid RowDefinitions="Auto,*,Auto">
         <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto">
-            <ComboBox ItemsSource="{Binding Compressors}" SelectedItem="{Binding SelectedCompressor}"
-                      IsEnabled="{Binding !IsBusyService.IsBusy}">
-                <ToolTip.Tip>
-                    <TextBlock Text="{Binding CompressorToolTip}" />
-                </ToolTip.Tip>
-            </ComboBox>
-            <ComboBox Grid.Column="1" ItemsSource="{Binding CompressionLevels}"
-                      SelectedItem="{Binding SelectedCompressionLevel}" IsEnabled="{Binding !IsBusyService.IsBusy}">
+            <StackPanel Orientation="Horizontal">
+                <ComboBox ItemsSource="{Binding Compressors}" SelectedItem="{Binding SelectedCompressor}"
+                          IsEnabled="{Binding !IsBusyService.IsBusy}">
+                </ComboBox>
+                <ComboBox ItemsSource="{Binding CompressionLevels}"
+                          SelectedItem="{Binding SelectedCompressionLevel}" IsEnabled="{Binding !IsBusyService.IsBusy}">
+                </ComboBox>
                 <ToolTip.Tip>
                     <TextBlock>
-                        Fast is recommended for both lzma2 and zstd because it is a nice tradeoff between compression size and compression time.
+                        <Span FontWeight="ExtraBold">Recommended settings:</Span><LineBreak />
                         <LineBreak />
-                        Only choose ultra if you're going to distribute archives across the internet and like to wait a while.
+                        <Span FontWeight="Bold">Lzma2</Span>: None (~28gb, 6 minutes 8c/16t cpu, nvme ssd)<LineBreak />
+                        <Span FontWeight="Bold">Zstd</Span>: Fast (~34gb, 5 minutes 8c/16t cpu, nvme ssd)
                     </TextBlock>
                 </ToolTip.Tip>
-            </ComboBox>
-            <TextBlock Grid.Column="2" IsEnabled="{Binding !IsBusyService.IsBusy}">
+            </StackPanel>
+            <TextBlock Grid.Column="1" IsEnabled="{Binding !IsBusyService.IsBusy}">
                 <RadioButton Content="Partial" IsChecked="{Binding PartialIsChecked}" GroupName="BackupType">
                     <ToolTip.Tip>
                         <TextBlock>
@@ -51,15 +51,16 @@
                     </ToolTip.Tip>
                 </RadioButton>
             </TextBlock>
-            <TextBox Grid.Column="3" Margin="5 0" Text="{Binding GammaBackupFolder}" VerticalAlignment="Center"
+            <TextBox Grid.Column="2" Margin="5 0" Text="{Binding GammaBackupFolder}" VerticalAlignment="Center"
                      IsEnabled="{Binding !IsBusyService.IsBusy}" />
-            <Button Grid.Column="4" Content="Browse" Command="{Binding ChangeGammaBackupDirectoryCmd}">
+            <Button Grid.Column="3" Content="Browse" Command="{Binding ChangeGammaBackupDirectoryCmd}">
                 <ToolTip.Tip>
                     <TextBlock>
                         Change the base gamma backup folder.
                     </TextBlock>
                 </ToolTip.Tip>
             </Button>
+            <Button Grid.Column="4" Command="{Binding OpenBackupFolderCommand}" Content="Open Backup Folder" />
             <Button Grid.Column="5" IsVisible="False" HorizontalAlignment="Stretch" />
             <Button Grid.Column="6" Content="{Binding ToggleBackupsListBtnTxt}"
                     Command="{Binding ToggleShowBackupsListCmd}">
@@ -99,11 +100,7 @@
             </Grid>
         </Grid>
         <Grid Grid.Row="2" ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
-            <Button Command="{Binding BackupCmd}" Content="Backup">
-                <ToolTip.Tip>
-                    <TextBlock Text="{Binding Estimates}" />
-                </ToolTip.Tip>
-            </Button>
+            <Button Command="{Binding BackupCmd}" Content="Backup" />
             <Button Grid.Column="1" Command="{Binding CancelBackupCmd}" Content="Cancel" />
             <Button Grid.Column="2" Command="{Binding RestoreBackupCmd}" Content="Restore" />
             <Button Grid.Column="3" Command="{Binding DeleteBackupCmd}">

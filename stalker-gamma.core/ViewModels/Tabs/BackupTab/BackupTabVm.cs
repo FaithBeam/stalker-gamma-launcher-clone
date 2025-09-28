@@ -1,8 +1,10 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using DynamicData;
 using DynamicData.Binding;
@@ -17,7 +19,6 @@ namespace stalker_gamma.core.ViewModels.Tabs.BackupTab;
 
 public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
 {
-    private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
     private Compressor _selectedCompressor;
     private CompressionLevel _selectedCompressionLevel;
     private readonly ObservableAsPropertyHelper<string?> _estimates;
@@ -30,7 +31,6 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
     private readonly ObservableAsPropertyHelper<string?> _driveSpaceStatsString;
     private readonly ObservableAsPropertyHelper<string?> _totalModsSpace;
     private readonly ReadOnlyObservableCollection<CompressionLevel> _compressionLevels;
-    private readonly ObservableAsPropertyHelper<string?> _compressorToolTip;
     private readonly ReadOnlyObservableCollection<ModBackupVm> _modBackups;
     private ModBackupVm? _selectedModBackup;
     private double _backupsListColWidth;
@@ -50,7 +50,6 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
         Queries.GetDriveSpaceStats.Handler getDriveSpaceStatsHandler,
         Queries.CheckModsList.Handler checkModsListHandler,
         Queries.GetGammaBackupFolder.Handler getGammaBackupFolderHandler,
-        Queries.GetArchiveCompressionMethod.Handler getArchiveCompressionMethodHandler,
         Commands.UpdateGammaBackupPathInAppSettings.Handler updateGammaBackupPathInAppSettingsHandler,
         Commands.RestoreBackup.Handler restoreBackupHandler,
         Commands.DeleteBackup.Handler deleteBackupHandler,
@@ -60,6 +59,7 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
     {
         IsBusyService = isBusyService;
         Activator = new ViewModelActivator();
+
         ToggleShowBackupsListCmd = ReactiveCommand.Create(() =>
         {
             BackupsListColWidth = BackupsListColWidth == 0 ? 400 : 0;
@@ -68,6 +68,35 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
         _toggleBackupsListBtnTxt = ToggleShowBackupsListCmd
             .Select(width => width == 0 ? "<" : ">")
             .ToProperty(this, x => x.ToggleBackupsListBtnTxt, initialValue: "<");
+
+        OpenBackupFolderCommand = ReactiveCommand.Create(() =>
+        {
+            var psi = new ProcessStartInfo
+            {
+                Arguments = getGammaBackupFolderHandler.Execute(),
+                UseShellExecute = true,
+            };
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                psi.FileName = "explorer.exe";
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                psi.FileName = "xdg-open";
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                psi.FileName = "open";
+            }
+            else
+            {
+                throw new PlatformNotSupportedException();
+            }
+
+            Process.Start(psi);
+        });
+
         var backupsSrcList = new SourceList<string>();
         GetDriveSpaceStatsCmd = ReactiveCommand.CreateFromTask<string, DriveSpaceStats>(
             gammaFolder =>
@@ -176,9 +205,7 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
             .ToProperty(
                 this,
                 x => x.GammaBackupFolder,
-                initialValue: string.IsNullOrWhiteSpace(globalSettings.GammaBackupPath)
-                    ? getGammaBackupFolderHandler.Execute()
-                    : globalSettings.GammaBackupPath
+                initialValue: getGammaBackupFolderHandler.Execute()
             );
 
         _partialBackupPath = this.WhenAnyValue(
@@ -262,23 +289,10 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
                 });
             });
 
-        _compressorToolTip = this.WhenAnyValue(
-                x => x.SelectedCompressor,
-                selector: selComp =>
-                    selComp switch
-                    {
-                        Compressor.Lzma2 =>
-                            "The default 7zip compression method. Maximum compatibility.",
-                        Compressor.Zstd =>
-                            "A very fast non-standard compression method. Minimum compatibility, install 7zip z-standard from github to view archives created with this.",
-                        _ => throw new ArgumentOutOfRangeException(nameof(selComp), selComp, null),
-                    }
-            )
-            .ToProperty(this, x => x.CompressorToolTip);
         _selectedCompressor = Compressors.First(x => x == Compressor.Lzma2);
         this.WhenAnyValue(x => x.CompressionLevels)
             .Subscribe(lvls =>
-                SelectedCompressionLevel = lvls.First(x => x == CompressionLevel.Fast)
+                SelectedCompressionLevel = lvls.First(x => x == CompressionLevel.None)
             );
         var canBackup = this.WhenAnyValue(x => x.IsBusyService.IsBusy, selector: isBusy => !isBusy);
         BackupCmd = ReactiveCommand.CreateFromTask(
@@ -494,11 +508,11 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
 
     public IsBusyService IsBusyService { get; }
     public Interaction<string, Unit> AppendLineInteraction { get; }
+    public ReactiveCommand<Unit, Unit> OpenBackupFolderCommand { get; }
     public Interaction<Unit, string?> ChangeGammaBackupDirectoryInteraction { get; }
     public ReactiveCommand<Unit, string?> BackupCmd { get; }
     public ReactiveCommand<Unit, Unit> CancelBackupCmd { get; }
     public ReactiveCommand<(string BackupModPath, string BackupName), Unit> DeleteBackupCmd { get; }
-    public string? CompressorToolTip => _compressorToolTip.Value;
     public ReactiveCommand<Unit, double> ToggleShowBackupsListCmd { get; }
 
     public IReadOnlyList<Compressor> Compressors { get; } = [Compressor.Lzma2, Compressor.Zstd];
