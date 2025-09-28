@@ -1,0 +1,119 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:stalker_gamma.core.ViewModels.Tabs.BackupTab;assembly=stalker-gamma.core"
+             xmlns:converters="clr-namespace:stalker_gamma_gui.Converters"
+             xmlns:avaloniaEdit="https://github.com/avaloniaui/avaloniaedit"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="stalker_gamma_gui.Controls.Tabs.BackupTab"
+             x:DataType="vm:BackupTabVm">
+    <Design.DataContext>
+        <vm:BackupTabVm />
+    </Design.DataContext>
+    <UserControl.Resources>
+        <converters:DeleteModConverter x:Key="DeleteModConverter" />
+        <converters:ModBackupFileSizeConverter x:Key="ModBackupFileSizeConverter" />
+    </UserControl.Resources>
+    <Grid RowDefinitions="Auto,*,Auto">
+        <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto">
+            <StackPanel Orientation="Horizontal">
+                <ComboBox ItemsSource="{Binding Compressors}" SelectedItem="{Binding SelectedCompressor}"
+                          IsEnabled="{Binding !IsBusyService.IsBusy}">
+                </ComboBox>
+                <ComboBox ItemsSource="{Binding CompressionLevels}"
+                          SelectedItem="{Binding SelectedCompressionLevel}" IsEnabled="{Binding !IsBusyService.IsBusy}">
+                </ComboBox>
+                <ToolTip.Tip>
+                    <TextBlock>
+                        <Span FontWeight="ExtraBold">Recommended settings:</Span><LineBreak />
+                        <LineBreak />
+                        <Span FontWeight="Bold">Lzma2</Span>: None (~28gb, 6 minutes 8c/16t cpu, nvme ssd)<LineBreak />
+                        <Span FontWeight="Bold">Zstd</Span>: Fast (~34gb, 5 minutes 8c/16t cpu, nvme ssd)
+                    </TextBlock>
+                </ToolTip.Tip>
+            </StackPanel>
+            <TextBlock Grid.Column="1" IsEnabled="{Binding !IsBusyService.IsBusy}">
+                <RadioButton Content="Partial" IsChecked="{Binding PartialIsChecked}" GroupName="BackupType">
+                    <ToolTip.Tip>
+                        <TextBlock>
+                            Backup the folders:
+                            <LineBreak />- Anomaly/bin
+                            <LineBreak />- Gamma/mods
+                            <LineBreak />- Gamma/profiles
+                            <LineBreak />- Gamma/.Groks Modpack Installer/*.txt
+                        </TextBlock>
+                    </ToolTip.Tip>
+                </RadioButton>
+                <RadioButton Content="Full" IsChecked="{Binding FullIsChecked}" GroupName="BackupType">
+                    <ToolTip.Tip>
+                        Backup the anomaly and gamma folders. Can only be manually restored from.
+                    </ToolTip.Tip>
+                </RadioButton>
+            </TextBlock>
+            <TextBox Grid.Column="2" Margin="5 0" Text="{Binding GammaBackupFolder}" VerticalAlignment="Center"
+                     IsEnabled="{Binding !IsBusyService.IsBusy}" />
+            <Button Grid.Column="3" Content="Browse" Command="{Binding ChangeGammaBackupDirectoryCmd}">
+                <ToolTip.Tip>
+                    <TextBlock>
+                        Change the base gamma backup folder.
+                    </TextBlock>
+                </ToolTip.Tip>
+            </Button>
+            <Button Grid.Column="4" Command="{Binding OpenBackupFolderCommand}" Content="Open Backup Folder" />
+            <Button Grid.Column="5" IsVisible="False" HorizontalAlignment="Stretch" />
+            <Button Grid.Column="6" Content="{Binding ToggleBackupsListBtnTxt}"
+                    Command="{Binding ToggleShowBackupsListCmd}">
+                <ToolTip.Tip>
+                    <TextBlock>Toggle backups list</TextBlock>
+                </ToolTip.Tip>
+            </Button>
+        </Grid>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition
+                    Width="{Binding BackupsListColWidth, Mode=TwoWay, Converter={x:Static converters:GridSizeConverter.Instance}}" />
+            </Grid.ColumnDefinitions>
+            <Grid RowDefinitions="Auto,*">
+                <Label Content="Console" />
+                <avaloniaEdit:TextEditor Grid.Row="1" VerticalAlignment="Stretch"
+                                         x:Name="BackupTxt" IsReadOnly="True"
+                                         HorizontalScrollBarVisibility="Auto" Foreground="#85fb98" Background="#242424"
+                                         VerticalScrollBarVisibility="Visible" FontSize="12" FontFamily="Consolas" />
+            </Grid>
+            <GridSplitter Grid.Column="1" ResizeDirection="Columns" />
+            <Grid Grid.Column="2" RowDefinitions="Auto,*">
+                <Label Content="Backups" />
+                <DataGrid Grid.Row="1" ItemsSource="{Binding ModBackups}" SelectedItem="{Binding SelectedModBackup}"
+                          CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True"
+                          IsEnabled="{Binding !IsBusyService.IsBusy}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Date" Binding="{Binding DateTime}" />
+                        <DataGridTextColumn Header="File Size"
+                                            Binding="{Binding FileSize, Converter={StaticResource ModBackupFileSizeConverter}}" />
+                        <DataGridTextColumn Header="GAMMA Version" Binding="{Binding GammaVersion}" />
+                        <DataGridTextColumn Header="Method" Binding="{Binding CompressionMethod}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Grid>
+        <Grid Grid.Row="2" ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
+            <Button Command="{Binding BackupCmd}" Content="Backup" />
+            <Button Grid.Column="1" Command="{Binding CancelBackupCmd}" Content="Cancel" />
+            <Button Grid.Column="2" Command="{Binding RestoreBackupCmd}" Content="Restore" />
+            <Button Grid.Column="3" Command="{Binding DeleteBackupCmd}">
+                <Button.Content>Delete</Button.Content>
+                <Button.CommandParameter>
+                    <MultiBinding Converter="{StaticResource DeleteModConverter}">
+                        <Binding Path="PartialBackupPath" />
+                        <Binding Path="SelectedModBackup" />
+                    </MultiBinding>
+                </Button.CommandParameter>
+            </Button>
+            <Label Grid.Column="4" Content="{Binding DriveStats}" VerticalAlignment="Center" />
+            <Label Grid.Column="5" Content="{Binding TotalModsSpace}" VerticalAlignment="Center" />
+        </Grid>
+    </Grid>
+</UserControl>

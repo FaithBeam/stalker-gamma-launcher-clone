@@ -5,7 +5,7 @@
         xmlns:mainWindow="clr-namespace:stalker_gamma.core.ViewModels.MainWindow;assembly=stalker-gamma.core"
         xmlns:tabs="clr-namespace:stalker_gamma_gui.Controls.Tabs"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        Width="800"
+        Width="850"
         Height="800"
         CanResize="False"
         x:Class="stalker_gamma_gui.Views.MainWindow"
@@ -29,6 +29,9 @@
             </TabItem>
             <TabItem x:Name="ModsTabItem" FontSize="16" Header="ModDB Updates" IsEnabled="{Binding !IsBusyService.IsBusy}">
                 <tabs:ModDbUpdatesTab DataContext="{Binding ModDbUpdatesTabVm}" />
+            </TabItem>
+            <TabItem x:Name="BackupTabItem" FontSize="16" Header="Backup" IsEnabled="{Binding !IsBusyService.IsBusy}">
+                <tabs:BackupTab DataContext="{Binding BackupTabVm}" />
             </TabItem>
         </TabControl>
     </Grid>

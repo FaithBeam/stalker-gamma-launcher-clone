@@ -24,6 +24,7 @@ using stalker_gamma.core.Services.GammaInstaller.Utilities;
 using stalker_gamma.core.Utilities;
 using stalker_gamma.core.ViewModels.MainWindow;
 using stalker_gamma.core.ViewModels.Tabs;
+using stalker_gamma.core.ViewModels.Tabs.BackupTab;
 using stalker_gamma.core.ViewModels.Tabs.ModDbUpdatesTab;
 using stalker_gamma.core.ViewModels.Tabs.ModListTab;
 
@@ -54,6 +55,7 @@ public partial class App : Application
                     {
 #pragma warning disable IL2026
                         UseCurlImpersonate = configuration.GetValue<bool>("useCurlImpersonate"),
+                        GammaBackupPath = configuration.GetValue<string>("gammaBackupPath"),
 #pragma warning restore IL2026
                     }
                 );
@@ -71,7 +73,10 @@ public partial class App : Application
                 s.AddScoped<Shortcut>();
                 s.AddScoped<GammaInstaller>();
 
+                s.RegisterBackupTabServices();
+
                 s.AddScoped<MainTabVm>();
+                s.AddScoped<BackupTabVm>();
                 s.AddScoped<ModListTabVm>();
                 s.AddScoped<ModDbUpdatesTabVm>();
                 s.AddScoped<MainWindowVm>();

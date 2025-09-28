@@ -1,5 +1,6 @@
 using System.Text;
 using CliWrap;
+using CliWrap.EventStream;
 
 namespace stalker_gamma.core.Utilities;
 
@@ -18,6 +19,67 @@ public static class ArchiveUtility
         {
             throw new Exception($"{stdErr}\n{stdOut}");
         }
+    }
+
+    public static IObservable<CommandEvent> Extract(
+        string archivePath,
+        string destinationFolder,
+        CancellationToken? ct = null,
+        string? workingDirectory = null
+    )
+    {
+        var cli = $"x " + $"-y " + $"\"{archivePath}\" " + $"-o\"{destinationFolder}\" ";
+        var cmd = Cli.Wrap(SevenZip).WithArguments(cli);
+        if (!string.IsNullOrWhiteSpace(workingDirectory))
+        {
+            cmd = cmd.WithWorkingDirectory(workingDirectory);
+        }
+        return ct is not null ? cmd.Observe(ct.Value) : cmd.Observe();
+    }
+
+    public static IObservable<CommandEvent> List(string archivePath, CancellationToken? ct = null)
+    {
+        var cli = $"l -slt {archivePath}";
+        var cmd = Cli.Wrap(SevenZip).WithArguments(cli);
+        return ct is not null ? cmd.Observe(ct.Value) : cmd.Observe();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="paths">The paths to add to the archive</param>
+    /// <param name="destination">The output path</param>
+    /// <param name="compressor"></param>
+    /// <param name="compressionLevel"></param>
+    /// <param name="exclusions">Folders/items to exclude</param>
+    /// <param name="cancellationToken"></param>
+    /// <param name="workDirectory"></param>
+    /// <returns></returns>
+    public static IObservable<CommandEvent> Archive(
+        string[] paths,
+        string destination,
+        string compressor,
+        string compressionLevel,
+        string[]? exclusions = null,
+        CancellationToken? cancellationToken = null,
+        string? workDirectory = null
+    )
+    {
+        var cli =
+            $"a "
+            + $"-bsp1 "
+            + $"\"{destination}\" "
+            + $"{string.Join(" ", paths.Select(x => $"\"{x}\""))} "
+            + $"-m0={(compressor == "zstd" ? "bcj" : compressor)} "
+            + $"{(compressor == "zstd" ? "-m1=zstd " : "")}"
+            + $"-mx{compressionLevel} "
+            + $"{(exclusions?.Length == 0 ? "" : string.Join(" ", exclusions!.Select(x => $"-xr!{x}")))}";
+        var cmd = Cli.Wrap(SevenZip).WithArguments(cli);
+        if (workDirectory is not null)
+        {
+            cmd = cmd.WithWorkingDirectory(workDirectory);
+        }
+        return cancellationToken is not null ? cmd.Observe(cancellationToken.Value) : cmd.Observe();
     }
 
     private const string Macos7Zip = "7zz";

@@ -60,5 +60,4 @@ jobs:
           name: "${{ env.APP_NAME }}.${{ steps.gitversion.outputs.semVer }}"
           compression-level: '9'
           path: |
-            bin/*.*
-            !*.pdb
+            bin/**
