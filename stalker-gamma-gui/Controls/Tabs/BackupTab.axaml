@@ -61,7 +61,8 @@
                 </ToolTip.Tip>
             </Button>
             <Button Grid.Column="5" IsVisible="False" HorizontalAlignment="Stretch" />
-            <Button Grid.Column="6" Content="{Binding ToggleBackupsListBtnTxt}" Command="{Binding ToggleShowBackupsListCmd}">
+            <Button Grid.Column="6" Content="{Binding ToggleBackupsListBtnTxt}"
+                    Command="{Binding ToggleShowBackupsListCmd}">
                 <ToolTip.Tip>
                     <TextBlock>Toggle backups list</TextBlock>
                 </ToolTip.Tip>
@@ -84,7 +85,8 @@
             <GridSplitter Grid.Column="1" ResizeDirection="Columns" />
             <Grid Grid.Column="2" RowDefinitions="Auto,*">
                 <Label Content="Backups" />
-                <DataGrid Grid.Row="1" ItemsSource="{Binding ModBackups}" SelectedItem="{Binding SelectedModBackup}">
+                <DataGrid Grid.Row="1" ItemsSource="{Binding ModBackups}" SelectedItem="{Binding SelectedModBackup}"
+                          CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Date" Binding="{Binding DateTime}" />
                         <DataGridTextColumn Header="File Size"
