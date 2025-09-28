@@ -33,6 +33,8 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
     private readonly ObservableAsPropertyHelper<string?> _compressorToolTip;
     private readonly ReadOnlyObservableCollection<ModBackupVm> _modBackups;
     private ModBackupVm? _selectedModBackup;
+    private double _modListColWidth;
+    private string _toggleModListBtnTxt = "<";
 
     private readonly ObservableAsPropertyHelper<BackupType> _selectedBackup;
     private bool _partialIsChecked = true;
@@ -58,6 +60,11 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
     {
         IsBusyService = isBusyService;
         Activator = new ViewModelActivator();
+        ToggleShowModListCmd = ReactiveCommand.Create(() =>
+        {
+            ModListColWidth = ModListColWidth == 0 ? 400 : 0;
+            ToggleModListBtnTxt = ModListColWidth == 0 ? "<" : ">";
+        });
         var backupsSrcList = new SourceList<string>();
         GetDriveSpaceStatsCmd = ReactiveCommand.CreateFromTask<string, DriveSpaceStats>(
             gammaFolder =>
@@ -458,6 +465,18 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
         );
     }
 
+    public double ModListColWidth
+    {
+        get => _modListColWidth;
+        set => this.RaiseAndSetIfChanged(ref _modListColWidth, value);
+    }
+
+    public string ToggleModListBtnTxt
+    {
+        get => _toggleModListBtnTxt;
+        set => this.RaiseAndSetIfChanged(ref _toggleModListBtnTxt, value);
+    }
+
     public IsBusyService IsBusyService { get; }
     public Interaction<string, Unit> AppendLineInteraction { get; }
     public Interaction<Unit, string?> ChangeGammaBackupDirectoryInteraction { get; }
@@ -465,6 +484,7 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
     public ReactiveCommand<Unit, Unit> CancelBackupCmd { get; }
     public ReactiveCommand<(string BackupModPath, string BackupName), Unit> DeleteBackupCmd { get; }
     public string? CompressorToolTip => _compressorToolTip.Value;
+    public ReactiveCommand<Unit, Unit> ToggleShowModListCmd { get; }
 
     public IReadOnlyList<Compressor> Compressors { get; } = [Compressor.Lzma2, Compressor.Zstd];
 

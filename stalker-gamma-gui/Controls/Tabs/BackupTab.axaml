@@ -14,9 +14,10 @@
     <UserControl.Resources>
         <converters:DeleteModConverter x:Key="DeleteModConverter" />
         <converters:ModBackupFileSizeConverter x:Key="ModBackupFileSizeConverter" />
+        <converters:GridSizeConverter x:Key="GridSizeConverter" />
     </UserControl.Resources>
-    <Grid RowDefinitions="Auto,*,Auto" ColumnDefinitions="Auto,Auto,*">
-        <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto">
+    <Grid RowDefinitions="Auto,*,Auto">
+        <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
             <ComboBox ItemsSource="{Binding Compressors}" SelectedItem="{Binding SelectedCompressor}"
                       IsEnabled="{Binding !IsBusyService.IsBusy}">
                 <ToolTip.Tip>
@@ -60,28 +61,41 @@
                     </TextBlock>
                 </ToolTip.Tip>
             </Button>
+            <Button Grid.Column="5" Content="{Binding ToggleModListBtnTxt}" Command="{Binding ToggleShowModListCmd}">
+                <ToolTip.Tip>
+                    <TextBlock>Toggle mod list</TextBlock>
+                </ToolTip.Tip>
+            </Button>
         </Grid>
-        <Grid Grid.Row="1" Grid.Column="0" RowDefinitions="Auto,*">
-            <Label Content="Console" />
-            <avaloniaEdit:TextEditor Grid.Row="1" VerticalAlignment="Stretch" MinWidth="200"
-                                     x:Name="BackupTxt" IsReadOnly="True"
-                                     HorizontalScrollBarVisibility="Auto" Foreground="#85fb98" Background="#242424"
-                                     VerticalScrollBarVisibility="Visible" FontSize="12" FontFamily="Consolas" />
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition
+                    Width="{Binding ModListColWidth, Mode=TwoWay, Converter={x:Static converters:GridSizeConverter.Instance}}" />
+            </Grid.ColumnDefinitions>
+            <Grid RowDefinitions="Auto,*">
+                <Label Content="Console" />
+                <avaloniaEdit:TextEditor Grid.Row="1" VerticalAlignment="Stretch"
+                                         x:Name="BackupTxt" IsReadOnly="True"
+                                         HorizontalScrollBarVisibility="Auto" Foreground="#85fb98" Background="#242424"
+                                         VerticalScrollBarVisibility="Visible" FontSize="12" FontFamily="Consolas" />
+            </Grid>
+            <GridSplitter Grid.Column="1" ResizeDirection="Columns" />
+            <Grid Grid.Column="2" RowDefinitions="Auto,*">
+                <Label Content="Backups" />
+                <DataGrid Grid.Row="1" ItemsSource="{Binding ModBackups}" SelectedItem="{Binding SelectedModBackup}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Date" Binding="{Binding DateTime}" />
+                        <DataGridTextColumn Header="File Size"
+                                            Binding="{Binding FileSize, Converter={StaticResource ModBackupFileSizeConverter}}" />
+                        <DataGridTextColumn Header="GAMMA Version" Binding="{Binding GammaVersion}" />
+                        <DataGridTextColumn Header="Method" Binding="{Binding CompressionMethod}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
         </Grid>
-        <GridSplitter Grid.Row="1" Grid.Column="1" ResizeDirection="Columns" />
-        <Grid Grid.Row="1" Grid.Column="2" RowDefinitions="Auto,*">
-            <Label Content="Backups" />
-            <DataGrid Grid.Row="1" ItemsSource="{Binding ModBackups}" SelectedItem="{Binding SelectedModBackup}">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Date" Binding="{Binding DateTime}" />
-                    <DataGridTextColumn Header="File Size"
-                                        Binding="{Binding FileSize, Converter={StaticResource ModBackupFileSizeConverter}}" />
-                    <DataGridTextColumn Header="GAMMA Version" Binding="{Binding GammaVersion}" />
-                    <DataGridTextColumn Header="Method" Binding="{Binding CompressionMethod}" />
-                </DataGrid.Columns>
-            </DataGrid>
-        </Grid>
-        <Grid Grid.Column="0" Grid.Row="2" ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
+        <Grid Grid.Row="2" ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
             <Button Command="{Binding BackupCmd}" Content="Backup">
                 <ToolTip.Tip>
                     <TextBlock Text="{Binding Estimates}" />
