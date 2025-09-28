@@ -385,6 +385,15 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
             c =>
                 Task.Run(() =>
                 {
+                    backupTabProgressService.UpdateProgress(
+                        """
+
+                        ====== Begin restore ======
+
+                        This may take a while, potentially 20 minutes depending on settings, and there will not be restore progress reported by 7zip.
+                        Be patient.
+                        """
+                    );
                     var gammaPath = getGammaPathHandler.Execute().TrimStart('\\');
                     var anomalyPath =
                         getAnomalyPathHandler.Execute()?.Replace(@"\\", "\\").TrimStart('\\') ?? "";
@@ -403,6 +412,13 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
                         )
                         .GetAwaiter()
                         .GetResult();
+                    backupTabProgressService.UpdateProgress(
+                        """
+
+                        ====== Restore complete ======
+
+                        """
+                    );
                 }),
             canRestore
         );
