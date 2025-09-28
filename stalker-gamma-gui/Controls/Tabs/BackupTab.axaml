@@ -86,7 +86,8 @@
             <Grid Grid.Column="2" RowDefinitions="Auto,*">
                 <Label Content="Backups" />
                 <DataGrid Grid.Row="1" ItemsSource="{Binding ModBackups}" SelectedItem="{Binding SelectedModBackup}"
-                          CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True">
+                          CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True"
+                          IsEnabled="{Binding !IsBusyService.IsBusy}">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Date" Binding="{Binding DateTime}" />
                         <DataGridTextColumn Header="File Size"
