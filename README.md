@@ -2,7 +2,7 @@
 
 A clone of Grokitach's Stalker GAMMA Launcher with WINE compatibility and extra features.
 
-<img width="1604" height="1460" alt="image" src="https://github.com/user-attachments/assets/d02d36e8-b786-4247-bda3-945d1a503aae" />
+<img width="962" height="940" alt="image" src="https://github.com/user-attachments/assets/4aaf9218-5746-4c21-8409-812210f5a1c1" />
 
 [Backup information](https://github.com/FaithBeam/stalker-gamma-launcher-clone/wiki/Backups)
 
