@@ -47,7 +47,7 @@
                 </RadioButton>
                 <RadioButton Content="Full" IsChecked="{Binding FullIsChecked}" GroupName="BackupType">
                     <ToolTip.Tip>
-                        Backup the anomaly and gamma folders.
+                        Backup the anomaly and gamma folders. Can only be manually restored from.
                     </ToolTip.Tip>
                 </RadioButton>
             </TextBlock>
