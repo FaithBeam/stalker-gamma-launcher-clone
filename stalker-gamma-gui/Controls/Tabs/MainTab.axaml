@@ -4,14 +4,15 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:stalker_gamma.core.ViewModels.Tabs;assembly=stalker-gamma.core"
              xmlns:avaloniaEdit="https://github.com/avaloniaui/avaloniaedit"
+             xmlns:mainTab="clr-namespace:stalker_gamma.core.ViewModels.Tabs.MainTab;assembly=stalker-gamma.core"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="stalker_gamma_gui.Controls.Tabs.MainTab"
-             x:DataType="vm:MainTabVm">
+             x:DataType="mainTab:MainTabVm">
 
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:MainTabVm />
+        <mainTab:MainTabVm />
     </Design.DataContext>
 
     <UserControl.Styles>
@@ -160,11 +161,19 @@
                 <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto,*">
                     <Label Content="G.A.M.M.A. addons update available: " FontSize="10" />
                     <Label Grid.Column="1" Classes.CanUpdate="{Binding NeedUpdate}"
-                           Classes.NoUpdate="{Binding !NeedUpdate}" Content="{Binding NeedUpdate}" FontSize="10" />
+                           Classes.NoUpdate="{Binding !NeedUpdate}" Content="{Binding NeedUpdate}" FontSize="10">
+                        <ToolTip.Tip>
+                            <TextBlock Text="{Binding GammaVersionToolTip}" />
+                        </ToolTip.Tip>
+                    </Label>
                     <Label Grid.Column="2" Content="ModDB addons update available:" FontSize="10" />
                     <Label Grid.Column="3" Classes.CanUpdate="{Binding NeedModDbUpdate}"
                            Classes.NoUpdate="{Binding !NeedModDbUpdate}" Content="{Binding NeedModDbUpdate}"
-                           FontSize="10" />
+                           FontSize="10">
+                        <ToolTip.Tip>
+                            <TextBlock Text="{Binding ModVersionToolTip}" />
+                        </ToolTip.Tip>
+                    </Label>
                 </Grid>
                 <avaloniaEdit:TextEditor Grid.Row="2" x:Name="ConsoleOutput"
                                          IsReadOnly="True" HorizontalScrollBarVisibility="Disabled"

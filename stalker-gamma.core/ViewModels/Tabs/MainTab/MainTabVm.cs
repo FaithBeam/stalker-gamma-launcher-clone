@@ -9,8 +9,9 @@ using stalker_gamma.core.Services;
 using stalker_gamma.core.Services.DowngradeModOrganizer;
 using stalker_gamma.core.Services.GammaInstaller;
 using stalker_gamma.core.Utilities;
+using stalker_gamma.core.ViewModels.Tabs.MainTab.Queries;
 
-namespace stalker_gamma.core.ViewModels.Tabs;
+namespace stalker_gamma.core.ViewModels.Tabs.MainTab;
 
 public class MainTabVm : ViewModelBase, IActivatableViewModel
 {
@@ -25,6 +26,8 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
     private bool _needUpdate;
     private bool _needModDbUpdate;
     private string _versionString;
+    private string _gammaVersionsToolTip = "";
+    private string _modsVersionsToolTip = "";
 
     public MainTabVm(
         GammaInstaller gammaInstaller,
@@ -32,7 +35,8 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
         GlobalSettings globalSettings,
         DowngradeModOrganizer downgradeModOrganizer,
         VersionService versionService,
-        IsBusyService isBusyService
+        IsBusyService isBusyService,
+        DiffMods.Handler diffMods
     )
     {
         Activator = new ViewModelActivator();
@@ -77,8 +81,18 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
             var needUpdates = await gammaInstaller1.CheckGammaData(
                 globalSettings1.UseCurlImpersonate
             );
-            NeedUpdate = needUpdates.NeedUpdate;
-            NeedModDbUpdate = needUpdates.NeedModDBUpdate;
+            GammaVersionToolTip = $"""
+            Remote Version: {needUpdates.gammaVersions.RemoteVersion}
+            Local Version: {needUpdates.gammaVersions.LocalVersion}
+            """;
+            ModVersionToolTip = string.Join(
+                Environment.NewLine,
+                await diffMods.Execute(new Queries.DiffMods.Query(needUpdates.modVersions))
+            );
+            NeedUpdate =
+                needUpdates.gammaVersions.LocalVersion != needUpdates.gammaVersions.RemoteVersion;
+            NeedModDbUpdate =
+                needUpdates.modVersions.LocalVersion != needUpdates.modVersions.RemoteVersion;
         });
         BackgroundCheckUpdatesCmd.ThrownExceptions.Subscribe(x =>
             progressService.UpdateProgress(x.Message)
@@ -225,6 +239,18 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
     {
         get => _inGrokModDir;
         set => this.RaiseAndSetIfChanged(ref _inGrokModDir, value);
+    }
+
+    public string GammaVersionToolTip
+    {
+        get => _gammaVersionsToolTip;
+        set => this.RaiseAndSetIfChanged(ref _gammaVersionsToolTip, value);
+    }
+
+    public string ModVersionToolTip
+    {
+        get => _modsVersionsToolTip;
+        set => this.RaiseAndSetIfChanged(ref _modsVersionsToolTip, value);
     }
 
     public IsBusyService IsBusyService { get; }

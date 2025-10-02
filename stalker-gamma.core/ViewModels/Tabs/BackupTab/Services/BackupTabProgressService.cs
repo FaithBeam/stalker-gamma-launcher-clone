@@ -1,7 +1,7 @@
 ﻿using System.Reactive.Linq;
 using System.Reactive.Subjects;
 
-namespace stalker_gamma.core.ViewModels.Tabs.BackupTab;
+namespace stalker_gamma.core.ViewModels.Tabs.BackupTab.Services;
 
 public record BackupProgressEventArgs(string? Message, double? Progress);
 

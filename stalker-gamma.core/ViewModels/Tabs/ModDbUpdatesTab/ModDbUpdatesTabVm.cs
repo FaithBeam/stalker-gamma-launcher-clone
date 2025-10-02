@@ -64,11 +64,15 @@ public partial class ModDbUpdatesTabVm : ViewModelBase, IActivatableViewModel
                     remoteVersion = string.IsNullOrWhiteSpace(remoteVersion)
                         ? Path.GetFileNameWithoutExtension(onlineRec.ZipName ?? "")
                         : remoteVersion;
+                    var updateType = IsAddMod(localModListRecords, onlineRec)
+                        ? UpdateType.Add
+                        : UpdateType.Update;
                     return new UpdateableModVm(
                         onlineRec.AddonName!,
                         onlineRec.ModDbUrl!,
                         localVersion,
-                        remoteVersion
+                        remoteVersion,
+                        updateType
                     );
                 });
             modsSourceCache.Edit(inner =>
@@ -89,6 +93,18 @@ public partial class ModDbUpdatesTabVm : ViewModelBase, IActivatableViewModel
         );
     }
 
+    private static readonly Func<List<DownloadableRecord>, DownloadableRecord, bool> IsAddMod = (
+        localModListRecs,
+        onlineRec
+    ) => localModListRecs.All(localRec => localRec.ModDbUrl! != onlineRec.ModDbUrl!);
+
+    private static readonly Func<List<DownloadableRecord>, DownloadableRecord, bool> IsUpdateMod = (
+        localModListRecords,
+        onlineRec
+    ) =>
+        localModListRecords.Any(localRec =>
+            localRec.ModDbUrl! == onlineRec.ModDbUrl! && localRec.Md5ModDb != onlineRec.Md5ModDb
+        );
     private static readonly Func<
         List<DownloadableRecord>,
         DownloadableRecord,

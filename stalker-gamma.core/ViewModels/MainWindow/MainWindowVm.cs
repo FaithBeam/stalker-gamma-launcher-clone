@@ -1,6 +1,7 @@
 ﻿using stalker_gamma.core.Services;
 using stalker_gamma.core.ViewModels.Tabs;
 using stalker_gamma.core.ViewModels.Tabs.BackupTab;
+using stalker_gamma.core.ViewModels.Tabs.MainTab;
 using stalker_gamma.core.ViewModels.Tabs.ModListTab;
 using ModDbUpdatesTabVm = stalker_gamma.core.ViewModels.Tabs.ModDbUpdatesTab.ModDbUpdatesTabVm;
 
