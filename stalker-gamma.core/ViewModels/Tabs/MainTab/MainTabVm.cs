@@ -36,7 +36,9 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
         DowngradeModOrganizer downgradeModOrganizer,
         VersionService versionService,
         IsBusyService isBusyService,
-        DiffMods.Handler diffMods
+        DiffMods.Handler diffMods,
+        GetStalkerGammaLastCommit.Handler getStalkerGammaLastCommit,
+        GetGitHubRepoCommits.Handler getGitHubRepoCommits
     )
     {
         Activator = new ViewModelActivator();
@@ -81,16 +83,27 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
             var needUpdates = await gammaInstaller1.CheckGammaData(
                 globalSettings1.UseCurlImpersonate
             );
+            var remoteGammaVersionHash = (
+                await getGitHubRepoCommits.ExecuteAsync(
+                    new GetGitHubRepoCommits.Query("Grokitach", "Stalker_GAMMA")
+                )
+            )
+                ?.FirstOrDefault()
+                ?[..8];
+            var localGammaVersionHash = await getStalkerGammaLastCommit.ExecuteAsync(
+                new GetStalkerGammaLastCommit.Query(Path.Join(_dir, "resources", "Stalker_GAMMA"))
+            );
             GammaVersionToolTip = $"""
-            Remote Version: {needUpdates.gammaVersions.RemoteVersion}
-            Local Version: {needUpdates.gammaVersions.LocalVersion}
+            Remote Version: {needUpdates.gammaVersions.RemoteVersion} ({remoteGammaVersionHash})
+            Local Version: {needUpdates.gammaVersions.LocalVersion} ({localGammaVersionHash})
             """;
             ModVersionToolTip = string.Join(
                 Environment.NewLine,
                 await diffMods.Execute(new Queries.DiffMods.Query(needUpdates.modVersions))
             );
             NeedUpdate =
-                needUpdates.gammaVersions.LocalVersion != needUpdates.gammaVersions.RemoteVersion;
+                needUpdates.gammaVersions.LocalVersion != needUpdates.gammaVersions.RemoteVersion
+                && localGammaVersionHash != remoteGammaVersionHash;
             NeedModDbUpdate =
                 needUpdates.modVersions.LocalVersion != needUpdates.modVersions.RemoteVersion;
         });

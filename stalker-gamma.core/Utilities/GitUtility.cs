@@ -1,5 +1,6 @@
 using System.Text;
 using CliWrap;
+using CliWrap.EventStream;
 using stalker_gamma.core.Services;
 
 namespace stalker_gamma.core.Utilities;
@@ -40,6 +41,21 @@ public class GitUtility(ProgressService progressService)
         }
     }
 
+    public async Task<string> RunGitCommandObs(
+        string workingDir,
+        string commands,
+        CancellationToken? ct = null
+    )
+    {
+        var sb = new StringBuilder();
+        var cmd = Cli.Wrap(GetGitPath)
+            .WithArguments(commands)
+            .WithWorkingDirectory(workingDir)
+            .WithStandardOutputPipe(PipeTarget.ToStringBuilder(sb));
+        await cmd.ExecuteAsync();
+        return sb.ToString();
+    }
+
     public async Task RunGitCommand(string workingDir, string[] commands)
     {
         var stdOut = new StringBuilder();
@@ -77,6 +93,11 @@ public class GitUtility(ProgressService progressService)
             throw new GitException($"{stdOut}\n{stdErr}\n{e}");
         }
     }
+
+    private static string GetGitPath =>
+        OperatingSystem.IsWindows()
+            ? Path.GetFullPath(Path.Join("resources", "bin", "git.exe"))
+            : "git";
 }
 
 public class GitException(string message) : Exception(message);
