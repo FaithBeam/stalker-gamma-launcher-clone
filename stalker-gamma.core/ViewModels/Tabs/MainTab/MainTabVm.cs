@@ -43,8 +43,6 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
     {
         Activator = new ViewModelActivator();
         IsBusyService = isBusyService;
-        var gammaInstaller1 = gammaInstaller;
-        var globalSettings1 = globalSettings;
         _versionString = $"{versionService.GetVersion()} (Based on 6.7.0.0)";
 
         OpenUrlCmd = ReactiveCommand.Create<string>(OpenUrlUtility.OpenUrl);
@@ -80,8 +78,8 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
 
         BackgroundCheckUpdatesCmd = ReactiveCommand.CreateFromTask(async () =>
         {
-            var needUpdates = await gammaInstaller1.CheckGammaData(
-                globalSettings1.UseCurlImpersonate
+            var needUpdates = await gammaInstaller.CheckGammaData(
+                globalSettings.UseCurlImpersonate
             );
             var remoteGammaVersionHash = (
                 await getGitHubRepoCommits.ExecuteAsync(
