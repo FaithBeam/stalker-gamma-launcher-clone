@@ -4,6 +4,7 @@ namespace stalker_gamma.core.ViewModels.Tabs.ModDbUpdatesTab;
 
 public enum UpdateType
 {
+    None,
     Add,
     Remove,
     Update,

@@ -47,9 +47,10 @@ public static partial class DiffMods
                     remoteVersion = string.IsNullOrWhiteSpace(remoteVersion)
                         ? Path.GetFileNameWithoutExtension(onlineRec.ZipName ?? "")
                         : remoteVersion;
-                    var updateType = IsAddMod(localModListRecords, onlineRec)
-                        ? UpdateType.Add
-                        : UpdateType.Update;
+                    var updateType =
+                        IsAddMod(localModListRecords, onlineRec) ? UpdateType.Add
+                        : IsUpdateMod(localModListRecords, onlineRec) ? UpdateType.Update
+                        : UpdateType.None;
                     return new UpdateableModVm(
                         onlineRec.AddonName!,
                         onlineRec.ModDbUrl!,
@@ -62,7 +63,7 @@ public static partial class DiffMods
             return updatedRecords
                 .Select(x =>
                     $"{x.UpdateType switch {
-                        UpdateType.Add => "+", UpdateType.Remove => "-", UpdateType.Update => "^", _ => throw new ArgumentOutOfRangeException() }} {x.AddonName}"
+                        UpdateType.Add => "+", UpdateType.Remove => "-", UpdateType.Update => "^", UpdateType.None => "?", _ => throw new ArgumentOutOfRangeException() }} {x.AddonName}"
                 )
                 .ToList();
         }
