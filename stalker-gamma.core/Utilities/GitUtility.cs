@@ -62,30 +62,14 @@ public class GitUtility(ProgressService progressService)
         var stdErr = new StringBuilder();
         try
         {
-            if (OperatingSystem.IsWindows())
+            foreach (var command in commands)
             {
-                var gitCmdPath = Path.GetFullPath(Path.Join("resources", "bin", "git.exe"));
-                foreach (var command in commands)
-                {
-                    await Cli.Wrap(gitCmdPath)
-                        .WithArguments(command)
-                        .WithWorkingDirectory(workingDir)
-                        .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOut))
-                        .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErr))
-                        .ExecuteAsync();
-                }
-            }
-            else
-            {
-                foreach (var command in commands)
-                {
-                    await Cli.Wrap("git")
-                        .WithArguments(command)
-                        .WithWorkingDirectory(workingDir)
-                        .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOut))
-                        .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErr))
-                        .ExecuteAsync();
-                }
+                await Cli.Wrap(GetGitPath)
+                    .WithArguments(command)
+                    .WithWorkingDirectory(workingDir)
+                    .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOut))
+                    .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErr))
+                    .ExecuteAsync();
             }
         }
         catch (Exception e)
