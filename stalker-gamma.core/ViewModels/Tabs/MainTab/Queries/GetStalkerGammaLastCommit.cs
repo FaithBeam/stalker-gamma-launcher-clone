@@ -9,6 +9,6 @@ public static class GetStalkerGammaLastCommit
     public sealed class Handler(GitUtility gu)
     {
         public async Task<string> ExecuteAsync(Query q) =>
-            (await gu.RunGitCommandObs(q.Dir, "rev-parse --short HEAD")).Trim();
+            (await gu.RunGitCommandObs(q.Dir, "rev-parse HEAD")).Trim();
     }
 }

@@ -87,10 +87,14 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
                 )
             )
                 ?.FirstOrDefault()
-                ?[..8];
-            var localGammaVersionHash = await getStalkerGammaLastCommit.ExecuteAsync(
-                new GetStalkerGammaLastCommit.Query(Path.Join(_dir, "resources", "Stalker_GAMMA"))
-            );
+                ?[..9];
+            var localGammaVersionHash = (
+                await getStalkerGammaLastCommit.ExecuteAsync(
+                    new GetStalkerGammaLastCommit.Query(
+                        Path.Join(_dir, "resources", "Stalker_GAMMA")
+                    )
+                )
+            )[..9];
             GammaVersionToolTip = $"""
             Remote Version: {needUpdates.gammaVersions.RemoteVersion} ({remoteGammaVersionHash})
             Local Version: {needUpdates.gammaVersions.LocalVersion} ({localGammaVersionHash})
