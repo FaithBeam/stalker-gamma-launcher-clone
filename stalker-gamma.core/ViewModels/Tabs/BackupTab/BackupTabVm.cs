@@ -306,8 +306,8 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
                 Task.Run(() =>
                 {
                     var now = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
-                    var gammaVersion = File.Exists("version.txt")
-                        ? File.ReadAllText("version.txt").Trim()
+                    var gammaVersion = Path.Exists(Path.Join(_dir, "version.txt"))
+                        ? File.ReadAllText(Path.Join(_dir, "version.txt")).Trim()
                         : "NA";
                     var gammaHash = getStalkerGammaLastCommitHandler
                         .ExecuteAsync(
