@@ -74,6 +74,7 @@ public partial class App : Application
                 s.AddScoped<Shortcut>();
                 s.AddScoped<GammaInstaller>();
 
+                s.RegisterCommonTabServices();
                 s.RegisterBackupTabServices();
                 s.RegisterMainTabServices();
 

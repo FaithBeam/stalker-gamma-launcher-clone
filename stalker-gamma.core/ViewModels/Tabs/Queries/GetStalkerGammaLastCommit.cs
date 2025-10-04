@@ -1,6 +1,6 @@
 ﻿using stalker_gamma.core.Utilities;
 
-namespace stalker_gamma.core.ViewModels.Tabs.MainTab.Queries;
+namespace stalker_gamma.core.ViewModels.Tabs.Queries;
 
 public static class GetStalkerGammaLastCommit
 {

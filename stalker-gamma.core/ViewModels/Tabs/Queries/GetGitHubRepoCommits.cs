@@ -1,9 +1,8 @@
-﻿using System.Net;
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 
-namespace stalker_gamma.core.ViewModels.Tabs.MainTab.Queries;
+namespace stalker_gamma.core.ViewModels.Tabs.Queries;
 
 public static class GetGitHubRepoCommits
 {
@@ -21,7 +20,7 @@ public static class GetGitHubRepoCommits
                 },
             };
             return (
-                await hc.GetFromJsonAsync(
+                await hc.GetFromJsonAsync<List<RootObject>>(
                     $"https://api.github.com/repos/{q.Owner}/{q.Repo}/commits",
                     jsonTypeInfo: GetGitHubRepoCommitsCtx.Default.ListRootObject
                 )

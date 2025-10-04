@@ -10,6 +10,7 @@ using stalker_gamma.core.Services.DowngradeModOrganizer;
 using stalker_gamma.core.Services.GammaInstaller;
 using stalker_gamma.core.Utilities;
 using stalker_gamma.core.ViewModels.Tabs.MainTab.Queries;
+using stalker_gamma.core.ViewModels.Tabs.Queries;
 
 namespace stalker_gamma.core.ViewModels.Tabs.MainTab;
 
