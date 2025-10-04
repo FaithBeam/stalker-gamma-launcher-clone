@@ -7,6 +7,8 @@ namespace stalker_gamma.core.Utilities;
 
 public class GitUtility(ProgressService progressService)
 {
+    private static readonly string Dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
+
     public async Task UpdateGitRepo(string dir, string repoName, string repoUrl, string branch)
     {
         var repoPath = Path.Combine(dir, "resources", repoName);
@@ -80,7 +82,7 @@ public class GitUtility(ProgressService progressService)
 
     private static string GetGitPath =>
         OperatingSystem.IsWindows()
-            ? Path.GetFullPath(Path.Join("resources", "bin", "git.exe"))
+            ? Path.GetFullPath(Dir, Path.Join("resources", "bin", "git.exe"))
             : "git";
 }
 
