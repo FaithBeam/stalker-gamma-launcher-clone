@@ -30,7 +30,7 @@ public static class Curl
             if (OperatingSystem.IsWindows())
             {
                 cmd = cmd.WithArguments(
-                    $"--config {Path.Join(PathToCurlImpersonateWin, "config", "chrome116.config")} --header \"@{Path.Join(PathToCurlImpersonateWin, "config", "chrome116.header")}\" -Lo \"{Path.Join(pathToDownloads, fileName)}\" {url}"
+                    $"--config \"{Path.Join(PathToCurlImpersonateWin, "config", "chrome116.config")}\" --header \"@{Path.Join(PathToCurlImpersonateWin, "config", "chrome116.header")}\" -Lo \"{Path.Join(pathToDownloads, fileName)}\" {url}"
                 );
             }
             else if (OperatingSystem.IsMacOS() || OperatingSystem.IsLinux())
