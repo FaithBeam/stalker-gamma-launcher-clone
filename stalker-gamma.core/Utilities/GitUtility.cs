@@ -82,7 +82,7 @@ public class GitUtility(ProgressService progressService)
 
     private static string GetGitPath =>
         OperatingSystem.IsWindows()
-            ? Path.GetFullPath(Dir, Path.Join("resources", "bin", "git.exe"))
+            ? Path.Join(Dir, Path.Join("resources", "bin", "git.exe"))
             : "git";
 }
 
