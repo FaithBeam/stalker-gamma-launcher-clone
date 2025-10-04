@@ -268,6 +268,8 @@ public abstract class DownloadableRecord : ModlistRecord
 
 public class Separator : ModlistRecord
 {
+    private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
+
     public string Name => DlLink!;
     public string FolderName => $"{DlLink}_separator";
 
@@ -278,7 +280,7 @@ public class Separator : ModlistRecord
             Directory.CreateDirectory(Path.Join(modsPaths, $"{counter}-{FolderName}"));
         }
         File.Copy(
-            Path.Join("resources", "separator_meta.ini"),
+            Path.Join(_dir, "resources", "separator_meta.ini"),
             Path.Join(modsPaths, $"{counter}-{FolderName}", "meta.ini"),
             true
         );
