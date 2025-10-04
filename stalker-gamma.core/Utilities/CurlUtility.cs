@@ -6,7 +6,7 @@ namespace stalker_gamma.core.Utilities;
 public static class Curl
 {
     private static HttpClient? _httpClient;
-    private static string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
+    private static readonly string Dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
 
     public static async Task DownloadFileAsync(
         string url,
@@ -81,7 +81,7 @@ public static class Curl
     private const string CommonCurlArgs = "--no-progress-meter";
 
     private static readonly string PathToCurlImpersonateWin = Path.Join(
-        _dir,
+        Dir,
         "resources",
         "curl-impersonate-win"
     );

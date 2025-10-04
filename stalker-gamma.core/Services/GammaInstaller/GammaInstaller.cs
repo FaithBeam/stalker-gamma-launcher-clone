@@ -148,9 +148,9 @@ public class GammaInstaller(
         var modOrganizerListFile = metadata[3].Trim();
         var modPackAdditionalFiles = metadata[4].Trim();
 
-        var downloadsPath = Path.Join(_dir, "..", "downloads");
+        var downloadsPath = Path.GetFullPath(Path.Join(_dir, "..", "downloads"));
 
-        var modsPaths = Path.Join(_dir, "..", "mods");
+        var modsPaths = Path.GetFullPath(Path.Join(_dir, "..", "mods"));
         var modPackPath = Path.Join(_dir, modPackName);
         progressService.UpdateProgress(
             " Downloading GAMMA mods information from www.stalker-gamma.com"
