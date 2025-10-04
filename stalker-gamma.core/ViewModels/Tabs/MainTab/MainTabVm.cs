@@ -101,7 +101,7 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
             );
             NeedUpdate =
                 needUpdates.gammaVersions.LocalVersion != needUpdates.gammaVersions.RemoteVersion
-                && localGammaVersionHash != remoteGammaVersionHash;
+                || localGammaVersionHash != remoteGammaVersionHash;
             NeedModDbUpdate =
                 needUpdates.modVersions.LocalVersion != needUpdates.modVersions.RemoteVersion;
         });
