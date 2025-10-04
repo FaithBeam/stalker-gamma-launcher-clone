@@ -6,6 +6,8 @@ namespace stalker_gamma.core.Utilities;
 
 public static class ArchiveUtility
 {
+    private static readonly string Dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
+
     public static async Task ExtractAsync(string archivePath, string destinationFolder)
     {
         var stdOut = new StringBuilder();
@@ -91,6 +93,6 @@ public static class ArchiveUtility
         : Linux7Zip;
 
     private static readonly string SevenZip = OperatingSystem.IsWindows()
-        ? Path.Join("Resources", "7zip", SevenZipPath)
+        ? Path.Join(Dir, "Resources", "7zip", SevenZipPath)
         : SevenZipPath;
 }
