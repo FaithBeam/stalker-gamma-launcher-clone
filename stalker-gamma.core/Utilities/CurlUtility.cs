@@ -12,7 +12,8 @@ public static class Curl
         string url,
         string pathToDownloads,
         string fileName,
-        bool useCurlImpersonate
+        bool useCurlImpersonate,
+        string? workingDir = null
     )
     {
         if (useCurlImpersonate)
@@ -22,6 +23,10 @@ public static class Curl
             var cmd = Cli.Wrap(Path.Join(PathToCurlImpersonateWin, "curl.exe"))
                 .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOut))
                 .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErr));
+            if (!string.IsNullOrWhiteSpace(workingDir))
+            {
+                cmd = cmd.WithWorkingDirectory(workingDir);
+            }
             if (OperatingSystem.IsWindows())
             {
                 cmd = cmd.WithArguments(

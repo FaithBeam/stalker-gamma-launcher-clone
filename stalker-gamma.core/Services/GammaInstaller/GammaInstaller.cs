@@ -213,7 +213,8 @@ public class GammaInstaller(
             "https://stalker-gamma.com/api/list?key=",
             _dir,
             "mods.txt",
-            useCurlImpersonate
+            useCurlImpersonate,
+            _dir
         );
     }
 
