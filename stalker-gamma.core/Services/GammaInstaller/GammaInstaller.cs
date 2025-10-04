@@ -49,10 +49,12 @@ public class GammaInstaller(
                 "https://stalker-gamma.com/api/list?key=",
                 useCurlImpersonate: useCurlImpersonate
             )
-        ).Trim();
+        )
+            .Trim()
+            .ReplaceLineEndings();
         if (File.Exists(modsFile))
         {
-            localMods = (await File.ReadAllTextAsync(modsFile)).Trim();
+            localMods = (await File.ReadAllTextAsync(modsFile)).Trim().ReplaceLineEndings();
         }
         LocalAndRemoteVersion modVersions = new(localMods, remoteMods);
 
