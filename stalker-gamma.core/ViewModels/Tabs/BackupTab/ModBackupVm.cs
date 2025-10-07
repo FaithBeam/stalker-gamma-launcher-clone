@@ -7,6 +7,7 @@ public class ModBackupVm(
     long fileSize,
     string path,
     int gammaVersion,
+    string gammaHash,
     string dateTime,
     string compressionMethod
 ) : ReactiveObject
@@ -15,6 +16,7 @@ public class ModBackupVm(
     private long _fileSize = fileSize;
     private string _path = path;
     private int _gammaVersion = gammaVersion;
+    private string _gammaHash = gammaHash;
     private string _dateTime = dateTime;
     private string _compressionMethod = compressionMethod;
 
@@ -40,6 +42,12 @@ public class ModBackupVm(
     {
         get => _gammaVersion;
         set => this.RaiseAndSetIfChanged(ref _gammaVersion, value);
+    }
+
+    public string GammaHash
+    {
+        get => _gammaHash;
+        set => this.RaiseAndSetIfChanged(ref _gammaHash, value);
     }
 
     public string DateTime

@@ -94,6 +94,7 @@
                         <DataGridTextColumn Header="File Size"
                                             Binding="{Binding FileSize, Converter={StaticResource ModBackupFileSizeConverter}}" />
                         <DataGridTextColumn Header="GAMMA Version" Binding="{Binding GammaVersion}" />
+                        <DataGridTextColumn Header="GAMMA Hash" Binding="{Binding GammaHash}" />
                         <DataGridTextColumn Header="Method" Binding="{Binding CompressionMethod}" />
                     </DataGrid.Columns>
                 </DataGrid>

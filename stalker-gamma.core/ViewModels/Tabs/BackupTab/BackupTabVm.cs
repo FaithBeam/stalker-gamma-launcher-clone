@@ -14,11 +14,15 @@ using stalker_gamma.core.Services;
 using stalker_gamma.core.Utilities;
 using stalker_gamma.core.ViewModels.Tabs.BackupTab.Enums;
 using stalker_gamma.core.ViewModels.Tabs.BackupTab.Models;
+using stalker_gamma.core.ViewModels.Tabs.BackupTab.Services;
+using stalker_gamma.core.ViewModels.Tabs.Queries;
 
 namespace stalker_gamma.core.ViewModels.Tabs.BackupTab;
 
 public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
 {
+    private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
+
     private Compressor _selectedCompressor;
     private CompressionLevel _selectedCompressionLevel;
     private readonly ObservableAsPropertyHelper<string?> _estimates;
@@ -54,7 +58,8 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
         Commands.RestoreBackup.Handler restoreBackupHandler,
         Commands.DeleteBackup.Handler deleteBackupHandler,
         Commands.CreateBackupFolders.Handler createBackupFolderHandler,
-        Commands.CreateBackup.Handler createBackupHandler
+        Commands.CreateBackup.Handler createBackupHandler,
+        Tabs.Queries.GetStalkerGammaLastCommit.Handler getStalkerGammaLastCommitHandler
     )
     {
         IsBusyService = isBusyService;
@@ -151,6 +156,7 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
                     fileSize,
                     path,
                     int.Parse(match.Groups["gammaVersion"].Value),
+                    match.Groups["gammaHash"].Value,
                     date,
                     compressionMethod
                 );
@@ -300,10 +306,18 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
                 Task.Run(() =>
                 {
                     var now = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
-                    var gammaVersion = File.Exists("version.txt")
-                        ? File.ReadAllText("version.txt").Trim()
+                    var gammaVersion = Path.Exists(Path.Join(_dir, "version.txt"))
+                        ? File.ReadAllText(Path.Join(_dir, "version.txt")).Trim()
                         : "NA";
-                    now = $"{now}+{gammaVersion}";
+                    var gammaHash = getStalkerGammaLastCommitHandler
+                        .ExecuteAsync(
+                            new GetStalkerGammaLastCommit.Query(
+                                Path.Join(_dir, "resources", "Stalker_GAMMA")
+                            )
+                        )
+                        .GetAwaiter()
+                        .GetResult()[..9];
+                    now = $"{now}+{gammaVersion}.{gammaHash}";
                     var dstArchive =
                         SelectedBackup switch
                         {
@@ -576,7 +590,7 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
     public ViewModelActivator Activator { get; }
 
     [GeneratedRegex(
-        @"^(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})-(?<hour>\d{2})-(?<minute>\d{2})-(?<second>\d{2})\+(?<gammaVersion>\d+).(7z|zst)$"
+        @"^(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})-(?<hour>\d{2})-(?<minute>\d{2})-(?<second>\d{2})\+(?<gammaVersion>\d+)\.(?<gammaHash>[\d\w]+).(7z|zst)$"
     )]
     private static partial Regex MyRegex();
 }

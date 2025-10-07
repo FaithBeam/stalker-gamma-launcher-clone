@@ -84,6 +84,7 @@ public class ModlistRecord : IModlistRecord
 
 public abstract class DownloadableRecord : ModlistRecord
 {
+    private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
     public abstract string Name { get; }
     public string? DlPath { get; set; }
     public string? Dl => DlLink;
@@ -129,7 +130,8 @@ public abstract class DownloadableRecord : ModlistRecord
             Dl,
             Path.GetDirectoryName(DlPath) ?? ".",
             Path.GetFileName(DlPath),
-            useCurlImpersonate
+            useCurlImpersonate,
+            _dir
         );
         return true;
     }
@@ -268,6 +270,8 @@ public abstract class DownloadableRecord : ModlistRecord
 
 public class Separator : ModlistRecord
 {
+    private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
+
     public string Name => DlLink!;
     public string FolderName => $"{DlLink}_separator";
 
@@ -278,7 +282,7 @@ public class Separator : ModlistRecord
             Directory.CreateDirectory(Path.Join(modsPaths, $"{counter}-{FolderName}"));
         }
         File.Copy(
-            Path.Join("resources", "separator_meta.ini"),
+            Path.Join(_dir, "resources", "separator_meta.ini"),
             Path.Join(modsPaths, $"{counter}-{FolderName}", "meta.ini"),
             true
         );

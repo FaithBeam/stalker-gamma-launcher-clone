@@ -2,6 +2,7 @@
 using CliWrap.EventStream;
 using stalker_gamma.core.Utilities;
 using stalker_gamma.core.ViewModels.Tabs.BackupTab.Enums;
+using stalker_gamma.core.ViewModels.Tabs.BackupTab.Services;
 
 namespace stalker_gamma.core.ViewModels.Tabs.BackupTab.Commands;
 

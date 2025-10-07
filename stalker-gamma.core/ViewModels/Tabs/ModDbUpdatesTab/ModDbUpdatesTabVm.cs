@@ -19,7 +19,6 @@ public partial class ModDbUpdatesTabVm : ViewModelBase, IActivatableViewModel
     public ModDbUpdatesTabVm(ModDb modDb, ProgressService progressService)
     {
         Activator = new ViewModelActivator();
-        var modDb1 = modDb;
         var modListFile = Path.Join(_dir, "mods.txt");
 
         SourceCache<UpdateableModVm, string> modsSourceCache = new(x => x.AddonName);
@@ -43,7 +42,7 @@ public partial class ModDbUpdatesTabVm : ViewModelBase, IActivatableViewModel
                 await Curl.GetStringAsync("https://stalker-gamma.com/api/list?key=")
             )
                 .Split("\n")
-                .Select(x => ParseModListRecord.ParseLine(x, modDb1))
+                .Select(x => ParseModListRecord.ParseLine(x, modDb))
                 .Where(x => x is DownloadableRecord)
                 .Cast<DownloadableRecord>()
                 .Where(onlineRec => ShouldUpdateModFilter(localModListRecords, onlineRec))
@@ -64,11 +63,16 @@ public partial class ModDbUpdatesTabVm : ViewModelBase, IActivatableViewModel
                     remoteVersion = string.IsNullOrWhiteSpace(remoteVersion)
                         ? Path.GetFileNameWithoutExtension(onlineRec.ZipName ?? "")
                         : remoteVersion;
+                    var updateType =
+                        IsAddMod(localModListRecords, onlineRec) ? UpdateType.Add
+                        : IsUpdateMod(localModListRecords, onlineRec) ? UpdateType.Update
+                        : UpdateType.None;
                     return new UpdateableModVm(
                         onlineRec.AddonName!,
                         onlineRec.ModDbUrl!,
                         localVersion,
-                        remoteVersion
+                        remoteVersion,
+                        updateType
                     );
                 });
             modsSourceCache.Edit(inner =>
@@ -89,6 +93,18 @@ public partial class ModDbUpdatesTabVm : ViewModelBase, IActivatableViewModel
         );
     }
 
+    private static readonly Func<List<DownloadableRecord>, DownloadableRecord, bool> IsAddMod = (
+        localModListRecs,
+        onlineRec
+    ) => localModListRecs.All(localRec => localRec.ModDbUrl! != onlineRec.ModDbUrl!);
+
+    private static readonly Func<List<DownloadableRecord>, DownloadableRecord, bool> IsUpdateMod = (
+        localModListRecords,
+        onlineRec
+    ) =>
+        localModListRecords.Any(localRec =>
+            localRec.ModDbUrl! == onlineRec.ModDbUrl! && localRec.Md5ModDb != onlineRec.Md5ModDb
+        );
     private static readonly Func<
         List<DownloadableRecord>,
         DownloadableRecord,

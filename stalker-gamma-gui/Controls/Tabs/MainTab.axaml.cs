@@ -8,6 +8,7 @@ using Avalonia.ReactiveUI;
 using ReactiveUI;
 using stalker_gamma.core.Services;
 using stalker_gamma.core.ViewModels.Tabs;
+using stalker_gamma.core.ViewModels.Tabs.MainTab;
 
 namespace stalker_gamma_gui.Controls.Tabs;
 

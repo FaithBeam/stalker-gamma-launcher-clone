@@ -6,12 +6,14 @@ namespace stalker_gamma.core.Utilities;
 public static class Curl
 {
     private static HttpClient? _httpClient;
+    private static readonly string Dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
 
     public static async Task DownloadFileAsync(
         string url,
         string pathToDownloads,
         string fileName,
-        bool useCurlImpersonate
+        bool useCurlImpersonate,
+        string? workingDir = null
     )
     {
         if (useCurlImpersonate)
@@ -21,10 +23,14 @@ public static class Curl
             var cmd = Cli.Wrap(Path.Join(PathToCurlImpersonateWin, "curl.exe"))
                 .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOut))
                 .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErr));
+            if (!string.IsNullOrWhiteSpace(workingDir))
+            {
+                cmd = cmd.WithWorkingDirectory(workingDir);
+            }
             if (OperatingSystem.IsWindows())
             {
                 cmd = cmd.WithArguments(
-                    $"--config {Path.Join(PathToCurlImpersonateWin, "config", "chrome116.config")} --header @{Path.Join(PathToCurlImpersonateWin, "config", "chrome116.header")} -Lo \"{Path.Join(pathToDownloads, fileName)}\" {url}"
+                    $"--config \"{Path.Join(PathToCurlImpersonateWin, "config", "chrome116.config")}\" --header \"@{Path.Join(PathToCurlImpersonateWin, "config", "chrome116.header")}\" -Lo \"{Path.Join(pathToDownloads, fileName)}\" {url}"
                 );
             }
             else if (OperatingSystem.IsMacOS() || OperatingSystem.IsLinux())
@@ -80,6 +86,7 @@ public static class Curl
     private const string CommonCurlArgs = "--no-progress-meter";
 
     private static readonly string PathToCurlImpersonateWin = Path.Join(
+        Dir,
         "resources",
         "curl-impersonate-win"
     );

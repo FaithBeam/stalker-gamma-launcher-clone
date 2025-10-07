@@ -6,6 +6,8 @@ using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma.core.Services.GammaInstaller;
 
+public record LocalAndRemoteVersion(string? LocalVersion, string RemoteVersion);
+
 public class GammaInstaller(
     ProgressService progressService,
     GitUtility gitUtility,
@@ -21,45 +23,42 @@ public class GammaInstaller(
     /// <summary>
     /// Checks for G.A.M.M.A. updates.
     /// </summary>
-    public async Task<(bool NeedUpdate, bool NeedModDBUpdate)> CheckGammaData(
-        bool useCurlImpersonate
-    )
+    public async Task<(
+        LocalAndRemoteVersion gammaVersions,
+        LocalAndRemoteVersion modVersions
+    )> CheckGammaData(bool useCurlImpersonate)
     {
-        bool needUpdate;
+        var onlineGammaVersion = (
+            await Curl.GetStringAsync(
+                "https://raw.githubusercontent.com/Grokitach/Stalker_GAMMA/main/G.A.M.M.A_definition_version.txt",
+                useCurlImpersonate: useCurlImpersonate
+            )
+        ).Trim();
+        string? localGammaVersion = null;
         var versionFile = Path.Combine(_dir, "version.txt");
         if (File.Exists(versionFile))
         {
-            var installedVersion = await File.ReadAllTextAsync(versionFile);
-            var onlineVersion = await Curl.GetStringAsync(
-                "https://raw.githubusercontent.com/Grokitach/Stalker_GAMMA/main/G.A.M.M.A_definition_version.txt",
-                useCurlImpersonate: useCurlImpersonate
-            );
-
-            needUpdate = installedVersion.Trim() != onlineVersion.Trim();
+            localGammaVersion = (await File.ReadAllTextAsync(versionFile)).Trim();
         }
-        else
-        {
-            needUpdate = true;
-        }
+        LocalAndRemoteVersion gammaVersions = new(localGammaVersion, onlineGammaVersion);
 
-        bool needModDbUpdate;
+        string? localMods = null;
         var modsFile = Path.Combine(_dir, "mods.txt");
-        if (File.Exists(modsFile))
-        {
-            var modsContent = await File.ReadAllTextAsync(modsFile);
-            var modsToCheck = await Curl.GetStringAsync(
+        var remoteMods = (
+            await Curl.GetStringAsync(
                 "https://stalker-gamma.com/api/list?key=",
                 useCurlImpersonate: useCurlImpersonate
-            );
-
-            needModDbUpdate = modsContent.Trim() != modsToCheck.Trim();
-        }
-        else
+            )
+        )
+            .Trim()
+            .ReplaceLineEndings();
+        if (File.Exists(modsFile))
         {
-            needModDbUpdate = true;
+            localMods = (await File.ReadAllTextAsync(modsFile)).Trim().ReplaceLineEndings();
         }
+        LocalAndRemoteVersion modVersions = new(localMods, remoteMods);
 
-        return (needUpdate, needModDbUpdate);
+        return (gammaVersions, modVersions);
     }
 
     /// <summary>
@@ -149,9 +148,9 @@ public class GammaInstaller(
         var modOrganizerListFile = metadata[3].Trim();
         var modPackAdditionalFiles = metadata[4].Trim();
 
-        var downloadsPath = Path.Join(_dir, "..", "downloads");
+        var downloadsPath = Path.GetFullPath(Path.Join(_dir, "..", "downloads"));
 
-        var modsPaths = Path.Join(_dir, "..", "mods");
+        var modsPaths = Path.GetFullPath(Path.Join(_dir, "..", "mods"));
         var modPackPath = Path.Join(_dir, modPackName);
         progressService.UpdateProgress(
             " Downloading GAMMA mods information from www.stalker-gamma.com"
@@ -214,7 +213,8 @@ public class GammaInstaller(
             "https://stalker-gamma.com/api/list?key=",
             _dir,
             "mods.txt",
-            useCurlImpersonate
+            useCurlImpersonate,
+            _dir
         );
     }
 

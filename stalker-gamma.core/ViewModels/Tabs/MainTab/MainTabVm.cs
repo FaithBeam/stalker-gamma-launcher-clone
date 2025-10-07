@@ -9,8 +9,10 @@ using stalker_gamma.core.Services;
 using stalker_gamma.core.Services.DowngradeModOrganizer;
 using stalker_gamma.core.Services.GammaInstaller;
 using stalker_gamma.core.Utilities;
+using stalker_gamma.core.ViewModels.Tabs.MainTab.Queries;
+using stalker_gamma.core.ViewModels.Tabs.Queries;
 
-namespace stalker_gamma.core.ViewModels.Tabs;
+namespace stalker_gamma.core.ViewModels.Tabs.MainTab;
 
 public class MainTabVm : ViewModelBase, IActivatableViewModel
 {
@@ -25,6 +27,8 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
     private bool _needUpdate;
     private bool _needModDbUpdate;
     private string _versionString;
+    private string _gammaVersionsToolTip = "";
+    private string _modsVersionsToolTip = "";
 
     public MainTabVm(
         GammaInstaller gammaInstaller,
@@ -32,13 +36,14 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
         GlobalSettings globalSettings,
         DowngradeModOrganizer downgradeModOrganizer,
         VersionService versionService,
-        IsBusyService isBusyService
+        IsBusyService isBusyService,
+        DiffMods.Handler diffMods,
+        GetStalkerGammaLastCommit.Handler getStalkerGammaLastCommit,
+        GetGitHubRepoCommits.Handler getGitHubRepoCommits
     )
     {
         Activator = new ViewModelActivator();
         IsBusyService = isBusyService;
-        var gammaInstaller1 = gammaInstaller;
-        var globalSettings1 = globalSettings;
         _versionString = $"{versionService.GetVersion()} (Based on 6.7.0.0)";
 
         OpenUrlCmd = ReactiveCommand.Create<string>(OpenUrlUtility.OpenUrl);
@@ -74,11 +79,36 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
 
         BackgroundCheckUpdatesCmd = ReactiveCommand.CreateFromTask(async () =>
         {
-            var needUpdates = await gammaInstaller1.CheckGammaData(
-                globalSettings1.UseCurlImpersonate
+            var needUpdates = await gammaInstaller.CheckGammaData(
+                globalSettings.UseCurlImpersonate
             );
-            NeedUpdate = needUpdates.NeedUpdate;
-            NeedModDbUpdate = needUpdates.NeedModDBUpdate;
+            var remoteGammaVersionHash = (
+                await getGitHubRepoCommits.ExecuteAsync(
+                    new GetGitHubRepoCommits.Query("Grokitach", "Stalker_GAMMA")
+                )
+            )
+                ?.FirstOrDefault()
+                ?[..9];
+            var localGammaVersionHash = (
+                await getStalkerGammaLastCommit.ExecuteAsync(
+                    new GetStalkerGammaLastCommit.Query(
+                        Path.Join(_dir, "resources", "Stalker_GAMMA")
+                    )
+                )
+            )[..9];
+            GammaVersionToolTip = $"""
+            Remote Version: {needUpdates.gammaVersions.RemoteVersion} ({remoteGammaVersionHash})
+            Local Version: {needUpdates.gammaVersions.LocalVersion} ({localGammaVersionHash})
+            """;
+            ModVersionToolTip = string.Join(
+                Environment.NewLine,
+                await diffMods.Execute(new Queries.DiffMods.Query(needUpdates.modVersions))
+            );
+            NeedUpdate =
+                needUpdates.gammaVersions.LocalVersion != needUpdates.gammaVersions.RemoteVersion
+                || localGammaVersionHash != remoteGammaVersionHash;
+            NeedModDbUpdate =
+                needUpdates.modVersions.LocalVersion != needUpdates.modVersions.RemoteVersion;
         });
         BackgroundCheckUpdatesCmd.ThrownExceptions.Subscribe(x =>
             progressService.UpdateProgress(x.Message)
@@ -225,6 +255,18 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
     {
         get => _inGrokModDir;
         set => this.RaiseAndSetIfChanged(ref _inGrokModDir, value);
+    }
+
+    public string GammaVersionToolTip
+    {
+        get => _gammaVersionsToolTip;
+        set => this.RaiseAndSetIfChanged(ref _gammaVersionsToolTip, value);
+    }
+
+    public string ModVersionToolTip
+    {
+        get => _modsVersionsToolTip;
+        set => this.RaiseAndSetIfChanged(ref _modsVersionsToolTip, value);
     }
 
     public IsBusyService IsBusyService { get; }
