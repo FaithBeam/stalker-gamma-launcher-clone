@@ -27,6 +27,9 @@
             <TabItem x:Name="ModsListItem" FontSize="16" Header="Mods List" IsEnabled="{Binding !IsBusyService.IsBusy}">
                 <tabs:ModListTab DataContext="{Binding ModListTabVm}" />
             </TabItem>
+            <TabItem x:Name="GammaUpdates" FontSize="16" Header="GAMMA Updates" IsEnabled="{Binding !IsBusyService.IsBusy}">
+                <tabs:GammaUpdatesTab DataContext="{Binding GammaUpdatesVm}" />
+            </TabItem>
             <TabItem x:Name="ModsTabItem" FontSize="16" Header="ModDB Updates" IsEnabled="{Binding !IsBusyService.IsBusy}">
                 <tabs:ModDbUpdatesTab DataContext="{Binding ModDbUpdatesTabVm}" />
             </TabItem>

@@ -25,6 +25,7 @@ using stalker_gamma.core.Utilities;
 using stalker_gamma.core.ViewModels.MainWindow;
 using stalker_gamma.core.ViewModels.Tabs;
 using stalker_gamma.core.ViewModels.Tabs.BackupTab;
+using stalker_gamma.core.ViewModels.Tabs.GammaUpdatesTab;
 using stalker_gamma.core.ViewModels.Tabs.MainTab;
 using stalker_gamma.core.ViewModels.Tabs.ModDbUpdatesTab;
 using stalker_gamma.core.ViewModels.Tabs.ModListTab;
@@ -77,9 +78,11 @@ public partial class App : Application
                 s.RegisterCommonTabServices();
                 s.RegisterBackupTabServices();
                 s.RegisterMainTabServices();
+                s.RegisterGammaUpdatesTabServices();
 
                 s.AddScoped<MainTabVm>();
                 s.AddScoped<BackupTabVm>();
+                s.AddScoped<GammaUpdatesVm>();
                 s.AddScoped<ModListTabVm>();
                 s.AddScoped<ModDbUpdatesTabVm>();
                 s.AddScoped<MainWindowVm>();
