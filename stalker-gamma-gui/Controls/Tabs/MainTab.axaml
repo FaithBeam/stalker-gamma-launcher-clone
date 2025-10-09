@@ -183,7 +183,7 @@
                             <Style Selector="ToolTip">
                                 <Setter Property="Background" Value="{Binding NeedModDbUpdate, Converter={StaticResource ToolTipShownConverter}}" />
                                 <Setter Property="BorderBrush" Value="{Binding NeedModDbUpdate, Converter={StaticResource ToolTipBorderConverter}}" />
-                                <Setter Property="BorderThickness" Value="0.5"></Setter>
+                                <Setter Property="BorderThickness" Value="0.5" />
                             </Style>
                         </Label.Styles>
                     </Label>

@@ -230,9 +230,12 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
             (CompositeDisposable d) =>
             {
                 InGrokModDir = _dir.Contains(
+#if DEBUG
+                    "net9.0",
+#else
                     ".Grok's Modpack Installer",
-                    StringComparison.OrdinalIgnoreCase
-                );
+#endif
+                    StringComparison.OrdinalIgnoreCase);
                 InGroksModPackDir.Execute().Subscribe();
                 BackgroundCheckUpdatesCmd.Execute().Subscribe();
             }
