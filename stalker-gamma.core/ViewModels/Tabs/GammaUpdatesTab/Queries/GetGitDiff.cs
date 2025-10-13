@@ -24,7 +24,7 @@ public static class GetGitDiff
                         "A" => GitDiffType.Added,
                         "D" => GitDiffType.Deleted,
                         "R" => GitDiffType.Renamed,
-                        _ => throw new ArgumentOutOfRangeException(),
+                        _ => throw new ArgumentOutOfRangeException(split[0]),
                     };
                     return new GitDiff(diffType, split[1]);
                 })
