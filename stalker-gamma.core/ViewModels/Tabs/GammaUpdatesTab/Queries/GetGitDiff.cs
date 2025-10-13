@@ -18,13 +18,13 @@ public static class GetGitDiff
                 .Select(x =>
                 {
                     var split = x.Split("\t");
-                    var diffType = split[0] switch
+                    var diffType = split[0][0] switch
                     {
-                        "M" => GitDiffType.Modified,
-                        "A" => GitDiffType.Added,
-                        "D" => GitDiffType.Deleted,
-                        "R" => GitDiffType.Renamed,
-                        _ => throw new ArgumentOutOfRangeException(split[0]),
+                        'M' => GitDiffType.Modified,
+                        'A' => GitDiffType.Added,
+                        'D' => GitDiffType.Deleted,
+                        'R' => GitDiffType.Renamed,
+                        _ => throw new ArgumentOutOfRangeException($"{split[0][0]}"),
                     };
                     return new GitDiff(diffType, split[1]);
                 })
