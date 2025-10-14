@@ -17,6 +17,7 @@ public class GammaUpdatesVm : ViewModelBase, IActivatableViewModel
     private readonly GetGitDiffFile.Handler _getGitDiffFileHandler;
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
     private readonly ReadOnlyObservableCollection<GitDiff> _diffs;
+    private readonly ObservableAsPropertyHelper<bool> _isLoading;
 
     public ViewModelActivator Activator { get; }
 
@@ -52,6 +53,7 @@ public class GammaUpdatesVm : ViewModelBase, IActivatableViewModel
                 );
             })
         );
+        _isLoading = getGitDiffCmd.IsExecuting.ToProperty(this, x => x.IsLoading);
         getGitDiffCmd.Subscribe(x =>
             gitDiffSourceCache.Edit(inner =>
             {
@@ -81,6 +83,7 @@ public class GammaUpdatesVm : ViewModelBase, IActivatableViewModel
         );
     }
 
+    public bool IsLoading => _isLoading.Value;
     public IInteraction<GitDiffWindowVm, Unit> OpenGitDiffFileWindowInteraction { get; }
 
     public ReactiveCommand<string, Unit> OpenGitDiffFileWindowCmd { get; }

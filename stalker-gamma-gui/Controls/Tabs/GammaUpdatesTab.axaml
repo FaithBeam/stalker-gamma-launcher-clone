@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:stalker_gamma.core.ViewModels.Tabs.GammaUpdatesTab;assembly=stalker-gamma.core"
+             xmlns:li="using:LoadingIndicators.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="stalker_gamma_gui.Controls.Tabs.GammaUpdatesTab"
              x:DataType="vm:GammaUpdatesVm">
@@ -11,6 +12,7 @@
     </Design.DataContext>
     
     <Grid RowDefinitions="Auto,*">
+        <li:LoadingIndicator IsActive="{Binding IsLoading}" Mode="Arcs" SpeedRatio="1.2" />
         <Label Content="Double click an item to view the diff" />
         <DataGrid Grid.Row="1" x:Name="DiffGrid" ItemsSource="{Binding Diffs}" IsReadOnly="True" CanUserReorderColumns="True"
                   CanUserResizeColumns="True" CanUserSortColumns="True" GridLinesVisibility="All" DoubleTapped="DiffGrid_OnDoubleTapped">
