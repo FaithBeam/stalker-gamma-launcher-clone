@@ -15,6 +15,7 @@ public partial class ModDbUpdatesTabVm : ViewModelBase, IActivatableViewModel
 {
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
     private readonly ReadOnlyObservableCollection<UpdateableModVm> _updateableMods;
+    private readonly ObservableAsPropertyHelper<bool> _isLoading;
 
     public ModDbUpdatesTabVm(ModDb modDb, ProgressService progressService)
     {
@@ -81,6 +82,7 @@ public partial class ModDbUpdatesTabVm : ViewModelBase, IActivatableViewModel
                 inner.AddOrUpdate(updatedRecords);
             });
         });
+        _isLoading = GetOnlineModsCmd.IsExecuting.ToProperty(this, x => x.IsLoading);
         GetOnlineModsCmd.ThrownExceptions.Subscribe(ex =>
             progressService.UpdateProgress(ex.ToString())
         );
@@ -123,6 +125,7 @@ public partial class ModDbUpdatesTabVm : ViewModelBase, IActivatableViewModel
             localRec.ModDbUrl! == onlineRec.ModDbUrl! && localRec.Md5ModDb != onlineRec.Md5ModDb
         ) || localModListRecords.All(localRec => localRec.ModDbUrl! != onlineRec.ModDbUrl!);
 
+    public bool IsLoading => _isLoading.Value;
     public ReactiveCommand<Unit, Unit> GetOnlineModsCmd { get; }
 
     public ReadOnlyObservableCollection<UpdateableModVm> UpdateableMods => _updateableMods;

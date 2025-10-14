@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:modDbUpdatesTab="clr-namespace:stalker_gamma.core.ViewModels.Tabs.ModDbUpdatesTab;assembly=stalker-gamma.core"
+             xmlns:li="using:LoadingIndicators.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="stalker_gamma_gui.Controls.Tabs.ModDbUpdatesTab"
              x:DataType="modDbUpdatesTab:ModDbUpdatesTabVm">
@@ -12,6 +13,7 @@
         <modDbUpdatesTab:ModDbUpdatesTabVm />
     </Design.DataContext>
     <Grid RowDefinitions="Auto,*">
+        <li:LoadingIndicator IsActive="{Binding IsLoading}" Mode="Arcs" SpeedRatio="1.2" />
         <Label>
             <TextBlock>
                 This only compares the content of mods.txt against the Stalker GAMMA api.<LineBreak />
