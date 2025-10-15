@@ -15,18 +15,19 @@ public static class GetGitDiff
             return (await gu.RunGitCommandObs(q.Dir, "diff main origin/main --name-status"))
                 .Trim()
                 .Split("\n")
+                .Select(x => x.Split("\t"))
+                .Where(x => x.Length == 2 && !string.IsNullOrWhiteSpace(x[0]))
                 .Select(x =>
                 {
-                    var split = x.Split("\t");
-                    var diffType = split[0][0] switch
+                    var diffType = x[0][0] switch
                     {
                         'M' => GitDiffType.Modified,
                         'A' => GitDiffType.Added,
                         'D' => GitDiffType.Deleted,
                         'R' => GitDiffType.Renamed,
-                        _ => throw new ArgumentOutOfRangeException($"{split[0][0]}"),
+                        _ => throw new ArgumentOutOfRangeException($"{x[0][0]}"),
                     };
-                    return new GitDiff(diffType, split[1]);
+                    return new GitDiff(diffType, x[1]);
                 })
                 .ToList();
         }
