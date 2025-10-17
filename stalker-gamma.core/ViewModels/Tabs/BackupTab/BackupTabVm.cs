@@ -54,6 +54,7 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
         Queries.GetDriveSpaceStats.Handler getDriveSpaceStatsHandler,
         Queries.CheckModsList.Handler checkModsListHandler,
         Queries.GetGammaBackupFolder.Handler getGammaBackupFolderHandler,
+        Queries.OpenBackupFolder.Handler openBackupFolderHandler,
         Commands.UpdateGammaBackupPathInAppSettings.Handler updateGammaBackupPathInAppSettingsHandler,
         Commands.RestoreBackup.Handler restoreBackupHandler,
         Commands.DeleteBackup.Handler deleteBackupHandler,
@@ -74,33 +75,7 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
             .Select(width => width == 0 ? "<" : ">")
             .ToProperty(this, x => x.ToggleBackupsListBtnTxt, initialValue: "<");
 
-        OpenBackupFolderCommand = ReactiveCommand.Create(() =>
-        {
-            var psi = new ProcessStartInfo
-            {
-                Arguments = getGammaBackupFolderHandler.Execute(),
-                UseShellExecute = true,
-            };
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                psi.FileName = "explorer.exe";
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                psi.FileName = "xdg-open";
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                psi.FileName = "open";
-            }
-            else
-            {
-                throw new PlatformNotSupportedException();
-            }
-
-            Process.Start(psi);
-        });
+        OpenBackupFolderCommand = ReactiveCommand.Create(openBackupFolderHandler.Execute);
 
         var backupsSrcList = new SourceList<string>();
         GetDriveSpaceStatsCmd = ReactiveCommand.CreateFromTask<string, DriveSpaceStats>(
@@ -144,12 +119,7 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
                         int.Parse(match.Groups["second"].Value)
                     ).ToString(CultureInfo.CurrentCulture)
                     : "N/A";
-                var compressionMethod = Path.GetExtension(path) switch
-                {
-                    ".7z" => "lzma2",
-                    ".zst" => "zstd",
-                    _ => "N/A",
-                };
+                var compressionMethod = match.Groups["compression"].Value;
 
                 return new ModBackupVm(
                     fileName,
@@ -327,10 +297,11 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
                         }
                         + SelectedCompressor switch
                         {
-                            Compressor.Lzma2 => ".7z",
-                            Compressor.Zstd => ".zst",
+                            Compressor.Lzma2 => ".lzma2",
+                            Compressor.Zstd => ".zstd",
                             _ => throw new ArgumentOutOfRangeException(),
-                        };
+                        }
+                        + ".7z";
                     _backupCancellationTokenSource = new CancellationTokenSource();
                     var anomalyPath = getAnomalyPathHandler.Execute()!.Replace(@"\\", "\\");
                     var gammaPath = getGammaPathHandler.Execute();
@@ -590,7 +561,7 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
     public ViewModelActivator Activator { get; }
 
     [GeneratedRegex(
-        @"^(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})-(?<hour>\d{2})-(?<minute>\d{2})-(?<second>\d{2})\+(?<gammaVersion>\d+)\.(?<gammaHash>[\d\w]+).(7z|zst)$"
+        @"^(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})-(?<hour>\d{2})-(?<minute>\d{2})-(?<second>\d{2})\+(?<gammaVersion>\d+)\.(?<gammaHash>[\d\w]+)\.(?<compression>(lzma2|zstd)).(7z)$"
     )]
     private static partial Regex MyRegex();
 }
