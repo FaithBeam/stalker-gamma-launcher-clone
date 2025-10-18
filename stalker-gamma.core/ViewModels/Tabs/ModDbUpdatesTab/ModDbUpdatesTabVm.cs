@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using DynamicData;
 using ReactiveUI;
 using stalker_gamma.core.Services;
+using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Factories;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
 using stalker_gamma.core.Utilities;
@@ -17,7 +18,11 @@ public partial class ModDbUpdatesTabVm : ViewModelBase, IActivatableViewModel
     private readonly ReadOnlyObservableCollection<UpdateableModVm> _updateableMods;
     private readonly ObservableAsPropertyHelper<bool> _isLoading;
 
-    public ModDbUpdatesTabVm(ModDb modDb, ProgressService progressService)
+    public ModDbUpdatesTabVm(
+        CurlService curlService,
+        ModListRecordFactory modListRecordFactory,
+        ProgressService progressService
+    )
     {
         Activator = new ViewModelActivator();
         var modListFile = Path.Join(_dir, "mods.txt");
@@ -34,16 +39,16 @@ public partial class ModDbUpdatesTabVm : ViewModelBase, IActivatableViewModel
             }
 
             var localModListRecords = File.ReadAllLines(modListFile)
-                .Select(x => ParseModListRecord.ParseLine(x, modDb))
+                .Select(x => modListRecordFactory.Create(x))
                 .Where(x => x is DownloadableRecord)
                 .Cast<DownloadableRecord>()
                 .ToList();
 
             var updatedRecords = (
-                await Curl.GetStringAsync("https://stalker-gamma.com/api/list?key=")
+                await curlService.GetStringAsync("https://stalker-gamma.com/api/list?key=")
             )
                 .Split("\n")
-                .Select(x => ParseModListRecord.ParseLine(x, modDb))
+                .Select(x => modListRecordFactory.Create(x))
                 .Where(x => x is DownloadableRecord)
                 .Cast<DownloadableRecord>()
                 .Where(onlineRec => ShouldUpdateModFilter(localModListRecords, onlineRec))

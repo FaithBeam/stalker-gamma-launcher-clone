@@ -9,6 +9,7 @@ namespace stalker_gamma.core.Services.GammaInstaller;
 public record LocalAndRemoteVersion(string? LocalVersion, string RemoteVersion);
 
 public class GammaInstaller(
+    CurlService curlService,
     ProgressService progressService,
     GitUtility gitUtility,
     AddonsAndSeparators.AddonsAndSeparators addonsAndSeparators,
@@ -19,6 +20,7 @@ public class GammaInstaller(
 )
 {
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
+    private readonly CurlService _curlService = curlService;
 
     /// <summary>
     /// Checks for G.A.M.M.A. updates.
@@ -29,7 +31,7 @@ public class GammaInstaller(
     )> CheckGammaData(bool useCurlImpersonate)
     {
         var onlineGammaVersion = (
-            await Curl.GetStringAsync(
+            await _curlService.GetStringAsync(
                 "https://raw.githubusercontent.com/Grokitach/Stalker_GAMMA/main/G.A.M.M.A_definition_version.txt",
                 useCurlImpersonate: useCurlImpersonate
             )
@@ -45,7 +47,7 @@ public class GammaInstaller(
         string? localMods = null;
         var modsFile = Path.Combine(_dir, "mods.txt");
         var remoteMods = (
-            await Curl.GetStringAsync(
+            await _curlService.GetStringAsync(
                 "https://stalker-gamma.com/api/list?key=",
                 useCurlImpersonate: useCurlImpersonate
             )
@@ -156,7 +158,7 @@ public class GammaInstaller(
             " Downloading GAMMA mods information from www.stalker-gamma.com"
         );
 
-        await Curl.DownloadFileAsync(
+        await _curlService.DownloadFileAsync(
             "https://stalker-gamma.com/api/list?key=",
             _dir,
             "mods.txt",
@@ -209,7 +211,7 @@ public class GammaInstaller(
             """
         );
 
-        await Curl.DownloadFileAsync(
+        await _curlService.DownloadFileAsync(
             "https://stalker-gamma.com/api/list?key=",
             _dir,
             "mods.txt",

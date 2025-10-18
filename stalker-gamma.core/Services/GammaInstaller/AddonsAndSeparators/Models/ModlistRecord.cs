@@ -4,74 +4,9 @@ using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
 
-public interface IModlistRecord { }
+public interface IModListRecord;
 
-public static class ParseModListRecord
-{
-    public static IModlistRecord ParseLine(string line, ModDb modDb)
-    {
-        var lineSplit = line.Split('\t');
-        var dlLink = lineSplit[0];
-
-        var instructions = lineSplit.ElementAtOrDefault(1);
-        var patch = lineSplit.ElementAtOrDefault(2);
-        var addonName = lineSplit.ElementAtOrDefault(3);
-        var modDbUrl = lineSplit.ElementAtOrDefault(4);
-        var zipName = lineSplit.ElementAtOrDefault(5);
-        var md5ModDb = lineSplit.ElementAtOrDefault(6);
-
-        if (lineSplit.Length == 1)
-        {
-            return new Separator { DlLink = dlLink };
-        }
-
-        if (dlLink.Contains("moddb"))
-        {
-            return new ModDbRecord(modDb)
-            {
-                DlLink = dlLink,
-                Instructions = instructions,
-                Patch = patch,
-                AddonName = addonName,
-                ModDbUrl = modDbUrl,
-                ZipName = zipName,
-                Md5ModDb = md5ModDb,
-            };
-        }
-
-        if (dlLink.Contains("github"))
-        {
-            return new GithubRecord
-            {
-                DlLink = dlLink,
-                Instructions = instructions,
-                Patch = patch,
-                AddonName = addonName,
-                ModDbUrl = modDbUrl,
-                ZipName = zipName,
-                Md5ModDb = md5ModDb,
-            };
-        }
-
-        if (dlLink.Contains("gamma_large_files"))
-        {
-            return new GammaLargeFile
-            {
-                DlLink = dlLink,
-                Instructions = instructions,
-                Patch = patch,
-                AddonName = addonName,
-                ModDbUrl = modDbUrl,
-                ZipName = zipName,
-                Md5ModDb = md5ModDb,
-            };
-        }
-
-        throw new Exception($"Invalid modlist record: {line}");
-    }
-}
-
-public class ModlistRecord : IModlistRecord
+public class ModListRecord : IModListRecord
 {
     public string? DlLink { get; set; }
     public string? Instructions { get; set; }
@@ -82,8 +17,9 @@ public class ModlistRecord : IModlistRecord
     public string? Md5ModDb { get; set; }
 }
 
-public abstract class DownloadableRecord : ModlistRecord
+public abstract class DownloadableRecord(CurlService curlService) : ModListRecord
 {
+    protected readonly CurlService CurlService = curlService;
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
     public abstract string Name { get; }
     public string? DlPath { get; set; }
@@ -126,7 +62,7 @@ public abstract class DownloadableRecord : ModlistRecord
         {
             throw new Exception($"{nameof(Dl)} is empty");
         }
-        await Curl.DownloadFileAsync(
+        await CurlService.DownloadFileAsync(
             Dl,
             Path.GetDirectoryName(DlPath) ?? ".",
             Path.GetFileName(DlPath),
@@ -268,7 +204,7 @@ public abstract class DownloadableRecord : ModlistRecord
     ];
 }
 
-public class Separator : ModlistRecord
+public class Separator : ModListRecord
 {
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
 
@@ -289,7 +225,7 @@ public class Separator : ModlistRecord
     }
 }
 
-public class GithubRecord : DownloadableRecord
+public class GithubRecord(CurlService curlService) : DownloadableRecord(curlService)
 {
     public override string Name => $"{DlLink!.Split('/')[4]}.zip";
 
@@ -302,12 +238,12 @@ public class GithubRecord : DownloadableRecord
         || await base.ShouldDownloadAsync(downloadsPath, checkMd5, forceGitDownload);
 }
 
-public class GammaLargeFile : DownloadableRecord
+public class GammaLargeFile(CurlService curlService) : DownloadableRecord(curlService)
 {
     public override string Name => $"{DlLink!.Split('/')[6]}.zip";
 }
 
-public class ModDbRecord(ModDb modDb) : DownloadableRecord
+public class ModDbRecord(ModDb modDb, CurlService curlService) : DownloadableRecord(curlService)
 {
     public override string Name => ZipName!;
 

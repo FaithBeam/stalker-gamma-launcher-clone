@@ -9,6 +9,7 @@ using stalker_gamma.core.Services;
 using stalker_gamma.core.Services.DowngradeModOrganizer;
 using stalker_gamma.core.Services.GammaInstaller;
 using stalker_gamma.core.Utilities;
+using stalker_gamma.core.ViewModels.Tabs.MainTab.Models;
 using stalker_gamma.core.ViewModels.Tabs.MainTab.Queries;
 using stalker_gamma.core.ViewModels.Tabs.Queries;
 
@@ -29,8 +30,10 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
     private string _versionString;
     private string _gammaVersionsToolTip = "";
     private string _modsVersionsToolTip = "";
+    private readonly ObservableAsPropertyHelper<bool> _toolsReady;
 
     public MainTabVm(
+        CurlService curlService,
         GammaInstaller gammaInstaller,
         ProgressService progressService,
         GlobalSettings globalSettings,
@@ -45,6 +48,33 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
         Activator = new ViewModelActivator();
         IsBusyService = isBusyService;
         _versionString = $"{versionService.GetVersion()} (Based on 6.7.0.0)";
+
+        ToolsReadyCommand = ReactiveCommand.CreateFromTask(async () =>
+            await Task.Run(() => new ToolsReadyRecord(curlService.Ready))
+        );
+        _toolsReady = ToolsReadyCommand
+            .Select(x => x.CurlReady)
+            .ToProperty(this, x => x.ToolsReady);
+        ToolsReadyCommand
+            .Where(x => !x.CurlReady)
+            .Subscribe(x =>
+            {
+                List<string> notRdy = [];
+                if (!x.CurlReady)
+                {
+                    notRdy.Add("Curl not found");
+                }
+                var notRdyTools = string.Join("\n", notRdy);
+                progressService.UpdateProgress(
+                    $"""
+
+                    TOOLS NOT READY
+                    {notRdyTools}
+
+                    Did you place the executable in the correct directory? .Grok's Modpack Installer
+                    """
+                );
+            });
 
         OpenUrlCmd = ReactiveCommand.Create<string>(OpenUrlUtility.OpenUrl);
 
@@ -77,47 +107,58 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
             )
         );
 
-        BackgroundCheckUpdatesCmd = ReactiveCommand.CreateFromTask(async () =>
-        {
-            var needUpdates = await gammaInstaller.CheckGammaData(
-                globalSettings.UseCurlImpersonate
-            );
-            var remoteGammaVersionHash = (
-                await getGitHubRepoCommits.ExecuteAsync(
-                    new GetGitHubRepoCommits.Query("Grokitach", "Stalker_GAMMA")
-                )
-            )
-                ?.FirstOrDefault()
-                ?[..9];
-            var localGammaVersionHash = (
-                await getStalkerGammaLastCommit.ExecuteAsync(
-                    new GetStalkerGammaLastCommit.Query(
-                        Path.Join(_dir, "resources", "Stalker_GAMMA")
+        BackgroundCheckUpdatesCmd = ReactiveCommand.CreateFromTask(() =>
+            Task.Run(async () =>
+            {
+                var needUpdates = await gammaInstaller.CheckGammaData(
+                    globalSettings.UseCurlImpersonate
+                );
+                var remoteGammaVersionHash = (
+                    await getGitHubRepoCommits.ExecuteAsync(
+                        new GetGitHubRepoCommits.Query("Grokitach", "Stalker_GAMMA")
                     )
                 )
-            )[..9];
-            GammaVersionToolTip = $"""
-            Remote Version: {needUpdates.gammaVersions.RemoteVersion} ({remoteGammaVersionHash})
-            Local Version: {needUpdates.gammaVersions.LocalVersion} ({localGammaVersionHash})
-            """;
-            ModVersionToolTip = string.Join(
-                Environment.NewLine,
-                await diffMods.Execute(new Queries.DiffMods.Query(needUpdates.modVersions))
-            );
-            NeedUpdate =
-                needUpdates.gammaVersions.LocalVersion != needUpdates.gammaVersions.RemoteVersion
-                || localGammaVersionHash != remoteGammaVersionHash;
-            NeedModDbUpdate =
-                needUpdates.modVersions.LocalVersion != needUpdates.modVersions.RemoteVersion;
-        });
+                    ?.FirstOrDefault()
+                    ?[..9];
+                var localGammaVersionHash = (
+                    await getStalkerGammaLastCommit.ExecuteAsync(
+                        new GetStalkerGammaLastCommit.Query(
+                            Path.Join(_dir, "resources", "Stalker_GAMMA")
+                        )
+                    )
+                )[..9];
+                GammaVersionToolTip = $"""
+                Remote Version: {needUpdates.gammaVersions.RemoteVersion} ({remoteGammaVersionHash})
+                Local Version: {needUpdates.gammaVersions.LocalVersion} ({localGammaVersionHash})
+                """;
+                ModVersionToolTip = string.Join(
+                    Environment.NewLine,
+                    await diffMods.Execute(new Queries.DiffMods.Query(needUpdates.modVersions))
+                );
+                NeedUpdate =
+                    needUpdates.gammaVersions.LocalVersion
+                        != needUpdates.gammaVersions.RemoteVersion
+                    || localGammaVersionHash != remoteGammaVersionHash;
+                NeedModDbUpdate =
+                    needUpdates.modVersions.LocalVersion != needUpdates.modVersions.RemoteVersion;
+            })
+        );
         BackgroundCheckUpdatesCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(x.Message)
+            progressService.UpdateProgress(
+                $"""
+
+                ERROR CHECKING FOR UPDATES
+                {x.Message}
+                {x.StackTrace}
+                """
+            )
         );
 
         var canInstallUpdateGamma = this.WhenAnyValue(
             x => x.IsBusyService.IsBusy,
             x => x.InGrokModDir,
-            selector: (isBusy, inGrokModDir) => !isBusy && inGrokModDir
+            x => x.ToolsReady,
+            selector: (isBusy, inGrokModDir, toolsReady) => !isBusy && inGrokModDir && toolsReady
         );
         InstallUpdateGamma = ReactiveCommand.CreateFromTask(
             async () =>
@@ -237,7 +278,14 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
 #endif
                     StringComparison.OrdinalIgnoreCase);
                 InGroksModPackDir.Execute().Subscribe();
-                BackgroundCheckUpdatesCmd.Execute().Subscribe();
+
+                ToolsReadyCommand
+                    .Execute()
+                    .Where(x => x.CurlReady)
+                    .Subscribe(_ =>
+                    {
+                        BackgroundCheckUpdatesCmd.Execute().Subscribe();
+                    });
             }
         );
     }
@@ -253,6 +301,8 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
         get => _needModDbUpdate;
         set => this.RaiseAndSetIfChanged(ref _needModDbUpdate, value);
     }
+
+    private bool ToolsReady => _toolsReady.Value;
 
     public bool InGrokModDir
     {
@@ -314,6 +364,7 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
         set => this.RaiseAndSetIfChanged(ref _versionString, value);
     }
 
+    private ReactiveCommand<Unit, ToolsReadyRecord> ToolsReadyCommand { get; }
     public ReactiveCommand<Unit, Unit> FirstInstallInitialization { get; }
     public ReactiveCommand<Unit, Unit> InstallUpdateGamma { get; }
     public ReactiveCommand<Unit, Unit> Play { get; }

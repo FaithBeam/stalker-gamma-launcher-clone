@@ -1,12 +1,12 @@
-using stalker_gamma.core.Utilities;
-
 namespace stalker_gamma.core.Services.GammaInstaller.Utilities;
 
-public static class Mirror
+public class MirrorService(CurlService curlService)
 {
-    public static async Task<string?> GetMirror()
+    private readonly CurlService _curlService = curlService;
+
+    public async Task<string?> GetMirror()
     {
-        var content = await Curl.GetStringAsync("https://stalker-gamma.com/api/mirrors");
+        var content = await _curlService.GetStringAsync("https://stalker-gamma.com/api/mirrors");
 
         var lines = content.Split('\n');
         var random = new Random();
