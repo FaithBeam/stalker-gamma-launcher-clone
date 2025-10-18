@@ -1,10 +1,15 @@
+using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Factories;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
-using stalker_gamma.core.Services.GammaInstaller.Utilities;
 
 namespace stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators;
 
-public class AddonsAndSeparators(ProgressService progressService, ModDb modDb)
+public class AddonsAndSeparators(
+    ProgressService progressService,
+    ModListRecordFactory modListRecordFactory
+)
 {
+    private readonly ModListRecordFactory _modListRecordFactory = modListRecordFactory;
+
     public async Task Install(
         string downloadsPath,
         string modsPaths,
@@ -37,7 +42,7 @@ public class AddonsAndSeparators(ProgressService progressService, ModDb modDb)
         }
 
         var files = (await File.ReadAllLinesAsync(modListFile))
-            .Select(x => ParseModListRecord.ParseLine(x, modDb))
+            .Select(x => _modListRecordFactory.Create(x))
             .ToList();
 
         var total = files.Count;

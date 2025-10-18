@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Reactive;
 using System.Reactive.Disposables;
 using DynamicData;
@@ -7,7 +8,26 @@ using stalker_gamma.core.Services;
 
 namespace stalker_gamma.core.ViewModels.Tabs.ModListTab;
 
-public class ModListTabVm : ViewModelBase, IActivatableViewModel
+public interface IModListTabVm
+{
+    ReactiveCommand<Unit, Unit> GetModListCmd { get; }
+    ReactiveCommand<Unit, Unit> SaveCmd { get; }
+    ObservableCollection<ModNode> ModsList { get; set; }
+    ViewModelActivator Activator { get; }
+    int ModsActive { get; set; }
+    int TotalMods { get; set; }
+    string ModsToolTip { get; set; }
+    IObservable<IReactivePropertyChangedEventArgs<IReactiveObject>> Changing { get; }
+    IObservable<IReactivePropertyChangedEventArgs<IReactiveObject>> Changed { get; }
+    IObservable<Exception> ThrownExceptions { get; }
+    IDisposable SuppressChangeNotifications();
+    bool AreChangeNotificationsEnabled();
+    IDisposable DelayChangeNotifications();
+    event PropertyChangingEventHandler? PropertyChanging;
+    event PropertyChangedEventHandler? PropertyChanged;
+}
+
+public class ModListTabVm : ViewModelBase, IActivatableViewModel, IModListTabVm
 {
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
     private int _modsActive;

@@ -3,17 +3,24 @@ using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma.core.Services.GammaInstaller.Utilities;
 
-public partial class ModDb(ProgressService progressService)
+public partial class ModDb(
+    ProgressService progressService,
+    CurlService curlService,
+    MirrorService mirrorService
+)
 {
+    private readonly CurlService _curlService = curlService;
+    private readonly MirrorService _mirrorService = mirrorService;
+
     /// <summary>
     /// Downloads from ModDB using curl.
     /// </summary>
     public async Task GetModDbLinkCurl(string url, string output, bool useCurlImpersonate = true)
     {
-        var content = await Curl.GetStringAsync(url);
+        var content = await _curlService.GetStringAsync(url);
         var link = WindowLocationRx().Match(content).Groups[1].Value;
         var linkSplit = link.Split('/');
-        var mirror = await Mirror.GetMirror();
+        var mirror = await _mirrorService.GetMirror();
         if (string.IsNullOrWhiteSpace(mirror))
         {
             progressService.UpdateProgress("Failed to get mirror from API");
@@ -30,7 +37,7 @@ public partial class ModDb(ProgressService progressService)
         {
             parentPath.Create();
         }
-        await Curl.DownloadFileAsync(
+        await _curlService.DownloadFileAsync(
             downloadLink,
             parentPath?.FullName ?? "./",
             Path.GetFileName(output),

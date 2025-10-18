@@ -16,6 +16,7 @@ using stalker_gamma.core.Services;
 using stalker_gamma.core.Services.DowngradeModOrganizer;
 using stalker_gamma.core.Services.GammaInstaller;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators;
+using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Factories;
 using stalker_gamma.core.Services.GammaInstaller.Anomaly;
 using stalker_gamma.core.Services.GammaInstaller.Mo2;
 using stalker_gamma.core.Services.GammaInstaller.ModpackSpecific;
@@ -27,6 +28,7 @@ using stalker_gamma.core.ViewModels.Tabs;
 using stalker_gamma.core.ViewModels.Tabs.BackupTab;
 using stalker_gamma.core.ViewModels.Tabs.GammaUpdatesTab;
 using stalker_gamma.core.ViewModels.Tabs.MainTab;
+using stalker_gamma.core.ViewModels.Tabs.MainTab.Commands;
 using stalker_gamma.core.ViewModels.Tabs.ModDbUpdatesTab;
 using stalker_gamma.core.ViewModels.Tabs.ModListTab;
 
@@ -52,6 +54,8 @@ public partial class App : Application
             {
                 s.UseMicrosoftDependencyResolver();
 
+                s.AddHttpClient();
+
                 s.AddSingleton(
                     new GlobalSettings
                     {
@@ -62,30 +66,35 @@ public partial class App : Application
                     }
                 );
 
-                s.AddSingleton<ProgressService>();
-                s.AddSingleton<VersionService>();
-                s.AddSingleton<IsBusyService>();
-                s.AddScoped<DowngradeModOrganizer>();
-                s.AddScoped<GitUtility>();
-                s.AddScoped<ModDb>();
-                s.AddScoped<AddonsAndSeparators>();
-                s.AddScoped<Anomaly>();
-                s.AddScoped<Mo2>();
-                s.AddScoped<ModpackSpecific>();
-                s.AddScoped<Shortcut>();
-                s.AddScoped<GammaInstaller>();
+                s.AddSingleton<ProgressService>()
+                    .AddSingleton<VersionService>()
+                    .AddSingleton<IsBusyService>();
 
-                s.RegisterCommonTabServices();
-                s.RegisterBackupTabServices();
-                s.RegisterMainTabServices();
-                s.RegisterGammaUpdatesTabServices();
+                s.AddScoped<DowngradeModOrganizer>()
+                    .AddScoped<IIsRanWithWineService, IsRanWithWineService>()
+                    .AddScoped<CurlService>()
+                    .AddScoped<MirrorService>()
+                    .AddScoped<GitUtility>()
+                    .AddScoped<ModDb>()
+                    .AddScoped<ModListRecordFactory>()
+                    .AddScoped<AddonsAndSeparators>()
+                    .AddScoped<Anomaly>()
+                    .AddScoped<Mo2>()
+                    .AddScoped<ModpackSpecific>()
+                    .AddScoped<Shortcut>()
+                    .AddScoped<GammaInstaller>();
 
-                s.AddScoped<MainTabVm>();
-                s.AddScoped<BackupTabVm>();
-                s.AddScoped<GammaUpdatesVm>();
-                s.AddScoped<ModListTabVm>();
-                s.AddScoped<ModDbUpdatesTabVm>();
-                s.AddScoped<MainWindowVm>();
+                s.RegisterCommonTabServices()
+                    .RegisterBackupTabServices()
+                    .RegisterMainTabServices()
+                    .RegisterGammaUpdatesTabServices();
+
+                s.AddScoped<IMainTabVm, MainTabVm>()
+                    .AddScoped<IBackupTabVm, BackupTabVm>()
+                    .AddScoped<IGammaUpdatesVm, GammaUpdatesVm>()
+                    .AddScoped<IModListTabVm, ModListTabVm>()
+                    .AddScoped<IModDbUpdatesTabVm, ModDbUpdatesTabVm>()
+                    .AddScoped<IMainWindowVm, MainWindowVm>();
 
                 var resolver = Locator.CurrentMutable;
                 resolver.InitializeSplat();
@@ -104,7 +113,7 @@ public partial class App : Application
         {
             desktop.MainWindow = new MainWindow
             {
-                DataContext = _container.GetRequiredService<MainWindowVm>(),
+                DataContext = _container.GetRequiredService<IMainWindowVm>(),
             };
         }
 

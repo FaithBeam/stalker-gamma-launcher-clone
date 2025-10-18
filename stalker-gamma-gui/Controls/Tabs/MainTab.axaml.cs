@@ -12,11 +12,12 @@ using stalker_gamma.core.ViewModels.Tabs.MainTab;
 
 namespace stalker_gamma_gui.Controls.Tabs;
 
-public partial class MainTab : ReactiveUserControl<MainTabVm>
+public partial class MainTabVm
+    : ReactiveUserControl<stalker_gamma.core.ViewModels.Tabs.MainTab.MainTabVm>
 {
     private bool _loaded;
 
-    public MainTab()
+    public MainTabVm()
     {
         InitializeComponent();
         this.WhenActivated(d =>

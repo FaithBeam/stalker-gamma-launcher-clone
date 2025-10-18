@@ -1,8 +1,8 @@
 ﻿using System.Text.RegularExpressions;
+using stalker_gamma.core.Services;
 using stalker_gamma.core.Services.GammaInstaller;
+using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Factories;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
-using stalker_gamma.core.Services.GammaInstaller.Utilities;
-using stalker_gamma.core.Utilities;
 using stalker_gamma.core.ViewModels.Tabs.ModDbUpdatesTab;
 
 namespace stalker_gamma.core.ViewModels.Tabs.MainTab.Queries;
@@ -11,22 +11,28 @@ public static partial class DiffMods
 {
     public sealed record Query(LocalAndRemoteVersion ModVersions);
 
-    public sealed partial class Handler(ModDb modDb)
+    public sealed partial class Handler(
+        CurlService curlService,
+        ModListRecordFactory modListRecordFactory
+    )
     {
+        private readonly CurlService _curlService = curlService;
+        private readonly ModListRecordFactory _modListRecordFactory = modListRecordFactory;
+
         public async Task<List<string>> Execute(Query q)
         {
             var localModListRecords =
                 q.ModVersions.LocalVersion?.Split(Environment.NewLine)
-                    .Select(x => ParseModListRecord.ParseLine(x, modDb))
+                    .Select(x => _modListRecordFactory.Create(x))
                     .Where(x => x is DownloadableRecord)
                     .Cast<DownloadableRecord>()
                     .ToList() ?? [];
 
             var updatedRecords = (
-                await Curl.GetStringAsync("https://stalker-gamma.com/api/list?key=")
+                await _curlService.GetStringAsync("https://stalker-gamma.com/api/list?key=")
             )
                 .Split("\n")
-                .Select(x => ParseModListRecord.ParseLine(x, modDb))
+                .Select(x => _modListRecordFactory.Create(x))
                 .Where(x => x is DownloadableRecord)
                 .Cast<DownloadableRecord>()
                 .Where(onlineRec => ShouldUpdateModFilter(localModListRecords, onlineRec))

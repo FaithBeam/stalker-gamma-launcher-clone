@@ -1,14 +1,20 @@
 using System.Text;
 using CliWrap;
 
-namespace stalker_gamma.core.Utilities;
+namespace stalker_gamma.core.Services;
 
-public static class Curl
+public class CurlService(IHttpClientFactory clientFactory)
 {
-    private static HttpClient? _httpClient;
+    private HttpClient? _httpClient = clientFactory.CreateClient();
     private static readonly string Dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
 
-    public static async Task DownloadFileAsync(
+    /// <summary>
+    /// Whether curl service found curl-impersonate-win.exe and can execute.
+    /// </summary>
+    public bool Ready { get; private set; } =
+        File.Exists(Path.Join(PathToCurlImpersonateWin, "Curl.exe"));
+
+    public async Task DownloadFileAsync(
         string url,
         string pathToDownloads,
         string fileName,
@@ -59,7 +65,7 @@ public static class Curl
         }
     }
 
-    public static async Task<string> GetStringAsync(
+    public async Task<string> GetStringAsync(
         string url,
         string extraCmds = "",
         bool useCurlImpersonate = true
