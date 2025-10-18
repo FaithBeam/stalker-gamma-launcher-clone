@@ -26,4 +26,7 @@
   <ItemGroup>
     <Content Include="resources\**" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Services\IsRanWithWine\" />
+  </ItemGroup>
 </Project>

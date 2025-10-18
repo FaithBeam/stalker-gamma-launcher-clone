@@ -13,11 +13,8 @@ public static class BackupTabRegistrations
             .AddScoped<Commands.CreateBackup.Handler>()
             .AddScoped<Commands.UpdateGammaBackupPathInAppSettings.Handler>()
             .AddScoped<Queries.GetEstimate.Handler>()
-            .AddScoped<Queries.GetAnomalyPath.Handler>()
-            .AddScoped<Queries.GetGammaPath.Handler>()
             .AddScoped<Queries.GetDriveSpaceStats.Handler>()
             .AddScoped<Queries.CheckModsList.Handler>()
-            .AddScoped<Queries.GetGammaBackupFolder.Handler>()
             .AddScoped<Queries.GetArchiveCompressionMethod.Handler>()
             .AddScoped<Queries.OpenBackupFolder.Handler>();
 }

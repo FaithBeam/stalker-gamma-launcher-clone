@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace stalker_gamma.core.ViewModels.Tabs.BackupTab.Queries;
+namespace stalker_gamma.core.ViewModels.Tabs.Queries;
 
 public static partial class GetAnomalyPath
 {

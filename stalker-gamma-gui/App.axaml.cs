@@ -28,6 +28,7 @@ using stalker_gamma.core.ViewModels.Tabs;
 using stalker_gamma.core.ViewModels.Tabs.BackupTab;
 using stalker_gamma.core.ViewModels.Tabs.GammaUpdatesTab;
 using stalker_gamma.core.ViewModels.Tabs.MainTab;
+using stalker_gamma.core.ViewModels.Tabs.MainTab.Commands;
 using stalker_gamma.core.ViewModels.Tabs.ModDbUpdatesTab;
 using stalker_gamma.core.ViewModels.Tabs.ModListTab;
 
@@ -70,6 +71,7 @@ public partial class App : Application
                     .AddSingleton<IsBusyService>();
 
                 s.AddScoped<DowngradeModOrganizer>()
+                    .AddScoped<IIsRanWithWineService, IsRanWithWineService>()
                     .AddScoped<CurlService>()
                     .AddScoped<MirrorService>()
                     .AddScoped<GitUtility>()
@@ -87,12 +89,12 @@ public partial class App : Application
                     .RegisterMainTabServices()
                     .RegisterGammaUpdatesTabServices();
 
-                s.AddScoped<MainTabVm>()
-                    .AddScoped<BackupTabVm>()
-                    .AddScoped<GammaUpdatesVm>()
-                    .AddScoped<ModListTabVm>()
-                    .AddScoped<ModDbUpdatesTabVm>()
-                    .AddScoped<MainWindowVm>();
+                s.AddScoped<IMainTabVm, MainTabVm>()
+                    .AddScoped<IBackupTabVm, BackupTabVm>()
+                    .AddScoped<IGammaUpdatesVm, GammaUpdatesVm>()
+                    .AddScoped<IModListTabVm, ModListTabVm>()
+                    .AddScoped<IModDbUpdatesTabVm, ModDbUpdatesTabVm>()
+                    .AddScoped<IMainWindowVm, MainWindowVm>();
 
                 var resolver = Locator.CurrentMutable;
                 resolver.InitializeSplat();
@@ -111,7 +113,7 @@ public partial class App : Application
         {
             desktop.MainWindow = new MainWindow
             {
-                DataContext = _container.GetRequiredService<MainWindowVm>(),
+                DataContext = _container.GetRequiredService<IMainWindowVm>(),
             };
         }
 

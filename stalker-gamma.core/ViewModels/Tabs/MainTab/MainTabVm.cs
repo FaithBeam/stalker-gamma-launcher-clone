@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -9,13 +10,51 @@ using stalker_gamma.core.Services;
 using stalker_gamma.core.Services.DowngradeModOrganizer;
 using stalker_gamma.core.Services.GammaInstaller;
 using stalker_gamma.core.Utilities;
+using stalker_gamma.core.ViewModels.Tabs.MainTab.Commands;
 using stalker_gamma.core.ViewModels.Tabs.MainTab.Models;
 using stalker_gamma.core.ViewModels.Tabs.MainTab.Queries;
 using stalker_gamma.core.ViewModels.Tabs.Queries;
 
 namespace stalker_gamma.core.ViewModels.Tabs.MainTab;
 
-public class MainTabVm : ViewModelBase, IActivatableViewModel
+public interface IMainTabVm
+{
+    bool NeedUpdate { get; set; }
+    bool NeedModDbUpdate { get; set; }
+    bool InGrokModDir { get; set; }
+    string GammaVersionToolTip { get; set; }
+    string ModVersionToolTip { get; set; }
+    IsBusyService IsBusyService { get; }
+    Interaction<string, Unit> AppendLineInteraction { get; }
+    double Progress { get; }
+    bool CheckMd5 { get; set; }
+    bool PreserveUserLtx { get; set; }
+    bool ForceGitDownload { get; set; }
+    bool ForceZipExtraction { get; set; }
+    bool DeleteReshadeDlls { get; set; }
+    string VersionString { get; set; }
+    bool IsRanWithWine { get; }
+    ReactiveCommand<Unit, bool> IsRanWithWineCmd { get; set; }
+    ReactiveCommand<Unit, string> AddFoldersToWinDefenderExclusionCmd { get; set; }
+    ReactiveCommand<Unit, Unit> FirstInstallInitialization { get; }
+    ReactiveCommand<Unit, Unit> InstallUpdateGamma { get; }
+    ReactiveCommand<Unit, Unit> Play { get; }
+    ReactiveCommand<string, Unit> OpenUrlCmd { get; }
+    ReactiveCommand<Unit, Unit> DowngradeModOrganizerCmd { get; }
+    ReactiveCommand<Unit, Unit> BackgroundCheckUpdatesCmd { get; }
+    ReactiveCommand<Unit, Unit> InGroksModPackDir { get; }
+    ViewModelActivator Activator { get; }
+    IObservable<IReactivePropertyChangedEventArgs<IReactiveObject>> Changing { get; }
+    IObservable<IReactivePropertyChangedEventArgs<IReactiveObject>> Changed { get; }
+    IObservable<Exception> ThrownExceptions { get; }
+    IDisposable SuppressChangeNotifications();
+    bool AreChangeNotificationsEnabled();
+    IDisposable DelayChangeNotifications();
+    event PropertyChangingEventHandler? PropertyChanging;
+    event PropertyChangedEventHandler? PropertyChanged;
+}
+
+public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
 {
     private bool _checkMd5 = true;
     private bool _forceGitDownload = true;
@@ -31,8 +70,14 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
     private string _gammaVersionsToolTip = "";
     private string _modsVersionsToolTip = "";
     private readonly ObservableAsPropertyHelper<bool> _toolsReady;
+    private readonly ObservableAsPropertyHelper<bool> _isRanWithWine;
 
     public MainTabVm(
+        IIsRanWithWineService isRanWithWineService,
+        AddFoldersToWinDefenderExclusion.Handler addFoldersToWinDefenderExclusion,
+        GetAnomalyPath.Handler getAnomalyPathHandler,
+        GetGammaPath.Handler getGammaPathHandler,
+        GetGammaBackupFolder.Handler getGammaBackupFolderHandler,
         CurlService curlService,
         GammaInstaller gammaInstaller,
         ProgressService progressService,
@@ -48,6 +93,20 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
         Activator = new ViewModelActivator();
         IsBusyService = isBusyService;
         _versionString = $"{versionService.GetVersion()} (Based on 6.7.0.0)";
+
+        IsRanWithWineCmd = ReactiveCommand.CreateFromTask(async () =>
+            await Task.Run(isRanWithWineService.IsRanWithWine)
+        );
+        IsRanWithWineCmd.ThrownExceptions.Subscribe(x =>
+            progressService.UpdateProgress(
+                $"""
+
+                ERROR DETERMINING IF RAN WITH WINE
+                {x}
+                """
+            )
+        );
+        _isRanWithWine = IsRanWithWineCmd.ToProperty(this, x => x.IsRanWithWine);
 
         ToolsReadyCommand = ReactiveCommand.CreateFromTask(async () =>
             await Task.Run(() => new ToolsReadyRecord(curlService.Ready))
@@ -77,6 +136,45 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
             });
 
         OpenUrlCmd = ReactiveCommand.Create<string>(OpenUrlUtility.OpenUrl);
+
+        var canAddFoldersToWinDefenderExclusion = this.WhenAnyValue(
+            x => x.IsRanWithWine,
+            selector: ranWithWine => !ranWithWine
+        );
+        AddFoldersToWinDefenderExclusionCmd = ReactiveCommand.CreateFromTask(
+            async () =>
+            {
+                var anomalyPath = getAnomalyPathHandler.Execute()!.Replace(@"\\", "\\");
+                var gammaPath = getGammaPathHandler.Execute();
+                var gammaBackupPath = getGammaBackupFolderHandler.Execute();
+                await Task.Run(() =>
+                    addFoldersToWinDefenderExclusion.Execute(
+                        new AddFoldersToWinDefenderExclusion.Command(
+                            anomalyPath,
+                            gammaPath,
+                            gammaBackupPath
+                        )
+                    )
+                );
+                return $"""
+
+                Added folder exclusions to Microsoft Defender for:
+                {anomalyPath}
+                {gammaPath}
+                {gammaBackupPath}
+                """;
+            },
+            canAddFoldersToWinDefenderExclusion
+        );
+        AddFoldersToWinDefenderExclusionCmd.Subscribe(progressService.UpdateProgress);
+        AddFoldersToWinDefenderExclusionCmd.ThrownExceptions.Subscribe(x =>
+            progressService.UpdateProgress(
+                $"""
+
+                ERROR ADDING EXCLUSIONS TO MICROSOFT DEFENDER 
+                """
+            )
+        );
 
         var mo2Path = Path.Join(
             Path.GetDirectoryName(AppContext.BaseDirectory),
@@ -279,6 +377,8 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
                     StringComparison.OrdinalIgnoreCase);
                 InGroksModPackDir.Execute().Subscribe();
 
+                IsRanWithWineCmd.Execute().Subscribe();
+
                 ToolsReadyCommand
                     .Execute()
                     .Where(x => x.CurlReady)
@@ -364,6 +464,10 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel
         set => this.RaiseAndSetIfChanged(ref _versionString, value);
     }
 
+    public bool IsRanWithWine => _isRanWithWine.Value;
+
+    public ReactiveCommand<Unit, bool> IsRanWithWineCmd { get; set; }
+    public ReactiveCommand<Unit, string> AddFoldersToWinDefenderExclusionCmd { get; set; }
     private ReactiveCommand<Unit, ToolsReadyRecord> ToolsReadyCommand { get; }
     public ReactiveCommand<Unit, Unit> FirstInstallInitialization { get; }
     public ReactiveCommand<Unit, Unit> InstallUpdateGamma { get; }

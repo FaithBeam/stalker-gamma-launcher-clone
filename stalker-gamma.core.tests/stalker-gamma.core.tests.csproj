@@ -3,7 +3,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <RootNamespace>stalker_gamma.core.tests</RootNamespace>
     <LangVersion>latest</LangVersion>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
@@ -13,17 +13,24 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.0" />
+    <PackageReference Include="NSubstitute" Version="5.3.0" />
+    <PackageReference Include="NSubstitute.Analyzers.CSharp" Version="1.0.17">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="NUnit" Version="4.4.0" />
     <PackageReference Include="NUnit.Analyzers" Version="4.10.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="NUnit3TestAdapter" Version="5.2.0" />
+    <PackageReference Include="System.Reactive" Version="6.1.0" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="NUnit.Framework" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\stalker-gamma-gui\stalker-gamma-gui.csproj" />
     <ProjectReference Include="..\stalker-gamma.core\stalker-gamma.core.csproj" />
   </ItemGroup>
   <ItemGroup>

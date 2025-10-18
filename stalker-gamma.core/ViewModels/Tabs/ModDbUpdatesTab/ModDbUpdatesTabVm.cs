@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Text.RegularExpressions;
@@ -12,7 +13,23 @@ using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma.core.ViewModels.Tabs.ModDbUpdatesTab;
 
-public partial class ModDbUpdatesTabVm : ViewModelBase, IActivatableViewModel
+public interface IModDbUpdatesTabVm
+{
+    bool IsLoading { get; }
+    ReactiveCommand<Unit, Unit> GetOnlineModsCmd { get; }
+    ReadOnlyObservableCollection<UpdateableModVm> UpdateableMods { get; }
+    ViewModelActivator Activator { get; }
+    IObservable<IReactivePropertyChangedEventArgs<IReactiveObject>> Changing { get; }
+    IObservable<IReactivePropertyChangedEventArgs<IReactiveObject>> Changed { get; }
+    IObservable<Exception> ThrownExceptions { get; }
+    IDisposable SuppressChangeNotifications();
+    bool AreChangeNotificationsEnabled();
+    IDisposable DelayChangeNotifications();
+    event PropertyChangingEventHandler? PropertyChanging;
+    event PropertyChangedEventHandler? PropertyChanged;
+}
+
+public partial class ModDbUpdatesTabVm : ViewModelBase, IActivatableViewModel, IModDbUpdatesTabVm
 {
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
     private readonly ReadOnlyObservableCollection<UpdateableModVm> _updateableMods;
