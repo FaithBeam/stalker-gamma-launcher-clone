@@ -171,7 +171,7 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
             progressService.UpdateProgress(
                 $"""
 
-                ERROR ADDING EXCLUSIONS TO MICROSOFT DEFENDER 
+                User either denied UAC prompt or there was an error.
                 """
             )
         );
