@@ -69,23 +69,23 @@ public class GammaInstaller(
     public async Task FirstInstallInitialization()
     {
         // Enable long paths on windows
-        if (OperatingSystem.IsWindows())
-        {
-            try
-            {
-                using var key = Registry.LocalMachine.OpenSubKey(
-                    @"SYSTEM\CurrentControlSet\Control\FileSystem",
-                    true
-                );
-                key?.SetValue("LongPathsEnabled", 1, RegistryValueKind.DWord);
-            }
-            catch (Exception ex)
-            {
-                progressService.UpdateProgress(
-                    $"Failed to enable long paths: {ex.Message}. Please run as administrator."
-                );
-            }
-        }
+        // if (OperatingSystem.IsWindows())
+        // {
+        //     try
+        //     {
+        //         using var key = Registry.LocalMachine.OpenSubKey(
+        //             @"SYSTEM\CurrentControlSet\Control\FileSystem",
+        //             true
+        //         );
+        //         key?.SetValue("LongPathsEnabled", 1, RegistryValueKind.DWord);
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         progressService.UpdateProgress(
+        //             $"Failed to enable long paths: {ex.Message}. Please run as administrator."
+        //         );
+        //     }
+        // }
 
         progressService.UpdateProgress(
             """

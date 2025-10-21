@@ -51,6 +51,7 @@ internal class MainTabVmBuilder
         var progressService = new ProgressService();
         var gitUtility = new GitUtility(progressService);
         var ranWithWine = IsRanWithWineService;
+        var enableLongPathsOnWindows = new EnableLongPathsOnWindows.Handler();
         var addFoldersToWinDefenderExclusion = new AddFoldersToWinDefenderExclusion.Handler();
         var getAnomalyPathHandler = new GetAnomalyPath.Handler();
         var getGammaPathHandler = new GetGammaPath.Handler();
@@ -82,6 +83,7 @@ internal class MainTabVmBuilder
         var getGitHubRepoCommitsHandler = new GetGitHubRepoCommits.Handler();
         var vm = new ViewModels.Tabs.MainTab.MainTabVm(
             ranWithWine,
+            enableLongPathsOnWindows,
             addFoldersToWinDefenderExclusion,
             getAnomalyPathHandler,
             getGammaPathHandler,

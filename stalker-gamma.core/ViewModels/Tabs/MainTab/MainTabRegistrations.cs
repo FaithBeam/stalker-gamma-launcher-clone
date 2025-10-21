@@ -9,5 +9,6 @@ public static class MainTabRegistrations
     public static IServiceCollection RegisterMainTabServices(this IServiceCollection services) =>
         services
             .AddScoped<DiffMods.Handler>()
-            .AddScoped<AddFoldersToWinDefenderExclusion.Handler>();
+            .AddScoped<AddFoldersToWinDefenderExclusion.Handler>()
+            .AddScoped<EnableLongPathsOnWindows.Handler>();
 }

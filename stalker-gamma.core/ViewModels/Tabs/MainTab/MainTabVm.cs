@@ -36,7 +36,7 @@ public interface IMainTabVm
     bool IsRanWithWine { get; }
     ReactiveCommand<Unit, bool> IsRanWithWineCmd { get; set; }
     ReactiveCommand<Unit, string> AddFoldersToWinDefenderExclusionCmd { get; set; }
-    ReactiveCommand<Unit, Unit> FirstInstallInitialization { get; }
+    CombinedReactiveCommand<Unit, Unit> FirstInstallInitialization { get; }
     ReactiveCommand<Unit, Unit> InstallUpdateGamma { get; }
     ReactiveCommand<Unit, Unit> Play { get; }
     ReactiveCommand<string, Unit> OpenUrlCmd { get; }
@@ -74,6 +74,7 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
 
     public MainTabVm(
         IIsRanWithWineService isRanWithWineService,
+        EnableLongPathsOnWindows.Handler enableLongPathsOnWindows,
         AddFoldersToWinDefenderExclusion.Handler addFoldersToWinDefenderExclusion,
         GetAnomalyPath.Handler getAnomalyPathHandler,
         GetGammaPath.Handler getGammaPathHandler,
@@ -137,6 +138,18 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
 
         OpenUrlCmd = ReactiveCommand.Create<string>(OpenUrlUtility.OpenUrl);
 
+        EnableLongPathsOnWindowsCmd = ReactiveCommand.CreateFromTask(async () =>
+            await Task.Run(() =>
+            {
+                if (IsRanWithWine)
+                {
+                    return;
+                }
+                enableLongPathsOnWindows.Execute();
+                progressService.UpdateProgress("Enabled long paths via registry");
+            })
+        );
+
         var canAddFoldersToWinDefenderExclusion = this.WhenAnyValue(
             x => x.IsRanWithWine,
             selector: ranWithWine => !ranWithWine
@@ -187,14 +200,19 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
             x => x.InGrokModDir,
             selector: (isBusy, inGrokModDir) => !isBusy && File.Exists(mo2Path) && inGrokModDir
         );
-        FirstInstallInitialization = ReactiveCommand.CreateFromTask(
-            async () =>
-            {
-                IsBusyService.IsBusy = true;
-                await gammaInstaller.FirstInstallInitialization();
-                IsBusyService.IsBusy = false;
-            },
-            canFirstInstallInitialization
+        FirstInstallInitialization = ReactiveCommand.CreateCombined(
+            [
+                EnableLongPathsOnWindowsCmd,
+                ReactiveCommand.CreateFromTask(
+                    async () =>
+                    {
+                        IsBusyService.IsBusy = true;
+                        await gammaInstaller.FirstInstallInitialization();
+                        IsBusyService.IsBusy = false;
+                    },
+                    canFirstInstallInitialization
+                ),
+            ]
         );
         FirstInstallInitialization.ThrownExceptions.Subscribe(x =>
             progressService.UpdateProgress(
@@ -467,9 +485,10 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
     public bool IsRanWithWine => _isRanWithWine.Value;
 
     public ReactiveCommand<Unit, bool> IsRanWithWineCmd { get; set; }
+    public ReactiveCommand<Unit, Unit> EnableLongPathsOnWindowsCmd { get; set; }
     public ReactiveCommand<Unit, string> AddFoldersToWinDefenderExclusionCmd { get; set; }
     private ReactiveCommand<Unit, ToolsReadyRecord> ToolsReadyCommand { get; }
-    public ReactiveCommand<Unit, Unit> FirstInstallInitialization { get; }
+    public CombinedReactiveCommand<Unit, Unit> FirstInstallInitialization { get; }
     public ReactiveCommand<Unit, Unit> InstallUpdateGamma { get; }
     public ReactiveCommand<Unit, Unit> Play { get; }
     public ReactiveCommand<string, Unit> OpenUrlCmd { get; }
