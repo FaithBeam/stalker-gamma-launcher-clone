@@ -14,9 +14,9 @@ A clone of Grokitach's Stalker GAMMA Launcher with WINE compatibility and extra 
 2. Extract the zip in the same directory as the `.Grok's Modpack Installer` folder so `stalker-gamma-gui.exe` is next to `G.A.M.M.A. Launcher.exe`
 3. Run `stalker-gamma-gui.exe`
 4. First install initialization
-5. Install / Update GAMMA (x2)
-    - A working install takes two installs. 2nd install you can deselect force git download and force zip extraction
-6. Play
+5. Enable long paths
+6. Install / Update GAMMA
+7. Play
 
 ### Linux
 
