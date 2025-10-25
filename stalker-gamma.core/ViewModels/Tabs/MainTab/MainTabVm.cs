@@ -450,6 +450,7 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
         DowngradeModOrganizerCmd.ThrownExceptions.Subscribe(x =>
             progressService.UpdateProgress(x.Message)
         );
+        DowngradeModOrganizerCmd.Subscribe(_ => IsMo2VersionDowngradedCmd.Execute().Subscribe());
 
         AppendLineInteraction = new Interaction<string, Unit>();
 
