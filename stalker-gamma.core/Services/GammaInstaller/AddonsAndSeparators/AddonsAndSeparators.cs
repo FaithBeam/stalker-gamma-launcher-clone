@@ -1,3 +1,5 @@
+using System.Linq.Expressions;
+using System.Threading.Channels;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Factories;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
 
@@ -49,63 +51,108 @@ public class AddonsAndSeparators(
 
         var counter = 0;
 
-        foreach (var file in files)
+        var summedFiles = files.Select(f => new { Count = ++counter, File = f }).ToList();
+
+        var separators = summedFiles
+            .Where(f => f.File is Separator)
+            .Select(f => new { f.Count, File = f.File as Separator })
+            .Select(f => new
+            {
+                f.Count,
+                f.File,
+                Action = (Action)(
+                    () =>
+                    {
+                        progressService.UpdateProgress(
+                            $"""
+                            _______________ {f.File?.Name} separator _______________
+                            Creating MO2 separator in {Path.Join(modsPaths, f.File?.FolderName)}
+                            """
+                        );
+                        f.File?.WriteMetaIni(modsPaths, counter);
+                        progressService.UpdateProgress(" ");
+                    }
+                ),
+            });
+        var downloadableRecords = summedFiles
+            .Where(f => f.File is DownloadableRecord)
+            .Select(f => new { f.Count, File = f.File as DownloadableRecord })
+            .Select(f => new
+            {
+                f.Count,
+                f.File,
+                Dl = (Func<bool>)(
+                    () =>
+                    {
+                        if (
+                            !f.File!.ShouldDownloadAsync(downloadsPath, checkMd5, forceGitDownload)
+                                .GetAwaiter()
+                                .GetResult()
+                        )
+                        {
+                            return false;
+                        }
+
+                        progressService.UpdateProgress(
+                            $"_______________ {f.File.AddonName} _______________"
+                        );
+                        
+                        if (
+                            !f
+                                .File.DownloadAsync(downloadsPath, useCurlImpersonate)
+                                .GetAwaiter()
+                                .GetResult()
+                            || !f
+                                .File.ShouldDownloadAsync(downloadsPath, checkMd5, forceGitDownload)
+                                .GetAwaiter()
+                                .GetResult()
+                        )
+                        {
+                            return true;
+                        }
+                        
+                        progressService.UpdateProgress(
+                            $"Md5 mismatch in downloaded file: {f.File.DlPath}. Downloading again."
+                        );
+                        f.File.DownloadAsync(downloadsPath, useCurlImpersonate)
+                            .GetAwaiter()
+                            .GetResult();
+
+                        return true;
+                    }
+                ),
+                Extract = (Action)(
+                    () =>
+                    {
+                        if (forceZipExtraction)
+                        {
+                            Extract(f.File!, modsPaths, total, counter);
+                        }
+                    }
+                ),
+            });
+
+        foreach (var separator in separators)
         {
-            counter++;
-
-            if (file is Separator separator)
-            {
-                progressService.UpdateProgress(
-                    $"""
-                    _______________ {separator.Name} separator _______________
-                    Creating MO2 separator in {Path.Join(modsPaths, separator.FolderName)}
-                    """
-                );
-                separator.WriteMetaIni(modsPaths, counter);
-                progressService.UpdateProgress(" ");
-                continue;
-            }
-
-            var downloadableRecord = (DownloadableRecord)file;
-            var extract = false;
-
-            if (
-                downloadableRecord
-                    .ShouldDownloadAsync(downloadsPath, checkMd5, forceGitDownload)
-                    .GetAwaiter()
-                    .GetResult()
-            )
-            {
-                progressService.UpdateProgress(
-                    $"_______________ {downloadableRecord.AddonName} _______________"
-                );
-                if (
-                    downloadableRecord
-                        .DownloadAsync(downloadsPath, useCurlImpersonate)
-                        .GetAwaiter()
-                        .GetResult()
-                    && downloadableRecord
-                        .ShouldDownloadAsync(downloadsPath, checkMd5, forceGitDownload)
-                        .GetAwaiter()
-                        .GetResult()
-                )
-                {
-                    progressService.UpdateProgress(
-                        $"Md5 mismatch in downloaded file: {downloadableRecord.DlPath}. Downloading again."
-                    );
-                    downloadableRecord
-                        .DownloadAsync(downloadsPath, useCurlImpersonate)
-                        .GetAwaiter()
-                        .GetResult();
-                }
-                extract = true;
-            }
-
-            if (forceZipExtraction || extract)
-            {
-                Extract(downloadableRecord, modsPaths, total, counter);
-            }
+            separator.Action();
         }
+
+        var dlChannel = Channel.CreateUnbounded<Action>();
+        var groupedDls = downloadableRecords.GroupBy(x => x.File!.DlLink);
+        _ = Task.Run(async () =>
+        {
+            foreach (var groupedDl in groupedDls)
+            {
+                groupedDl.First().Dl();
+
+                foreach (var inner in groupedDl)
+                {
+                    await dlChannel.Writer.WriteAsync(inner.Extract);
+                }
+            }
+            
+            dlChannel.Writer.Complete();
+        });
     }
 
     private void Extract(
