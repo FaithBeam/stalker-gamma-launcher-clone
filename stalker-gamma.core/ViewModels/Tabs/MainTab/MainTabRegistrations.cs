@@ -10,6 +10,7 @@ public static class MainTabRegistrations
         services
             .AddScoped<DiffMods.Handler>()
             .AddScoped<IIsMo2VersionDowngraded, IsMo2VersionDowngraded.Handler>()
+            .AddScoped<IIsMo2Initialized, IsMo2Initialized.Handler>()
             .AddScoped<AddFoldersToWinDefenderExclusion.Handler>()
             .AddScoped<EnableLongPathsOnWindows.Handler>();
 }

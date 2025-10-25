@@ -55,6 +55,29 @@ public partial class MainTabVm
 
             ViewModel.AppendLineInteraction.RegisterHandler(AppendLineHandler);
 
+            this.WhenAnyValue(
+                    x => x.ViewModel!.IsMo2Initialized,
+                    selector: (mo2Initialized) => mo2Initialized
+                )
+                .Subscribe(x =>
+                {
+                    if (!x)
+                    {
+                        ToolTip.SetTip(
+                            PlayBtn,
+                            "You must initialize Mod Organizer before you can play"
+                        );
+                        ToolTip.SetShowOnDisabled(PlayBtn, true);
+                        FirstInstallInitializeBtn.Classes.Add("Strobing");
+                    }
+                    else
+                    {
+                        ToolTip.SetTip(PlayBtn, null);
+                        ToolTip.SetShowOnDisabled(PlayBtn, false);
+                        FirstInstallInitializeBtn.Classes.Remove("Strobing");
+                    }
+                });
+
             // Strobe the downgrade mod organizer button when ran with WINE and mo2 hasn't been downgraded
             this.WhenAnyValue(
                     x => x.ViewModel!.IsMo2VersionDowngraded,
