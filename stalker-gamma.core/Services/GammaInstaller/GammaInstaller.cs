@@ -27,7 +27,7 @@ public class GammaInstaller(
     public async Task<(
         LocalAndRemoteVersion gammaVersions,
         LocalAndRemoteVersion modVersions
-        )> CheckGammaData(bool useCurlImpersonate)
+    )> CheckGammaData(bool useCurlImpersonate)
     {
         var onlineGammaVersion = (
             await _curlService.GetStringAsync(
@@ -47,11 +47,11 @@ public class GammaInstaller(
         string? localMods = null;
         var modsFile = Path.Combine(_dir, "mods.txt");
         var remoteMods = (
-                await _curlService.GetStringAsync(
-                    "https://stalker-gamma.com/api/list?key=",
-                    useCurlImpersonate: useCurlImpersonate
-                )
+            await _curlService.GetStringAsync(
+                "https://stalker-gamma.com/api/list?key=",
+                useCurlImpersonate: useCurlImpersonate
             )
+        )
             .Trim()
             .ReplaceLineEndings();
         if (File.Exists(modsFile))
@@ -228,10 +228,14 @@ public class GammaInstaller(
             "https://github.com/Grokitach/teivaz_anomaly_gunslinger",
             "main"
         );
-        
+
         // prevent the user from needing to install / update gamma twice
-        var curStalkerGammaHash =
-            (await gitUtility.RunGitCommandObs(Path.Join(_dir, "resources", "Stalker_GAMMA"), "rev-parse HEAD")).Trim();
+        var curStalkerGammaHash = (
+            await gitUtility.RunGitCommandObs(
+                Path.Join(_dir, "resources", "Stalker_GAMMA"),
+                "rev-parse HEAD"
+            )
+        ).Trim();
         if (curStalkerGammaHash == "85f6543ac9ea4afb7fdd4264f155d44db9b7afe3")
         {
             await DownloadGammaData();
