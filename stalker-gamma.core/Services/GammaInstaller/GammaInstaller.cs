@@ -207,52 +207,62 @@ public class GammaInstaller(
     /// </summary>
     private async Task DownloadGammaData()
     {
-        progressService.UpdateProgress(" Updating Github Repositories");
-        const string branch = "main";
-        await gitUtility.UpdateGitRepo(
-            _dir,
-            "Stalker_GAMMA",
-            "https://github.com/Grokitach/Stalker_GAMMA",
-            branch
-        );
-
-        await gitUtility.UpdateGitRepo(
-            _dir,
-            "gamma_large_files_v2",
-            "https://github.com/Grokitach/gamma_large_files_v2",
-            "main"
-        );
-        await gitUtility.UpdateGitRepo(
-            _dir,
-            "teivaz_anomaly_gunslinger",
-            "https://github.com/Grokitach/teivaz_anomaly_gunslinger",
-            "main"
-        );
-
-        // prevent the user from needing to install / update gamma twice
-        var curStalkerGammaHash = (
-            await gitUtility.RunGitCommandObs(
-                Path.Join(_dir, "resources", "Stalker_GAMMA"),
-                "rev-parse HEAD"
-            )
-        ).Trim();
-        if (curStalkerGammaHash == "85f6543ac9ea4afb7fdd4264f155d44db9b7afe3")
+        while (true)
         {
-            await DownloadGammaData();
-        }
+            progressService.UpdateProgress(" Updating Github Repositories");
+            const string branch = "main";
+            await gitUtility.UpdateGitRepo(
+                _dir,
+                "Stalker_GAMMA",
+                "https://github.com/Grokitach/Stalker_GAMMA",
+                branch
+            );
 
-        progressService.UpdateProgress(
-            " Installing the modpack definition data (installer can hang, be patient)"
-        );
-        DirUtils.CopyDirectory(
-            Path.Combine(_dir, "resources", "Stalker_GAMMA", "G.A.M.M.A"),
-            Path.Combine(_dir, "G.A.M.M.A.")
-        );
-        File.Copy(
-            Path.Combine(_dir, "resources", "Stalker_GAMMA", "G.A.M.M.A_definition_version.txt"),
-            Path.Combine(_dir, "version.txt"),
-            true
-        );
-        progressService.UpdateProgress(" done");
+            await gitUtility.UpdateGitRepo(
+                _dir,
+                "gamma_large_files_v2",
+                "https://github.com/Grokitach/gamma_large_files_v2",
+                "main"
+            );
+            await gitUtility.UpdateGitRepo(
+                _dir,
+                "teivaz_anomaly_gunslinger",
+                "https://github.com/Grokitach/teivaz_anomaly_gunslinger",
+                "main"
+            );
+
+            // prevent the user from needing to install / update gamma twice
+            var curStalkerGammaHash = (
+                await gitUtility.RunGitCommandObs(
+                    Path.Join(_dir, "resources", "Stalker_GAMMA"),
+                    "rev-parse HEAD"
+                )
+            ).Trim();
+            if (curStalkerGammaHash == "85f6543ac9ea4afb7fdd4264f155d44db9b7afe3")
+            {
+                continue;
+            }
+
+            progressService.UpdateProgress(
+                " Installing the modpack definition data (installer can hang, be patient)"
+            );
+            DirUtils.CopyDirectory(
+                Path.Combine(_dir, "resources", "Stalker_GAMMA", "G.A.M.M.A"),
+                Path.Combine(_dir, "G.A.M.M.A.")
+            );
+            File.Copy(
+                Path.Combine(
+                    _dir,
+                    "resources",
+                    "Stalker_GAMMA",
+                    "G.A.M.M.A_definition_version.txt"
+                ),
+                Path.Combine(_dir, "version.txt"),
+                true
+            );
+            progressService.UpdateProgress(" done");
+
+            break;
+        }
     }
 }
