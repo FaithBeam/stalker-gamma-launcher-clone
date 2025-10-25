@@ -2,7 +2,12 @@
 
 namespace stalker_gamma.core.Services;
 
-public class IsBusyService : ReactiveObject
+public interface IIsBusyService
+{
+    bool IsBusy { get; set; }
+}
+
+public class IsBusyService : ReactiveObject, IIsBusyService
 {
     private bool _isBusy;
 

@@ -22,7 +22,7 @@ public interface IBackupTabVm
 {
     double BackupsListColWidth { get; set; }
     string ToggleBackupsListBtnTxt { get; }
-    IsBusyService IsBusyService { get; }
+    IIsBusyService IsBusyService { get; }
     Interaction<string, Unit> AppendLineInteraction { get; }
     ReactiveCommand<Unit, Unit> OpenBackupFolderCommand { get; }
     Interaction<Unit, string?> ChangeGammaBackupDirectoryInteraction { get; }
@@ -85,7 +85,7 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel, IBackup
 
     public BackupTabVm(
         GlobalSettings globalSettings,
-        IsBusyService isBusyService,
+        IIsBusyService isBusyService,
         BackupTabProgressService backupTabProgressService,
         Queries.GetEstimate.Handler getEstimateHandler,
         GetAnomalyPath.Handler getAnomalyPathHandler,
@@ -530,7 +530,7 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel, IBackup
 
     public string ToggleBackupsListBtnTxt => _toggleBackupsListBtnTxt.Value;
 
-    public IsBusyService IsBusyService { get; }
+    public IIsBusyService IsBusyService { get; }
     public Interaction<string, Unit> AppendLineInteraction { get; }
     public ReactiveCommand<Unit, Unit> OpenBackupFolderCommand { get; }
     public Interaction<Unit, string?> ChangeGammaBackupDirectoryInteraction { get; }

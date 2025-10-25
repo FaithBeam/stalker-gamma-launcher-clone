@@ -10,10 +10,9 @@ public static class AddFoldersToWinDefenderExclusion
     {
         public void Execute(Command c)
         {
-            var command = string.Join(
-                "; ",
-                c.Folders.Select(x => $"Add-MpPreference -ExclusionPath '{x}'")
-            );
+            var command =
+                "Add-MpPreference -ExclusionPath "
+                + string.Join(',', c.Folders.Select(x => $"'{x}'"));
             ExecutePowerShellCommand(command);
         }
     }

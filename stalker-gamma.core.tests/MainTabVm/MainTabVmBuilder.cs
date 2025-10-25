@@ -24,11 +24,58 @@ namespace stalker_gamma.core.tests.MainTabVm;
 
 internal class MainTabVmBuilder
 {
+    internal IOperatingSystemService OperatingSystemService { get; private set; } =
+        new OperatingSystemService();
+
+    internal IILongPathsStatusService? LongPathsStatusService { get; private set; }
+
     internal IIsRanWithWineService IsRanWithWineService { get; private set; } =
         Substitute.For<IIsRanWithWineService>();
 
+    internal ICurlService CurlService { get; private set; } =
+        new CurlService(Substitute.For<IHttpClientFactory>(), new OperatingSystemService());
+
+    internal IIsBusyService IsBusyService { get; private set; } = new IsBusyService();
+
+    internal IIsMo2VersionDowngraded IsMo2VersionDowngraded { get; private set; } =
+        new IsMo2VersionDowngraded.Handler();
+
     private Action<IInteractionContext<string, Unit>> AppendLineInteractionHandler { get; set; } =
         context => context.SetOutput(Unit.Default);
+
+    internal MainTabVmBuilder WithIsMo2VersionDowngraded(IIsMo2VersionDowngraded mo2Version)
+    {
+        IsMo2VersionDowngraded = mo2Version;
+        return this;
+    }
+
+    internal MainTabVmBuilder WithOperatingSystemService(
+        IOperatingSystemService operatingSystemService
+    )
+    {
+        OperatingSystemService = operatingSystemService;
+        return this;
+    }
+
+    internal MainTabVmBuilder WithLongPathsStatusService(
+        IILongPathsStatusService longPathsStatusService
+    )
+    {
+        LongPathsStatusService = longPathsStatusService;
+        return this;
+    }
+
+    internal MainTabVmBuilder WithCurlService(ICurlService curlService)
+    {
+        CurlService = curlService;
+        return this;
+    }
+
+    internal MainTabVmBuilder WithIsBusyService(IIsBusyService isBusyService)
+    {
+        IsBusyService = isBusyService;
+        return this;
+    }
 
     internal MainTabVmBuilder WithAppendLineInteractionHandler(
         Action<IInteractionContext<string, Unit>> handler
@@ -47,7 +94,6 @@ internal class MainTabVmBuilder
     internal IMainTabVm Build()
     {
         var globalSettings = new GlobalSettings();
-        var httpClientFactory = Substitute.For<IHttpClientFactory>();
         var progressService = new ProgressService();
         var gitUtility = new GitUtility(progressService);
         var ranWithWine = IsRanWithWineService;
@@ -56,17 +102,16 @@ internal class MainTabVmBuilder
         var getAnomalyPathHandler = new GetAnomalyPath.Handler();
         var getGammaPathHandler = new GetGammaPath.Handler();
         var getGammaBackupFolderHandler = new GetGammaBackupFolder.Handler(globalSettings);
-        var curlService = new CurlService(httpClientFactory);
-        var mirrorService = new MirrorService(curlService);
-        var modDb = new ModDb(progressService, curlService, mirrorService);
-        var modListFactory = new ModListRecordFactory(modDb, curlService);
+        var mirrorService = new MirrorService(CurlService);
+        var modDb = new ModDb(progressService, CurlService, mirrorService);
+        var modListFactory = new ModListRecordFactory(modDb, CurlService);
         var addonsAndSeparators = new AddonsAndSeparators(progressService, modListFactory);
         var modPackSpecific = new ModpackSpecific(progressService);
         var mo2 = new Mo2(progressService);
         var anomaly = new Anomaly(progressService);
-        var shortcut = new Shortcut(progressService);
+        var shortcut = new Shortcut(progressService, OperatingSystemService);
         var gammaInstaller = new GammaInstaller(
-            curlService,
+            CurlService,
             progressService,
             gitUtility,
             addonsAndSeparators,
@@ -77,24 +122,29 @@ internal class MainTabVmBuilder
         );
         var versionService = new VersionService();
         var downgradeModOrganizer = new DowngradeModOrganizer(progressService, versionService);
-        var isBusyService = new IsBusyService();
-        var diffModsHandler = new DiffMods.Handler(curlService, modListFactory);
+        var diffModsHandler = new DiffMods.Handler(CurlService, modListFactory);
         var getStalkerGammaLastCommitHandler = new GetStalkerGammaLastCommit.Handler(gitUtility);
         var getGitHubRepoCommitsHandler = new GetGitHubRepoCommits.Handler();
+        var longPathsStatusSvc =
+            LongPathsStatusService
+            ?? new LongPathsStatus.Handler(IsRanWithWineService, OperatingSystemService);
         var vm = new ViewModels.Tabs.MainTab.MainTabVm(
+            IsMo2VersionDowngraded,
+            OperatingSystemService,
+            longPathsStatusSvc,
             ranWithWine,
             enableLongPathsOnWindows,
             addFoldersToWinDefenderExclusion,
             getAnomalyPathHandler,
             getGammaPathHandler,
             getGammaBackupFolderHandler,
-            curlService,
+            CurlService,
             gammaInstaller,
             progressService,
             globalSettings,
             downgradeModOrganizer,
             versionService,
-            isBusyService,
+            IsBusyService,
             diffModsHandler,
             getStalkerGammaLastCommitHandler,
             getGitHubRepoCommitsHandler

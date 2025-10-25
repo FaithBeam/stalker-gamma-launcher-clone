@@ -30,20 +30,22 @@
                 <Setter Property="Foreground" Value="#85fb98" />
             </Style>
         </Styles>
+        <StyleInclude Source="../../Styles/StrobingButtonStyles.axaml" />
         <StyleInclude Source="../../Styles/CheckboxStyles.axaml" />
     </UserControl.Styles>
 
     <Grid ColumnDefinitions="150,*" Margin="5">
-        <Grid RowDefinitions="Auto,Auto,Auto,*,*,*,Auto,*,Auto,Auto,Auto,Auto,Auto,Auto,*,*,*,*,*,*" Margin="0,0,5,0">
+        <Grid RowDefinitions="Auto,Auto,Auto,*,*,*,*,Auto,*,Auto,Auto,Auto,Auto,Auto,Auto,*,*,*,*,*,*" Margin="0,0,5,0">
             <Image Source="/Assets/stalker-gamma-gamma_logo.png" Width="150" />
             <Label Grid.Row="1" Content="{Binding VersionString}" FontSize="10" Foreground="#696969"
                    HorizontalAlignment="Center" />
             <Separator Grid.Row="2" />
-            <Button Grid.Row="3" Content="Downgrade ModOrganizer" HorizontalAlignment="Stretch"
+            <Button x:Name="DowngradeModOrganizerBtn" Grid.Row="3" Content="Downgrade ModOrganizer" HorizontalAlignment="Stretch"
                     Background="#242424"
                     Foreground="#85fb98"
                     BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center" FontSize="10"
                     Command="{Binding DowngradeModOrganizerCmd}">
+                <ToolTip.ShowOnDisabled>True</ToolTip.ShowOnDisabled>
                 <ToolTip.Tip>
                     Downgrade ModOrganizer to 2.4.4. Required for Linux and MacOs users.
                 </ToolTip.Tip>
@@ -59,14 +61,29 @@
                     Background="#242424"
                     Foreground="#85fb98"
                     BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center" FontSize="10">
-                <ToolTip.Tip><TextBlock>
-                    Add your anomaly, gamma, and gamma backup paths to Microsoft Defender exclusions. This will prevent 
-                    Defender from actively monitoring these folders, speeding up install/updates/loading.<LineBreak/>
-                    Windows only.
-                </TextBlock></ToolTip.Tip>
+                <ToolTip.Tip>
+                    <TextBlock>
+                        Add your anomaly, gamma, and gamma backup paths to Microsoft Defender exclusions. This will prevent
+                        Defender from actively monitoring these folders, speeding up install/updates/loading.
+                        <LineBreak />
+                        Windows only.
+                    </TextBlock>
+                </ToolTip.Tip>
             </Button>
-            <Separator Grid.Row="6" Margin="12,4,12,20" />
-            <Button Grid.Row="7" Command="{Binding InstallUpdateGamma}" Foreground="#ff8c00" Background="#242424"
+            <Button x:Name="LongPathsBtn" Grid.Row="6" Content="Enable Long Paths"
+                    Command="{Binding EnableLongPathsOnWindowsCmd}"
+                    Background="#242424"
+                    Foreground="#85fb98"
+                    BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center"
+                    HorizontalAlignment="Stretch" FontSize="10">
+                <ToolTip.ShowOnDisabled>True</ToolTip.ShowOnDisabled>
+                <ToolTip.Tip>
+                    <TextBlock>Enable long paths for windows</TextBlock>
+                </ToolTip.Tip>
+            </Button>
+            <Separator Grid.Row="7" Margin="12,4,12,20" />
+            <Button x:Name="InstallUpdateBtn" Grid.Row="8" Command="{Binding InstallUpdateGamma}" Foreground="#ff8c00"
+                    Background="#242424"
                     BorderBrush="#ff8c00" BorderThickness="1" HorizontalContentAlignment="Center"
                     HorizontalAlignment="Stretch" Height="60" VerticalContentAlignment="Center" Margin="0,0,0,10">
                 <TextBlock>
@@ -74,16 +91,17 @@
                     GAMMA
                 </TextBlock>
             </Button>
-            <CheckBox Grid.Row="8" IsEnabled="{Binding !IsBusyService.IsBusy}" Foreground="#ff8c00"
+            <CheckBox Grid.Row="9" IsEnabled="{Binding !IsBusyService.IsBusy}" Foreground="#ff8c00"
                       IsChecked="{Binding CheckMd5}" FontSize="10">
                 Check MD5
+                <ToolTip.ShowOnDisabled>true</ToolTip.ShowOnDisabled>
                 <ToolTip.Tip>
                     <TextBlock
                         Text="If enabled, compares the local archives integrity to the ModDB's archives information (does not make extra moddb queries). If the information does not match, the add-on will be downloaded and extracted. CPU intensive option.">
                     </TextBlock>
                 </ToolTip.Tip>
             </CheckBox>
-            <CheckBox Grid.Row="9" IsEnabled="{Binding !IsBusyService.IsBusy}" Foreground="#ff8c00"
+            <CheckBox Grid.Row="10" IsEnabled="{Binding !IsBusyService.IsBusy}" Foreground="#ff8c00"
                       IsChecked="{Binding ForceGitDownload}" FontSize="10">
                 Force git download
                 <ToolTip.Tip>
@@ -91,7 +109,7 @@
                         Text="If enabled, the installer will always get the latest version of add-ons stored on GitHub. Turn it off if you do not want to update git add-ons." />
                 </ToolTip.Tip>
             </CheckBox>
-            <CheckBox Grid.Row="10" IsEnabled="{Binding !IsBusyService.IsBusy}" Foreground="#ff8c00"
+            <CheckBox Grid.Row="11" IsEnabled="{Binding !IsBusyService.IsBusy}" Foreground="#ff8c00"
                       IsChecked="{Binding ForceZipExtraction}" FontSize="10">
                 Force zip extraction
                 <ToolTip.Tip>
@@ -99,25 +117,25 @@
                         Text="If enabled, the installer will always install all addons. Use it if GAMMA is crashing on launch or if you have addons with red crosses." />
                 </ToolTip.Tip>
             </CheckBox>
-            <CheckBox Grid.Row="11" IsEnabled="{Binding !IsBusyService.IsBusy}" Foreground="#ff8c00"
+            <CheckBox Grid.Row="12" IsEnabled="{Binding !IsBusyService.IsBusy}" Foreground="#ff8c00"
                       IsChecked="{Binding DeleteReshadeDlls}" FontSize="10">
                 Delete reshade dlls
             </CheckBox>
-            <CheckBox Grid.Row="12" IsEnabled="{Binding !IsBusyService.IsBusy}" FontSize="10" Foreground="#ff8c00"
+            <CheckBox Grid.Row="13" IsEnabled="{Binding !IsBusyService.IsBusy}" FontSize="10" Foreground="#ff8c00"
                       IsChecked="{Binding PreserveUserLtx}">
                 Preserve user.ltx
                 <ToolTip.Tip>
                     If enabled, the installer will not overwrite your user.ltx, preserving your settings.
                 </ToolTip.Tip>
             </CheckBox>
-            <Separator Grid.Row="13" Margin="12,4,12,20" />
-            <Button Grid.Row="14" IsEnabled="{Binding !IsBusyService.IsBusy}" Background="#242424" Foreground="#00ff00"
+            <Separator Grid.Row="14" Margin="12,4,12,20" />
+            <Button Grid.Row="15" IsEnabled="{Binding !IsBusyService.IsBusy}" Background="#242424" Foreground="#00ff00"
                     BorderBrush="#00ff00" BorderThickness="1" HorizontalContentAlignment="Center"
                     HorizontalAlignment="Stretch" Command="{Binding Play}" Height="60"
                     VerticalContentAlignment="Center" Margin="0,0,0,20">
                 Play
             </Button>
-            <Button Grid.Row="15" Background="#242424" Foreground="#00ff00"
+            <Button Grid.Row="16" Background="#242424" Foreground="#00ff00"
                     BorderBrush="#00ff00" BorderThickness="1" HorizontalContentAlignment="Center"
                     HorizontalAlignment="Stretch" Command="{Binding OpenUrlCmd}"
                     CommandParameter="https://paypal.me/GrokitachGAMMA" Height="50" FontSize="12"
@@ -131,8 +149,8 @@
                         Text="The money goes to Grok directly. A portion of the donations goes to add-ons makers every month." />
                 </ToolTip.Tip>
             </Button>
-            <Separator Grid.Row="16" Margin="12,4,12,0" />
-            <Button Grid.Row="17" Background="#242424"
+            <Separator Grid.Row="17" Margin="12,4,12,0" />
+            <Button Grid.Row="18" Background="#242424"
                     Foreground="#85fb98"
                     BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center"
                     HorizontalAlignment="Stretch" FontSize="10" Command="{Binding OpenUrlCmd}"
@@ -142,7 +160,7 @@
                     and on the advertisements
                 </TextBlock>
             </Button>
-            <Button Grid.Row="18" Background="#242424"
+            <Button Grid.Row="19" Background="#242424"
                     Foreground="#85fb98"
                     BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center"
                     HorizontalAlignment="Stretch" FontSize="10" Command="{Binding OpenUrlCmd}"
@@ -153,7 +171,7 @@
                     to this project
                 </TextBlock>
             </Button>
-            <Button Grid.Row="19" Background="#242424"
+            <Button Grid.Row="20" Background="#242424"
                     Foreground="#85fb98"
                     BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center"
                     HorizontalAlignment="Stretch" FontSize="10" Command="{Binding OpenUrlCmd}"

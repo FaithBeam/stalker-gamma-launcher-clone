@@ -3,10 +3,10 @@ using stalker_gamma.core.Services.GammaInstaller.Utilities;
 
 namespace stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Factories;
 
-public class ModListRecordFactory(ModDb modDb, CurlService curlService)
+public class ModListRecordFactory(ModDb modDb, ICurlService curlService)
 {
     private readonly ModDb _modDb = modDb;
-    private readonly CurlService _curlService = curlService;
+    private readonly ICurlService _curlService = curlService;
 
     public IModListRecord Create(string line)
     {

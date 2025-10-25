@@ -9,6 +9,7 @@ public static class MainTabRegistrations
     public static IServiceCollection RegisterMainTabServices(this IServiceCollection services) =>
         services
             .AddScoped<DiffMods.Handler>()
+            .AddScoped<IIsMo2VersionDowngraded, IsMo2VersionDowngraded.Handler>()
             .AddScoped<AddFoldersToWinDefenderExclusion.Handler>()
             .AddScoped<EnableLongPathsOnWindows.Handler>();
 }

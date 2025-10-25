@@ -1,6 +1,5 @@
 using System.Text.RegularExpressions;
 using CliWrap;
-using Microsoft.Win32;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
 using stalker_gamma.core.Utilities;
 
@@ -9,7 +8,7 @@ namespace stalker_gamma.core.Services.GammaInstaller;
 public record LocalAndRemoteVersion(string? LocalVersion, string RemoteVersion);
 
 public class GammaInstaller(
-    CurlService curlService,
+    ICurlService curlService,
     ProgressService progressService,
     GitUtility gitUtility,
     AddonsAndSeparators.AddonsAndSeparators addonsAndSeparators,
@@ -20,7 +19,7 @@ public class GammaInstaller(
 )
 {
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
-    private readonly CurlService _curlService = curlService;
+    private readonly ICurlService _curlService = curlService;
 
     /// <summary>
     /// Checks for G.A.M.M.A. updates.
@@ -68,25 +67,6 @@ public class GammaInstaller(
     /// </summary>
     public async Task FirstInstallInitialization()
     {
-        // Enable long paths on windows
-        // if (OperatingSystem.IsWindows())
-        // {
-        //     try
-        //     {
-        //         using var key = Registry.LocalMachine.OpenSubKey(
-        //             @"SYSTEM\CurrentControlSet\Control\FileSystem",
-        //             true
-        //         );
-        //         key?.SetValue("LongPathsEnabled", 1, RegistryValueKind.DWord);
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         progressService.UpdateProgress(
-        //             $"Failed to enable long paths: {ex.Message}. Please run as administrator."
-        //         );
-        //     }
-        // }
-
         progressService.UpdateProgress(
             """
 
