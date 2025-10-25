@@ -376,17 +376,20 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
             x => x.LongPathsStatus,
             x => x.IsMo2VersionDowngraded,
             x => x.IsRanWithWine,
+            x => x.IsMo2Initialized,
             selector: (
                 isBusy,
                 inGrokModDir,
                 toolsReady,
                 longPathsStatus,
                 mo2Downgraded,
-                isRanWithWine
+                isRanWithWine,
+                isMo2Initialized
             ) =>
                 !isBusy
                 && inGrokModDir
                 && toolsReady
+                && isMo2Initialized
                 && (
                     !operatingSystemService.IsWindows()
                     || (
