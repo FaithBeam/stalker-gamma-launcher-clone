@@ -76,8 +76,10 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
     private readonly ObservableAsPropertyHelper<bool?> _longPathsStatus;
     private readonly ObservableAsPropertyHelper<bool?> _isMo2VersionDowngraded;
     private readonly ObservableAsPropertyHelper<bool> _isMo2Initialized;
+    private readonly ObservableAsPropertyHelper<string?> _localGammaVersion;
 
     public MainTabVm(
+        IGetLocalGammaVersion getLocalGammaVersion,
         IIsMo2Initialized isMo2Initialized,
         IIsMo2VersionDowngraded isMo2VersionDowngraded,
         IOperatingSystemService operatingSystemService,
@@ -108,6 +110,27 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
             "..",
             "ModOrganizer.exe"
         );
+
+        LocalGammaVersionsCmd = ReactiveCommand.CreateFromTask(async () =>
+            await Task.Run(() =>
+                getLocalGammaVersion.ExecuteAsync(
+                    new GetLocalGammaVersion.Query(
+                        Path.Join(Path.GetDirectoryName(AppContext.BaseDirectory), "version.txt")
+                    )
+                )
+            )
+        );
+        LocalGammaVersionsCmd.ThrownExceptions.Subscribe(x =>
+            progressService.UpdateProgress(
+                $"""
+                   
+                ERROR DETERMINING LOCAL GAMMA VERSION
+                {x.Message}
+                {x.StackTrace}
+                """
+            )
+        );
+        _localGammaVersion = LocalGammaVersionsCmd.ToProperty(this, x => x.LocalGammaVersion);
 
         IsMo2InitializedCmd = ReactiveCommand.CreateFromTask(async () =>
             await Task.Run(() =>
@@ -384,12 +407,12 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                 longPathsStatus,
                 mo2Downgraded,
                 isRanWithWine,
-                isMo2Initialized
+                mo2Initialized
             ) =>
                 !isBusy
                 && inGrokModDir
                 && toolsReady
-                && isMo2Initialized
+                && mo2Initialized
                 && (
                     !operatingSystemService.IsWindows()
                     || (
@@ -433,6 +456,7 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                 """
             )
         );
+        InstallUpdateGammaCmd.Subscribe(_ => LocalGammaVersionsCmd.Execute().Subscribe());
 
         var canPlay = this.WhenAnyValue(
             x => x.IsBusyService.IsBusy,
@@ -440,7 +464,15 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
             x => x.IsMo2Initialized,
             x => x.LongPathsStatus,
             x => x.IsRanWithWine,
-            selector: (isBusy, inGrokModDir, mo2Initialized, longPathsStatus, ranWithWine) =>
+            x => x.LocalGammaVersion,
+            selector: (
+                isBusy,
+                inGrokModDir,
+                mo2Initialized,
+                longPathsStatus,
+                ranWithWine,
+                localGammaVersion
+            ) =>
                 !isBusy
                 && File.Exists(mo2Path)
                 && inGrokModDir
@@ -454,6 +486,9 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                         && longPathsStatus.Value
                     )
                 )
+                && !string.IsNullOrWhiteSpace(localGammaVersion)
+                && localGammaVersion != "200"
+                && localGammaVersion != "865"
         );
         PlayCmd = ReactiveCommand.CreateFromTask(
             async () =>
@@ -538,6 +573,8 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
 #endif
                     StringComparison.OrdinalIgnoreCase);
                 InGroksModPackDir.Execute().Subscribe();
+
+                LocalGammaVersionsCmd.Execute().Subscribe();
 
                 IsMo2VersionDowngradedCmd.Execute().Subscribe();
 
@@ -640,6 +677,8 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
 
     public bool IsMo2Initialized => _isMo2Initialized.Value;
 
+    public string? LocalGammaVersion => _localGammaVersion.Value;
+
     public ReactiveCommand<Unit, bool> IsRanWithWineCmd { get; set; }
     public ReactiveCommand<Unit, Unit> EnableLongPathsOnWindowsCmd { get; set; }
     public ReactiveCommand<Unit, string> AddFoldersToWinDefenderExclusionCmd { get; set; }
@@ -654,5 +693,6 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
     public ReactiveCommand<Unit, bool?> LongPathsStatusCmd { get; }
     public ReactiveCommand<Unit, bool?> IsMo2VersionDowngradedCmd { get; }
     public ReactiveCommand<Unit, bool> IsMo2InitializedCmd { get; }
+    public ReactiveCommand<Unit, string?> LocalGammaVersionsCmd { get; }
     public ViewModelActivator Activator { get; }
 }

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Reactive;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
@@ -55,6 +56,31 @@ public partial class MainTabVm
 
             ViewModel.AppendLineInteraction.RegisterHandler(AppendLineHandler);
 
+            // strobe install / update gamma when user has not updated enough
+            this.WhenAnyValue(
+                    x => x.ViewModel!.LocalGammaVersion,
+                    selector: localGammaVersion => localGammaVersion
+                )
+                .Where(x => !string.IsNullOrEmpty(x))
+                .Subscribe(lgv =>
+                {
+                    switch (lgv)
+                    {
+                        case "200":
+                        case "865":
+                            ToolTip.SetTip(PlayBtn, "You must update / install gamma first");
+                            ToolTip.SetShowOnDisabled(PlayBtn, true);
+                            InstallUpdateBtn.Classes.Add("Strobing");
+                            break;
+                        default:
+                            ToolTip.SetTip(PlayBtn, null);
+                            ToolTip.SetShowOnDisabled(PlayBtn, false);
+                            InstallUpdateBtn.Classes.Remove("Strobing");
+                            break;
+                    }
+                });
+
+            // strobe first install initialization
             this.WhenAnyValue(
                     x => x.ViewModel!.IsMo2Initialized,
                     selector: (mo2Initialized) => mo2Initialized

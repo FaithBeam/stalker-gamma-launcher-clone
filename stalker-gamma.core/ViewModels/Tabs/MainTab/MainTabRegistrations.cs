@@ -11,6 +11,7 @@ public static class MainTabRegistrations
             .AddScoped<DiffMods.Handler>()
             .AddScoped<IIsMo2VersionDowngraded, IsMo2VersionDowngraded.Handler>()
             .AddScoped<IIsMo2Initialized, IsMo2Initialized.Handler>()
+            .AddScoped<IGetLocalGammaVersion, GetLocalGammaVersion.Handler>()
             .AddScoped<AddFoldersToWinDefenderExclusion.Handler>()
             .AddScoped<EnableLongPathsOnWindows.Handler>();
 }
