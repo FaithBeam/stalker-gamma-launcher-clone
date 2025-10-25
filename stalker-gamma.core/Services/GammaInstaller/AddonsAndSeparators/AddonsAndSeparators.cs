@@ -96,7 +96,7 @@ public class AddonsAndSeparators(
                         progressService.UpdateProgress(
                             $"_______________ {f.File.AddonName} _______________"
                         );
-                        
+
                         if (
                             !f
                                 .File.DownloadAsync(downloadsPath, useCurlImpersonate)
@@ -110,7 +110,7 @@ public class AddonsAndSeparators(
                         {
                             return true;
                         }
-                        
+
                         progressService.UpdateProgress(
                             $"Md5 mismatch in downloaded file: {f.File.DlPath}. Downloading again."
                         );
@@ -151,7 +151,7 @@ public class AddonsAndSeparators(
                     await dlChannel.Writer.WriteAsync(inner.Extract);
                 }
             }
-            
+
             dlChannel.Writer.Complete();
         });
 
