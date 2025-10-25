@@ -3,15 +3,9 @@ using System.IO;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
-using Avalonia.Media;
 using Avalonia.ReactiveUI;
 using ReactiveUI;
-using stalker_gamma.core.Services;
-using stalker_gamma.core.ViewModels.Tabs;
-using stalker_gamma.core.ViewModels.Tabs.MainTab;
 
 namespace stalker_gamma_gui.Controls.Tabs;
 

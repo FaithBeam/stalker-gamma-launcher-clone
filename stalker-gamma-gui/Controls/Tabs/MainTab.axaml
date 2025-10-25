@@ -56,7 +56,7 @@
                     BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center" FontSize="10">
                 First install initialization
             </Button>
-            <Button Grid.Row="5" Command="{Binding AddFoldersToWinDefenderExclusionCmd}"
+            <Button x:Name="AddFoldersToDefenderExclusionBtn" Grid.Row="5" Command="{Binding AddFoldersToWinDefenderExclusionCmd}"
                     Content="Add Defender Exclusions" HorizontalAlignment="Stretch"
                     Background="#242424"
                     Foreground="#85fb98"

@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -275,7 +274,9 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
 
         var canAddFoldersToWinDefenderExclusion = this.WhenAnyValue(
             x => x.IsRanWithWine,
-            selector: ranWithWine => !ranWithWine && operatingSystemService.IsWindows()
+            x => x.IsBusyService.IsBusy,
+            selector: (ranWithWine, isBusy) =>
+                !isBusy && !ranWithWine && operatingSystemService.IsWindows()
         );
         AddFoldersToWinDefenderExclusionCmd = ReactiveCommand.CreateFromTask(
             async () =>
