@@ -203,6 +203,8 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                         """
 
                         Enabled long paths via registry.
+                        HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem
+                        Set DWORD LongPathsEnabled 1
                         A restart is recommended before installing / updating gamma.
                         """
                     );
