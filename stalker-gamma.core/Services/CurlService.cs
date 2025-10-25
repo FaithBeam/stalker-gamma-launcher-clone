@@ -3,10 +3,32 @@ using CliWrap;
 
 namespace stalker_gamma.core.Services;
 
-public class CurlService(IHttpClientFactory clientFactory)
+public interface ICurlService
+{
+    /// <summary>
+    /// Whether curl service found curl-impersonate-win.exe and can execute.
+    /// </summary>
+    bool Ready { get; }
+
+    Task DownloadFileAsync(
+        string url,
+        string pathToDownloads,
+        string fileName,
+        bool useCurlImpersonate,
+        string? workingDir = null
+    );
+
+    Task<string> GetStringAsync(string url, string extraCmds = "", bool useCurlImpersonate = true);
+}
+
+public class CurlService(
+    IHttpClientFactory clientFactory,
+    IOperatingSystemService operatingSystemService
+) : ICurlService
 {
     private HttpClient? _httpClient = clientFactory.CreateClient();
     private static readonly string Dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
+    private readonly IOperatingSystemService _operatingSystemService = operatingSystemService;
 
     /// <summary>
     /// Whether curl service found curl-impersonate-win.exe and can execute.
@@ -33,13 +55,13 @@ public class CurlService(IHttpClientFactory clientFactory)
             {
                 cmd = cmd.WithWorkingDirectory(workingDir);
             }
-            if (OperatingSystem.IsWindows())
+            if (_operatingSystemService.IsWindows())
             {
                 cmd = cmd.WithArguments(
                     $"--config \"{Path.Join(PathToCurlImpersonateWin, "config", "chrome116.config")}\" --header \"@{Path.Join(PathToCurlImpersonateWin, "config", "chrome116.header")}\" -Lo \"{Path.Join(pathToDownloads, fileName)}\" {url}"
                 );
             }
-            else if (OperatingSystem.IsMacOS() || OperatingSystem.IsLinux())
+            else if (_operatingSystemService.IsMacOS() || _operatingSystemService.IsLinux())
             {
                 cmd = cmd.WithArguments(
                     $"docker run --mount type=bind,src={pathToDownloads},dst=/downloads --rm lwthiker/curl-impersonate:0.6-chrome curl_chrome116 -Lo /downloads/{fileName} {url}"
@@ -103,8 +125,8 @@ public class CurlService(IHttpClientFactory clientFactory)
         $"--config \"{Path.Join(PathToCurlImpersonateWin, "config", "chrome116.config")}\" --header \"@{Path.Join(PathToCurlImpersonateWin, "config", "chrome116.header")}\"";
     private const string LinuxGetStringCmd =
         "docker run --rm lwthiker/curl-impersonate:0.6-chrome curl_chrome116";
-    private static readonly string GetStringCmd =
-        OperatingSystem.IsWindows() ? WindowsGetStringCmd
-        : OperatingSystem.IsMacOS() ? MacosGetStringCmd
+    private string GetStringCmd =>
+        _operatingSystemService.IsWindows() ? WindowsGetStringCmd
+        : _operatingSystemService.IsMacOS() ? MacosGetStringCmd
         : LinuxGetStringCmd;
 }

@@ -5,11 +5,11 @@ namespace stalker_gamma.core.Services.GammaInstaller.Utilities;
 
 public partial class ModDb(
     ProgressService progressService,
-    CurlService curlService,
+    ICurlService curlService,
     MirrorService mirrorService
 )
 {
-    private readonly CurlService _curlService = curlService;
+    private readonly ICurlService _curlService = curlService;
     private readonly MirrorService _mirrorService = mirrorService;
 
     /// <summary>

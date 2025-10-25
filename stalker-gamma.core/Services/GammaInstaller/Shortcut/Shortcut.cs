@@ -1,7 +1,12 @@
 namespace stalker_gamma.core.Services.GammaInstaller.Shortcut;
 
-public class Shortcut(ProgressService progressService)
+public class Shortcut(
+    ProgressService progressService,
+    IOperatingSystemService operatingSystemService
+)
 {
+    private readonly IOperatingSystemService _operatingSystemService = operatingSystemService;
+
     public void Create(string dir, string modPackPath)
     {
         progressService.UpdateProgress(
@@ -14,7 +19,7 @@ public class Shortcut(ProgressService progressService)
 
             """
         );
-        if (OperatingSystem.IsWindows())
+        if (_operatingSystemService.IsWindows())
         {
             CreateShortcutWindows.Create(
                 Path.Join(dir, "stalker-gamma-gui.exe"),
@@ -22,7 +27,7 @@ public class Shortcut(ProgressService progressService)
                 "G.A.M.M.A. Launcher.lnk"
             );
         }
-        else if (OperatingSystem.IsLinux())
+        else if (_operatingSystemService.IsLinux())
         {
             // CreateShortcutLinux.Create(
             //     Path.Join(Dir, "stalker-gamma-gui.exe"),
@@ -30,7 +35,7 @@ public class Shortcut(ProgressService progressService)
             //     "G.A.M.M.A. Launcher.lnk"
             // );
         }
-        else if (OperatingSystem.IsMacOS())
+        else if (_operatingSystemService.IsMacOS())
         {
             // CreateShortcutOsx.Create(
             //     Path.Join(Dir, "stalker-gamma-gui.exe"),

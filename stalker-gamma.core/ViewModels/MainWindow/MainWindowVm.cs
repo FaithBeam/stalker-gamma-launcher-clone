@@ -18,7 +18,7 @@ public interface IMainWindowVm
     IModDbUpdatesTabVm ModDbUpdatesTabVm { get; }
     IModListTabVm ModListTabVm { get; }
     IBackupTabVm BackupTabVm { get; }
-    IsBusyService IsBusyService { get; }
+    IIsBusyService IsBusyService { get; }
     IObservable<IReactivePropertyChangedEventArgs<IReactiveObject>> Changing { get; }
     IObservable<IReactivePropertyChangedEventArgs<IReactiveObject>> Changed { get; }
     IObservable<Exception> ThrownExceptions { get; }
@@ -35,7 +35,7 @@ public class MainWindowVm(
     IModDbUpdatesTabVm modDbUpdatesTabVm,
     IModListTabVm modListTabVm,
     IBackupTabVm backupTabVm,
-    IsBusyService isBusyService
+    IIsBusyService isBusyService
 ) : ViewModelBase, IMainWindowVm
 {
     public IMainTabVm MainTabVm { get; } = mainTabVm;
@@ -43,5 +43,5 @@ public class MainWindowVm(
     public IModDbUpdatesTabVm ModDbUpdatesTabVm { get; } = modDbUpdatesTabVm;
     public IModListTabVm ModListTabVm { get; } = modListTabVm;
     public IBackupTabVm BackupTabVm { get; } = backupTabVm;
-    public IsBusyService IsBusyService { get; } = isBusyService;
+    public IIsBusyService IsBusyService { get; } = isBusyService;
 }

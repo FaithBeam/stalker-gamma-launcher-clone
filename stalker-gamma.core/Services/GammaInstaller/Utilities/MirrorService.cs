@@ -1,8 +1,8 @@
 namespace stalker_gamma.core.Services.GammaInstaller.Utilities;
 
-public class MirrorService(CurlService curlService)
+public class MirrorService(ICurlService curlService)
 {
-    private readonly CurlService _curlService = curlService;
+    private readonly ICurlService _curlService = curlService;
 
     public async Task<string?> GetMirror()
     {

@@ -17,9 +17,9 @@ public class ModListRecord : IModListRecord
     public string? Md5ModDb { get; set; }
 }
 
-public abstract class DownloadableRecord(CurlService curlService) : ModListRecord
+public abstract class DownloadableRecord(ICurlService curlService) : ModListRecord
 {
-    protected readonly CurlService CurlService = curlService;
+    protected readonly ICurlService CurlService = curlService;
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
     public abstract string Name { get; }
     public string? DlPath { get; set; }
@@ -225,7 +225,7 @@ public class Separator : ModListRecord
     }
 }
 
-public class GithubRecord(CurlService curlService) : DownloadableRecord(curlService)
+public class GithubRecord(ICurlService curlService) : DownloadableRecord(curlService)
 {
     public override string Name => $"{DlLink!.Split('/')[4]}.zip";
 
@@ -238,12 +238,12 @@ public class GithubRecord(CurlService curlService) : DownloadableRecord(curlServ
         || await base.ShouldDownloadAsync(downloadsPath, checkMd5, forceGitDownload);
 }
 
-public class GammaLargeFile(CurlService curlService) : DownloadableRecord(curlService)
+public class GammaLargeFile(ICurlService curlService) : DownloadableRecord(curlService)
 {
     public override string Name => $"{DlLink!.Split('/')[6]}.zip";
 }
 
-public class ModDbRecord(ModDb modDb, CurlService curlService) : DownloadableRecord(curlService)
+public class ModDbRecord(ModDb modDb, ICurlService curlService) : DownloadableRecord(curlService)
 {
     public override string Name => ZipName!;
 

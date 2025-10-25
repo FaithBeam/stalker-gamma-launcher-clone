@@ -1,0 +1,26 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <Border Padding="20">
+            <!-- Add Controls for Previewer Here -->
+        </Border>
+    </Design.PreviewWith>
+
+    <Style Selector="Button.NotStrobing">
+        <Setter Property="BorderBrush" Value="#85fb98" />
+    </Style>
+    <Style Selector="Button.Strobing">
+        <Style.Animations>
+            <Animation Duration="0:0:1.0" PlaybackDirection="Alternate" IterationCount="INFINITE">
+                <KeyFrame Cue="0%">
+                    <Setter Property="BorderBrush" Value="#85fb98" />
+                    <Setter Property="Foreground" Value="#ff8c00" />
+                </KeyFrame>
+                <KeyFrame Cue="100%">
+                    <Setter Property="BorderBrush" Value="Yellow" />
+                    <Setter Property="Foreground" Value="Yellow" />
+                </KeyFrame>
+            </Animation>
+        </Style.Animations>
+    </Style>
+</Styles>

@@ -2,17 +2,15 @@
 
 namespace stalker_gamma.core.ViewModels.Tabs.MainTab.Commands;
 
-public static class AddFoldersToWinDefenderExclusion
+public static class EnableLongPathsOnWindows
 {
-    public sealed record Command(params string[] Folders);
-
     public sealed class Handler
     {
-        public void Execute(Command c)
+        public void Execute()
         {
-            var command =
-                "Add-MpPreference -ExclusionPath "
-                + string.Join(',', c.Folders.Select(x => $"'{x}'"));
+            const string command = """
+                Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value "1"
+                """;
             ExecutePowerShellCommand(command);
         }
     }

@@ -1,6 +1,5 @@
 using System.Text.RegularExpressions;
 using CliWrap;
-using Microsoft.Win32;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
 using stalker_gamma.core.Utilities;
 
@@ -9,7 +8,7 @@ namespace stalker_gamma.core.Services.GammaInstaller;
 public record LocalAndRemoteVersion(string? LocalVersion, string RemoteVersion);
 
 public class GammaInstaller(
-    CurlService curlService,
+    ICurlService curlService,
     ProgressService progressService,
     GitUtility gitUtility,
     AddonsAndSeparators.AddonsAndSeparators addonsAndSeparators,
@@ -20,7 +19,7 @@ public class GammaInstaller(
 )
 {
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
-    private readonly CurlService _curlService = curlService;
+    private readonly ICurlService _curlService = curlService;
 
     /// <summary>
     /// Checks for G.A.M.M.A. updates.
@@ -42,6 +41,7 @@ public class GammaInstaller(
         {
             localGammaVersion = (await File.ReadAllTextAsync(versionFile)).Trim();
         }
+
         LocalAndRemoteVersion gammaVersions = new(localGammaVersion, onlineGammaVersion);
 
         string? localMods = null;
@@ -58,6 +58,7 @@ public class GammaInstaller(
         {
             localMods = (await File.ReadAllTextAsync(modsFile)).Trim().ReplaceLineEndings();
         }
+
         LocalAndRemoteVersion modVersions = new(localMods, remoteMods);
 
         return (gammaVersions, modVersions);
@@ -68,25 +69,6 @@ public class GammaInstaller(
     /// </summary>
     public async Task FirstInstallInitialization()
     {
-        // Enable long paths on windows
-        if (OperatingSystem.IsWindows())
-        {
-            try
-            {
-                using var key = Registry.LocalMachine.OpenSubKey(
-                    @"SYSTEM\CurrentControlSet\Control\FileSystem",
-                    true
-                );
-                key?.SetValue("LongPathsEnabled", 1, RegistryValueKind.DWord);
-            }
-            catch (Exception ex)
-            {
-                progressService.UpdateProgress(
-                    $"Failed to enable long paths: {ex.Message}. Please run as administrator."
-                );
-            }
-        }
-
         progressService.UpdateProgress(
             """
 
@@ -225,40 +207,62 @@ public class GammaInstaller(
     /// </summary>
     private async Task DownloadGammaData()
     {
-        progressService.UpdateProgress(" Updating Github Repositories");
-        const string branch = "main";
-        await gitUtility.UpdateGitRepo(
-            _dir,
-            "Stalker_GAMMA",
-            "https://github.com/Grokitach/Stalker_GAMMA",
-            branch
-        );
+        while (true)
+        {
+            progressService.UpdateProgress(" Updating Github Repositories");
+            const string branch = "main";
+            await gitUtility.UpdateGitRepo(
+                _dir,
+                "Stalker_GAMMA",
+                "https://github.com/Grokitach/Stalker_GAMMA",
+                branch
+            );
 
-        await gitUtility.UpdateGitRepo(
-            _dir,
-            "gamma_large_files_v2",
-            "https://github.com/Grokitach/gamma_large_files_v2",
-            "main"
-        );
-        await gitUtility.UpdateGitRepo(
-            _dir,
-            "teivaz_anomaly_gunslinger",
-            "https://github.com/Grokitach/teivaz_anomaly_gunslinger",
-            "main"
-        );
+            await gitUtility.UpdateGitRepo(
+                _dir,
+                "gamma_large_files_v2",
+                "https://github.com/Grokitach/gamma_large_files_v2",
+                "main"
+            );
+            await gitUtility.UpdateGitRepo(
+                _dir,
+                "teivaz_anomaly_gunslinger",
+                "https://github.com/Grokitach/teivaz_anomaly_gunslinger",
+                "main"
+            );
 
-        progressService.UpdateProgress(
-            " Installing the modpack definition data (installer can hang, be patient)"
-        );
-        DirUtils.CopyDirectory(
-            Path.Combine(_dir, "resources", "Stalker_GAMMA", "G.A.M.M.A"),
-            Path.Combine(_dir, "G.A.M.M.A.")
-        );
-        File.Copy(
-            Path.Combine(_dir, "resources", "Stalker_GAMMA", "G.A.M.M.A_definition_version.txt"),
-            Path.Combine(_dir, "version.txt"),
-            true
-        );
-        progressService.UpdateProgress(" done");
+            // prevent the user from needing to install / update gamma twice
+            var curStalkerGammaHash = (
+                await gitUtility.RunGitCommandObs(
+                    Path.Join(_dir, "resources", "Stalker_GAMMA"),
+                    "rev-parse HEAD"
+                )
+            ).Trim();
+            if (curStalkerGammaHash == "85f6543ac9ea4afb7fdd4264f155d44db9b7afe3")
+            {
+                continue;
+            }
+
+            progressService.UpdateProgress(
+                " Installing the modpack definition data (installer can hang, be patient)"
+            );
+            DirUtils.CopyDirectory(
+                Path.Combine(_dir, "resources", "Stalker_GAMMA", "G.A.M.M.A"),
+                Path.Combine(_dir, "G.A.M.M.A.")
+            );
+            File.Copy(
+                Path.Combine(
+                    _dir,
+                    "resources",
+                    "Stalker_GAMMA",
+                    "G.A.M.M.A_definition_version.txt"
+                ),
+                Path.Combine(_dir, "version.txt"),
+                true
+            );
+            progressService.UpdateProgress(" done");
+
+            break;
+        }
     }
 }

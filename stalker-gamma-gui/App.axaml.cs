@@ -68,11 +68,13 @@ public partial class App : Application
 
                 s.AddSingleton<ProgressService>()
                     .AddSingleton<VersionService>()
-                    .AddSingleton<IsBusyService>();
+                    .AddSingleton<IIsBusyService, IsBusyService>()
+                    .AddSingleton<IOperatingSystemService, OperatingSystemService>();
 
                 s.AddScoped<DowngradeModOrganizer>()
                     .AddScoped<IIsRanWithWineService, IsRanWithWineService>()
-                    .AddScoped<CurlService>()
+                    .AddScoped<IILongPathsStatusService, LongPathsStatus.Handler>()
+                    .AddScoped<ICurlService, CurlService>()
                     .AddScoped<MirrorService>()
                     .AddScoped<GitUtility>()
                     .AddScoped<ModDb>()

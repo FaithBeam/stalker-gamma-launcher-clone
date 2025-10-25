@@ -12,11 +12,11 @@ public static partial class DiffMods
     public sealed record Query(LocalAndRemoteVersion ModVersions);
 
     public sealed partial class Handler(
-        CurlService curlService,
+        ICurlService curlService,
         ModListRecordFactory modListRecordFactory
     )
     {
-        private readonly CurlService _curlService = curlService;
+        private readonly ICurlService _curlService = curlService;
         private readonly ModListRecordFactory _modListRecordFactory = modListRecordFactory;
 
         public async Task<List<string>> Execute(Query q)

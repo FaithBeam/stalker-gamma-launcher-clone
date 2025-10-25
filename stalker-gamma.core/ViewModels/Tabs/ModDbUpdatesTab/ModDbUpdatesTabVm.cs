@@ -36,7 +36,7 @@ public partial class ModDbUpdatesTabVm : ViewModelBase, IActivatableViewModel, I
     private readonly ObservableAsPropertyHelper<bool> _isLoading;
 
     public ModDbUpdatesTabVm(
-        CurlService curlService,
+        ICurlService curlService,
         ModListRecordFactory modListRecordFactory,
         ProgressService progressService
     )
