@@ -137,6 +137,7 @@ public class AddonsAndSeparators(
             separator.Action();
         }
 
+        // download
         var dlChannel = Channel.CreateUnbounded<Action>();
         var groupedDls = downloadableRecords.GroupBy(x => x.File!.DlLink);
         _ = Task.Run(async () =>
@@ -153,6 +154,12 @@ public class AddonsAndSeparators(
             
             dlChannel.Writer.Complete();
         });
+
+        // extract
+        await foreach (var item in dlChannel.Reader.ReadAllAsync())
+        {
+            item.Invoke();
+        }
     }
 
     private void Extract(
