@@ -69,7 +69,7 @@ public class AddonsAndSeparators(
                             Creating MO2 separator in {Path.Join(modsPaths, f.File?.FolderName)}
                             """
                         );
-                        f.File?.WriteMetaIni(modsPaths, counter);
+                        f.File?.WriteMetaIni(modsPaths, f.Count);
                         progressService.UpdateProgress(" ");
                     }
                 ),
@@ -121,15 +121,7 @@ public class AddonsAndSeparators(
                         return true;
                     }
                 ),
-                Extract = (Action)(
-                    () =>
-                    {
-                        if (forceZipExtraction)
-                        {
-                            Extract(f.File!, modsPaths, total, counter);
-                        }
-                    }
-                ),
+                Extract = (Action)(() => Extract(f.File!, modsPaths, total, f.Count)),
             });
 
         foreach (var separator in separators)
@@ -138,28 +130,32 @@ public class AddonsAndSeparators(
         }
 
         // download
-        var dlChannel = Channel.CreateUnbounded<Action>();
-        var groupedDls = downloadableRecords.GroupBy(x => x.File!.DlLink);
-        _ = Task.Run(async () =>
+        var dlChannel = Channel.CreateUnbounded<(Action extractAction, bool justDownloaded)>();
+        var t1 = Task.Run(async () =>
         {
-            foreach (var groupedDl in groupedDls)
+            foreach (var dlRec in downloadableRecords)
             {
-                groupedDl.First().Dl();
-
-                foreach (var inner in groupedDl)
-                {
-                    await dlChannel.Writer.WriteAsync(inner.Extract);
-                }
+                var extract = dlRec.Dl();
+                await dlChannel.Writer.WriteAsync((dlRec.Extract, extract));
             }
 
-            dlChannel.Writer.Complete();
+            dlChannel.Writer.TryComplete();
         });
 
         // extract
-        await foreach (var item in dlChannel.Reader.ReadAllAsync())
+        var t2 = Task.Run(async () =>
         {
-            item.Invoke();
-        }
+            await foreach (var item in dlChannel.Reader.ReadAllAsync())
+            {
+                var (extractAction, justDownloaded) = item;
+                if (forceZipExtraction || justDownloaded)
+                {
+                    extractAction.Invoke();
+                }
+            }
+        });
+
+        await Task.WhenAll(t1, t2);
     }
 
     private void Extract(
