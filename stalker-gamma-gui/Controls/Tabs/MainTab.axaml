@@ -192,10 +192,8 @@
 
         <Grid Grid.Column="1">
             <Grid RowDefinitions="Auto,Auto,*,Auto,Auto,Auto">
-                <Grid ColumnDefinitions="Auto, Auto">
-                    <Label Content="Launch this with admin rights" Foreground="#ababab" FontSize="10" />
-                    <Label Grid.Column="1"
-                           Content="Original installer by Grokitach. Cloned by FaithBeam. Backend server by BloodOfSniper"
+                <Grid ColumnDefinitions="Auto">
+                    <Label Content="Original installer by Grokitach. Cloned by FaithBeam. Backend server by BloodOfSniper"
                            FontSize="10" Foreground="#696969" />
                 </Grid>
                 <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto,*,Auto">
