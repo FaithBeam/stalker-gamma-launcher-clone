@@ -225,7 +225,7 @@
                             </Style>
                         </Label.Styles>
                     </Label>
-                    <CheckBox Name="WordWrapCb" x:Name="WordWrapCb" Grid.Column="4" Content="Word Wrap" />
+                    <CheckBox Name="WordWrapCb" x:Name="WordWrapCb" Grid.Column="4" Content="Word Wrap" FontSize="10"  />
                 </Grid>
                 <avaloniaEdit:TextEditor Grid.Row="2" x:Name="ConsoleOutput"
                                          IsReadOnly="True" WordWrap="{Binding #WordWrapCb.IsChecked}"
