@@ -1,3 +1,5 @@
+using System.Linq.Expressions;
+using System.Threading.Channels;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Factories;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
 
@@ -49,63 +51,111 @@ public class AddonsAndSeparators(
 
         var counter = 0;
 
-        foreach (var file in files)
+        var summedFiles = files.Select(f => new { Count = ++counter, File = f }).ToList();
+
+        var separators = summedFiles
+            .Where(f => f.File is Separator)
+            .Select(f => new { f.Count, File = f.File as Separator })
+            .Select(f => new
+            {
+                f.Count,
+                f.File,
+                Action = (Action)(
+                    () =>
+                    {
+                        progressService.UpdateProgress(
+                            $"""
+                            _______________ {f.File?.Name} separator _______________
+                            Creating MO2 separator in {Path.Join(modsPaths, f.File?.FolderName)}
+                            """
+                        );
+                        f.File?.WriteMetaIni(modsPaths, f.Count);
+                        progressService.UpdateProgress(" ");
+                    }
+                ),
+            });
+        var downloadableRecords = summedFiles
+            .Where(f => f.File is DownloadableRecord)
+            .Select(f => new { f.Count, File = f.File as DownloadableRecord })
+            .Select(f => new
+            {
+                f.Count,
+                f.File,
+                Dl = (Func<bool>)(
+                    () =>
+                    {
+                        if (
+                            !f.File!.ShouldDownloadAsync(downloadsPath, checkMd5, forceGitDownload)
+                                .GetAwaiter()
+                                .GetResult()
+                        )
+                        {
+                            return false;
+                        }
+
+                        progressService.UpdateProgress(
+                            $"_______________ {f.File.AddonName} _______________"
+                        );
+
+                        if (
+                            !f
+                                .File.DownloadAsync(downloadsPath, useCurlImpersonate)
+                                .GetAwaiter()
+                                .GetResult()
+                            || !f
+                                .File.ShouldDownloadAsync(downloadsPath, checkMd5, forceGitDownload)
+                                .GetAwaiter()
+                                .GetResult()
+                        )
+                        {
+                            return true;
+                        }
+
+                        progressService.UpdateProgress(
+                            $"Md5 mismatch in downloaded file: {f.File.DlPath}. Downloading again."
+                        );
+                        f.File.DownloadAsync(downloadsPath, useCurlImpersonate)
+                            .GetAwaiter()
+                            .GetResult();
+
+                        return true;
+                    }
+                ),
+                Extract = (Action)(() => Extract(f.File!, modsPaths, total, f.Count)),
+            });
+
+        foreach (var separator in separators)
         {
-            counter++;
-
-            if (file is Separator separator)
-            {
-                progressService.UpdateProgress(
-                    $"""
-                    _______________ {separator.Name} separator _______________
-                    Creating MO2 separator in {Path.Join(modsPaths, separator.FolderName)}
-                    """
-                );
-                separator.WriteMetaIni(modsPaths, counter);
-                progressService.UpdateProgress(" ");
-                continue;
-            }
-
-            var downloadableRecord = (DownloadableRecord)file;
-            var extract = false;
-
-            if (
-                downloadableRecord
-                    .ShouldDownloadAsync(downloadsPath, checkMd5, forceGitDownload)
-                    .GetAwaiter()
-                    .GetResult()
-            )
-            {
-                progressService.UpdateProgress(
-                    $"_______________ {downloadableRecord.AddonName} _______________"
-                );
-                if (
-                    downloadableRecord
-                        .DownloadAsync(downloadsPath, useCurlImpersonate)
-                        .GetAwaiter()
-                        .GetResult()
-                    && downloadableRecord
-                        .ShouldDownloadAsync(downloadsPath, checkMd5, forceGitDownload)
-                        .GetAwaiter()
-                        .GetResult()
-                )
-                {
-                    progressService.UpdateProgress(
-                        $"Md5 mismatch in downloaded file: {downloadableRecord.DlPath}. Downloading again."
-                    );
-                    downloadableRecord
-                        .DownloadAsync(downloadsPath, useCurlImpersonate)
-                        .GetAwaiter()
-                        .GetResult();
-                }
-                extract = true;
-            }
-
-            if (forceZipExtraction || extract)
-            {
-                Extract(downloadableRecord, modsPaths, total, counter);
-            }
+            separator.Action();
         }
+
+        // download
+        var dlChannel = Channel.CreateUnbounded<(Action extractAction, bool justDownloaded)>();
+        var t1 = Task.Run(async () =>
+        {
+            foreach (var dlRec in downloadableRecords)
+            {
+                var extract = dlRec.Dl();
+                await dlChannel.Writer.WriteAsync((dlRec.Extract, extract));
+            }
+
+            dlChannel.Writer.TryComplete();
+        });
+
+        // extract
+        var t2 = Task.Run(async () =>
+        {
+            await foreach (var item in dlChannel.Reader.ReadAllAsync())
+            {
+                var (extractAction, justDownloaded) = item;
+                if (forceZipExtraction || justDownloaded)
+                {
+                    extractAction.Invoke();
+                }
+            }
+        });
+
+        await Task.WhenAll(t1, t2);
     }
 
     private void Extract(
