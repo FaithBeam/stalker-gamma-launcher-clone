@@ -51,7 +51,7 @@ public partial class BackupTab : ReactiveUserControl<BackupTabVm>
 
     private void AppendLineHandler(IInteractionContext<string, Unit> interactionCtx)
     {
-        BackupTxt.AppendText($"{DateTime.Now:g}:\t{interactionCtx.Input}");
+        BackupTxt.AppendText($"{DateTime.Now:t}:\t{interactionCtx.Input}");
         BackupTxt.AppendText(Environment.NewLine);
         BackupTxt.ScrollToLine(BackupTxt.LineCount);
         interactionCtx.SetOutput(Unit.Default);

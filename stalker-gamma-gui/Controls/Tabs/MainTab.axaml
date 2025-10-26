@@ -220,7 +220,7 @@
                     </Label>
                 </Grid>
                 <avaloniaEdit:TextEditor Grid.Row="2" x:Name="ConsoleOutput"
-                                         IsReadOnly="True" HorizontalScrollBarVisibility="Disabled"
+                                         IsReadOnly="True" 
                                          HorizontalAlignment="Stretch" Foreground="#85fb98" Background="#242424"
                                          VerticalScrollBarVisibility="Visible" FontSize="12" FontFamily="Consolas" />
                 <Grid Grid.Row="3" ColumnDefinitions="Auto,*">

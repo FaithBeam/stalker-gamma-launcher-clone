@@ -170,7 +170,7 @@ public partial class MainTabVm
 
     private void AppendLineHandler(IInteractionContext<string, Unit> interactionCtx)
     {
-        ConsoleOutput.AppendText(interactionCtx.Input);
+        ConsoleOutput.AppendText($"{DateTime.Now:t}:\t{interactionCtx.Input}");
         ConsoleOutput.AppendText(Environment.NewLine);
         ConsoleOutput.ScrollToLine(ConsoleOutput.LineCount);
         interactionCtx.SetOutput(Unit.Default);
