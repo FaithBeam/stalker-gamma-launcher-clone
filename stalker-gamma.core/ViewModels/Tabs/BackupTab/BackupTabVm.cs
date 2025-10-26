@@ -26,7 +26,7 @@ public interface IBackupTabVm
     Interaction<string, Unit> AppendLineInteraction { get; }
     ReactiveCommand<Unit, Unit> OpenBackupFolderCommand { get; }
     Interaction<Unit, string?> ChangeGammaBackupDirectoryInteraction { get; }
-    ReactiveCommand<Unit, string?> BackupCmd { get; }
+    ReactiveCommand<Unit, Task<string?>> BackupCmd { get; }
     ReactiveCommand<Unit, Unit> CancelBackupCmd { get; }
     ReactiveCommand<(string BackupModPath, string BackupName), Unit> DeleteBackupCmd { get; }
     ReactiveCommand<Unit, double> ToggleShowBackupsListCmd { get; }
@@ -312,20 +312,19 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel, IBackup
         var canBackup = this.WhenAnyValue(x => x.IsBusyService.IsBusy, selector: isBusy => !isBusy);
         BackupCmd = ReactiveCommand.CreateFromTask(
             () =>
-                Task.Run(() =>
+                Task.Run(async () =>
                 {
                     var now = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
                     var gammaVersion = Path.Exists(Path.Join(_dir, "version.txt"))
                         ? File.ReadAllText(Path.Join(_dir, "version.txt")).Trim()
                         : "NA";
-                    var gammaHash = getStalkerGammaLastCommitHandler
-                        .ExecuteAsync(
+                    var gammaHash = (
+                        await getStalkerGammaLastCommitHandler.ExecuteAsync(
                             new GetStalkerGammaLastCommit.Query(
                                 Path.Join(_dir, "resources", "Stalker_GAMMA")
                             )
                         )
-                        .GetAwaiter()
-                        .GetResult()[..9];
+                    )[..9];
                     now = $"{now}+{gammaVersion}.{gammaHash}";
                     var dstArchive =
                         SelectedBackup switch
@@ -349,35 +348,28 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel, IBackup
                     gammaPath = gammaPath.Replace(commonDir, "").TrimStart('\\');
                     try
                     {
-                        createBackupHandler
-                            .ExecuteAsync(
-                                new Commands.CreateBackup.Command(
-                                    SelectedBackup == BackupType.Full
-                                        ? [anomalyPath, gammaPath]
-                                        :
-                                        [
-                                            Path.Join(anomalyPath, "bin"),
+                        await createBackupHandler.ExecuteAsync(
+                            new Commands.CreateBackup.Command(
+                                SelectedBackup == BackupType.Full
+                                    ? [anomalyPath, gammaPath]
+                                    :
+                                    [
+                                        Path.Join(anomalyPath, "bin"),
 #if DEBUG
-                                            Path.Join(gammaPath, "net9.0", "*.txt"),
+                                        Path.Join(gammaPath, "net9.0", "*.txt"),
 #else
-                                            Path.Join(
-                                                gammaPath,
-                                                ".Grok's Modpack Installer",
-                                                "*.txt"
-                                            ),
+                                        Path.Join(gammaPath, ".Grok's Modpack Installer", "*.txt"),
 #endif
-                                            Path.Join(gammaPath, "mods"),
-                                            Path.Join(gammaPath, "profiles"),
-                                        ],
-                                    dstArchive,
-                                    SelectedCompressionLevel,
-                                    SelectedCompressor,
-                                    BackupCancellationToken,
-                                    WorkingDirectory: Path.GetFullPath(commonDir)
-                                )
+                                        Path.Join(gammaPath, "mods"),
+                                        Path.Join(gammaPath, "profiles"),
+                                    ],
+                                dstArchive,
+                                SelectedCompressionLevel,
+                                SelectedCompressor,
+                                BackupCancellationToken,
+                                WorkingDirectory: Path.GetFullPath(commonDir)
                             )
-                            .GetAwaiter()
-                            .GetResult();
+                        );
                     }
                     catch (OperationCanceledException)
                     {
@@ -421,43 +413,44 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel, IBackup
         );
         RestoreBackupCmd = ReactiveCommand.CreateFromTask(
             c =>
-                Task.Run(() =>
-                {
-                    backupTabProgressService.UpdateProgress(
-                        """
+                Task.Run(
+                    async () =>
+                    {
+                        backupTabProgressService.UpdateProgress(
+                            """
 
-                        ====== Begin restore ======
+                            ====== Begin restore ======
 
-                        This may take a while, potentially 20 minutes depending on settings, and there will not be restore progress reported by 7zip.
-                        Be patient.
-                        """
-                    );
-                    var gammaPath = getGammaPathHandler.Execute().TrimStart('\\');
-                    var anomalyPath =
-                        getAnomalyPathHandler.Execute()?.Replace(@"\\", "\\").TrimStart('\\') ?? "";
-                    var archivePath = Path.Join(PartialBackupPath, SelectedModBackup!.FileName);
-                    var workDir = PathUtils.GetCommonDirectory(anomalyPath, gammaPath)!;
-                    var anomalyBinFolder = Path.Join(anomalyPath, "bin");
-                    var gammaModsFolder = Path.Join(gammaPath, "mods");
-                    restoreBackupHandler
-                        .ExecuteAsync(
+                            This may take a while, potentially 20 minutes depending on settings, and there will not be restore progress reported by 7zip.
+                            Be patient.
+                            """
+                        );
+                        var gammaPath = getGammaPathHandler.Execute().TrimStart('\\');
+                        var anomalyPath =
+                            getAnomalyPathHandler.Execute()?.Replace(@"\\", "\\").TrimStart('\\')
+                            ?? "";
+                        var archivePath = Path.Join(PartialBackupPath, SelectedModBackup!.FileName);
+                        var workDir = PathUtils.GetCommonDirectory(anomalyPath, gammaPath)!;
+                        var anomalyBinFolder = Path.Join(anomalyPath, "bin");
+                        var gammaModsFolder = Path.Join(gammaPath, "mods");
+                        await restoreBackupHandler.ExecuteAsync(
                             new Commands.RestoreBackup.Command(
                                 archivePath,
                                 ".",
                                 workDir,
                                 DirsToClean: [anomalyBinFolder, gammaModsFolder]
                             )
-                        )
-                        .GetAwaiter()
-                        .GetResult();
-                    backupTabProgressService.UpdateProgress(
-                        """
+                        );
+                        backupTabProgressService.UpdateProgress(
+                            """
 
-                        ====== Restore complete ======
+                            ====== Restore complete ======
 
-                        """
-                    );
-                }),
+                            """
+                        );
+                    },
+                    c
+                ),
             canRestore
         );
         RestoreBackupCmd.ThrownExceptions.Subscribe(x =>
@@ -534,7 +527,7 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel, IBackup
     public Interaction<string, Unit> AppendLineInteraction { get; }
     public ReactiveCommand<Unit, Unit> OpenBackupFolderCommand { get; }
     public Interaction<Unit, string?> ChangeGammaBackupDirectoryInteraction { get; }
-    public ReactiveCommand<Unit, string?> BackupCmd { get; }
+    public ReactiveCommand<Unit, Task<string?>> BackupCmd { get; }
     public ReactiveCommand<Unit, Unit> CancelBackupCmd { get; }
     public ReactiveCommand<(string BackupModPath, string BackupName), Unit> DeleteBackupCmd { get; }
     public ReactiveCommand<Unit, double> ToggleShowBackupsListCmd { get; }

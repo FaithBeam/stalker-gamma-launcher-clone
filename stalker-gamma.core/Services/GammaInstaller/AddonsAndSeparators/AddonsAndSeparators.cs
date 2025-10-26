@@ -81,13 +81,15 @@ public class AddonsAndSeparators(
             {
                 f.Count,
                 f.File,
-                Dl = (Func<bool>)(
-                    () =>
+                Dl = (Func<Task<bool>>)(
+                    async () =>
                     {
                         if (
-                            !f.File!.ShouldDownloadAsync(downloadsPath, checkMd5, forceGitDownload)
-                                .GetAwaiter()
-                                .GetResult()
+                            !await f.File!.ShouldDownloadAsync(
+                                downloadsPath,
+                                checkMd5,
+                                forceGitDownload
+                            )
                         )
                         {
                             return false;
@@ -98,14 +100,12 @@ public class AddonsAndSeparators(
                         );
 
                         if (
-                            !f
-                                .File.DownloadAsync(downloadsPath, useCurlImpersonate)
-                                .GetAwaiter()
-                                .GetResult()
-                            || !f
-                                .File.ShouldDownloadAsync(downloadsPath, checkMd5, forceGitDownload)
-                                .GetAwaiter()
-                                .GetResult()
+                            !await f.File.DownloadAsync(downloadsPath, useCurlImpersonate)
+                            || !await f.File.ShouldDownloadAsync(
+                                downloadsPath,
+                                checkMd5,
+                                forceGitDownload
+                            )
                         )
                         {
                             return true;
@@ -114,14 +114,14 @@ public class AddonsAndSeparators(
                         progressService.UpdateProgress(
                             $"Md5 mismatch in downloaded file: {f.File.DlPath}. Downloading again."
                         );
-                        f.File.DownloadAsync(downloadsPath, useCurlImpersonate)
-                            .GetAwaiter()
-                            .GetResult();
+                        await f.File.DownloadAsync(downloadsPath, useCurlImpersonate);
 
                         return true;
                     }
                 ),
-                Extract = (Action)(() => Extract(f.File!, modsPaths, total, f.Count)),
+                Extract = (Func<Task>)(
+                    async () => await ExtractAsync(f.File!, modsPaths, total, f.Count)
+                ),
             });
 
         foreach (var separator in separators)
@@ -130,12 +130,12 @@ public class AddonsAndSeparators(
         }
 
         // download
-        var dlChannel = Channel.CreateUnbounded<(Action extractAction, bool justDownloaded)>();
+        var dlChannel = Channel.CreateUnbounded<(Func<Task> extractAction, bool justDownloaded)>();
         var t1 = Task.Run(async () =>
         {
             foreach (var dlRec in downloadableRecords)
             {
-                var extract = dlRec.Dl();
+                var extract = await dlRec.Dl();
                 await dlChannel.Writer.WriteAsync((dlRec.Extract, extract));
             }
 
@@ -150,7 +150,7 @@ public class AddonsAndSeparators(
                 var (extractAction, justDownloaded) = item;
                 if (forceZipExtraction || justDownloaded)
                 {
-                    extractAction.Invoke();
+                    await extractAction.Invoke();
                 }
             }
         });
@@ -158,7 +158,7 @@ public class AddonsAndSeparators(
         await Task.WhenAll(t1, t2);
     }
 
-    private void Extract(
+    private async Task ExtractAsync(
         DownloadableRecord downloadableRecord,
         string modsPaths,
         int total,
@@ -177,10 +177,10 @@ public class AddonsAndSeparators(
 
         downloadableRecord.CleanExtractPath(extractPath);
 
-        downloadableRecord.WriteMetaIniAsync(extractPath).GetAwaiter().GetResult();
+        await downloadableRecord.WriteMetaIniAsync(extractPath);
 
         progressService.UpdateProgress($"\tExtracting to {extractPath}");
-        downloadableRecord.ExtractAsync(extractPath).GetAwaiter().GetResult();
+        await downloadableRecord.ExtractAsync(extractPath);
         progressService.UpdateProgress(counter / (double)total * 100);
     }
 }

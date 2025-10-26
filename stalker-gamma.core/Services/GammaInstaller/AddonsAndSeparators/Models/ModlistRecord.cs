@@ -1,4 +1,7 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Reactive.Linq;
+using System.Text;
+using CliWrap.EventStream;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
 using stalker_gamma.core.Utilities;
 
@@ -95,7 +98,28 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
             throw new Exception($"{nameof(DlPath)} is empty");
         }
 
-        await ArchiveUtility.ExtractAsync(DlPath, extractPath);
+        await ArchiveUtility
+            .Extract(DlPath, extractPath)
+            .ForEachAsync(cmdEvt =>
+            {
+                switch (cmdEvt)
+                {
+                    case ExitedCommandEvent exit:
+                        Debug.WriteLine($"Exit: {exit.ExitCode}");
+                        break;
+                    case StandardErrorCommandEvent stdErr:
+                        Debug.WriteLine($"Error: {stdErr.Text}");
+                        break;
+                    case StandardOutputCommandEvent stdOut:
+                        Debug.WriteLine($"Out: {stdOut.Text}");
+                        break;
+                    case StartedCommandEvent start:
+                        Debug.WriteLine($"Start: {start.ProcessId}");
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(cmdEvt));
+                }
+            });
 
         SolveInstructions(extractPath);
     }

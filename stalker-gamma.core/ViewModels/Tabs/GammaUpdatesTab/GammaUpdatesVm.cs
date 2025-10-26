@@ -60,12 +60,9 @@ public class GammaUpdatesVm : ViewModelBase, IActivatableViewModel, IGammaUpdate
         var getGitDiffCmd = ReactiveCommand.CreateFromTask(() =>
             Task.Run(async () =>
             {
-                gitFetchHandler
-                    .ExecuteAsync(
-                        new GitFetch.Command(Path.Join(_dir, "resources", "Stalker_GAMMA"))
-                    )
-                    .GetAwaiter()
-                    .GetResult();
+                await gitFetchHandler.ExecuteAsync(
+                    new GitFetch.Command(Path.Join(_dir, "resources", "Stalker_GAMMA"))
+                );
                 return await getGitDiffHandler.ExecuteAsync(
                     new GetGitDiff.Query(Path.Join(_dir, "resources", "Stalker_GAMMA"))
                 );
