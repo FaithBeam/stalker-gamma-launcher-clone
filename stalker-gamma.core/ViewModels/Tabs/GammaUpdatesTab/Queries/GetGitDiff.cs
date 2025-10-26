@@ -11,7 +11,7 @@ public static class GetGitDiff
     {
         public async Task<List<GitDiff>> ExecuteAsync(Query q)
         {
-            gu.RunGitCommandObs(q.Dir, "config diff.renameLimit 999999").GetAwaiter().GetResult();
+            await gu.RunGitCommandObs(q.Dir, "config diff.renameLimit 999999");
             return (await gu.RunGitCommandObs(q.Dir, "diff main origin/main --name-status"))
                 .Trim()
                 .Split("\n")
