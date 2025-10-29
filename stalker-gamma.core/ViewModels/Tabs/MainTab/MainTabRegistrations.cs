@@ -10,8 +10,13 @@ public static class MainTabRegistrations
         services
             .AddScoped<DiffMods.Handler>()
             .AddScoped<IIsMo2VersionDowngraded, IsMo2VersionDowngraded.Handler>()
+            .AddScoped<IUserLtxSetToFullscreenWine, UserLtxSetToFullscreenWine.Handler>()
             .AddScoped<IIsMo2Initialized, IsMo2Initialized.Handler>()
             .AddScoped<IGetLocalGammaVersion, GetLocalGammaVersion.Handler>()
+            .AddScoped<
+                IUserLtxReplaceFullscreenWithBorderlessFullscreen,
+                UserLtxReplaceFullscreenWithBorderlessFullscreen.Handler
+            >()
             .AddScoped<AddFoldersToWinDefenderExclusion.Handler>()
             .AddScoped<EnableLongPathsOnWindows.Handler>();
 }

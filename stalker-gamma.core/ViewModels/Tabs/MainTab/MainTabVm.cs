@@ -76,8 +76,13 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
     private readonly ObservableAsPropertyHelper<bool?> _isMo2VersionDowngraded;
     private readonly ObservableAsPropertyHelper<bool> _isMo2Initialized;
     private readonly ObservableAsPropertyHelper<string?> _localGammaVersion;
+    private readonly ObservableAsPropertyHelper<bool?> _userLtxSetToFullscreenWine;
+    private readonly ObservableAsPropertyHelper<string?> _anomalyPath;
+    private readonly ObservableAsPropertyHelper<string?> _userLtxPath;
 
     public MainTabVm(
+        IUserLtxReplaceFullscreenWithBorderlessFullscreen userLtxReplaceFullscreenWithBorderlessFullscreen,
+        IUserLtxSetToFullscreenWine userLtxSetToFullscreenWine,
         IGetLocalGammaVersion getLocalGammaVersion,
         IIsMo2Initialized isMo2Initialized,
         IIsMo2VersionDowngraded isMo2VersionDowngraded,
@@ -109,6 +114,102 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
             "..",
             "ModOrganizer.exe"
         );
+
+        IsRanWithWineCmd = ReactiveCommand.CreateFromTask(async () =>
+            await Task.Run(isRanWithWineService.IsRanWithWine)
+        );
+        IsRanWithWineCmd.ThrownExceptions.Subscribe(x =>
+            progressService.UpdateProgress(
+                $"""
+
+                ERROR DETERMINING IF RAN WITH WINE
+                {x}
+                """
+            )
+        );
+        _isRanWithWine = IsRanWithWineCmd.ToProperty(this, x => x.IsRanWithWine);
+
+        AnomalyPathCmd = ReactiveCommand.CreateFromTask(async () =>
+            await Task.Run(getAnomalyPathHandler.Execute)
+        );
+        AnomalyPathCmd.ThrownExceptions.Subscribe(x =>
+            progressService.UpdateProgress(
+                $"""
+
+                ERROR FINDING ANOMALY PATH
+                {x.Message}
+                {x.StackTrace}
+                """
+            )
+        );
+        _anomalyPath = AnomalyPathCmd.ToProperty(this, x => x.AnomalyPath);
+
+        _userLtxPath = this.WhenAnyValue(x => x.AnomalyPath)
+            .Select(x => Path.Join(x, "appdata", "user.ltx"))
+            .ToProperty(this, x => x.UserLtxPath);
+
+        var userLtxSetToFullscreenWineCanExec = this.WhenAnyValue(
+            x => x.UserLtxPath,
+            x => x.IsRanWithWine,
+            selector: (userLtxPath, ranWithWine) => ranWithWine && File.Exists(userLtxPath)
+        );
+        UserLtxSetToFullscreenWineCmd = ReactiveCommand.CreateFromTask(
+            async () =>
+                await userLtxSetToFullscreenWine.ExecuteAsync(
+                    new UserLtxSetToFullscreenWine.Query(UserLtxPath!)
+                ),
+            userLtxSetToFullscreenWineCanExec
+        );
+        UserLtxSetToFullscreenWineCmd.ThrownExceptions.Subscribe(x =>
+            progressService.UpdateProgress(
+                $"""
+
+                ERROR DETERMINING IF USER.LTX IS SET TO FULLSCREEN
+                {x.Message}
+                {x.StackTrace}
+                """
+            )
+        );
+        _userLtxSetToFullscreenWine = UserLtxSetToFullscreenWineCmd.ToProperty(
+            this,
+            x => x.UserLtxSetToFullscreenWine
+        );
+        this.WhenAnyValue(
+                x => x.UserLtxPath,
+                x => x.IsRanWithWine,
+                selector: (userLtxPath, ranWithWine) => ranWithWine && File.Exists(userLtxPath)
+            )
+            .Where(x => x)
+            .Subscribe(_ => UserLtxSetToFullscreenWineCmd.Execute().Subscribe());
+
+        UserLtxReplaceFullscreenWithBorderlessFullscreen = ReactiveCommand.CreateFromTask<string>(
+            async pathToUserLtx =>
+                await userLtxReplaceFullscreenWithBorderlessFullscreen.ExecuteAsync(
+                    new UserLtxReplaceFullscreenWithBorderlessFullscreen.Command(pathToUserLtx)
+                )
+        );
+        UserLtxReplaceFullscreenWithBorderlessFullscreen.ThrownExceptions.Subscribe(x =>
+            progressService.UpdateProgress(
+                $"""
+
+                ERROR EDITING USER.LTX WITH BORDERLESS FULLSCREEN
+                {x.Message}
+                {x.StackTrace}
+                """
+            )
+        );
+        UserLtxSetToFullscreenWineCmd
+            .Where(x => x.HasValue && x.Value)
+            .Subscribe(_ =>
+            {
+                UserLtxReplaceFullscreenWithBorderlessFullscreen.Execute(UserLtxPath!).Subscribe();
+                progressService.UpdateProgress(
+                    """
+
+                    Replaced user.ltx fullscreen option with borderless fullscreen to avoid issues
+                    """
+                );
+            });
 
         LocalGammaVersionsCmd = ReactiveCommand.CreateFromTask(async () =>
             await Task.Run(() =>
@@ -191,20 +292,6 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
         );
         _longPathsStatus = LongPathsStatusCmd.ToProperty(this, x => x.LongPathsStatus);
 
-        IsRanWithWineCmd = ReactiveCommand.CreateFromTask(async () =>
-            await Task.Run(isRanWithWineService.IsRanWithWine)
-        );
-        IsRanWithWineCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(
-                $"""
-
-                ERROR DETERMINING IF RAN WITH WINE
-                {x}
-                """
-            )
-        );
-        _isRanWithWine = IsRanWithWineCmd.ToProperty(this, x => x.IsRanWithWine);
-
         ToolsReadyCommand = ReactiveCommand.CreateFromTask(async () =>
             await Task.Run(() => new ToolsReadyRecord(curlService.Ready))
         );
@@ -220,6 +307,7 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                 {
                     notRdy.Add("Curl not found");
                 }
+
                 var notRdyTools = string.Join("\n", notRdy);
                 progressService.UpdateProgress(
                     $"""
@@ -573,7 +661,10 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                     ".Grok's Modpack Installer",
 #endif
                     StringComparison.OrdinalIgnoreCase);
+
                 InGroksModPackDir.Execute().Subscribe();
+
+                AnomalyPathCmd.Execute().Subscribe();
 
                 LocalGammaVersionsCmd.Execute().Subscribe();
 
@@ -680,6 +771,11 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
 
     public string? LocalGammaVersion => _localGammaVersion.Value;
 
+    public bool? UserLtxSetToFullscreenWine => _userLtxSetToFullscreenWine.Value;
+
+    public string? AnomalyPath => _anomalyPath.Value;
+    public string? UserLtxPath => _userLtxPath.Value;
+
     public ReactiveCommand<Unit, bool> IsRanWithWineCmd { get; set; }
     public ReactiveCommand<Unit, Unit> EnableLongPathsOnWindowsCmd { get; set; }
     public ReactiveCommand<Unit, string> AddFoldersToWinDefenderExclusionCmd { get; set; }
@@ -695,5 +791,8 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
     public ReactiveCommand<Unit, bool?> IsMo2VersionDowngradedCmd { get; }
     public ReactiveCommand<Unit, bool> IsMo2InitializedCmd { get; }
     public ReactiveCommand<Unit, string?> LocalGammaVersionsCmd { get; }
+    public ReactiveCommand<Unit, bool?> UserLtxSetToFullscreenWineCmd { get; }
+    public ReactiveCommand<string, Unit> UserLtxReplaceFullscreenWithBorderlessFullscreen { get; }
+    public ReactiveCommand<Unit, string?> AnomalyPathCmd { get; }
     public ViewModelActivator Activator { get; }
 }
