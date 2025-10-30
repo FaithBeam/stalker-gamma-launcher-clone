@@ -98,10 +98,7 @@ public class AddonsAndSeparators(
                                 progressService.UpdateProgress(
                                     $"_______________ {f.File.AddonName} _______________"
                                 );
-                                if (await f.File.DownloadAsync(downloadsPath, useCurlImpersonate))
-                                {
-                                    return true;
-                                }
+                                await f.File.DownloadAsync(downloadsPath, useCurlImpersonate);
                                 return true;
                             case DownloadableRecord.Action.DownloadMd5Mismatch:
                                 progressService.UpdateProgress(
@@ -110,20 +107,14 @@ public class AddonsAndSeparators(
                                 progressService.UpdateProgress(
                                     $"Md5 mismatch in downloaded file: {f.File.DlPath}. Downloading again."
                                 );
-                                if (await f.File.DownloadAsync(downloadsPath, useCurlImpersonate))
-                                {
-                                    return true;
-                                }
+                                await f.File.DownloadAsync(downloadsPath, useCurlImpersonate);
                                 return true;
                             case DownloadableRecord.Action.DownloadForced:
                                 progressService.UpdateProgress(
                                     $"_______________ {f.File.AddonName} _______________"
                                 );
                                 progressService.UpdateProgress("Forced downloading");
-                                if (await f.File.DownloadAsync(downloadsPath, useCurlImpersonate))
-                                {
-                                    return true;
-                                }
+                                await f.File.DownloadAsync(downloadsPath, useCurlImpersonate);
                                 return true;
                             default:
                                 throw new ArgumentOutOfRangeException(
