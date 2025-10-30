@@ -546,6 +546,7 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
             )
         );
         InstallUpdateGammaCmd.Subscribe(_ => LocalGammaVersionsCmd.Execute().Subscribe());
+        InstallUpdateGammaCmd.Subscribe(_ => AnomalyPathCmd.Execute().Subscribe());
 
         var canPlay = this.WhenAnyValue(
             x => x.IsBusyService.IsBusy,
