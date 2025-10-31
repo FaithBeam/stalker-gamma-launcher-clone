@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using CliWrap;
 using CliWrap.EventStream;
+using CliWrap.Exceptions;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
 using stalker_gamma.core.Utilities;
 
@@ -94,34 +95,48 @@ public class GammaInstaller(
         var stdOutSb = new StringBuilder();
         var stdErrSb = new StringBuilder();
 
-        await Cli.Wrap(Path.Combine(_dir, "..", "ModOrganizer.exe"))
-            .Observe()
-            .ForEachAsync(cmdEvt =>
-            {
-                switch (cmdEvt)
+        try
+        {
+            await Cli.Wrap(Path.Combine(_dir, "..", "ModOrganizer.exe"))
+                .Observe()
+                .ForEachAsync(cmdEvt =>
                 {
-                    case ExitedCommandEvent exit:
-                        if (exit.ExitCode != 0)
-                        {
-                            throw new ModOrganizerServiceException(
-                                $"""
+                    switch (cmdEvt)
+                    {
+                        case ExitedCommandEvent exit:
+                            if (exit.ExitCode != 0)
+                            {
+                                throw new ModOrganizerServiceException(
+                                    $"""
 
-                                Exit Code: {exit.ExitCode}
-                                StdErr:  {stdErrSb}
-                                StdOut: {stdOutSb}
-                                """
-                            );
-                        }
+                                    Exit Code: {exit.ExitCode}
+                                    StdErr:  {stdErrSb}
+                                    StdOut: {stdOutSb}
+                                    """
+                                );
+                            }
 
-                        break;
-                    case StandardErrorCommandEvent stdErr:
-                        stdErrSb.AppendLine(stdErr.Text);
-                        break;
-                    case StandardOutputCommandEvent stdOut:
-                        stdOutSb.AppendLine(stdOut.Text);
-                        break;
-                }
-            });
+                            break;
+                        case StandardErrorCommandEvent stdErr:
+                            stdErrSb.AppendLine(stdErr.Text);
+                            break;
+                        case StandardOutputCommandEvent stdOut:
+                            stdOutSb.AppendLine(stdOut.Text);
+                            break;
+                    }
+                });
+        }
+        catch (CommandExecutionException e)
+        {
+            throw new ModOrganizerServiceException(
+                $"""
+
+                StdErr:  {stdErrSb}
+                StdOut: {stdOutSb}
+                """,
+                e
+            );
+        }
     }
 
     public async Task InstallUpdateGammaAsync(

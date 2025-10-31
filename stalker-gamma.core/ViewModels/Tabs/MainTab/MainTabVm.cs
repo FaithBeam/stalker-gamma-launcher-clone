@@ -428,7 +428,9 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
             progressService.UpdateProgress(
                 $"""
                 Error in first install initialization:
-                {x}
+                {x.Message}
+                {x.InnerException?.Message}
+                {x.StackTrace}
                 """
             )
         );
