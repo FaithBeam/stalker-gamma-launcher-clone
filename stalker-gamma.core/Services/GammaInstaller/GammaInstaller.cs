@@ -1,5 +1,8 @@
+using System.Reactive.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using CliWrap;
+using CliWrap.EventStream;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
 using stalker_gamma.core.Utilities;
 
@@ -88,7 +91,37 @@ public class GammaInstaller(
             """
         );
 
-        await Cli.Wrap(Path.Combine(_dir, "..", "ModOrganizer.exe")).ExecuteAsync();
+        var stdOutSb = new StringBuilder();
+        var stdErrSb = new StringBuilder();
+
+        await Cli.Wrap(Path.Combine(_dir, "..", "ModOrganizer.exe"))
+            .Observe()
+            .ForEachAsync(cmdEvt =>
+            {
+                switch (cmdEvt)
+                {
+                    case ExitedCommandEvent exit:
+                        if (exit.ExitCode != 0)
+                        {
+                            throw new ModOrganizerServiceException(
+                                $"""
+
+                                Exit Code: {exit.ExitCode}
+                                StdErr:  {stdErrSb}
+                                StdOut: {stdOutSb}
+                                """
+                            );
+                        }
+
+                        break;
+                    case StandardErrorCommandEvent stdErr:
+                        stdErrSb.AppendLine(stdErr.Text);
+                        break;
+                    case StandardOutputCommandEvent stdOut:
+                        stdOutSb.AppendLine(stdOut.Text);
+                        break;
+                }
+            });
     }
 
     public async Task InstallUpdateGammaAsync(
