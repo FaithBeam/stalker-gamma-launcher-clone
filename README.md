@@ -7,10 +7,25 @@ A clone of Grokitach's Stalker GAMMA Launcher with WINE compatibility and extra 
 ## Features
 
 - ~33% faster than the original GAMMA Launcher (24 minutes vs 16 minutes)
-  - 8c/16t CPU, NVME, 600mbps connection
+  - 8c/16t 7800X3D CPU, NVME, 600mbps connection
 - [Backups](https://github.com/FaithBeam/stalker-gamma-launcher-clone/wiki/Backups)
 - [Gamma updates information](https://github.com/FaithBeam/stalker-gamma-launcher-clone/wiki/Gamma-Updates-Tab)
 - [ModDb updates information](https://github.com/FaithBeam/stalker-gamma-launcher-clone/wiki/ModDb-Updates-Tab)
+
+## Performance
+
+|              | Gamma Launcher (Original) | Gamma Launcher Clone (Mine) | Gamma Launcher (Python) |
+|--------------|----------------|----------------------|----------------|
+| **System 1** | 24mins         | 16mins               | N/A            |
+| **System 2** | N/A            | 24mins               | N/A            |
+| **System 3** | N/A            | N/A                  | N/A            |
+
+- System 1
+  - 8c/16t 7800X3D CPU, NVME
+- System 2
+  - Beelink SER8 (8c/16t AMD Ryzen 7 8745HS CPU, SSD)
+- System 3
+  - Macbook Pro M4 Max (14c CPU, NVME)
 
 ## Usage
 
