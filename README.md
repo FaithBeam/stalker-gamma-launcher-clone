@@ -23,7 +23,7 @@ A clone of Grokitach's Stalker GAMMA Launcher with WINE compatibility and extra 
   - 8c/16t 7800X3D CPU, NVME
   - Windows 11
 - System 2
-  - Beelink SER8 (8c/16t AMD Ryzen 7 8745HS CPU, SSD)
+  - 8c/16t AMD Ryzen 7 8745HS CPU, SSD
   - Linux - CachyOS
 - System 3
   - Macbook Pro M4 Max (14c CPU, NVME)
