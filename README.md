@@ -13,7 +13,7 @@ A clone of Grokitach's Stalker GAMMA Launcher with WINE compatibility and extra 
 
 ## First Install Time Taken
 
-|              | Gamma Launcher (Original) | Gamma Launcher Clone (Mine) | Gamma Launcher (Python) |
+|              | Gamma Launcher (Original) | Gamma Launcher Clone (This Repo) | Gamma Launcher (Python) |
 |--------------|----------------|----------------------|----------------|
 | **System 1** | 24mins         | 16mins               | N/A            |
 | **System 2** | N/A            | 24mins               | N/A            |
