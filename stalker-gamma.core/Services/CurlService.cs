@@ -56,9 +56,10 @@ public class CurlService(
             {
                 cmd = cmd.WithWorkingDirectory(workingDir);
             }
-            cmd = cmd.WithArguments(
-                $"--config \"{Path.Join(PathToCurlImpersonateWin, "config", "chrome116.config")}\" --header \"@{Path.Join(PathToCurlImpersonateWin, "config", "chrome116.header")}\" --clobber -Lo \"{Path.Join(pathToDownloads, fileName)}\" {url}"
-            );
+
+            var args =
+                $"--config \"{Path.Join(PathToCurlImpersonateWin, "config", "chrome116.config")}\" --header \"@{Path.Join(PathToCurlImpersonateWin, "config", "chrome116.header")}\" --clobber -Lo \"{Path.Join(pathToDownloads, fileName)}\" {url}";
+            cmd = cmd.WithArguments(args);
             try
             {
                 await cmd.ExecuteAsync();
@@ -68,6 +69,7 @@ public class CurlService(
                 throw new CurlDownloadException(
                     $"""
                     Error downloading file: {url}
+                    Args: {args}
                     StdOut: {stdOut}
                     StdErr: {stdErr}
                     """,
