@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using System.Threading.Channels;
+using CliWrap.Exceptions;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Factories;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
 
@@ -155,7 +156,21 @@ public class AddonsAndSeparators(
                 var (extractAction, justDownloaded) = item;
                 if (forceZipExtraction || justDownloaded)
                 {
-                    await extractAction.Invoke();
+                    try
+                    {
+                        await extractAction.Invoke();
+                    }
+                    catch (CommandExecutionException e)
+                    {
+                        progressService.UpdateProgress(
+                            $"""
+
+                            ERROR EXTRACTING, SKIPPING. YOU WILL NEED TO RUN INSTALL / UPDATE AGAIN WITH MD5 CHECKED
+                            {e}
+                            """
+                        );
+                        throw;
+                    }
                 }
             }
         });
