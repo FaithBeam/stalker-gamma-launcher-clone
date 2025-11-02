@@ -165,7 +165,7 @@ public class AddonsAndSeparators(
                     var extract = await dlRec.Dl();
                     await dlChannel.Writer.WriteAsync((dlRec, extract));
                 }
-                catch (CommandExecutionException e)
+                catch (CurlDownloadException e)
                 {
                     progressService.UpdateProgress(
                         $"""
@@ -194,10 +194,13 @@ public class AddonsAndSeparators(
                     }
                     catch (CommandExecutionException e)
                     {
+                        var extractPath = Path.Join(
+                            $"{item.dlRec.Count}-{item.dlRec.File.AddonName}{item.dlRec.File.Patch}"
+                        );
                         progressService.UpdateProgress(
                             $"""
 
-                            ERROR EXTRACTING {item.dlRec.File.ZipName}, SKIPPING. WILL RETRY AT THE END.
+                            ERROR EXTRACTING {extractPath}, SKIPPING. WILL RETRY AT THE END.
                             {e}
                             """
                         );
