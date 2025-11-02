@@ -169,7 +169,6 @@ public class AddonsAndSeparators(
                             {e}
                             """
                         );
-                        throw;
                     }
                 }
             }
