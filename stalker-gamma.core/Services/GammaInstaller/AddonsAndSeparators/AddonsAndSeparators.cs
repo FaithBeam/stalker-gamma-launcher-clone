@@ -84,39 +84,44 @@ public class AddonsAndSeparators(
                 Dl = (Func<Task<bool>>)(
                     async () =>
                     {
-                        if (
-                            !await f.File!.ShouldDownloadAsync(
-                                downloadsPath,
-                                checkMd5,
-                                forceGitDownload
-                            )
-                        )
-                        {
-                            return false;
-                        }
-
-                        progressService.UpdateProgress(
-                            $"_______________ {f.File.AddonName} _______________"
+                        var shouldDlResult = await f.File!.ShouldDownloadAsync(
+                            downloadsPath,
+                            checkMd5,
+                            forceGitDownload
                         );
 
-                        if (
-                            !await f.File.DownloadAsync(downloadsPath, useCurlImpersonate)
-                            || !await f.File.ShouldDownloadAsync(
-                                downloadsPath,
-                                checkMd5,
-                                forceGitDownload
-                            )
-                        )
+                        switch (shouldDlResult)
                         {
-                            return true;
+                            case DownloadableRecord.Action.DoNothing:
+                                return false;
+                            case DownloadableRecord.Action.DownloadMissing:
+                                progressService.UpdateProgress(
+                                    $"_______________ {f.File.AddonName} _______________"
+                                );
+                                await f.File.DownloadAsync(downloadsPath, useCurlImpersonate);
+                                return true;
+                            case DownloadableRecord.Action.DownloadMd5Mismatch:
+                                progressService.UpdateProgress(
+                                    $"_______________ {f.File.AddonName} _______________"
+                                );
+                                progressService.UpdateProgress(
+                                    $"Md5 mismatch in downloaded file: {f.File.DlPath}. Downloading again."
+                                );
+                                await f.File.DownloadAsync(downloadsPath, useCurlImpersonate);
+                                return true;
+                            case DownloadableRecord.Action.DownloadForced:
+                                progressService.UpdateProgress(
+                                    $"_______________ {f.File.AddonName} _______________"
+                                );
+                                progressService.UpdateProgress("Forced downloading");
+                                await f.File.DownloadAsync(downloadsPath, useCurlImpersonate);
+                                return true;
+                            default:
+                                throw new ArgumentOutOfRangeException(
+                                    nameof(shouldDlResult),
+                                    $"{shouldDlResult}"
+                                );
                         }
-
-                        progressService.UpdateProgress(
-                            $"Md5 mismatch in downloaded file: {f.File.DlPath}. Downloading again."
-                        );
-                        await f.File.DownloadAsync(downloadsPath, useCurlImpersonate);
-
-                        return true;
                     }
                 ),
                 Extract = (Func<Task>)(

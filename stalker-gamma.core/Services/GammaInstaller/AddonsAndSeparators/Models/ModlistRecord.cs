@@ -28,7 +28,15 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
     public string? DlPath { get; set; }
     public string? Dl => DlLink;
 
-    public virtual async Task<bool> ShouldDownloadAsync(
+    public enum Action
+    {
+        DoNothing,
+        DownloadForced,
+        DownloadMissing,
+        DownloadMd5Mismatch,
+    }
+
+    public virtual async Task<Action> ShouldDownloadAsync(
         string downloadsPath,
         bool checkMd5,
         bool forceGitDownload
@@ -44,18 +52,18 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
                 if (!string.IsNullOrWhiteSpace(Md5ModDb))
                 {
                     // file exists, download if local archive md5 does not match md5moddb
-                    return md5 != Md5ModDb;
+                    return md5 == Md5ModDb ? Action.DoNothing : Action.DownloadMd5Mismatch;
                 }
             }
             else
             {
                 // file exists, do not check md5, no need to download again
-                return false;
+                return Action.DoNothing;
             }
         }
 
         // file does not exist, yes download
-        return true;
+        return Action.DownloadMissing;
     }
 
     public virtual async Task<bool> DownloadAsync(string downloadsPath, bool useCurlImpersonate)
@@ -253,13 +261,19 @@ public class GithubRecord(ICurlService curlService) : DownloadableRecord(curlSer
 {
     public override string Name => $"{DlLink!.Split('/')[4]}.zip";
 
-    public override async Task<bool> ShouldDownloadAsync(
+    public override async Task<Action> ShouldDownloadAsync(
         string downloadsPath,
         bool checkMd5,
         bool forceGitDownload
-    ) =>
-        forceGitDownload
-        || await base.ShouldDownloadAsync(downloadsPath, checkMd5, forceGitDownload);
+    )
+    {
+        if (forceGitDownload)
+        {
+            return Action.DownloadForced;
+        }
+
+        return await base.ShouldDownloadAsync(downloadsPath, checkMd5, forceGitDownload);
+    }
 }
 
 public class GammaLargeFile(ICurlService curlService) : DownloadableRecord(curlService)
@@ -276,7 +290,11 @@ public class ModDbRecord(ModDb modDb, ICurlService curlService) : DownloadableRe
         DlPath ??= Path.Join(downloadsPath, Name);
         await modDb.GetModDbLinkCurl(DlLink!, DlPath);
 
-        if (await ShouldDownloadAsync(downloadsPath, true, false))
+        if (
+            await ShouldDownloadAsync(downloadsPath, true, false)
+            is Action.DownloadMissing
+                or Action.DownloadMd5Mismatch
+        )
         {
             await modDb.GetModDbLinkCurl(DlLink!, DlPath);
         }

@@ -428,7 +428,9 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
             progressService.UpdateProgress(
                 $"""
                 Error in first install initialization:
-                {x}
+                {x.Message}
+                {x.InnerException?.Message}
+                {x.StackTrace}
                 """
             )
         );
@@ -531,7 +533,7 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                         PreserveUserLtx
                     )
                 );
-                BackgroundCheckUpdatesCmd.Execute().Subscribe();
+
                 IsBusyService.IsBusy = false;
             },
             canInstallUpdateGamma
@@ -546,6 +548,14 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
             )
         );
         InstallUpdateGammaCmd.Subscribe(_ => LocalGammaVersionsCmd.Execute().Subscribe());
+        InstallUpdateGammaCmd.Subscribe(_ => BackgroundCheckUpdatesCmd.Execute().Subscribe());
+        InstallUpdateGammaCmd
+            .Where(_ => IsRanWithWine)
+            .Subscribe(_ =>
+                UserLtxReplaceFullscreenWithBorderlessFullscreen
+                    .Execute(UserLtxPath ?? "")
+                    .Subscribe()
+            );
 
         var canPlay = this.WhenAnyValue(
             x => x.IsBusyService.IsBusy,
