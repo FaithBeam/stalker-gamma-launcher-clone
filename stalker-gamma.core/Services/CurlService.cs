@@ -1,5 +1,6 @@
 using System.Text;
 using CliWrap;
+using CliWrap.Exceptions;
 
 namespace stalker_gamma.core.Services;
 
@@ -55,26 +56,25 @@ public class CurlService(
             {
                 cmd = cmd.WithWorkingDirectory(workingDir);
             }
-            if (_operatingSystemService.IsWindows())
+
+            var args =
+                $"--config \"{Path.Join(PathToCurlImpersonateWin, "config", "chrome116.config")}\" --header \"@{Path.Join(PathToCurlImpersonateWin, "config", "chrome116.header")}\" --clobber -Lo \"{Path.Join(pathToDownloads, fileName)}\" {url}";
+            cmd = cmd.WithArguments(args);
+            try
             {
-                cmd = cmd.WithArguments(
-                    $"--config \"{Path.Join(PathToCurlImpersonateWin, "config", "chrome116.config")}\" --header \"@{Path.Join(PathToCurlImpersonateWin, "config", "chrome116.header")}\" -Lo \"{Path.Join(pathToDownloads, fileName)}\" {url}"
+                await cmd.ExecuteAsync();
+            }
+            catch (CommandExecutionException e)
+            {
+                throw new CurlDownloadException(
+                    $"""
+                    Error downloading file: {url}
+                    Args: {args}
+                    StdOut: {stdOut}
+                    StdErr: {stdErr}
+                    """,
+                    e
                 );
-            }
-            else if (_operatingSystemService.IsMacOS() || _operatingSystemService.IsLinux())
-            {
-                cmd = cmd.WithArguments(
-                    $"docker run --mount type=bind,src={pathToDownloads},dst=/downloads --rm lwthiker/curl-impersonate:0.6-chrome curl_chrome116 -Lo /downloads/{fileName} {url}"
-                );
-            }
-            else
-            {
-                throw new Exception("Unsupported OS");
-            }
-            var result = await cmd.ExecuteAsync();
-            if (!result.IsSuccess)
-            {
-                throw new Exception($"{stdErr}\n{stdOut}");
             }
         }
         else
@@ -129,4 +129,10 @@ public class CurlService(
         _operatingSystemService.IsWindows() ? WindowsGetStringCmd
         : _operatingSystemService.IsMacOS() ? MacosGetStringCmd
         : LinuxGetStringCmd;
+}
+
+public class CurlDownloadException : Exception
+{
+    public CurlDownloadException(string message, Exception innerException)
+        : base(message, innerException) { }
 }

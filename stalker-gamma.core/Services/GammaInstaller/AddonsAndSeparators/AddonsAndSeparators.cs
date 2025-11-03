@@ -1,5 +1,6 @@
-using System.Linq.Expressions;
+using System.Collections.Concurrent;
 using System.Threading.Channels;
+using CliWrap.Exceptions;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Factories;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
 
@@ -74,14 +75,14 @@ public class AddonsAndSeparators(
                     }
                 ),
             });
+
         var downloadableRecords = summedFiles
             .Where(f => f.File is DownloadableRecord)
             .Select(f => new { f.Count, File = f.File as DownloadableRecord })
-            .Select(f => new
-            {
-                f.Count,
-                f.File,
-                Dl = (Func<Task<bool>>)(
+            .Select(f => new DownloadableRecordPipeline(
+                Count: f.Count,
+                File: f.File!,
+                Dl: (Func<Task<bool>>)(
                     async () =>
                     {
                         var shouldDlResult = await f.File!.ShouldDownloadAsync(
@@ -124,24 +125,57 @@ public class AddonsAndSeparators(
                         }
                     }
                 ),
-                Extract = (Func<Task>)(
+                Extract: (Func<Task>)(
                     async () => await ExtractAsync(f.File!, modsPaths, total, f.Count)
-                ),
-            });
+                )
+            ));
 
         foreach (var separator in separators)
         {
             separator.Action();
         }
 
+        var brokenInstalls = await DownloadAndExtractAsync(downloadableRecords, forceZipExtraction);
+
+        if (!brokenInstalls.IsEmpty)
+        {
+            await DownloadAndExtractAsync(brokenInstalls, forceZipExtraction);
+        }
+    }
+
+    private async Task<ConcurrentQueue<DownloadableRecordPipeline>> DownloadAndExtractAsync(
+        IEnumerable<DownloadableRecordPipeline> downloadableRecords,
+        bool forceZipExtraction
+    )
+    {
         // download
-        var dlChannel = Channel.CreateUnbounded<(Func<Task> extractAction, bool justDownloaded)>();
+        var dlChannel = Channel.CreateUnbounded<(
+            DownloadableRecordPipeline dlRec,
+            bool justDownloaded
+        )>();
+
+        var brokenInstalls = new ConcurrentQueue<DownloadableRecordPipeline>();
+
         var t1 = Task.Run(async () =>
         {
             foreach (var dlRec in downloadableRecords)
             {
-                var extract = await dlRec.Dl();
-                await dlChannel.Writer.WriteAsync((dlRec.Extract, extract));
+                try
+                {
+                    var extract = await dlRec.Dl();
+                    await dlChannel.Writer.WriteAsync((dlRec, extract));
+                }
+                catch (CurlDownloadException e)
+                {
+                    progressService.UpdateProgress(
+                        $"""
+
+                        ERROR DOWNLOADING {dlRec.File.Name}, SKIPPING. WILL RETRY AT THE END.
+                        {e}
+                        """
+                    );
+                    brokenInstalls.Enqueue(dlRec);
+                }
             }
 
             dlChannel.Writer.TryComplete();
@@ -152,15 +186,33 @@ public class AddonsAndSeparators(
         {
             await foreach (var item in dlChannel.Reader.ReadAllAsync())
             {
-                var (extractAction, justDownloaded) = item;
-                if (forceZipExtraction || justDownloaded)
+                if (forceZipExtraction || item.justDownloaded)
                 {
-                    await extractAction.Invoke();
+                    try
+                    {
+                        await item.dlRec.Extract.Invoke();
+                    }
+                    catch (CommandExecutionException e)
+                    {
+                        var extractPath = Path.Join(
+                            $"{item.dlRec.Count}-{item.dlRec.File.AddonName}{item.dlRec.File.Patch}"
+                        );
+                        progressService.UpdateProgress(
+                            $"""
+
+                            ERROR EXTRACTING {extractPath}, SKIPPING. WILL RETRY AT THE END.
+                            {e}
+                            """
+                        );
+                        brokenInstalls.Enqueue(item.dlRec);
+                    }
                 }
             }
         });
 
         await Task.WhenAll(t1, t2);
+
+        return brokenInstalls;
     }
 
     private async Task ExtractAsync(
@@ -189,3 +241,10 @@ public class AddonsAndSeparators(
         progressService.UpdateProgress(counter / (double)total * 100);
     }
 }
+
+internal record DownloadableRecordPipeline(
+    int Count,
+    DownloadableRecord File,
+    Func<Task<bool>> Dl,
+    Func<Task> Extract
+);
