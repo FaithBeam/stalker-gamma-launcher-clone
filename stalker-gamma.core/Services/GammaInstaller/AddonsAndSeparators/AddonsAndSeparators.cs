@@ -3,6 +3,7 @@ using System.Threading.Channels;
 using CliWrap.Exceptions;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Factories;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
+using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators;
 
@@ -137,9 +138,40 @@ public class AddonsAndSeparators(
 
         var brokenInstalls = await DownloadAndExtractAsync(downloadableRecords, forceZipExtraction);
 
-        if (!brokenInstalls.IsEmpty)
+        foreach (var brokenInstall in brokenInstalls)
         {
-            await DownloadAndExtractAsync(brokenInstalls, forceZipExtraction);
+            try
+            {
+                var extract = await brokenInstall.Dl();
+
+                if (forceZipExtraction || extract)
+                {
+                    await brokenInstall.Extract.Invoke();
+                }
+            }
+            catch (CurlDownloadException e)
+            {
+                progressService.UpdateProgress(
+                    $"""
+
+                    ERROR DOWNLOADING {brokenInstall.File.Name}
+                    {e}
+                    """
+                );
+            }
+            catch (SevenZipExtractException e)
+            {
+                var extractPath = Path.Join(
+                    $"{brokenInstall.Count}-{brokenInstall.File.AddonName}{brokenInstall.File.Patch}"
+                );
+                progressService.UpdateProgress(
+                    $"""
+
+                    ERROR EXTRACTING {extractPath}, SKIPPING.
+                    {e}
+                    """
+                );
+            }
         }
     }
 

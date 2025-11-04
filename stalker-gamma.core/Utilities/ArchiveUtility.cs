@@ -1,6 +1,7 @@
 using System.Text;
 using CliWrap;
 using CliWrap.EventStream;
+using CliWrap.Exceptions;
 
 namespace stalker_gamma.core.Utilities;
 
@@ -12,14 +13,26 @@ public static class ArchiveUtility
     {
         var stdOut = new StringBuilder();
         var stdErr = new StringBuilder();
+        var args = $"x \"{archivePath}\" -aoa -o\"{destinationFolder}\"";
         var cmd = Cli.Wrap(SevenZip)
-            .WithArguments($"x \"{archivePath}\" -aoa -o\"{destinationFolder}\"")
+            .WithArguments(args)
             .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOut))
             .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErr));
-        var result = await cmd.ExecuteAsync();
-        if (!result.IsSuccess)
+        try
         {
-            throw new Exception($"{stdErr}\n{stdOut}");
+            await cmd.ExecuteAsync();
+        }
+        catch (CommandExecutionException e)
+        {
+            throw new SevenZipExtractException(
+                $"""
+                Error extracting archive {archivePath}
+                Args: {args}
+                StdOut: {stdOut}
+                StdErr: {stdErr}
+                """,
+                e
+            );
         }
     }
 
@@ -30,13 +43,27 @@ public static class ArchiveUtility
         string? workingDirectory = null
     )
     {
-        var cli = $"x " + $"-y " + $"\"{archivePath}\" " + $"-o\"{destinationFolder}\" ";
-        var cmd = Cli.Wrap(SevenZip).WithArguments(cli);
+        var args = $"x " + $"-y " + $"\"{archivePath}\" " + $"-o\"{destinationFolder}\" ";
+        var cmd = Cli.Wrap(SevenZip).WithArguments(args);
         if (!string.IsNullOrWhiteSpace(workingDirectory))
         {
             cmd = cmd.WithWorkingDirectory(workingDirectory);
         }
-        return ct is not null ? cmd.Observe(ct.Value) : cmd.Observe();
+
+        try
+        {
+            return ct is not null ? cmd.Observe(ct.Value) : cmd.Observe();
+        }
+        catch (CommandExecutionException e)
+        {
+            throw new SevenZipExtractException(
+                $"""
+                Error extracting archive {archivePath}
+                Args: {args}
+                """,
+                e
+            );
+        }
     }
 
     public static IObservable<CommandEvent> List(string archivePath, CancellationToken? ct = null)
@@ -81,12 +108,14 @@ public static class ArchiveUtility
         {
             cmd = cmd.WithWorkingDirectory(workDirectory);
         }
+
         return cancellationToken is not null ? cmd.Observe(cancellationToken.Value) : cmd.Observe();
     }
 
     private const string Macos7Zip = "7zz";
     private const string Windows7Zip = "7z.exe";
     private const string Linux7Zip = "7zzs";
+
     private static readonly string SevenZipPath =
         OperatingSystem.IsWindows() ? Windows7Zip
         : OperatingSystem.IsMacOS() ? Macos7Zip
@@ -96,3 +125,6 @@ public static class ArchiveUtility
         ? Path.Join(Dir, "Resources", "7zip", SevenZipPath)
         : SevenZipPath;
 }
+
+public class SevenZipExtractException(string msg, Exception innerException)
+    : Exception(msg, innerException);
