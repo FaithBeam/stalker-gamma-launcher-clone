@@ -142,12 +142,8 @@ public class AddonsAndSeparators(
         {
             try
             {
-                var extract = await brokenInstall.Dl();
-
-                if (forceZipExtraction || extract)
-                {
-                    await brokenInstall.Extract.Invoke();
-                }
+                await brokenInstall.Dl();
+                await brokenInstall.Extract.Invoke();
             }
             catch (CurlDownloadException e)
             {
