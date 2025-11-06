@@ -24,7 +24,7 @@ A clone of Grokitach's Stalker GAMMA Launcher with WINE compatibility and extra 
   - Windows 11
 - System 2
   - 8c/16t AMD Ryzen 7 8745HS CPU, SSD
-  - Linux - CachyOS
+  - Linux - Debian 13
 - System 3
   - Macbook Pro M4 Max (14c CPU, NVME)
 
