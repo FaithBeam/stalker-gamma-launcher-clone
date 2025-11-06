@@ -67,9 +67,9 @@ public class AddonsAndSeparators(
                     {
                         progressService.UpdateProgress(
                             $"""
-                            _______________ {f.File?.Name} separator _______________
-                            Creating MO2 separator in {Path.Join(modsPaths, f.File?.FolderName)}
-                            """
+                             _______________ {f.File?.Name} separator _______________
+                             Creating MO2 separator in {Path.Join(modsPaths, f.File?.FolderName)}
+                             """
                         );
                         f.File?.WriteMetaIni(modsPaths, f.Count);
                         progressService.UpdateProgress(" ");
@@ -80,56 +80,73 @@ public class AddonsAndSeparators(
         var downloadableRecords = summedFiles
             .Where(f => f.File is DownloadableRecord)
             .Select(f => new { f.Count, File = f.File as DownloadableRecord })
-            .Select(f => new DownloadableRecordPipeline(
-                Count: f.Count,
-                File: f.File!,
-                Dl: (Func<Task<bool>>)(
-                    async () =>
-                    {
-                        var shouldDlResult = await f.File!.ShouldDownloadAsync(
-                            downloadsPath,
-                            checkMd5,
-                            forceGitDownload
-                        );
+            .Select(f => new DownloadableRecordPipeline()
+            {
+                Count = f.Count,
+                File = f.File!,
+                Dl = async excludeMirror =>
+                {
+                    var shouldDlResult = await f.File!.ShouldDownloadAsync(
+                        downloadsPath,
+                        checkMd5,
+                        forceGitDownload
+                    );
 
-                        switch (shouldDlResult)
-                        {
-                            case DownloadableRecord.Action.DoNothing:
-                                return false;
-                            case DownloadableRecord.Action.DownloadMissing:
-                                progressService.UpdateProgress(
-                                    $"_______________ {f.File.AddonName} _______________"
-                                );
-                                await f.File.DownloadAsync(downloadsPath, useCurlImpersonate);
-                                return true;
-                            case DownloadableRecord.Action.DownloadMd5Mismatch:
-                                progressService.UpdateProgress(
-                                    $"_______________ {f.File.AddonName} _______________"
-                                );
-                                progressService.UpdateProgress(
-                                    $"Md5 mismatch in downloaded file: {f.File.DlPath}. Downloading again."
-                                );
-                                await f.File.DownloadAsync(downloadsPath, useCurlImpersonate);
-                                return true;
-                            case DownloadableRecord.Action.DownloadForced:
-                                progressService.UpdateProgress(
-                                    $"_______________ {f.File.AddonName} _______________"
-                                );
-                                progressService.UpdateProgress("Forced downloading");
-                                await f.File.DownloadAsync(downloadsPath, useCurlImpersonate);
-                                return true;
-                            default:
-                                throw new ArgumentOutOfRangeException(
-                                    nameof(shouldDlResult),
-                                    $"{shouldDlResult}"
-                                );
-                        }
+                    string? mirror = null;
+
+                    switch (shouldDlResult)
+                    {
+                        case DownloadableRecord.Action.DoNothing:
+                            return (false, mirror);
+                        case DownloadableRecord.Action.DownloadMissing:
+                            progressService.UpdateProgress(
+                                $"_______________ {f.File.AddonName} _______________"
+                            );
+                            mirror = await f.File.DownloadAsync(downloadsPath, useCurlImpersonate,
+                                excludeMirrors: excludeMirror is null
+                                    ? null
+                                    :
+                                    [
+                                        excludeMirror
+                                    ]);
+                            return (true, mirror);
+                        case DownloadableRecord.Action.DownloadMd5Mismatch:
+                            progressService.UpdateProgress(
+                                $"_______________ {f.File.AddonName} _______________"
+                            );
+                            progressService.UpdateProgress(
+                                $"Md5 mismatch in downloaded file: {f.File.DlPath}. Downloading again."
+                            );
+                            mirror = await f.File.DownloadAsync(downloadsPath, useCurlImpersonate,
+                                excludeMirrors: excludeMirror is null
+                                    ? null
+                                    :
+                                    [
+                                        excludeMirror
+                                    ]);
+                            return (true, mirror);
+                        case DownloadableRecord.Action.DownloadForced:
+                            progressService.UpdateProgress(
+                                $"_______________ {f.File.AddonName} _______________"
+                            );
+                            progressService.UpdateProgress("Forced downloading");
+                            mirror = await f.File.DownloadAsync(downloadsPath, useCurlImpersonate,
+                                excludeMirrors: excludeMirror is null
+                                    ? null
+                                    :
+                                    [
+                                        excludeMirror
+                                    ]);
+                            return (true, mirror);
+                        default:
+                            throw new ArgumentOutOfRangeException(
+                                nameof(shouldDlResult),
+                                $"{shouldDlResult}"
+                            );
                     }
-                ),
-                Extract: (Func<Task>)(
-                    async () => await ExtractAsync(f.File!, modsPaths, total, f.Count)
-                )
-            ));
+                },
+                Extract = async () => await ExtractAsync(f.File!, modsPaths, total, f.Count)
+            });
 
         foreach (var separator in separators)
         {
@@ -142,7 +159,7 @@ public class AddonsAndSeparators(
         {
             try
             {
-                await brokenInstall.Dl();
+                await brokenInstall.Dl(brokenInstall.BadMirror);
                 await brokenInstall.Extract.Invoke();
             }
             catch (CurlDownloadException e)
@@ -150,9 +167,9 @@ public class AddonsAndSeparators(
                 progressService.UpdateProgress(
                     $"""
 
-                    ERROR DOWNLOADING {brokenInstall.File.Name}
-                    {e}
-                    """
+                     ERROR DOWNLOADING {brokenInstall.File.Name}
+                     {e}
+                     """
                 );
             }
             catch (SevenZipExtractException e)
@@ -163,9 +180,9 @@ public class AddonsAndSeparators(
                 progressService.UpdateProgress(
                     $"""
 
-                    ERROR EXTRACTING {extractPath}, SKIPPING.
-                    {e}
-                    """
+                     ERROR EXTRACTING {extractPath}, SKIPPING.
+                     {e}
+                     """
                 );
             }
         }
@@ -180,28 +197,29 @@ public class AddonsAndSeparators(
         var dlChannel = Channel.CreateUnbounded<(
             DownloadableRecordPipeline dlRec,
             bool justDownloaded
-        )>();
+            )>();
 
         var brokenInstalls = new ConcurrentQueue<DownloadableRecordPipeline>();
 
         var t1 = Task.Run(async () =>
         {
+            string? badMirror = null;
             foreach (var dlRec in downloadableRecords)
             {
                 try
                 {
-                    var extract = await dlRec.Dl();
+                    (var extract, badMirror) = await dlRec.Dl(dlRec.BadMirror);
                     await dlChannel.Writer.WriteAsync((dlRec, extract));
                 }
-                catch (CurlDownloadException e)
+                catch (CurlDownloadException)
                 {
                     progressService.UpdateProgress(
                         $"""
 
-                        ERROR DOWNLOADING {dlRec.File.Name}, SKIPPING. WILL RETRY AT THE END.
-                        {e}
-                        """
+                         ERROR DOWNLOADING {dlRec.File.Name}, SKIPPING. WILL RETRY AT THE END.
+                         """
                     );
+                    dlRec.BadMirror = badMirror;
                     brokenInstalls.Enqueue(dlRec);
                 }
             }
@@ -220,7 +238,7 @@ public class AddonsAndSeparators(
                     {
                         await item.dlRec.Extract.Invoke();
                     }
-                    catch (CommandExecutionException e)
+                    catch (CommandExecutionException)
                     {
                         var extractPath = Path.Join(
                             $"{item.dlRec.Count}-{item.dlRec.File.AddonName}{item.dlRec.File.Patch}"
@@ -228,9 +246,8 @@ public class AddonsAndSeparators(
                         progressService.UpdateProgress(
                             $"""
 
-                            ERROR EXTRACTING {extractPath}, SKIPPING. WILL RETRY AT THE END.
-                            {e}
-                            """
+                             ERROR EXTRACTING {extractPath}, SKIPPING. WILL RETRY AT THE END.
+                             """
                         );
                         brokenInstalls.Enqueue(item.dlRec);
                     }
@@ -270,9 +287,19 @@ public class AddonsAndSeparators(
     }
 }
 
-internal record DownloadableRecordPipeline(
-    int Count,
-    DownloadableRecord File,
-    Func<Task<bool>> Dl,
-    Func<Task> Extract
-);
+// internal record DownloadableRecordPipeline(
+//     int Count,
+//     DownloadableRecord File,
+//     Func<string?, Task<(bool, string?)>> Dl,
+//     Func<Task> Extract,
+//     string? BadMirror = null
+// );
+
+internal class DownloadableRecordPipeline
+{
+    public int Count { get; init; }
+    public required DownloadableRecord File { get; init; }
+    public required Func<string?, Task<(bool, string?)>> Dl { get; init; }
+    public required Func<Task> Extract { get; init; }
+    public string? BadMirror { get; set; }
+}

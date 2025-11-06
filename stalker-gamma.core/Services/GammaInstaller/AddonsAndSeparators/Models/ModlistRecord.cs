@@ -66,7 +66,7 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
         return Action.DownloadMissing;
     }
 
-    public virtual async Task<bool> DownloadAsync(string downloadsPath, bool useCurlImpersonate)
+    public virtual async Task<string?> DownloadAsync(string downloadsPath, bool useCurlImpersonate, params string[]? excludeMirrors)
     {
         DlPath ??= Path.Join(downloadsPath, Name);
         if (string.IsNullOrWhiteSpace(Dl))
@@ -80,7 +80,7 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
             useCurlImpersonate,
             _dir
         );
-        return true;
+        return null;
     }
 
     public async Task ExtractAsync(string extractPath)
@@ -285,10 +285,10 @@ public class ModDbRecord(ModDb modDb, ICurlService curlService) : DownloadableRe
 {
     public override string Name => ZipName!;
 
-    public override async Task<bool> DownloadAsync(string downloadsPath, bool useCurlImpersonate)
+    public override async Task<string?> DownloadAsync(string downloadsPath, bool useCurlImpersonate, params string[]? excludeMirrors)
     {
         DlPath ??= Path.Join(downloadsPath, Name);
-        await modDb.GetModDbLinkCurl(DlLink!, DlPath);
+        var mirror = await modDb.GetModDbLinkCurl(DlLink!, DlPath, excludeMirrors: excludeMirrors);
 
         if (
             await ShouldDownloadAsync(downloadsPath, true, false)
@@ -299,6 +299,6 @@ public class ModDbRecord(ModDb modDb, ICurlService curlService) : DownloadableRe
             await modDb.GetModDbLinkCurl(DlLink!, DlPath);
         }
 
-        return true;
+        return mirror;
     }
 }

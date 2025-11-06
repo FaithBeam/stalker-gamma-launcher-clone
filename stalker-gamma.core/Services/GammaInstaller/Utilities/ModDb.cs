@@ -1,5 +1,4 @@
 using System.Text.RegularExpressions;
-using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma.core.Services.GammaInstaller.Utilities;
 
@@ -15,12 +14,19 @@ public partial class ModDb(
     /// <summary>
     /// Downloads from ModDB using curl.
     /// </summary>
-    public async Task GetModDbLinkCurl(string url, string output, bool useCurlImpersonate = true)
+    public async Task<string?> GetModDbLinkCurl(string url, string output, bool useCurlImpersonate = true,
+        params string[]? excludeMirrors)
     {
         var content = await _curlService.GetStringAsync(url);
         var link = WindowLocationRx().Match(content).Groups[1].Value;
         var linkSplit = link.Split('/');
-        var mirror = await _mirrorService.GetMirror();
+        if (excludeMirrors is not null && excludeMirrors.Length > 0)
+        {
+            progressService.UpdateProgress($"Excluding mirrors: {string.Join(", ", excludeMirrors)}");
+        }
+        var mirror = excludeMirrors?.Length == 0
+            ? await _mirrorService.GetMirror()
+            : await _mirrorService.GetMirror(excludeMirrors!);
         if (string.IsNullOrWhiteSpace(mirror))
         {
             progressService.UpdateProgress("Failed to get mirror from API");
@@ -30,6 +36,7 @@ public partial class ModDb(
             progressService.UpdateProgress($"\tBest mirror picked: {mirror}");
             linkSplit[6] = mirror;
         }
+
         var downloadLink = string.Join("/", linkSplit);
         progressService.UpdateProgress($"  Retrieved link: {downloadLink}");
         var parentPath = Directory.GetParent(output);
@@ -37,12 +44,15 @@ public partial class ModDb(
         {
             parentPath.Create();
         }
+
         await _curlService.DownloadFileAsync(
             downloadLink,
             parentPath?.FullName ?? "./",
             Path.GetFileName(output),
             useCurlImpersonate
         );
+
+        return mirror;
     }
 
     [GeneratedRegex("""window.location.href="(.+)";""")]
