@@ -67,9 +67,9 @@ public class AddonsAndSeparators(
                     {
                         progressService.UpdateProgress(
                             $"""
-                             _______________ {f.File?.Name} separator _______________
-                             Creating MO2 separator in {Path.Join(modsPaths, f.File?.FolderName)}
-                             """
+                            _______________ {f.File?.Name} separator _______________
+                            Creating MO2 separator in {Path.Join(modsPaths, f.File?.FolderName)}
+                            """
                         );
                         f.File?.WriteMetaIni(modsPaths, f.Count);
                         progressService.UpdateProgress(" ");
@@ -102,13 +102,11 @@ public class AddonsAndSeparators(
                             progressService.UpdateProgress(
                                 $"_______________ {f.File.AddonName} _______________"
                             );
-                            mirror = await f.File.DownloadAsync(downloadsPath, useCurlImpersonate,
-                                excludeMirrors: excludeMirror is null
-                                    ? null
-                                    :
-                                    [
-                                        excludeMirror
-                                    ]);
+                            mirror = await f.File.DownloadAsync(
+                                downloadsPath,
+                                useCurlImpersonate,
+                                excludeMirrors: excludeMirror is null ? null : [excludeMirror]
+                            );
                             return (true, mirror);
                         case DownloadableRecord.Action.DownloadMd5Mismatch:
                             progressService.UpdateProgress(
@@ -117,26 +115,22 @@ public class AddonsAndSeparators(
                             progressService.UpdateProgress(
                                 $"Md5 mismatch in downloaded file: {f.File.DlPath}. Downloading again."
                             );
-                            mirror = await f.File.DownloadAsync(downloadsPath, useCurlImpersonate,
-                                excludeMirrors: excludeMirror is null
-                                    ? null
-                                    :
-                                    [
-                                        excludeMirror
-                                    ]);
+                            mirror = await f.File.DownloadAsync(
+                                downloadsPath,
+                                useCurlImpersonate,
+                                excludeMirrors: excludeMirror is null ? null : [excludeMirror]
+                            );
                             return (true, mirror);
                         case DownloadableRecord.Action.DownloadForced:
                             progressService.UpdateProgress(
                                 $"_______________ {f.File.AddonName} _______________"
                             );
                             progressService.UpdateProgress("Forced downloading");
-                            mirror = await f.File.DownloadAsync(downloadsPath, useCurlImpersonate,
-                                excludeMirrors: excludeMirror is null
-                                    ? null
-                                    :
-                                    [
-                                        excludeMirror
-                                    ]);
+                            mirror = await f.File.DownloadAsync(
+                                downloadsPath,
+                                useCurlImpersonate,
+                                excludeMirrors: excludeMirror is null ? null : [excludeMirror]
+                            );
                             return (true, mirror);
                         default:
                             throw new ArgumentOutOfRangeException(
@@ -145,7 +139,7 @@ public class AddonsAndSeparators(
                             );
                     }
                 },
-                Extract = async () => await ExtractAsync(f.File!, modsPaths, total, f.Count)
+                Extract = async () => await ExtractAsync(f.File!, modsPaths, total, f.Count),
             });
 
         foreach (var separator in separators)
@@ -167,9 +161,9 @@ public class AddonsAndSeparators(
                 progressService.UpdateProgress(
                     $"""
 
-                     ERROR DOWNLOADING {brokenInstall.File.Name}
-                     {e}
-                     """
+                    ERROR DOWNLOADING {brokenInstall.File.Name}
+                    {e}
+                    """
                 );
             }
             catch (SevenZipExtractException e)
@@ -180,9 +174,9 @@ public class AddonsAndSeparators(
                 progressService.UpdateProgress(
                     $"""
 
-                     ERROR EXTRACTING {extractPath}, SKIPPING.
-                     {e}
-                     """
+                    ERROR EXTRACTING {extractPath}, SKIPPING.
+                    {e}
+                    """
                 );
             }
         }
@@ -197,7 +191,7 @@ public class AddonsAndSeparators(
         var dlChannel = Channel.CreateUnbounded<(
             DownloadableRecordPipeline dlRec,
             bool justDownloaded
-            )>();
+        )>();
 
         var brokenInstalls = new ConcurrentQueue<DownloadableRecordPipeline>();
 
@@ -216,8 +210,8 @@ public class AddonsAndSeparators(
                     progressService.UpdateProgress(
                         $"""
 
-                         ERROR DOWNLOADING {dlRec.File.Name}, SKIPPING. WILL RETRY AT THE END.
-                         """
+                        ERROR DOWNLOADING {dlRec.File.Name}, SKIPPING. WILL RETRY AT THE END.
+                        """
                     );
                     dlRec.BadMirror = badMirror;
                     brokenInstalls.Enqueue(dlRec);
@@ -246,8 +240,8 @@ public class AddonsAndSeparators(
                         progressService.UpdateProgress(
                             $"""
 
-                             ERROR EXTRACTING {extractPath}, SKIPPING. WILL RETRY AT THE END.
-                             """
+                            ERROR EXTRACTING {extractPath}, SKIPPING. WILL RETRY AT THE END.
+                            """
                         );
                         brokenInstalls.Enqueue(item.dlRec);
                     }

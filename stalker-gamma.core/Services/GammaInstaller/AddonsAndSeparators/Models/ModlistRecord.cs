@@ -66,7 +66,11 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
         return Action.DownloadMissing;
     }
 
-    public virtual async Task<string?> DownloadAsync(string downloadsPath, bool useCurlImpersonate, params string[]? excludeMirrors)
+    public virtual async Task<string?> DownloadAsync(
+        string downloadsPath,
+        bool useCurlImpersonate,
+        params string[]? excludeMirrors
+    )
     {
         DlPath ??= Path.Join(downloadsPath, Name);
         if (string.IsNullOrWhiteSpace(Dl))
@@ -285,7 +289,11 @@ public class ModDbRecord(ModDb modDb, ICurlService curlService) : DownloadableRe
 {
     public override string Name => ZipName!;
 
-    public override async Task<string?> DownloadAsync(string downloadsPath, bool useCurlImpersonate, params string[]? excludeMirrors)
+    public override async Task<string?> DownloadAsync(
+        string downloadsPath,
+        bool useCurlImpersonate,
+        params string[]? excludeMirrors
+    )
     {
         DlPath ??= Path.Join(downloadsPath, Name);
         var mirror = await modDb.GetModDbLinkCurl(DlLink!, DlPath, excludeMirrors: excludeMirrors);

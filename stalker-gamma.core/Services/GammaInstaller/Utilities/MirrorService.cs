@@ -9,7 +9,7 @@ public class MirrorService(IHttpClientFactory hcf)
     {
         var hc = _hcf.CreateClient();
         var content = await hc.GetStringAsync(MirrorUrl);
-        
+
         var lines = content.Split('\n');
         var random = new Random();
 
@@ -21,7 +21,7 @@ public class MirrorService(IHttpClientFactory hcf)
             .FirstOrDefault()
             ?.Line.Split('\t')[1];
     }
-    
+
     public async Task<string?> GetMirror(params string[] excludeMirrors)
     {
         var hc = _hcf.CreateClient();

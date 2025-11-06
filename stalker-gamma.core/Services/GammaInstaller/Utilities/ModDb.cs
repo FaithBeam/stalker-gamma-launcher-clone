@@ -14,19 +14,26 @@ public partial class ModDb(
     /// <summary>
     /// Downloads from ModDB using curl.
     /// </summary>
-    public async Task<string?> GetModDbLinkCurl(string url, string output, bool useCurlImpersonate = true,
-        params string[]? excludeMirrors)
+    public async Task<string?> GetModDbLinkCurl(
+        string url,
+        string output,
+        bool useCurlImpersonate = true,
+        params string[]? excludeMirrors
+    )
     {
         var content = await _curlService.GetStringAsync(url);
         var link = WindowLocationRx().Match(content).Groups[1].Value;
         var linkSplit = link.Split('/');
         if (excludeMirrors is not null && excludeMirrors.Length > 0)
         {
-            progressService.UpdateProgress($"Excluding mirrors: {string.Join(", ", excludeMirrors)}");
+            progressService.UpdateProgress(
+                $"Excluding mirrors: {string.Join(", ", excludeMirrors)}"
+            );
         }
-        var mirror = excludeMirrors?.Length == 0
-            ? await _mirrorService.GetMirror()
-            : await _mirrorService.GetMirror(excludeMirrors!);
+        var mirror =
+            excludeMirrors?.Length == 0
+                ? await _mirrorService.GetMirror()
+                : await _mirrorService.GetMirror(excludeMirrors!);
         if (string.IsNullOrWhiteSpace(mirror))
         {
             progressService.UpdateProgress("Failed to get mirror from API");
