@@ -3,10 +3,11 @@ using stalker_gamma.core.Services.GammaInstaller.Utilities;
 
 namespace stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Factories;
 
-public class ModListRecordFactory(ModDb modDb, ICurlService curlService)
+public class ModListRecordFactory(ModDb modDb, ICurlService curlService, IHttpClientFactory hcf)
 {
     private readonly ModDb _modDb = modDb;
     private readonly ICurlService _curlService = curlService;
+    private readonly IHttpClientFactory _hcf = hcf;
 
     public IModListRecord Create(string line)
     {
@@ -41,7 +42,7 @@ public class ModListRecordFactory(ModDb modDb, ICurlService curlService)
 
         if (dlLink.Contains("github"))
         {
-            return new GithubRecord(_curlService)
+            return new GithubRecord(_curlService, _hcf)
             {
                 DlLink = dlLink,
                 Instructions = instructions,

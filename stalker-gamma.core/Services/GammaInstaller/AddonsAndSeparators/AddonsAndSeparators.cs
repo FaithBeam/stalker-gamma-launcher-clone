@@ -83,52 +83,48 @@ public class AddonsAndSeparators(
             .Select(f => new DownloadableRecordPipeline(
                 Count: f.Count,
                 File: f.File!,
-                Dl: (Func<Task<bool>>)(
-                    async () =>
-                    {
-                        var shouldDlResult = await f.File!.ShouldDownloadAsync(
-                            downloadsPath,
-                            checkMd5,
-                            forceGitDownload
-                        );
+                Dl: async () =>
+                {
+                    var shouldDlResult = await f.File!.ShouldDownloadAsync(
+                        downloadsPath,
+                        checkMd5,
+                        forceGitDownload
+                    );
 
-                        switch (shouldDlResult)
-                        {
-                            case DownloadableRecord.Action.DoNothing:
-                                return false;
-                            case DownloadableRecord.Action.DownloadMissing:
-                                progressService.UpdateProgress(
-                                    $"_______________ {f.File.AddonName} _______________"
-                                );
-                                await f.File.DownloadAsync(downloadsPath, useCurlImpersonate);
-                                return true;
-                            case DownloadableRecord.Action.DownloadMd5Mismatch:
-                                progressService.UpdateProgress(
-                                    $"_______________ {f.File.AddonName} _______________"
-                                );
-                                progressService.UpdateProgress(
-                                    $"Md5 mismatch in downloaded file: {f.File.DlPath}. Downloading again."
-                                );
-                                await f.File.DownloadAsync(downloadsPath, useCurlImpersonate);
-                                return true;
-                            case DownloadableRecord.Action.DownloadForced:
-                                progressService.UpdateProgress(
-                                    $"_______________ {f.File.AddonName} _______________"
-                                );
-                                progressService.UpdateProgress("Forced downloading");
-                                await f.File.DownloadAsync(downloadsPath, useCurlImpersonate);
-                                return true;
-                            default:
-                                throw new ArgumentOutOfRangeException(
-                                    nameof(shouldDlResult),
-                                    $"{shouldDlResult}"
-                                );
-                        }
+                    switch (shouldDlResult)
+                    {
+                        case DownloadableRecord.Action.DoNothing:
+                            return false;
+                        case DownloadableRecord.Action.DownloadMissing:
+                            progressService.UpdateProgress(
+                                $"_______________ {f.File.AddonName} _______________"
+                            );
+                            await f.File.DownloadAsync(downloadsPath, useCurlImpersonate);
+                            return true;
+                        case DownloadableRecord.Action.DownloadMd5Mismatch:
+                            progressService.UpdateProgress(
+                                $"_______________ {f.File.AddonName} _______________"
+                            );
+                            progressService.UpdateProgress(
+                                $"Md5 mismatch in downloaded file: {f.File.DlPath}. Downloading again."
+                            );
+                            await f.File.DownloadAsync(downloadsPath, useCurlImpersonate);
+                            return true;
+                        case DownloadableRecord.Action.DownloadForced:
+                            progressService.UpdateProgress(
+                                $"_______________ {f.File.AddonName} _______________"
+                            );
+                            progressService.UpdateProgress("Forced downloading");
+                            await f.File.DownloadAsync(downloadsPath, useCurlImpersonate);
+                            return true;
+                        default:
+                            throw new ArgumentOutOfRangeException(
+                                nameof(shouldDlResult),
+                                $"{shouldDlResult}"
+                            );
                     }
-                ),
-                Extract: (Func<Task>)(
-                    async () => await ExtractAsync(f.File!, modsPaths, total, f.Count)
-                )
+                },
+                Extract: async () => await ExtractAsync(f.File!, modsPaths, total, f.Count)
             ));
 
         foreach (var separator in separators)
@@ -193,13 +189,12 @@ public class AddonsAndSeparators(
                     var extract = await dlRec.Dl();
                     await dlChannel.Writer.WriteAsync((dlRec, extract));
                 }
-                catch (CurlDownloadException e)
+                catch (CurlDownloadException)
                 {
                     progressService.UpdateProgress(
                         $"""
 
                         ERROR DOWNLOADING {dlRec.File.Name}, SKIPPING. WILL RETRY AT THE END.
-                        {e}
                         """
                     );
                     brokenInstalls.Enqueue(dlRec);
@@ -220,7 +215,7 @@ public class AddonsAndSeparators(
                     {
                         await item.dlRec.Extract.Invoke();
                     }
-                    catch (CommandExecutionException e)
+                    catch (CommandExecutionException)
                     {
                         var extractPath = Path.Join(
                             $"{item.dlRec.Count}-{item.dlRec.File.AddonName}{item.dlRec.File.Patch}"
@@ -229,7 +224,6 @@ public class AddonsAndSeparators(
                             $"""
 
                             ERROR EXTRACTING {extractPath}, SKIPPING. WILL RETRY AT THE END.
-                            {e}
                             """
                         );
                         brokenInstalls.Enqueue(item.dlRec);

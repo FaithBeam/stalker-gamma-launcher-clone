@@ -1,5 +1,7 @@
 using System;
 using System.ComponentModel;
+using System.Net;
+using System.Net.Http;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
@@ -7,6 +9,7 @@ using Avalonia.ReactiveUI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using ReactiveUI;
 using Splat;
 using Splat.Microsoft.Extensions.DependencyInjection;
@@ -54,7 +57,30 @@ public partial class App : Application
             {
                 s.UseMicrosoftDependencyResolver();
 
-                s.AddHttpClient();
+                s.AddHttpClient(
+                    Options.DefaultName,
+                    client =>
+                    {
+                        client.DefaultRequestHeaders.Add("User-Agent", "stalker-gamma-clone/1.0");
+                    }
+                );
+                s.AddHttpClient(
+                        "githubDlArchive",
+                        client =>
+                        {
+                            client.DefaultRequestHeaders.Add(
+                                "User-Agent",
+                                "stalker-gamma-clone/1.0"
+                            );
+                        }
+                    )
+                    .ConfigurePrimaryHttpMessageHandler(() =>
+                        new SocketsHttpHandler
+                        {
+                            EnableMultipleHttp2Connections = true,
+                            AutomaticDecompression = DecompressionMethods.None,
+                        }
+                    );
 
                 s.AddSingleton(
                     new GlobalSettings

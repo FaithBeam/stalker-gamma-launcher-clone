@@ -66,7 +66,7 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
         return Action.DownloadMissing;
     }
 
-    public virtual async Task<bool> DownloadAsync(string downloadsPath, bool useCurlImpersonate)
+    public virtual async Task DownloadAsync(string downloadsPath, bool useCurlImpersonate)
     {
         DlPath ??= Path.Join(downloadsPath, Name);
         if (string.IsNullOrWhiteSpace(Dl))
@@ -80,7 +80,6 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
             useCurlImpersonate,
             _dir
         );
-        return true;
     }
 
     public async Task ExtractAsync(string extractPath)
@@ -257,9 +256,39 @@ public class Separator : ModListRecord
     }
 }
 
-public class GithubRecord(ICurlService curlService) : DownloadableRecord(curlService)
+public class GithubRecord(ICurlService curlService, IHttpClientFactory hcf)
+    : DownloadableRecord(curlService)
 {
+    private readonly HttpClient _hc = hcf.CreateClient("githubDlArchive");
     public override string Name => $"{DlLink!.Split('/')[4]}.zip";
+    private const int BufferSize = 1024 * 1024;
+
+    public override async Task DownloadAsync(string downloadsPath, bool useCurlImpersonate)
+    {
+        DlPath ??= Path.Join(downloadsPath, Name);
+        if (string.IsNullOrWhiteSpace(Dl))
+        {
+            throw new Exception($"{nameof(Dl)} is empty");
+        }
+
+        if (!Directory.Exists(downloadsPath))
+        {
+            Directory.CreateDirectory(downloadsPath);
+        }
+
+        using var response = await _hc.GetAsync(Dl);
+        response.EnsureSuccessStatusCode();
+
+        await using var fs = new FileStream(
+            DlPath,
+            FileMode.Create,
+            FileAccess.Write,
+            FileShare.None,
+            bufferSize: BufferSize
+        );
+        await using var contentStream = await response.Content.ReadAsStreamAsync();
+        await contentStream.CopyToAsync(fs, bufferSize: BufferSize);
+    }
 
     public override async Task<Action> ShouldDownloadAsync(
         string downloadsPath,
@@ -284,11 +313,20 @@ public class GammaLargeFile(ICurlService curlService) : DownloadableRecord(curlS
 public class ModDbRecord(ModDb modDb, ICurlService curlService) : DownloadableRecord(curlService)
 {
     public override string Name => ZipName!;
+    private readonly List<string> _visitedMirrors = [];
 
-    public override async Task<bool> DownloadAsync(string downloadsPath, bool useCurlImpersonate)
+    public override async Task DownloadAsync(string downloadsPath, bool useCurlImpersonate)
     {
         DlPath ??= Path.Join(downloadsPath, Name);
-        await modDb.GetModDbLinkCurl(DlLink!, DlPath);
+        var mirror = await modDb.GetModDbLinkCurl(
+            DlLink!,
+            DlPath,
+            excludeMirrors: _visitedMirrors.ToArray()
+        );
+        if (!string.IsNullOrWhiteSpace(mirror))
+        {
+            _visitedMirrors.Add(mirror);
+        }
 
         if (
             await ShouldDownloadAsync(downloadsPath, true, false)
@@ -298,7 +336,5 @@ public class ModDbRecord(ModDb modDb, ICurlService curlService) : DownloadableRe
         {
             await modDb.GetModDbLinkCurl(DlLink!, DlPath);
         }
-
-        return true;
     }
 }
