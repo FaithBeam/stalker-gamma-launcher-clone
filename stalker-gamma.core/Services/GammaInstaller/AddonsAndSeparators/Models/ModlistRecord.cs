@@ -259,8 +259,9 @@ public class Separator : ModListRecord
 public class GithubRecord(ICurlService curlService, IHttpClientFactory hcf)
     : DownloadableRecord(curlService)
 {
-    private readonly HttpClient _hc = hcf.CreateClient();
+    private readonly HttpClient _hc = hcf.CreateClient("githubDlArchive");
     public override string Name => $"{DlLink!.Split('/')[4]}.zip";
+    private const int BufferSize = 1024 * 1024;
 
     public override async Task DownloadAsync(string downloadsPath, bool useCurlImpersonate)
     {
@@ -278,7 +279,13 @@ public class GithubRecord(ICurlService curlService, IHttpClientFactory hcf)
         using var response = await _hc.GetAsync(Dl);
         response.EnsureSuccessStatusCode();
 
-        await using var fs = new FileStream(DlPath, FileMode.Create);
+        await using var fs = new FileStream(
+            DlPath,
+            FileMode.Create,
+            FileAccess.Write,
+            FileShare.None,
+            bufferSize: BufferSize
+        );
         await using var contentStream = await response.Content.ReadAsStreamAsync();
         await contentStream.CopyToAsync(fs);
     }
