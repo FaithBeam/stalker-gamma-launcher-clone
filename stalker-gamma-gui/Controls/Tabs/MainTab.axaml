@@ -196,7 +196,7 @@
                     <Label Content="Original installer by Grokitach. Cloned by FaithBeam. Backend server by BloodOfSniper"
                            FontSize="10" Foreground="#696969" />
                 </Grid>
-                <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto,*,Auto">
+                <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto,*,Auto,Auto">
                     <Label Content="G.A.M.M.A. addons update available: " FontSize="10" VerticalAlignment="Center" />
                     <Label Grid.Column="1" Classes.CanUpdate="{Binding NeedUpdate}"
                            Classes.NoUpdate="{Binding !NeedUpdate}" Content="{Binding NeedUpdate}" FontSize="10"
@@ -223,7 +223,8 @@
                             </Style>
                         </Label.Styles>
                     </Label>
-                    <CheckBox Name="WordWrapCb" x:Name="WordWrapCb" Grid.Column="4" Content="Word Wrap" FontSize="10"  />
+                    <CheckBox Name="AutoScrollCb" x:Name="AutoScrollCb" Grid.Column="4" Content="Auto Scroll" FontSize="10" IsChecked="True" />
+                    <CheckBox Name="WordWrapCb" x:Name="WordWrapCb" Grid.Column="5" Content="Word Wrap" FontSize="10"  />
                 </Grid>
                 <avaloniaEdit:TextEditor Grid.Row="2" x:Name="ConsoleOutput"
                                          IsReadOnly="True" WordWrap="{Binding #WordWrapCb.IsChecked}"

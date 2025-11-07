@@ -51,6 +51,7 @@ public partial class MainTabVm
             ViewModel.AppendLineInteraction.RegisterHandler(AppendLineHandler);
 
             // strobe install / update gamma when user has not updated enough
+            const string strobing = "Strobing";
             this.WhenAnyValue(
                     x => x.ViewModel!.LocalGammaVersion,
                     selector: localGammaVersion => localGammaVersion
@@ -64,12 +65,12 @@ public partial class MainTabVm
                         case "865":
                             ToolTip.SetTip(PlayBtn, "You must update / install gamma first");
                             ToolTip.SetShowOnDisabled(PlayBtn, true);
-                            InstallUpdateBtn.Classes.Add("Strobing");
+                            InstallUpdateBtn.Classes.Add(strobing);
                             break;
                         default:
                             ToolTip.SetTip(PlayBtn, null);
                             ToolTip.SetShowOnDisabled(PlayBtn, false);
-                            InstallUpdateBtn.Classes.Remove("Strobing");
+                            InstallUpdateBtn.Classes.Remove(strobing);
                             break;
                     }
                 });
@@ -88,13 +89,13 @@ public partial class MainTabVm
                             "You must initialize Mod Organizer before you can play"
                         );
                         ToolTip.SetShowOnDisabled(PlayBtn, true);
-                        FirstInstallInitializeBtn.Classes.Add("Strobing");
+                        FirstInstallInitializeBtn.Classes.Add(strobing);
                     }
                     else
                     {
                         ToolTip.SetTip(PlayBtn, null);
                         ToolTip.SetShowOnDisabled(PlayBtn, false);
-                        FirstInstallInitializeBtn.Classes.Remove("Strobing");
+                        FirstInstallInitializeBtn.Classes.Remove(strobing);
                     }
                 });
 
@@ -118,13 +119,13 @@ public partial class MainTabVm
                                     "You must downgrade mod organizer first"
                                 );
                                 ToolTip.SetShowOnDisabled(InstallUpdateBtn, true);
-                                DowngradeModOrganizerBtn.Classes.Add("Strobing");
+                                DowngradeModOrganizerBtn.Classes.Add(strobing);
                             }
                             else
                             {
                                 ToolTip.SetTip(InstallUpdateBtn, null);
                                 ToolTip.SetShowOnDisabled(InstallUpdateBtn, false);
-                                DowngradeModOrganizerBtn.Classes.Remove("Strobing");
+                                DowngradeModOrganizerBtn.Classes.Remove(strobing);
                             }
                         }
                     }
@@ -153,14 +154,13 @@ public partial class MainTabVm
                                 "You must enable long paths before you can install / update gamma"
                             );
                             ToolTip.SetShowOnDisabled(InstallUpdateBtn, true);
-                            LongPathsBtn.Classes.Add("Strobing");
+                            LongPathsBtn.Classes.Add(strobing);
                         }
                         else
                         {
                             ToolTip.SetTip(InstallUpdateBtn, null);
                             ToolTip.SetShowOnDisabled(InstallUpdateBtn, false);
-                            LongPathsBtn.Classes.Remove("Strobing");
-                            // LongPathsBtn.Classes.Add("NotStrobing");
+                            LongPathsBtn.Classes.Remove(strobing);
                         }
                     }
                 })
@@ -172,7 +172,10 @@ public partial class MainTabVm
     {
         ConsoleOutput.AppendText($"{DateTime.Now:t}:\t{interactionCtx.Input}");
         ConsoleOutput.AppendText(Environment.NewLine);
-        ConsoleOutput.ScrollToLine(ConsoleOutput.LineCount);
+        if (AutoScrollCb.IsChecked.HasValue && AutoScrollCb.IsChecked.Value)
+        {
+            ConsoleOutput.ScrollToLine(ConsoleOutput.LineCount);
+        }
         interactionCtx.SetOutput(Unit.Default);
     }
 }
