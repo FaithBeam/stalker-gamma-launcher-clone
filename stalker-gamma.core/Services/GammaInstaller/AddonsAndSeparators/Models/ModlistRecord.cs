@@ -287,7 +287,7 @@ public class GithubRecord(ICurlService curlService, IHttpClientFactory hcf)
             bufferSize: BufferSize
         );
         await using var contentStream = await response.Content.ReadAsStreamAsync();
-        await contentStream.CopyToAsync(fs);
+        await contentStream.CopyToAsync(fs, bufferSize: BufferSize);
     }
 
     public override async Task<Action> ShouldDownloadAsync(
