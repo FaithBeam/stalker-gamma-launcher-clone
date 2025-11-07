@@ -66,11 +66,7 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
         return Action.DownloadMissing;
     }
 
-    public virtual async Task DownloadAsync(
-        string downloadsPath,
-        bool useCurlImpersonate,
-        params string[]? excludeMirrors
-    )
+    public virtual async Task DownloadAsync(string downloadsPath, bool useCurlImpersonate)
     {
         DlPath ??= Path.Join(downloadsPath, Name);
         if (string.IsNullOrWhiteSpace(Dl))
@@ -260,9 +256,32 @@ public class Separator : ModListRecord
     }
 }
 
-public class GithubRecord(ICurlService curlService) : DownloadableRecord(curlService)
+public class GithubRecord(ICurlService curlService, IHttpClientFactory hcf)
+    : DownloadableRecord(curlService)
 {
+    private readonly HttpClient _hc = hcf.CreateClient();
     public override string Name => $"{DlLink!.Split('/')[4]}.zip";
+
+    public override async Task DownloadAsync(string downloadsPath, bool useCurlImpersonate)
+    {
+        DlPath ??= Path.Join(downloadsPath, Name);
+        if (string.IsNullOrWhiteSpace(Dl))
+        {
+            throw new Exception($"{nameof(Dl)} is empty");
+        }
+
+        if (!Directory.Exists(downloadsPath))
+        {
+            Directory.CreateDirectory(downloadsPath);
+        }
+
+        using var response = await _hc.GetAsync(Dl);
+        response.EnsureSuccessStatusCode();
+
+        await using var fs = new FileStream(DlPath, FileMode.Create);
+        await using var contentStream = await response.Content.ReadAsStreamAsync();
+        await contentStream.CopyToAsync(fs);
+    }
 
     public override async Task<Action> ShouldDownloadAsync(
         string downloadsPath,
@@ -289,11 +308,7 @@ public class ModDbRecord(ModDb modDb, ICurlService curlService) : DownloadableRe
     public override string Name => ZipName!;
     private readonly List<string> _visitedMirrors = [];
 
-    public override async Task DownloadAsync(
-        string downloadsPath,
-        bool useCurlImpersonate,
-        params string[]? excludeMirrors
-    )
+    public override async Task DownloadAsync(string downloadsPath, bool useCurlImpersonate)
     {
         DlPath ??= Path.Join(downloadsPath, Name);
         var mirror = await modDb.GetModDbLinkCurl(
