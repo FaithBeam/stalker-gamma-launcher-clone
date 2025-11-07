@@ -17,7 +17,7 @@ A clone of Grokitach's Stalker GAMMA Launcher with WINE compatibility and extra 
 |--------------|----------------|----------------------|----------------|
 | **System 1** | 24mins         | 16mins               | 22mins            |
 | **System 2** | 30mins (VM)            | 24mins               | 24mins            |
-| **System 3** | N30mins (VM)            | N/A                  | N/A            |
+| **System 3** | 30mins (VM)            | N/A                  | N/A            |
 
 - System 1
   - 8c/16t 7800X3D CPU, NVME
