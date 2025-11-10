@@ -8,21 +8,61 @@ using stalker_gamma.core.ViewModels.Tabs.ModListTab;
 
 namespace stalker_gamma.core.ViewModels.MainWindow;
 
-public class MainWindowVm(
-    MainTabVm mainTabVm,
-    IGammaUpdatesVm gammaUpdatesVm,
-    IModDbUpdatesTabVm modDbUpdatesTabVm,
-    IModListTabVm modListTabVm,
-    IBackupTabVm backupTabVm,
-    IIsBusyService isBusyService,
-    ModalService modalService
-) : ViewModelBase
+public class MainWindowVm : ViewModelBase
 {
-    public MainTabVm MainTabVm { get; } = mainTabVm;
-    public IGammaUpdatesVm GammaUpdatesVm { get; } = gammaUpdatesVm;
-    public IModDbUpdatesTabVm ModDbUpdatesTabVm { get; } = modDbUpdatesTabVm;
-    public IModListTabVm ModListTabVm { get; } = modListTabVm;
-    public IBackupTabVm BackupTabVm { get; } = backupTabVm;
-    public IIsBusyService IsBusyService { get; } = isBusyService;
-    public ModalService ModalService { get; } = modalService;
+    public MainWindowVm(
+        MainTabVm mainTabVm,
+        IGammaUpdatesVm gammaUpdatesVm,
+        IModDbUpdatesTabVm modDbUpdatesTabVm,
+        IModListTabVm modListTabVm,
+        IBackupTabVm backupTabVm,
+        IIsBusyService isBusyService,
+        ModalService modalService,
+        UpdateAvailable.Handler updateAvailableHandler,
+        UpdateLauncherDialogVmFactory updateLauncherDialogVmFactory
+    )
+    {
+        ShowUpdateDialogInteraction = new Interaction<UpdateLauncherDialogVm, DoUpdateCmdParam>();
+        ShowUpdateDialogCmd = ReactiveCommand.CreateFromTask<
+            UpdateLauncherDialogVm,
+            DoUpdateCmdParam
+        >(async vm => await ShowUpdateDialogInteraction.Handle(vm));
+        UpdateAvailableCmd = ReactiveCommand.CreateFromTask(async _ =>
+            await updateAvailableHandler.ExecuteAsync()
+        );
+        UpdateAvailableCmd
+            .Where(updateAvailable => updateAvailable.IsUpdateAvailable)
+            .Subscribe(info =>
+                ShowUpdateDialogCmd.Execute(updateLauncherDialogVmFactory.Create(info)).Subscribe()
+            );
+        Activator = new ViewModelActivator();
+        MainTabVm = mainTabVm;
+        GammaUpdatesVm = gammaUpdatesVm;
+        ModDbUpdatesTabVm = modDbUpdatesTabVm;
+        ModListTabVm = modListTabVm;
+        BackupTabVm = backupTabVm;
+        IsBusyService = isBusyService;
+
+        this.WhenActivated(
+            (CompositeDisposable d) =>
+            {
+                UpdateAvailableCmd.Execute().Subscribe();
+            }
+        );
+    }
+
+    public MainTabVm MainTabVm { get; }
+    public IGammaUpdatesVm GammaUpdatesVm { get; }
+    public IModDbUpdatesTabVm ModDbUpdatesTabVm { get; }
+    public IModListTabVm ModListTabVm { get; }
+    public IBackupTabVm BackupTabVm { get; }
+    public IIsBusyService IsBusyService { get; }
+    public ModalService ModalService { get; }
+    public ViewModelActivator Activator { get; }
+    private ReactiveCommand<Unit, UpdateAvailable.Response> UpdateAvailableCmd { get; }
+    public ReactiveCommand<UpdateLauncherDialogVm, DoUpdateCmdParam> ShowUpdateDialogCmd { get; }
+    public IInteraction<
+        UpdateLauncherDialogVm,
+        DoUpdateCmdParam
+    > ShowUpdateDialogInteraction { get; }
 }

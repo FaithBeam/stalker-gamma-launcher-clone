@@ -1,11 +1,15 @@
 using System;
 using System.IO;
 using System.Reactive;
+using System.Reactive.Disposables;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.ReactiveUI;
 using AvaloniaEdit;
 using AvaloniaEdit.Document;
 using ReactiveUI;
+using stalker_gamma_gui.Controls.Dialogs;
+using stalker_gamma.core.ViewModels.Dialogs;
 using stalker_gamma.core.ViewModels.MainWindow;
 
 namespace stalker_gamma_gui.Views;
@@ -15,5 +19,26 @@ public partial class MainWindow : ReactiveWindow<MainWindowVm>
     public MainWindow()
     {
         InitializeComponent();
+
+        this.WhenActivated(
+            (CompositeDisposable d) =>
+            {
+                if (ViewModel is null)
+                {
+                    return;
+                }
+
+                ViewModel.ShowUpdateDialogInteraction.RegisterHandler(ShowUpdateDialog);
+            }
+        );
+    }
+
+    private async Task ShowUpdateDialog(
+        IInteractionContext<UpdateLauncherDialogVm, DoUpdateCmdParam> ctx
+    )
+    {
+        var dlg = new UpdateDialog { DataContext = ctx.Input };
+        var result = await dlg.ShowDialog<DoUpdateCmdParam>(this);
+        ctx.SetOutput(result);
     }
 }

@@ -30,5 +30,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\IsRanWithWine\" />
+    <Folder Include="ViewModels\Dialogs\DownloadProgress\Commands\" />
   </ItemGroup>
 </Project>

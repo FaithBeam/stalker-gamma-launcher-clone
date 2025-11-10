@@ -25,6 +25,7 @@ using stalker_gamma.core.Services.GammaInstaller.ModpackSpecific;
 using stalker_gamma.core.Services.GammaInstaller.Shortcut;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
 using stalker_gamma.core.Utilities;
+using stalker_gamma.core.ViewModels.Dialogs.DownloadProgress;
 using stalker_gamma.core.ViewModels.MainWindow;
 using stalker_gamma.core.ViewModels.Services;
 using stalker_gamma.core.ViewModels.Tabs;
@@ -115,6 +116,8 @@ public partial class App : Application
                     .AddScoped<GammaInstaller>();
 
                 s.RegisterCommonTabServices()
+                    .RegisterDownloadProgressServices()
+                    .RegisterMainWindowServices()
                     .RegisterBackupTabServices()
                     .RegisterMainTabServices()
                     .RegisterGammaUpdatesTabServices();
