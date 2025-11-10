@@ -1,0 +1,40 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:stalker_gamma.core.ViewModels.Dialogs;assembly=stalker-gamma.core"
+        xmlns:avaloniaEdit="https://github.com/avaloniaui/avaloniaedit"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="stalker_gamma_gui.Controls.Dialogs.UpdateDialog"
+        x:DataType="vm:UpdateLauncherDialogVm"
+        Width="600"
+        Height="400"
+        Title="UpdateDialog">
+    <Design.DataContext>
+        <vm:UpdateLauncherDialogVm />
+    </Design.DataContext>
+    <Grid RowDefinitions="*,Auto">
+        <avaloniaEdit:TextEditor x:Name="TextEditor" Name="TextEditor" IsReadOnly="True" Background="#242424"
+                                 SyntaxHighlighting="MarkDown" WordWrap="True" />
+        <Grid Grid.Row="1" ColumnDefinitions="*,*,*">
+            <Button Command="{Binding Path=DoUpdateCmd}" HorizontalAlignment="Stretch">
+                <Button.CommandParameter>
+                    <vm:DoUpdateCmdParam>Yes</vm:DoUpdateCmdParam>
+                </Button.CommandParameter>
+                YEA
+            </Button>
+            <Button Grid.Column="1" Command="{Binding Path=DoUpdateCmd}" HorizontalAlignment="Stretch">
+                <Button.CommandParameter>
+                    <vm:DoUpdateCmdParam>No</vm:DoUpdateCmdParam>
+                </Button.CommandParameter>
+                NAY
+            </Button>
+            <Button Grid.Column="2" Command="{Binding Path=DoUpdateCmd}" HorizontalAlignment="Stretch">
+                <Button.CommandParameter>
+                    <vm:DoUpdateCmdParam>NoAndDisable</vm:DoUpdateCmdParam>
+                </Button.CommandParameter>
+                NAY (Do not ask again)
+            </Button>
+        </Grid>
+    </Grid>
+</Window>

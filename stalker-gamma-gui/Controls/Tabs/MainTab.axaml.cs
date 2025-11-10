@@ -3,7 +3,9 @@ using System.IO;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.ReactiveUI;
 using ReactiveUI;
 

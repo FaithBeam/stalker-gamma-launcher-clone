@@ -14,7 +14,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Avalonia.ReactiveUI" Version="11.3.7" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="11.3.8" />
     <PackageReference Include="CliWrap" Version="3.9.0" />
     <PackageReference
       Include="Microsoft.Extensions.DependencyInjection.Abstractions"
@@ -28,5 +28,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\IsRanWithWine\" />
+    <Folder Include="ViewModels\Dialogs\DownloadProgress\Commands\" />
   </ItemGroup>
 </Project>
