@@ -9,38 +9,46 @@ public class DowngradeModOrganizer(ProgressService progressService, VersionServi
     public async Task DowngradeAsync(string version = "v2.4.4")
     {
         progressService.UpdateProgress($"Downgrading ModOrganizer to {version}");
-        var hc = new HttpClient
+
+        var mo2ArchivePath = $"{version}.7z";
+        if (File.Exists(mo2ArchivePath))
         {
-            BaseAddress = new Uri("https://api.github.com"),
-            DefaultRequestHeaders =
-            {
-                { "User-Agent", $"stalker-gamma-installer/{versionService.GetVersion()}" },
-            },
-        };
-        var getReleaseByTagResponse = await hc.GetAsync(
-            $"repos/ModOrganizer2/modorganizer/releases/tags/{version}"
-        );
-        var getReleaseByTag = await JsonSerializer.DeserializeAsync(
-            await getReleaseByTagResponse.Content.ReadAsStreamAsync(),
-            jsonTypeInfo: GetReleaseByTagCtx.Default.GetReleaseByTag
-        );
-        var dlUrl = getReleaseByTag
-            ?.Assets?.FirstOrDefault(x =>
-                x.Name == $"Mod.Organizer-{(version.StartsWith('v') ? version[1..] : version)}.7z"
-            )
-            ?.BrowserDownloadUrl;
-        if (string.IsNullOrWhiteSpace(dlUrl))
-        {
-            progressService.UpdateProgress("Failed to find download url");
-            return;
+            progressService.UpdateProgress(
+                "ModOrganizer archive already exists, skipping download"
+            );
         }
-
-        progressService.UpdateProgress("Downloading ModOrganizer");
-
-        var mo2ArchivePath = $"{getReleaseByTag!.Name!}.7z";
-
-        await using (var fs = File.Create(mo2ArchivePath))
+        else
         {
+            var hc = new HttpClient
+            {
+                BaseAddress = new Uri("https://api.github.com"),
+                DefaultRequestHeaders =
+                {
+                    { "User-Agent", $"stalker-gamma-installer/{versionService.GetVersion()}" },
+                },
+            };
+            var getReleaseByTagResponse = await hc.GetAsync(
+                $"repos/ModOrganizer2/modorganizer/releases/tags/{version}"
+            );
+            var getReleaseByTag = await JsonSerializer.DeserializeAsync(
+                await getReleaseByTagResponse.Content.ReadAsStreamAsync(),
+                jsonTypeInfo: GetReleaseByTagCtx.Default.GetReleaseByTag
+            );
+            var dlUrl = getReleaseByTag
+                ?.Assets?.FirstOrDefault(x =>
+                    x.Name
+                    == $"Mod.Organizer-{(version.StartsWith('v') ? version[1..] : version)}.7z"
+                )
+                ?.BrowserDownloadUrl;
+            if (string.IsNullOrWhiteSpace(dlUrl))
+            {
+                progressService.UpdateProgress("Failed to find download url");
+                return;
+            }
+
+            progressService.UpdateProgress("Downloading ModOrganizer");
+
+            await using var fs = File.Create(mo2ArchivePath);
             using var response = await hc.GetAsync(dlUrl);
             await response.Content.CopyToAsync(fs);
         }
