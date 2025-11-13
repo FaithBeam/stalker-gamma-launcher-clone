@@ -1,7 +1,7 @@
 using System.Diagnostics;
+using System.IO.Compression;
 using System.Net;
 using Microsoft.Extensions.DependencyInjection;
-using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma.updater;
 
@@ -9,21 +9,16 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
-        if (args.Length != 4)
+        if (args.Length != 3)
         {
             Environment.Exit(1);
         }
 
         var procIdToKill = int.Parse(args[0]);
         var dlLink = args[1];
-        var dlPath = args[2];
-        var extractPath = args[3];
+        var extractPath = args[2];
 
-        if (
-            string.IsNullOrWhiteSpace(dlLink)
-            || string.IsNullOrWhiteSpace(dlPath)
-            || string.IsNullOrWhiteSpace(extractPath)
-        )
+        if (string.IsNullOrWhiteSpace(dlLink) || string.IsNullOrWhiteSpace(extractPath))
         {
             Environment.Exit(1);
         }
@@ -48,17 +43,33 @@ public class Program
 
         var sp = services.BuildServiceProvider();
 
-        var downloadUpdateHandler = sp.GetRequiredService<DownloadUpdate.Handler>();
-        var progress = new Progress<double>();
-        var cts = new CancellationTokenSource();
-        var ct = cts.Token;
-        await downloadUpdateHandler.ExecuteAsync(
-            new DownloadUpdate.Command(dlLink, "stalker-gamma.zip", progress, ct)
-        );
-
-        if (!KillProcessById(procIdToKill))
+        try
         {
-            Environment.Exit(1);
+            var downloadUpdateHandler = sp.GetRequiredService<DownloadUpdate.Handler>();
+            var cts = new CancellationTokenSource();
+            var ct = cts.Token;
+            var stream = await downloadUpdateHandler.ExecuteAsync(
+                new DownloadUpdate.Command(dlLink, ct)
+            );
+
+            if (!KillProcessById(procIdToKill))
+            {
+                Environment.Exit(1);
+            }
+
+            await ZipFile.ExtractToDirectoryAsync(stream, extractPath, true, ct);
+
+            await stream.DisposeAsync();
+
+            Process.Start(
+                new ProcessStartInfo { FileName = "stalker-gamma-gui.exe", UseShellExecute = true }
+            );
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            Console.ReadLine();
+            throw;
         }
     }
 
