@@ -54,6 +54,15 @@ jobs:
           -p:AssemblyVersion=${{ steps.gitversion.outputs.AssemblySemFileVer }} `
           -o bin
 
+      - name: Publish Updater
+        run: |
+          dotnet publish stalker-gamma.updater/stalker-gamma.updater.csproj `
+          -c ${{ env.CONFIGURATION }} `
+          -r win-x64 `
+          -p:Version=${{ steps.gitversion.outputs.SemVer }} `
+          -p:AssemblyVersion=${{ steps.gitversion.outputs.AssemblySemFileVer }} `
+          -o bin
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4.3.1
         with:

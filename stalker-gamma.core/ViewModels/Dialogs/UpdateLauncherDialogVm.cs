@@ -26,17 +26,15 @@ public class UpdateLauncherDialogVm : ReactiveObject, IActivatableViewModel
             await Task.Run(
                 () =>
                 {
-                    var dlDir = Path.Join(_dir, "dl.zip");
                     var extractDir = _dir;
                     Process.Start(
                         new ProcessStartInfo
                         {
-                            FileName = "updater.exe",
+                            FileName = "stalker-gamma.updater.exe",
                             ArgumentList =
                             {
                                 $"{Environment.ProcessId}",
                                 info.DownloadLink,
-                                dlDir,
                                 extractDir,
                             },
                             UseShellExecute = true,
@@ -47,6 +45,13 @@ public class UpdateLauncherDialogVm : ReactiveObject, IActivatableViewModel
             )
         );
         DoUpdateCmd = ReactiveCommand.Create<DoUpdateCmdParam, DoUpdateCmdParam?>(x => x);
+        DoUpdateCmd.Subscribe(doUpdate =>
+        {
+            if (doUpdate == DoUpdateCmdParam.Yes)
+            {
+                ActuallyDoUpdateCmd.Execute().Subscribe();
+            }
+        });
         _doUpdate = DoUpdateCmd.ToProperty(this, x => x.DoUpdate);
 
         this.WhenActivated((CompositeDisposable d) => { });

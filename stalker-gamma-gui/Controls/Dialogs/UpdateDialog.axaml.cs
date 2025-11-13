@@ -1,4 +1,5 @@
 using System.Reactive.Disposables;
+using Avalonia.Interactivity;
 using Avalonia.ReactiveUI;
 using AvaloniaEdit.TextMate;
 using ReactiveUI;
@@ -42,5 +43,10 @@ public partial class UpdateDialog : ReactiveWindow<UpdateLauncherDialogVm>
                 );
             }
         );
+    }
+
+    private void YesBtn_OnClick(object? sender, RoutedEventArgs e)
+    {
+        Close();
     }
 }

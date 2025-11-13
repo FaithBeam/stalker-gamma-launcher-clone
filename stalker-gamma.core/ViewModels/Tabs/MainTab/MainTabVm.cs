@@ -666,7 +666,7 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
             {
                 InGrokModDir = _dir.Contains(
 #if DEBUG
-                    "net9.0",
+                    "net10.0",
 #else
                     ".Grok's Modpack Installer",
 #endif

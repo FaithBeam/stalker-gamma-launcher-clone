@@ -17,19 +17,19 @@
         <avaloniaEdit:TextEditor x:Name="TextEditor" Name="TextEditor" IsReadOnly="True" Background="#242424"
                                  SyntaxHighlighting="MarkDown" WordWrap="True" />
         <Grid Grid.Row="1" ColumnDefinitions="*,*,*">
-            <Button Command="{Binding Path=DoUpdateCmd}" HorizontalAlignment="Stretch">
+            <Button x:Name="YesBtn" Click="YesBtn_OnClick" Command="{Binding Path=DoUpdateCmd}" HorizontalAlignment="Stretch">
                 <Button.CommandParameter>
                     <vm:DoUpdateCmdParam>Yes</vm:DoUpdateCmdParam>
                 </Button.CommandParameter>
                 YEA
             </Button>
-            <Button Grid.Column="1" Command="{Binding Path=DoUpdateCmd}" HorizontalAlignment="Stretch">
+            <Button x:Name="NoBtn" Grid.Column="1" Command="{Binding Path=DoUpdateCmd}" HorizontalAlignment="Stretch">
                 <Button.CommandParameter>
                     <vm:DoUpdateCmdParam>No</vm:DoUpdateCmdParam>
                 </Button.CommandParameter>
                 NAY
             </Button>
-            <Button Grid.Column="2" Command="{Binding Path=DoUpdateCmd}" HorizontalAlignment="Stretch">
+            <Button x:Name="NoDoNotAskAgainBtn" Grid.Column="2" Command="{Binding Path=DoUpdateCmd}" HorizontalAlignment="Stretch">
                 <Button.CommandParameter>
                     <vm:DoUpdateCmdParam>NoAndDisable</vm:DoUpdateCmdParam>
                 </Button.CommandParameter>
