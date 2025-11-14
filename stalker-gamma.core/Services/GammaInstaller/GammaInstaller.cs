@@ -35,7 +35,7 @@ public class GammaInstaller(
     {
         var onlineGammaVersion = (
             await _curlService.GetStringAsync(
-                "https://raw.githubusercontent.com/Grokitach/Stalker_GAMMA/main/G.A.M.M.A_definition_version.txt",
+                "https://raw.githubusercontent.com/FaithBeam/Stalker_GAMMA/main/G.A.M.M.A_definition_version.txt",
                 useCurlImpersonate: useCurlImpersonate
             )
         ).Trim();
@@ -262,7 +262,7 @@ public class GammaInstaller(
             await gitUtility.UpdateGitRepo(
                 _dir,
                 "Stalker_GAMMA",
-                "https://github.com/Grokitach/Stalker_GAMMA",
+                "https://github.com/FaithBeam/Stalker_GAMMA",
                 branch
             );
 
