@@ -2,26 +2,16 @@ using System.Diagnostics;
 using System.IO.Compression;
 using System.Net;
 using Microsoft.Extensions.DependencyInjection;
+using stalker_gamma.core.Services;
+using stalker_gamma.core.ViewModels.MainWindow.Queries;
 
 namespace stalker_gamma.updater;
 
 public class Program
 {
-    public static async Task Main(string[] args)
+    public static async Task Main()
     {
-        if (args.Length != 3)
-        {
-            Environment.Exit(1);
-        }
-
-        var procIdToKill = int.Parse(args[0]);
-        var dlLink = args[1];
-        var extractPath = args[2];
-
-        if (string.IsNullOrWhiteSpace(dlLink) || string.IsNullOrWhiteSpace(extractPath))
-        {
-            Environment.Exit(1);
-        }
+        const string stalkerGammaProcessName = "stalker-gamma-gui.exe";
 
         var services = new ServiceCollection();
         services
@@ -39,30 +29,45 @@ public class Program
                     AutomaticDecompression = DecompressionMethods.None,
                 }
             );
-        services.AddScoped<DownloadUpdate.Handler>();
+        services
+            .AddScoped<DownloadUpdate.Handler>()
+            .AddScoped<IVersionService, VersionService>()
+            .AddScoped<UpdateAvailable.Handler>();
 
         var sp = services.BuildServiceProvider();
 
         try
         {
+            var procIdToKill = GetProcessIdByName(stalkerGammaProcessName);
+            if (procIdToKill is > 0)
+            {
+                if (!KillProcessById(procIdToKill.Value))
+                {
+                    Environment.Exit(1);
+                }
+            }
+
+            var updateAvailable = await sp.GetRequiredService<UpdateAvailable.Handler>()
+                .ExecuteAsync();
+            if (!updateAvailable.IsUpdateAvailable)
+            {
+                Console.WriteLine("No updates available");
+                Environment.Exit(0);
+            }
+
             var downloadUpdateHandler = sp.GetRequiredService<DownloadUpdate.Handler>();
             var cts = new CancellationTokenSource();
             var ct = cts.Token;
             var stream = await downloadUpdateHandler.ExecuteAsync(
-                new DownloadUpdate.Command(dlLink, ct)
+                new DownloadUpdate.Command(updateAvailable.DownloadLink, ct)
             );
 
-            if (!KillProcessById(procIdToKill))
-            {
-                Environment.Exit(1);
-            }
-
-            await ZipFile.ExtractToDirectoryAsync(stream, extractPath, true, ct);
+            await ZipFile.ExtractToDirectoryAsync(stream, ".", true, ct);
 
             await stream.DisposeAsync();
 
             Process.Start(
-                new ProcessStartInfo { FileName = "stalker-gamma-gui.exe", UseShellExecute = true }
+                new ProcessStartInfo { FileName = stalkerGammaProcessName, UseShellExecute = true }
             );
         }
         catch (Exception e)
@@ -98,5 +103,38 @@ public class Program
             Console.WriteLine($"Error killing process: {ex.Message}");
             return false;
         }
+    }
+
+    private static int? GetProcessIdByName(string processName)
+    {
+        try
+        {
+            // Remove .exe extension if present
+            processName = processName.Replace(".exe", "");
+
+            var processes = Process.GetProcessesByName(processName);
+
+            if (processes.Length > 0)
+            {
+                // Return the first matching process ID
+                return processes[0].Id;
+            }
+
+            return null; // No process found
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error getting process by name: {ex.Message}");
+            return null;
+        }
+    }
+}
+
+public class VersionService : IVersionService
+{
+    public string GetVersion()
+    {
+        var versionInfo = FileVersionInfo.GetVersionInfo("stalker-gamma-gui.exe");
+        return versionInfo.FileVersion!;
     }
 }

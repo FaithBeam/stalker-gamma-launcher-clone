@@ -15,12 +15,12 @@ public static class UpdateAvailable
         string DownloadLink
     );
 
-    public sealed class Handler(IHttpClientFactory hcf, VersionService versionService)
+    public sealed class Handler(IHttpClientFactory hcf, IVersionService versionService)
     {
         private const string StalkerGammaRepoRoute =
             "https://api.github.com/repos/FaithBeam/stalker-gamma-launcher-clone/releases/latest";
         private readonly IHttpClientFactory _hcf = hcf;
-        private readonly VersionService _versionService = versionService;
+        private readonly IVersionService _versionService = versionService;
 
         public async Task<Response> ExecuteAsync()
         {

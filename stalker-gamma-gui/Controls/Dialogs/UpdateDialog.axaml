@@ -23,13 +23,13 @@
                 </Button.CommandParameter>
                 YEA
             </Button>
-            <Button x:Name="NoBtn" Grid.Column="1" Command="{Binding Path=DoUpdateCmd}" HorizontalAlignment="Stretch">
+            <Button x:Name="NoBtn" Click="NoBtn_OnClick" Grid.Column="1" Command="{Binding Path=DoUpdateCmd}" HorizontalAlignment="Stretch">
                 <Button.CommandParameter>
                     <vm:DoUpdateCmdParam>No</vm:DoUpdateCmdParam>
                 </Button.CommandParameter>
                 NAY
             </Button>
-            <Button x:Name="NoDoNotAskAgainBtn" Grid.Column="2" Command="{Binding Path=DoUpdateCmd}" HorizontalAlignment="Stretch">
+            <Button x:Name="NoDoNotAskAgainBtn" Click="NoDoNotAskAgainBtn_OnClick" Grid.Column="2" Command="{Binding Path=DoUpdateCmd}" HorizontalAlignment="Stretch">
                 <Button.CommandParameter>
                     <vm:DoUpdateCmdParam>NoAndDisable</vm:DoUpdateCmdParam>
                 </Button.CommandParameter>
