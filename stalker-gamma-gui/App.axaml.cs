@@ -113,6 +113,7 @@ public partial class App : Application
                     .AddScoped<GammaInstaller>();
 
                 s.RegisterCommonTabServices()
+                    .RegisterMainWindowServices()
                     .RegisterBackupTabServices()
                     .RegisterMainTabServices()
                     .RegisterGammaUpdatesTabServices();

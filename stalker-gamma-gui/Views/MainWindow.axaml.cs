@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Reactive;
+using System.Reactive.Disposables;
 using Avalonia.Controls;
 using Avalonia.ReactiveUI;
 using AvaloniaEdit;
@@ -15,5 +16,15 @@ public partial class MainWindow : ReactiveWindow<MainWindowVm>
     public MainWindow()
     {
         InitializeComponent();
+
+        this.WhenActivated(
+            (CompositeDisposable d) =>
+            {
+                if (ViewModel is null)
+                {
+                    return;
+                }
+            }
+        );
     }
 }
