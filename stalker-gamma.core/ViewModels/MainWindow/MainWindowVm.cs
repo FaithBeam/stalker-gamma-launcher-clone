@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.Reactive;
+using System.Reactive.Disposables;
 using ReactiveUI;
 using stalker_gamma.core.Services;
 using stalker_gamma.core.ViewModels.Tabs;
@@ -55,6 +56,13 @@ public class MainWindowVm : ViewModelBase, IMainWindowVm, IActivatableViewModel
             await switchToMyForkHandler.ExecuteAsync()
         );
         SwitchToMyForkCmd.ThrownExceptions.Subscribe(x => Trace.WriteLine(x.ToString()));
+
+        this.WhenActivated(
+            (CompositeDisposable d) =>
+            {
+                SwitchToMyForkCmd.Execute().Subscribe().DisposeWith(d);
+            }
+        );
     }
 
     public IMainTabVm MainTabVm { get; }
