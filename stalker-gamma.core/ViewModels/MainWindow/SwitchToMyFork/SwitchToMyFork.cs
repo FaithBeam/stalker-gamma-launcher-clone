@@ -11,16 +11,23 @@ public static class SwitchToMyFork
         public async Task ExecuteAsync()
         {
             var repoPath = Path.Combine(_dir, "resources", "Stalker_GAMMA");
-            await gu.RunGitCommand(
-                repoPath,
-                [
-                    "remote remove origin",
-                    "remote add origin https://github.com/FaithBeam/Stalker_GAMMA",
-                    "reset --hard",
-                    "checkout main",
-                    "branch --set-upstream-to=origin/main main",
-                ]
-            );
+
+            var curRemote = await gu.RunGitCommandObs(repoPath, "remote -v");
+            // check if the current repo still needs to be updated
+            if (curRemote.Contains("https://github.com/Grokitach/Stalker_GAMMA"))
+            {
+                await gu.RunGitCommand(
+                    repoPath,
+                    [
+                        "remote remove origin",
+                        "remote add origin https://github.com/FaithBeam/Stalker_GAMMA",
+                        "reset --hard",
+                        "checkout main",
+                        "fetch",
+                        "branch --set-upstream-to=origin/main main",
+                    ]
+                );
+            }
         }
     }
 }
