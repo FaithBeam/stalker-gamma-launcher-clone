@@ -444,7 +444,7 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                 );
                 var remoteGammaVersionHash = (
                     await getGitHubRepoCommits.ExecuteAsync(
-                        new GetGitHubRepoCommits.Query("Grokitach", "Stalker_GAMMA")
+                        new GetGitHubRepoCommits.Query("FaithBeam", "Stalker_GAMMA")
                     )
                 )
                     ?.FirstOrDefault()
