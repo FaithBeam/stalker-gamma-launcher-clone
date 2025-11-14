@@ -26,17 +26,10 @@ public class UpdateLauncherDialogVm : ReactiveObject, IActivatableViewModel
             await Task.Run(
                 () =>
                 {
-                    var extractDir = _dir;
                     Process.Start(
                         new ProcessStartInfo
                         {
                             FileName = "stalker-gamma.updater.exe",
-                            ArgumentList =
-                            {
-                                $"{Environment.ProcessId}",
-                                info.DownloadLink,
-                                extractDir,
-                            },
                             UseShellExecute = true,
                         }
                     );

@@ -99,7 +99,7 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
         ProgressService progressService,
         GlobalSettings globalSettings,
         DowngradeModOrganizer downgradeModOrganizer,
-        VersionService versionService,
+        IVersionService versionService,
         IIsBusyService isBusyService,
         DiffMods.Handler diffMods,
         GetStalkerGammaLastCommit.Handler getStalkerGammaLastCommit,

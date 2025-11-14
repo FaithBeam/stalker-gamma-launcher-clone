@@ -2,7 +2,12 @@
 
 namespace stalker_gamma.core.Services;
 
-public class VersionService
+public interface IVersionService
+{
+    string GetVersion();
+}
+
+public class VersionService : IVersionService
 {
     private string? _version;
 

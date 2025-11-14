@@ -94,7 +94,7 @@ public partial class App : Application
                 );
 
                 s.AddSingleton<ProgressService>()
-                    .AddSingleton<VersionService>()
+                    .AddSingleton<IVersionService, VersionService>()
                     .AddSingleton<IIsBusyService, IsBusyService>()
                     .AddSingleton<IOperatingSystemService, OperatingSystemService>();
 

@@ -49,4 +49,14 @@ public partial class UpdateDialog : ReactiveWindow<UpdateLauncherDialogVm>
     {
         Close();
     }
+
+    private void NoBtn_OnClick(object? sender, RoutedEventArgs e)
+    {
+        Close();
+    }
+
+    private void NoDoNotAskAgainBtn_OnClick(object? sender, RoutedEventArgs e)
+    {
+        Close();
+    }
 }
