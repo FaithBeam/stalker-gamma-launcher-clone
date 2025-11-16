@@ -3,7 +3,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:stalker_gamma.core.ViewModels.Tabs;assembly=stalker-gamma.core"
-             xmlns:avaloniaEdit="https://github.com/avaloniaui/avaloniaedit"
              xmlns:mainTab="clr-namespace:stalker_gamma.core.ViewModels.Tabs.MainTab;assembly=stalker-gamma.core"
              xmlns:converters="clr-namespace:stalker_gamma_gui.Converters"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
@@ -193,10 +192,11 @@
         <Grid Grid.Column="1">
             <Grid RowDefinitions="Auto,Auto,*,Auto,Auto,Auto">
                 <Grid ColumnDefinitions="Auto">
-                    <Label Content="Original installer by Grokitach. Cloned by FaithBeam. Backend server by BloodOfSniper"
-                           FontSize="10" Foreground="#696969" />
+                    <Label
+                        Content="Original installer by Grokitach. Cloned by FaithBeam. Backend server by BloodOfSniper"
+                        FontSize="10" Foreground="#696969" />
                 </Grid>
-                <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto,*,Auto,Auto">
+                <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto,*">
                     <Label Content="G.A.M.M.A. addons update available: " FontSize="10" VerticalAlignment="Center" />
                     <Label Grid.Column="1" Classes.CanUpdate="{Binding NeedUpdate}"
                            Classes.NoUpdate="{Binding !NeedUpdate}" Content="{Binding NeedUpdate}" FontSize="10"
@@ -223,13 +223,19 @@
                             </Style>
                         </Label.Styles>
                     </Label>
-                    <CheckBox Name="AutoScrollCb" x:Name="AutoScrollCb" Grid.Column="4" Content="Auto Scroll" FontSize="10" IsChecked="True" />
-                    <CheckBox Name="WordWrapCb" x:Name="WordWrapCb" Grid.Column="5" Content="Word Wrap" FontSize="10"  />
                 </Grid>
-                <avaloniaEdit:TextEditor Grid.Row="2" x:Name="ConsoleOutput"
-                                         IsReadOnly="True" WordWrap="{Binding #WordWrapCb.IsChecked}"
-                                         HorizontalAlignment="Stretch" Foreground="#85fb98" Background="#242424"
-                                         VerticalScrollBarVisibility="Visible" FontSize="12" FontFamily="Consolas" />
+                <DataGrid Grid.Row="2" ItemsSource="{Binding ModDownloadExtractProgressVms}"
+                          AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeColumns="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" />
+                        <DataGridTextColumn Header="Addon Name" Binding="{Binding AddonName}" Width="400"  />
+                        <DataGridTemplateColumn Header="Progress" Width="*">
+                            <DataTemplate DataType="mainTab:ModDownloadExtractProgressVm">
+                                <ProgressBar Value="{Binding OverallProgressValue}" Minimum="0" Maximum="100" ShowProgressText="True"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
                 <Grid Grid.Row="3" ColumnDefinitions="Auto,*">
                     <Label Content="Total Progress" FontSize="10" Foreground="#ababab" />
                     <ProgressBar Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding Progress}"
