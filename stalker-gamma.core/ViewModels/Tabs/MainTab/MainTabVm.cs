@@ -1,15 +1,19 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using CliWrap;
+using DynamicData;
 using ReactiveUI;
 using stalker_gamma.core.Models;
 using stalker_gamma.core.Services;
 using stalker_gamma.core.Services.DowngradeModOrganizer;
 using stalker_gamma.core.Services.GammaInstaller;
+using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
 using stalker_gamma.core.Utilities;
 using stalker_gamma.core.ViewModels.Tabs.MainTab.Commands;
+using stalker_gamma.core.ViewModels.Tabs.MainTab.Factories;
 using stalker_gamma.core.ViewModels.Tabs.MainTab.Models;
 using stalker_gamma.core.ViewModels.Tabs.MainTab.Queries;
 using stalker_gamma.core.ViewModels.Tabs.Queries;
@@ -79,6 +83,7 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
     private readonly ObservableAsPropertyHelper<bool?> _userLtxSetToFullscreenWine;
     private readonly ObservableAsPropertyHelper<string?> _anomalyPath;
     private readonly ObservableAsPropertyHelper<string?> _userLtxPath;
+    private readonly ReadOnlyObservableCollection<ModDownloadExtractProgressVm> _modDownloadExtractProgressVms;
 
     public MainTabVm(
         IUserLtxReplaceFullscreenWithBorderlessFullscreen userLtxReplaceFullscreenWithBorderlessFullscreen,
@@ -103,7 +108,8 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
         IIsBusyService isBusyService,
         DiffMods.Handler diffMods,
         GetStalkerGammaLastCommit.Handler getStalkerGammaLastCommit,
-        GetGitHubRepoCommits.Handler getGitHubRepoCommits
+        GetGitHubRepoCommits.Handler getGitHubRepoCommits,
+        Queries.GetModDownloadExtractVms.Handler getModDownloadExtractVmsHandler
     )
     {
         Activator = new ViewModelActivator();
@@ -113,6 +119,56 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
             Path.GetDirectoryName(AppContext.BaseDirectory),
             "..",
             "ModOrganizer.exe"
+        );
+
+        var modProgressVms = new SourceList<ModDownloadExtractProgressVm>();
+        var obs = modProgressVms
+            .Connect()
+            .AutoRefresh(x => x.Status)
+            .Filter(ModDlPredicate)
+            .Bind(out _modDownloadExtractProgressVms)
+            .ObserveOn(RxApp.TaskpoolScheduler)
+            .DisposeMany()
+            .Subscribe();
+
+        GetModDownloadExtractProgressVmsCmd = ReactiveCommand.CreateFromTask(async () =>
+            await getModDownloadExtractVmsHandler.ExecuteAsync()
+        );
+        GetModDownloadExtractProgressVmsCmd.ThrownExceptions.Subscribe(x =>
+            progressService.UpdateProgress(
+                $"""
+
+                ERROR GETTING MOD DOWNLOAD PROGRESS VMS
+                {x}
+                """
+            )
+        );
+        GetModDownloadExtractProgressVmsCmd.Subscribe(x =>
+            modProgressVms.Edit(inner =>
+            {
+                inner.Clear();
+                inner.AddRange(
+                    [
+                        new ModDownloadExtractProgressVm(
+                            new GitRecord { AddonName = "Stalker_GAMMA" }
+                        ),
+                        new ModDownloadExtractProgressVm(
+                            new GitRecord { AddonName = "gamma_large_files_v2" }
+                        ),
+                        new ModDownloadExtractProgressVm(
+                            new GitRecord { AddonName = "teivaz_anomaly_gunslinger" }
+                        ),
+                    ]
+                );
+                inner.AddRange(x);
+                inner.AddRange(
+                    [
+                        new ModDownloadExtractProgressVm(
+                            new ModpackSpecific { AddonName = "modpack_addons" }
+                        ),
+                    ]
+                );
+            })
         );
 
         IsRanWithWineCmd = ReactiveCommand.CreateFromTask(async () =>
@@ -530,7 +586,8 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                         ForceZipExtraction,
                         DeleteReshadeDlls,
                         globalSettings.UseCurlImpersonate,
-                        PreserveUserLtx
+                        PreserveUserLtx,
+                        ModDownloadExtractProgressVms
                     )
                 );
 
@@ -640,11 +697,11 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
             .Select(x => x.Progress)
             .WhereNotNull()
             .ToProperty(this, x => x.Progress);
-        var progressServiceDisposable = progressService
-            .ProgressObservable.ObserveOn(RxApp.MainThreadScheduler)
-            .Select(x => x.Message)
-            .WhereNotNull()
-            .Subscribe(async x => await AppendLineInteraction.Handle(x));
+        // var progressServiceDisposable = progressService
+        //     .ProgressObservable.ObserveOn(RxApp.MainThreadScheduler)
+        //     .Select(x => x.Message)
+        //     .WhereNotNull()
+        //     .Subscribe(async x => await AppendLineInteraction.Handle(x));
 
         InGroksModPackDir = ReactiveCommand.CreateFromTask(async () =>
             await Task.Run(() =>
@@ -691,11 +748,18 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                     .Where(x => x.CurlReady)
                     .Subscribe(_ =>
                     {
+                        GetModDownloadExtractProgressVmsCmd.Execute().Subscribe();
                         BackgroundCheckUpdatesCmd.Execute().Subscribe();
                     });
             }
         );
+        return;
+
+        bool ModDlPredicate(ModDownloadExtractProgressVm arg) => arg.Status != Status.Done;
     }
+
+    public ReadOnlyObservableCollection<ModDownloadExtractProgressVm> ModDownloadExtractProgressVms =>
+        _modDownloadExtractProgressVms;
 
     public bool NeedUpdate
     {
@@ -804,5 +868,9 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
     public ReactiveCommand<Unit, bool?> UserLtxSetToFullscreenWineCmd { get; }
     public ReactiveCommand<string, Unit> UserLtxReplaceFullscreenWithBorderlessFullscreen { get; }
     public ReactiveCommand<Unit, string?> AnomalyPathCmd { get; }
+    public ReactiveCommand<
+        Unit,
+        IList<ModDownloadExtractProgressVm>
+    > GetModDownloadExtractProgressVmsCmd { get; }
     public ViewModelActivator Activator { get; }
 }

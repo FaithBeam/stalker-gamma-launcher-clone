@@ -1,9 +1,11 @@
 ﻿using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using CliWrap.EventStream;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
 using stalker_gamma.core.Utilities;
+using stalker_gamma.core.ViewModels.Tabs.MainTab;
 
 namespace stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
 
@@ -20,7 +22,7 @@ public class ModListRecord : IModListRecord
     public string? Md5ModDb { get; set; }
 }
 
-public abstract class DownloadableRecord(ICurlService curlService) : ModListRecord
+public abstract partial class DownloadableRecord(ICurlService curlService) : ModListRecord
 {
     protected readonly ICurlService CurlService = curlService;
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
@@ -39,7 +41,8 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
     public virtual async Task<Action> ShouldDownloadAsync(
         string downloadsPath,
         bool checkMd5,
-        bool forceGitDownload
+        bool forceGitDownload,
+        ModDownloadExtractProgressVm modDownloadExtractProgressVm
     )
     {
         DlPath ??= Path.Join(downloadsPath, Name);
@@ -48,6 +51,7 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
         {
             if (checkMd5)
             {
+                modDownloadExtractProgressVm.Status = Status.CheckingMd5;
                 var md5 = await Md5Utility.CalculateFileMd5Async(DlPath);
                 if (!string.IsNullOrWhiteSpace(Md5ModDb))
                 {
@@ -69,6 +73,8 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
     public virtual async Task DownloadAsync(
         string downloadsPath,
         bool useCurlImpersonate,
+        IProgress<double> progress,
+        ModDownloadExtractProgressVm modDownloadExtractProgressVm,
         bool invalidateMirrorCache = false
     )
     {
@@ -81,12 +87,16 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
             Dl,
             Path.GetDirectoryName(DlPath) ?? ".",
             Path.GetFileName(DlPath),
-            useCurlImpersonate,
+            progress,
             _dir
         );
     }
 
-    public async Task ExtractAsync(string downloadsPath, string extractPath)
+    public async Task ExtractAsync(
+        string downloadsPath,
+        string extractPath,
+        IProgress<double> progress
+    )
     {
         DlPath ??= Path.Join(downloadsPath, Name);
 
@@ -112,7 +122,7 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
         }
 
         await ArchiveUtility
-            .Extract(DlPath, extractPath)
+            .ExtractWithProgress(DlPath, extractPath)
             .ForEachAsync(cmdEvt =>
             {
                 switch (cmdEvt)
@@ -124,7 +134,20 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
                         Debug.WriteLine($"Error: {stdErr.Text}");
                         break;
                     case StandardOutputCommandEvent stdOut:
-                        Debug.WriteLine($"Out: {stdOut.Text}");
+                        if (
+                            ProgressRx().IsMatch(stdOut.Text)
+                            && double.TryParse(
+                                ProgressRx().Match(stdOut.Text).Groups[1].Value,
+                                out var parsed
+                            )
+                        )
+                        {
+                            progress.Report(parsed);
+                        }
+                        else
+                        {
+                            Debug.WriteLine($"Out: {stdOut.Text}");
+                        }
                         break;
                     case StartedCommandEvent start:
                         Debug.WriteLine($"Start: {start.ProcessId}");
@@ -136,6 +159,9 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
 
         SolveInstructions(extractPath);
     }
+
+    [GeneratedRegex(@"(\d+(\.\d+)?)\s*%", RegexOptions.Compiled)]
+    private static partial Regex ProgressRx();
 
     public async Task WriteMetaIniAsync(string extractPath) =>
         await File.WriteAllTextAsync(
@@ -241,6 +267,10 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
     ];
 }
 
+public class GitRecord : ModListRecord;
+
+public class ModpackSpecific : ModListRecord;
+
 public class Separator : ModListRecord
 {
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
@@ -272,6 +302,8 @@ public class GithubRecord(ICurlService curlService, IHttpClientFactory hcf)
     public override async Task DownloadAsync(
         string downloadsPath,
         bool useCurlImpersonate,
+        IProgress<double> progress,
+        ModDownloadExtractProgressVm modDownloadExtractProgressVm,
         bool invalidateMirrorCache = false
     )
     {
@@ -289,6 +321,8 @@ public class GithubRecord(ICurlService curlService, IHttpClientFactory hcf)
         using var response = await _hc.GetAsync(Dl);
         response.EnsureSuccessStatusCode();
 
+        var totalBytes = response.Content.Headers.ContentLength;
+
         await using var fs = new FileStream(
             DlPath,
             FileMode.Create,
@@ -297,13 +331,30 @@ public class GithubRecord(ICurlService curlService, IHttpClientFactory hcf)
             bufferSize: BufferSize
         );
         await using var contentStream = await response.Content.ReadAsStreamAsync();
-        await contentStream.CopyToAsync(fs, bufferSize: BufferSize);
+
+        var buffer = new byte[8192];
+        long totalBytesRead = 0;
+        int bytesRead;
+
+        while ((bytesRead = await contentStream.ReadAsync(buffer)) > 0)
+        {
+            await fs.WriteAsync(buffer.AsMemory(0, bytesRead));
+            totalBytesRead += bytesRead;
+
+            if (totalBytes.HasValue)
+            {
+                var progressPercentage = (double)totalBytesRead / totalBytes.Value * 100.0;
+                progress.Report(progressPercentage);
+            }
+        }
+        progress.Report(100);
     }
 
     public override async Task<Action> ShouldDownloadAsync(
         string downloadsPath,
         bool checkMd5,
-        bool forceGitDownload
+        bool forceGitDownload,
+        ModDownloadExtractProgressVm modDownloadExtractProgressVm
     )
     {
         if (forceGitDownload)
@@ -311,7 +362,12 @@ public class GithubRecord(ICurlService curlService, IHttpClientFactory hcf)
             return Action.DownloadForced;
         }
 
-        return await base.ShouldDownloadAsync(downloadsPath, checkMd5, forceGitDownload);
+        return await base.ShouldDownloadAsync(
+            downloadsPath,
+            checkMd5,
+            forceGitDownload,
+            modDownloadExtractProgressVm
+        );
     }
 }
 
@@ -328,6 +384,8 @@ public class ModDbRecord(ModDb modDb, ICurlService curlService) : DownloadableRe
     public override async Task DownloadAsync(
         string downloadsPath,
         bool useCurlImpersonate,
+        IProgress<double> progress,
+        ModDownloadExtractProgressVm modDownloadExtractProgressVm,
         bool invalidateMirrorCache = false
     )
     {
@@ -335,6 +393,7 @@ public class ModDbRecord(ModDb modDb, ICurlService curlService) : DownloadableRe
         var mirror = await modDb.GetModDbLinkCurl(
             DlLink!,
             DlPath,
+            progress,
             invalidateMirrorCache: invalidateMirrorCache,
             excludeMirrors: _visitedMirrors.ToArray()
         );
@@ -344,12 +403,12 @@ public class ModDbRecord(ModDb modDb, ICurlService curlService) : DownloadableRe
         }
 
         if (
-            await ShouldDownloadAsync(downloadsPath, true, false)
+            await ShouldDownloadAsync(downloadsPath, true, false, modDownloadExtractProgressVm)
             is Action.DownloadMissing
                 or Action.DownloadMd5Mismatch
         )
         {
-            await modDb.GetModDbLinkCurl(DlLink!, DlPath);
+            await modDb.GetModDbLinkCurl(DlLink!, DlPath, progress);
         }
     }
 }

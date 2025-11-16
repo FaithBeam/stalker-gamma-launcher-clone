@@ -12,8 +12,6 @@ namespace stalker_gamma_gui.Controls.Tabs;
 public partial class MainTabVm
     : ReactiveUserControl<stalker_gamma.core.ViewModels.Tabs.MainTab.MainTabVm>
 {
-    private bool _loaded;
-
     public MainTabVm()
     {
         InitializeComponent();
@@ -23,32 +21,6 @@ public partial class MainTabVm
             {
                 return;
             }
-
-            if (!_loaded)
-            {
-                ConsoleOutput.AppendText(
-                    $"""
-                      
-                      
-                      Welcome to the Gigantic Automated Modular Modpack for Anomaly installer
-                      
-                      Be sure to check out the discord #how-to-install channel for full instructions:   https://www.discord.gg/stalker-gamma
-                      
-                      Untick Check MD5 ONLY if your pack is already working and you want to update it.
-                      
-                      Check the update status above and click Install/Update GAMMA if needed.
-                      
-                      Currently working from the {Path.GetDirectoryName(
-                          AppContext.BaseDirectory
-                      )} directory.
-
-                     """
-                );
-            }
-
-            _loaded = true;
-
-            ViewModel.AppendLineInteraction.RegisterHandler(AppendLineHandler);
 
             // strobe install / update gamma when user has not updated enough
             const string strobing = "Strobing";
@@ -166,16 +138,5 @@ public partial class MainTabVm
                 })
                 .DisposeWith(d);
         });
-    }
-
-    private void AppendLineHandler(IInteractionContext<string, Unit> interactionCtx)
-    {
-        ConsoleOutput.AppendText($"{DateTime.Now:t}:\t{interactionCtx.Input}");
-        ConsoleOutput.AppendText(Environment.NewLine);
-        if (AutoScrollCb.IsChecked.HasValue && AutoScrollCb.IsChecked.Value)
-        {
-            ConsoleOutput.ScrollToLine(ConsoleOutput.LineCount);
-        }
-        interactionCtx.SetOutput(Unit.Default);
     }
 }
