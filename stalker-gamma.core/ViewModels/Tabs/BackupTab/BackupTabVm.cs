@@ -356,7 +356,7 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel, IBackup
                                     [
                                         Path.Join(anomalyPath, "bin"),
 #if DEBUG
-                                        Path.Join(gammaPath, "net9.0", "*.txt"),
+                                        Path.Join(gammaPath, "net10.0", "*.txt"),
 #else
                                         Path.Join(gammaPath, ".Grok's Modpack Installer", "*.txt"),
 #endif

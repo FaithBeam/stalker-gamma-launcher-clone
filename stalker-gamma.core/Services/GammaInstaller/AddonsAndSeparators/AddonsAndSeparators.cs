@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Runtime.InteropServices;
 using System.Threading.Channels;
 using CliWrap.Exceptions;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Factories;
@@ -13,6 +14,7 @@ public class AddonsAndSeparators(
 )
 {
     private readonly ModListRecordFactory _modListRecordFactory = modListRecordFactory;
+    private static int visitedExtracts = 0;
 
     public async Task Install(
         string downloadsPath,
@@ -25,6 +27,7 @@ public class AddonsAndSeparators(
         bool useCurlImpersonate
     )
     {
+        visitedExtracts = 0;
         progressService.UpdateProgress(
             """
 
@@ -124,8 +127,10 @@ public class AddonsAndSeparators(
                             );
                     }
                 },
-                Extract: async () => await ExtractAsync(f.File!, modsPaths, total, f.Count)
-            ));
+                Extract: async () =>
+                    await ExtractAsync(f.File!, downloadsPath, modsPaths, total, f.Count)
+            ))
+            .GroupBy(x => (x.File.ModDbUrl, x.File.Name));
 
         foreach (var separator in separators)
         {
@@ -168,7 +173,9 @@ public class AddonsAndSeparators(
     }
 
     private async Task<ConcurrentQueue<DownloadableRecordPipeline>> DownloadAndExtractAsync(
-        IEnumerable<DownloadableRecordPipeline> downloadableRecords,
+        IEnumerable<
+            IGrouping<(string? DlLink, string Name), DownloadableRecordPipeline>
+        > downloadableRecords,
         bool forceZipExtraction
     )
     {
@@ -182,22 +189,28 @@ public class AddonsAndSeparators(
 
         var t1 = Task.Run(async () =>
         {
-            foreach (var dlRec in downloadableRecords)
+            foreach (var dlRecGroup in downloadableRecords)
             {
                 try
                 {
-                    var extract = await dlRec.Dl();
-                    await dlChannel.Writer.WriteAsync((dlRec, extract));
+                    var extract = await dlRecGroup.First().Dl();
+                    foreach (var dlRec in dlRecGroup)
+                    {
+                        await dlChannel.Writer.WriteAsync((dlRec, extract));
+                    }
                 }
                 catch (CurlDownloadException)
                 {
                     progressService.UpdateProgress(
                         $"""
 
-                        ERROR DOWNLOADING {dlRec.File.Name}, SKIPPING. WILL RETRY AT THE END.
+                        ERROR DOWNLOADING GROUP {dlRecGroup.Key}, SKIPPING. WILL RETRY AT THE END.
                         """
                     );
-                    brokenInstalls.Enqueue(dlRec);
+                    foreach (var dlRec in dlRecGroup)
+                    {
+                        brokenInstalls.Enqueue(dlRec);
+                    }
                 }
             }
 
@@ -209,25 +222,25 @@ public class AddonsAndSeparators(
         {
             await foreach (var item in dlChannel.Reader.ReadAllAsync())
             {
-                if (forceZipExtraction || item.justDownloaded)
+                try
                 {
-                    try
+                    if (forceZipExtraction || item.justDownloaded)
                     {
                         await item.dlRec.Extract.Invoke();
                     }
-                    catch (CommandExecutionException)
-                    {
-                        var extractPath = Path.Join(
-                            $"{item.dlRec.Count}-{item.dlRec.File.AddonName}{item.dlRec.File.Patch}"
-                        );
-                        progressService.UpdateProgress(
-                            $"""
+                }
+                catch (Exception)
+                {
+                    var extractPath = Path.Join(
+                        $"{item.dlRec.Count}-{item.dlRec.File.AddonName}{item.dlRec.File.Patch}"
+                    );
+                    progressService.UpdateProgress(
+                        $"""
 
-                            ERROR EXTRACTING {extractPath}, SKIPPING. WILL RETRY AT THE END.
-                            """
-                        );
-                        brokenInstalls.Enqueue(item.dlRec);
-                    }
+                        ERROR EXTRACTING {extractPath}, SKIPPING. WILL RETRY AT THE END.
+                        """
+                    );
+                    brokenInstalls.Enqueue(item.dlRec);
                 }
             }
         });
@@ -239,6 +252,7 @@ public class AddonsAndSeparators(
 
     private async Task ExtractAsync(
         DownloadableRecord downloadableRecord,
+        string downloadsPath,
         string modsPaths,
         int total,
         int counter
@@ -259,8 +273,9 @@ public class AddonsAndSeparators(
         await downloadableRecord.WriteMetaIniAsync(extractPath);
 
         progressService.UpdateProgress($"\tExtracting to {extractPath}");
-        await downloadableRecord.ExtractAsync(extractPath);
-        progressService.UpdateProgress(counter / (double)total * 100);
+        await downloadableRecord.ExtractAsync(downloadsPath, extractPath);
+
+        progressService.UpdateProgress(visitedExtracts++ / (double)total * 100);
     }
 }
 
