@@ -82,8 +82,10 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
         );
     }
 
-    public async Task ExtractAsync(string extractPath)
+    public async Task ExtractAsync(string downloadsPath, string extractPath)
     {
+        DlPath ??= Path.Join(downloadsPath, Name);
+
         if (Path.Exists(extractPath))
         {
             new DirectoryInfo(extractPath)
@@ -102,7 +104,7 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
 
         if (string.IsNullOrWhiteSpace(DlPath))
         {
-            throw new Exception($"{nameof(DlPath)} is empty");
+            throw new DownloadableRecordException($"{nameof(DlPath)} is empty");
         }
 
         await ArchiveUtility
@@ -337,4 +339,13 @@ public class ModDbRecord(ModDb modDb, ICurlService curlService) : DownloadableRe
             await modDb.GetModDbLinkCurl(DlLink!, DlPath);
         }
     }
+}
+
+public class DownloadableRecordException : Exception
+{
+    public DownloadableRecordException(string message)
+        : base(message) { }
+
+    public DownloadableRecordException(string message, Exception innerException)
+        : base(message, innerException) { }
 }
