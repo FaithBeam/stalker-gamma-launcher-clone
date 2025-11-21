@@ -61,3 +61,4 @@ jobs:
           compression-level: '9'
           path: |
             bin/**
+            !bin/**/*.pdb
