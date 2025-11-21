@@ -1,5 +1,8 @@
+using System.Reactive.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using CliWrap;
+using CliWrap.EventStream;
 using CliWrap.Exceptions;
 
 namespace stalker_gamma.core.Services;
@@ -20,9 +23,17 @@ public interface ICurlService
     );
 
     Task<string> GetStringAsync(string url, string extraCmds = "", bool useCurlImpersonate = true);
+
+    Task DownloadFileAsync(
+        string url,
+        string pathToDownloads,
+        string fileName,
+        IProgress<double> progress,
+        string? workingDir = null
+    );
 }
 
-public class CurlService(
+public partial class CurlService(
     IHttpClientFactory clientFactory,
     IOperatingSystemService operatingSystemService
 ) : ICurlService
@@ -36,6 +47,63 @@ public class CurlService(
     /// </summary>
     public bool Ready { get; private set; } =
         File.Exists(Path.Join(PathToCurlImpersonateWin, "Curl.exe"));
+
+    public async Task DownloadFileAsync(
+        string url,
+        string pathToDownloads,
+        string fileName,
+        IProgress<double> progress,
+        string? workingDir = null
+    )
+    {
+        var cmd = Cli.Wrap(Path.Join(PathToCurlImpersonateWin, "curl.exe"));
+        if (!string.IsNullOrWhiteSpace(workingDir))
+        {
+            cmd = cmd.WithWorkingDirectory(workingDir);
+        }
+
+        var args =
+            $"--progress-bar --config \"{Path.Join(PathToCurlImpersonateWin, "config", "chrome116.config")}\" --header \"@{Path.Join(PathToCurlImpersonateWin, "config", "chrome116.header")}\" --clobber -Lo \"{Path.Join(pathToDownloads, fileName)}\" {url}";
+        cmd = cmd.WithArguments(args);
+        try
+        {
+            await cmd.Observe()
+                .ForEachAsync(onNext =>
+                {
+                    switch (onNext)
+                    {
+                        case StandardErrorCommandEvent stdErr:
+                            if (
+                                CurlProgressRx().IsMatch(stdErr.Text)
+                                && double.TryParse(
+                                    CurlProgressRx().Match(stdErr.Text).Groups[1].Value,
+                                    out var parsed
+                                )
+                            )
+                            {
+                                progress.Report(parsed);
+                            }
+                            break;
+                        case ExitedCommandEvent:
+                        case StandardOutputCommandEvent:
+                        case StartedCommandEvent:
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException(nameof(onNext));
+                    }
+                });
+        }
+        catch (CommandExecutionException e)
+        {
+            throw new CurlDownloadException(
+                $"""
+                Error downloading file: {url}
+                Args: {args}
+                """,
+                e
+            );
+        }
+    }
 
     public async Task DownloadFileAsync(
         string url,
@@ -129,6 +197,9 @@ public class CurlService(
         _operatingSystemService.IsWindows() ? WindowsGetStringCmd
         : _operatingSystemService.IsMacOS() ? MacosGetStringCmd
         : LinuxGetStringCmd;
+
+    [GeneratedRegex(@"(\d+(\.\d+)?)\s*%", RegexOptions.Compiled)]
+    private static partial Regex CurlProgressRx();
 }
 
 public class CurlDownloadException : Exception

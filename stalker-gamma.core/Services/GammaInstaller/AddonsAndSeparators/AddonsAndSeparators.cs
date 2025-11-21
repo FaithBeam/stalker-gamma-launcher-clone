@@ -4,6 +4,7 @@ using CliWrap.Exceptions;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Factories;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
 using stalker_gamma.core.Utilities;
+using stalker_gamma.core.ViewModels.Tabs.MainTab;
 
 namespace stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators;
 
@@ -17,7 +18,7 @@ public class AddonsAndSeparators(
     public async Task Install(
         string downloadsPath,
         string modsPaths,
-        string modListFile,
+        IList<ModDownloadExtractProgressVm> modDownloadProgresses,
         bool forceGitDownload,
         bool checkMd5,
         bool updateLargeFiles,
@@ -45,19 +46,30 @@ public class AddonsAndSeparators(
             Directory.CreateDirectory(modsPaths);
         }
 
-        var files = (await File.ReadAllLinesAsync(modListFile))
-            .Select(x => _modListRecordFactory.Create(x))
-            .ToList();
-
-        var total = files.Count;
+        var total = modDownloadProgresses.Count;
 
         var counter = 0;
 
-        var summedFiles = files.Select(f => new { Count = ++counter, File = f }).ToList();
+        var summedFiles = modDownloadProgresses
+            .Select(f => new
+            {
+                Count = ++counter,
+                File = f.ModListRecord,
+                DlProgress = f.DownloadProgressInterface,
+                ExtractProgress = f.ExtractProgressInterface,
+                MyObj = f,
+            })
+            .ToList();
 
         var separators = summedFiles
             .Where(f => f.File is Separator)
-            .Select(f => new { f.Count, File = f.File as Separator })
+            .Select(f => new
+            {
+                f.Count,
+                File = f.File as Separator,
+                Progress = f.DlProgress,
+                f.MyObj,
+            })
             .Select(f => new
             {
                 f.Count,
@@ -73,13 +85,22 @@ public class AddonsAndSeparators(
                         );
                         f.File?.WriteMetaIni(modsPaths, f.Count);
                         progressService.UpdateProgress(" ");
+                        f.Progress.Report(100);
+                        f.MyObj.Status = Status.Done;
                     }
                 ),
             });
 
         var downloadableRecords = summedFiles
             .Where(f => f.File is DownloadableRecord)
-            .Select(f => new { f.Count, File = f.File as DownloadableRecord })
+            .Select(f => new
+            {
+                f.Count,
+                File = f.File as DownloadableRecord,
+                f.DlProgress,
+                f.ExtractProgress,
+                f.MyObj,
+            })
             .Select(f => new DownloadableRecordPipeline(
                 Count: f.Count,
                 File: f.File!,
@@ -88,34 +109,54 @@ public class AddonsAndSeparators(
                     var shouldDlResult = await f.File!.ShouldDownloadAsync(
                         downloadsPath,
                         checkMd5,
-                        forceGitDownload
+                        forceGitDownload,
+                        f.MyObj
                     );
 
                     switch (shouldDlResult)
                     {
                         case DownloadableRecord.Action.DoNothing:
+                            f.DlProgress.Report(100);
                             return false;
                         case DownloadableRecord.Action.DownloadMissing:
+                            f.MyObj.Status = Status.Downloading;
                             progressService.UpdateProgress(
                                 $"_______________ {f.File.AddonName} _______________"
                             );
-                            await f.File.DownloadAsync(downloadsPath, useCurlImpersonate);
+                            await f.File.DownloadAsync(
+                                downloadsPath,
+                                useCurlImpersonate,
+                                f.DlProgress,
+                                f.MyObj
+                            );
                             return true;
                         case DownloadableRecord.Action.DownloadMd5Mismatch:
+                            f.MyObj.Status = Status.Downloading;
                             progressService.UpdateProgress(
                                 $"_______________ {f.File.AddonName} _______________"
                             );
                             progressService.UpdateProgress(
                                 $"Md5 mismatch in downloaded file: {f.File.DlPath}. Downloading again."
                             );
-                            await f.File.DownloadAsync(downloadsPath, useCurlImpersonate);
+                            await f.File.DownloadAsync(
+                                downloadsPath,
+                                useCurlImpersonate,
+                                f.DlProgress,
+                                f.MyObj
+                            );
                             return true;
                         case DownloadableRecord.Action.DownloadForced:
+                            f.MyObj.Status = Status.Downloading;
                             progressService.UpdateProgress(
                                 $"_______________ {f.File.AddonName} _______________"
                             );
                             progressService.UpdateProgress("Forced downloading");
-                            await f.File.DownloadAsync(downloadsPath, useCurlImpersonate);
+                            await f.File.DownloadAsync(
+                                downloadsPath,
+                                useCurlImpersonate,
+                                f.DlProgress,
+                                f.MyObj
+                            );
                             return true;
                         default:
                             throw new ArgumentOutOfRangeException(
@@ -124,7 +165,9 @@ public class AddonsAndSeparators(
                             );
                     }
                 },
-                Extract: async () => await ExtractAsync(f.File!, modsPaths, total, f.Count)
+                Extract: async () =>
+                    await ExtractAsync(f.File!, modsPaths, total, f.Count, f.ExtractProgress),
+                MyObj: f.MyObj
             ));
 
         foreach (var separator in separators)
@@ -143,6 +186,7 @@ public class AddonsAndSeparators(
             }
             catch (CurlDownloadException e)
             {
+                brokenInstall.MyObj.Status = Status.Error;
                 progressService.UpdateProgress(
                     $"""
 
@@ -153,6 +197,7 @@ public class AddonsAndSeparators(
             }
             catch (SevenZipExtractException e)
             {
+                brokenInstall.MyObj.Status = Status.Error;
                 var extractPath = Path.Join(
                     $"{brokenInstall.Count}-{brokenInstall.File.AddonName}{brokenInstall.File.Patch}"
                 );
@@ -186,11 +231,14 @@ public class AddonsAndSeparators(
             {
                 try
                 {
+                    // dlRec.MyObj.Status = Status.Downloading;
                     var extract = await dlRec.Dl();
+                    dlRec.MyObj.Status = Status.Downloaded;
                     await dlChannel.Writer.WriteAsync((dlRec, extract));
                 }
                 catch (CurlDownloadException)
                 {
+                    dlRec.MyObj.Status = Status.Retry;
                     progressService.UpdateProgress(
                         $"""
 
@@ -213,10 +261,13 @@ public class AddonsAndSeparators(
                 {
                     try
                     {
+                        item.dlRec.MyObj.Status = Status.Extracting;
                         await item.dlRec.Extract.Invoke();
+                        item.dlRec.MyObj.Status = Status.Done;
                     }
                     catch (CommandExecutionException)
                     {
+                        item.dlRec.MyObj.Status = Status.Retry;
                         var extractPath = Path.Join(
                             $"{item.dlRec.Count}-{item.dlRec.File.AddonName}{item.dlRec.File.Patch}"
                         );
@@ -241,7 +292,8 @@ public class AddonsAndSeparators(
         DownloadableRecord downloadableRecord,
         string modsPaths,
         int total,
-        int counter
+        int counter,
+        IProgress<double> extractProgress
     )
     {
         var extractPath = Path.Join(
@@ -259,7 +311,7 @@ public class AddonsAndSeparators(
         await downloadableRecord.WriteMetaIniAsync(extractPath);
 
         progressService.UpdateProgress($"\tExtracting to {extractPath}");
-        await downloadableRecord.ExtractAsync(extractPath);
+        await downloadableRecord.ExtractAsync(extractPath, extractProgress);
         progressService.UpdateProgress(counter / (double)total * 100);
     }
 }
@@ -268,5 +320,6 @@ internal record DownloadableRecordPipeline(
     int Count,
     DownloadableRecord File,
     Func<Task<bool>> Dl,
-    Func<Task> Extract
+    Func<Task> Extract,
+    ModDownloadExtractProgressVm MyObj
 );

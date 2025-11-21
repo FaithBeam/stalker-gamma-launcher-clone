@@ -1,4 +1,5 @@
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
+using stalker_gamma.core.ViewModels.Tabs.MainTab;
 
 namespace stalker_gamma.core.Services.GammaInstaller.ModpackSpecific;
 
@@ -8,7 +9,10 @@ public class ModpackSpecific(ProgressService progressService)
         string dir,
         string modPackPath,
         string modPackAdditionalFiles,
-        string modsPaths
+        string modsPaths,
+        ModDownloadExtractProgressVm gammaLargeFilesVm,
+        ModDownloadExtractProgressVm teivazAnomalyGunslingerVm,
+        ModDownloadExtractProgressVm modpackAddonsVm
     )
     {
         progressService.UpdateProgress(
@@ -25,8 +29,11 @@ public class ModpackSpecific(ProgressService progressService)
             $"\tCopying {Path.Join(modPackPath, modPackAdditionalFiles)} to {modsPaths}, installer can hang but continues working."
         );
 
+        gammaLargeFilesVm.Status = Status.Extracting;
         DirUtils.CopyDirectory(Path.Join(dir, "resources", "gamma_large_files_v2"), modsPaths);
+        gammaLargeFilesVm.Status = Status.Done;
 
+        teivazAnomalyGunslingerVm.Status = Status.Extracting;
         foreach (
             var gameDataDir in new DirectoryInfo(
                 Path.Join(dir, "resources", "teivaz_anomaly_gunslinger")
@@ -42,7 +49,10 @@ public class ModpackSpecific(ProgressService progressService)
                 )
             );
         }
+        teivazAnomalyGunslingerVm.Status = Status.Done;
 
+        modpackAddonsVm.Status = Status.Extracting;
         DirUtils.CopyDirectory(Path.Join(dir, "G.A.M.M.A", "modpack_addons"), modsPaths);
+        modpackAddonsVm.Status = Status.Done;
     }
 }
