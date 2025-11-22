@@ -7,6 +7,7 @@ public partial class MirrorService(ICurlService cs)
 {
     private readonly ICurlService _cs = cs;
     private FrozenSet<string>? _mirrors;
+    private static readonly SemaphoreSlim Lock = new(1);
 
     public async Task<string> GetMirrorAsync(
         string mirrorUrl,
@@ -14,8 +15,16 @@ public partial class MirrorService(ICurlService cs)
         params string[] excludeMirrors
     )
     {
-        _mirrors =
-            _mirrors is null || invalidateCache ? await GetMirrorsAsync(mirrorUrl) : _mirrors;
+        await Lock.WaitAsync();
+        try
+        {
+            _mirrors =
+                _mirrors is null || invalidateCache ? await GetMirrorsAsync(mirrorUrl) : _mirrors;
+        }
+        finally
+        {
+            Lock.Release();
+        }
         return _mirrors
             .Where(mirror => excludeMirrors.All(em => !mirror.Contains(em)))
             .OrderBy(_ => Guid.NewGuid())
