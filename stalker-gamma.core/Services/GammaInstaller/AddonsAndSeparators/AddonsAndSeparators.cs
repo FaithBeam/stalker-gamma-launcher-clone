@@ -1,7 +1,6 @@
 using System.Collections.Concurrent;
-using System.Runtime.InteropServices;
 using System.Threading.Channels;
-using CliWrap.Exceptions;
+using stalker_gamma.core.Models;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Factories;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
 using stalker_gamma.core.Utilities;
@@ -10,11 +9,13 @@ namespace stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators;
 
 public class AddonsAndSeparators(
     ProgressService progressService,
-    ModListRecordFactory modListRecordFactory
+    ModListRecordFactory modListRecordFactory,
+    GlobalSettings globalSettings
 )
 {
+    private readonly GlobalSettings _globalSettings = globalSettings;
     private readonly ModListRecordFactory _modListRecordFactory = modListRecordFactory;
-    private static int visitedExtracts = 0;
+    private static int _visitedExtracts = 0;
 
     public async Task Install(
         string downloadsPath,
@@ -27,7 +28,7 @@ public class AddonsAndSeparators(
         bool useCurlImpersonate
     )
     {
-        visitedExtracts = 0;
+        _visitedExtracts = 0;
         progressService.UpdateProgress(
             """
 
@@ -193,7 +194,7 @@ public class AddonsAndSeparators(
     {
         // download
         var dlChannel = Channel.CreateUnbounded<(
-            DownloadableRecordPipeline dlRec,
+            IList<DownloadableRecordPipeline> dlRecs,
             bool justDownloaded
         )>();
 
@@ -201,30 +202,31 @@ public class AddonsAndSeparators(
 
         var t1 = Task.Run(async () =>
         {
-            foreach (var dlRecGroup in downloadableRecords)
-            {
-                try
+            await Parallel.ForEachAsync(
+                downloadableRecords,
+                new ParallelOptions { MaxDegreeOfParallelism = _globalSettings.DownloadThreads },
+                async (dlRecGroup, _) =>
                 {
-                    var extract = await dlRecGroup.First().Dl(false);
-                    foreach (var dlRec in dlRecGroup)
+                    try
                     {
-                        await dlChannel.Writer.WriteAsync((dlRec, extract));
+                        var extract = await dlRecGroup.First().Dl(false);
+                        await dlChannel.Writer.WriteAsync((dlRecGroup.ToList(), extract));
                     }
-                }
-                catch (CurlDownloadException)
-                {
-                    progressService.UpdateProgress(
-                        $"""
+                    catch (CurlDownloadException)
+                    {
+                        progressService.UpdateProgress(
+                            $"""
 
-                        ERROR DOWNLOADING GROUP {dlRecGroup.Key}, SKIPPING. WILL RETRY AT THE END.
-                        """
-                    );
-                    foreach (var dlRec in dlRecGroup)
-                    {
-                        brokenInstalls.Enqueue(dlRec);
+                            ERROR DOWNLOADING GROUP {dlRecGroup.Key}, SKIPPING. WILL RETRY AT THE END.
+                            """
+                        );
+                        foreach (var dlRec in dlRecGroup)
+                        {
+                            brokenInstalls.Enqueue(dlRec);
+                        }
                     }
                 }
-            }
+            );
 
             dlChannel.Writer.TryComplete();
         });
@@ -232,29 +234,36 @@ public class AddonsAndSeparators(
         // extract
         var t2 = Task.Run(async () =>
         {
-            await foreach (var item in dlChannel.Reader.ReadAllAsync())
-            {
-                try
+            await Parallel.ForEachAsync(
+                dlChannel.Reader.ReadAllAsync(),
+                new ParallelOptions { MaxDegreeOfParallelism = _globalSettings.ExtractThreads },
+                async (group, _) =>
                 {
-                    if (forceZipExtraction || item.justDownloaded)
+                    foreach (var item in group.dlRecs)
                     {
-                        await item.dlRec.Extract.Invoke();
+                        try
+                        {
+                            if (forceZipExtraction || group.justDownloaded)
+                            {
+                                await item.Extract.Invoke();
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            var extractPath = Path.Join(
+                                $"{item.Count}-{item.File.AddonName}{item.File.Patch}"
+                            );
+                            progressService.UpdateProgress(
+                                $"""
+
+                                ERROR EXTRACTING {extractPath}, SKIPPING. WILL RETRY AT THE END.
+                                """
+                            );
+                            brokenInstalls.Enqueue(item);
+                        }
                     }
                 }
-                catch (Exception)
-                {
-                    var extractPath = Path.Join(
-                        $"{item.dlRec.Count}-{item.dlRec.File.AddonName}{item.dlRec.File.Patch}"
-                    );
-                    progressService.UpdateProgress(
-                        $"""
-
-                        ERROR EXTRACTING {extractPath}, SKIPPING. WILL RETRY AT THE END.
-                        """
-                    );
-                    brokenInstalls.Enqueue(item.dlRec);
-                }
-            }
+            );
         });
 
         await Task.WhenAll(t1, t2);
@@ -287,7 +296,9 @@ public class AddonsAndSeparators(
         progressService.UpdateProgress($"\tExtracting to {extractPath}");
         await downloadableRecord.ExtractAsync(downloadsPath, extractPath);
 
-        progressService.UpdateProgress(visitedExtracts++ / (double)total * 100);
+        progressService.UpdateProgress(
+            Interlocked.Increment(ref _visitedExtracts) / (double)total * 100
+        );
     }
 }
 
