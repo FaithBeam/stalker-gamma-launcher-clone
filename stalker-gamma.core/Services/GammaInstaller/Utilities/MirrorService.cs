@@ -1,39 +1,37 @@
+using System.Collections.Frozen;
+using System.Text.RegularExpressions;
+
 namespace stalker_gamma.core.Services.GammaInstaller.Utilities;
 
-public class MirrorService(IHttpClientFactory hcf)
+public partial class MirrorService(ICurlService cs)
 {
-    private readonly IHttpClientFactory _hcf = hcf;
-    private const string MirrorUrl = "https://stalker-gamma.com/api/mirrors";
-    private string? _mirrors;
+    private readonly ICurlService _cs = cs;
+    private FrozenSet<string>? _mirrors;
 
-    public async Task<string?> GetMirror()
+    public async Task<string> GetMirrorAsync(string mirrorUrl, params string[] excludeMirrors)
     {
-        var hc = _hcf.CreateClient();
-        _mirrors ??= await hc.GetStringAsync(MirrorUrl);
-
-        var lines = _mirrors.Split('\n');
-        var random = new Random();
-
-        return lines
-            .Select(line => new { Line = line, Parts = line.Split('\t') })
-            .OrderBy(_ => random.Next())
-            .FirstOrDefault()
-            ?.Line.Split('\t')[1];
+        _mirrors ??= await GetMirrorsAsync(mirrorUrl);
+        return _mirrors
+            .Where(mirror => excludeMirrors.All(em => !mirror.Contains(em)))
+            .OrderBy(_ => Guid.NewGuid())
+            .First();
     }
 
-    public async Task<string?> GetMirror(params string[] excludeMirrors)
+    private async Task<FrozenSet<string>> GetMirrorsAsync(string mirrorUrl)
     {
-        var hc = _hcf.CreateClient();
-        _mirrors ??= await hc.GetStringAsync(MirrorUrl);
-
-        var lines = _mirrors.Split('\n');
-        var random = new Random();
-
-        return lines
-            .Where(line => excludeMirrors.All(em => !line.Contains(em)))
-            .Select(line => new { Line = line, Parts = line.Split('\t') })
-            .OrderBy(_ => random.Next())
-            .FirstOrDefault()
-            ?.Line.Split('\t')[1];
+        var mirrorsHtml = await _cs.GetStringAsync(mirrorUrl);
+        var matches = HrefRx().Matches(mirrorsHtml);
+        return matches
+            .Select(m =>
+                m.Groups["href"]
+                    .Value.Split(
+                        '/',
+                        StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries
+                    )[3]
+            )
+            .ToFrozenSet();
     }
+
+    [GeneratedRegex("""<a href="(?<href>.+)" id="downloadon">*?""")]
+    private static partial Regex HrefRx();
 }
