@@ -15,8 +15,8 @@ A clone of Grokitach's Stalker GAMMA Launcher with WINE compatibility and extra 
 
 |              | Gamma Launcher v8.0 (Original) | Gamma Launcher Clone v0.30.0 (This Repo) | Gamma Launcher (Python) |
 |--------------|----------------|----------------------|----------------|
-| **System 1** | 24mins         | 16mins               | 22mins            |
-| **System 2** | 30mins (VM)            | 20mins               | 24mins            |
+| **System 1** | 24mins         | N/A               | 22mins            |
+| **System 2** | 30mins (VM)            | N/A               | 24mins            |
 | **System 3** | 30mins (VM)            | 10mins                  | 24mins           |
 
 - System 1
@@ -52,7 +52,7 @@ Installation instructions in the wiki: [MacOS install](https://github.com/FaithB
 
 ### Requirements
 
-- [.NET SDK 9](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
+- [.NET SDK 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
 
 ### Command
 
