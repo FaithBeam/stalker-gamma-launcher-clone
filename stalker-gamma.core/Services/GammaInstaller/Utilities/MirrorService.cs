@@ -14,7 +14,8 @@ public partial class MirrorService(ICurlService cs)
         params string[] excludeMirrors
     )
     {
-        _mirrors ??= await GetMirrorsAsync(mirrorUrl);
+        _mirrors =
+            _mirrors is null || invalidateCache ? await GetMirrorsAsync(mirrorUrl) : _mirrors;
         return _mirrors
             .Where(mirror => excludeMirrors.All(em => !mirror.Contains(em)))
             .OrderBy(_ => Guid.NewGuid())
