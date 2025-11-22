@@ -194,7 +194,7 @@ public class AddonsAndSeparators(
     {
         // download
         var dlChannel = Channel.CreateUnbounded<(
-            DownloadableRecordPipeline dlRec,
+            IList<DownloadableRecordPipeline> dlRecs,
             bool justDownloaded
         )>();
 
@@ -210,10 +210,7 @@ public class AddonsAndSeparators(
                     try
                     {
                         var extract = await dlRecGroup.First().Dl(false);
-                        foreach (var dlRec in dlRecGroup)
-                        {
-                            await dlChannel.Writer.WriteAsync((dlRec, extract));
-                        }
+                        await dlChannel.Writer.WriteAsync((dlRecGroup.ToList(), extract));
                     }
                     catch (CurlDownloadException)
                     {
@@ -237,29 +234,36 @@ public class AddonsAndSeparators(
         // extract
         var t2 = Task.Run(async () =>
         {
-            await foreach (var item in dlChannel.Reader.ReadAllAsync())
-            {
-                try
+            await Parallel.ForEachAsync(
+                dlChannel.Reader.ReadAllAsync(),
+                new ParallelOptions { MaxDegreeOfParallelism = _globalSettings.ExtractThreads },
+                async (group, _) =>
                 {
-                    if (forceZipExtraction || item.justDownloaded)
+                    foreach (var item in group.dlRecs)
                     {
-                        await item.dlRec.Extract.Invoke();
+                        try
+                        {
+                            if (forceZipExtraction || group.justDownloaded)
+                            {
+                                await item.Extract.Invoke();
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            var extractPath = Path.Join(
+                                $"{item.Count}-{item.File.AddonName}{item.File.Patch}"
+                            );
+                            progressService.UpdateProgress(
+                                $"""
+
+                                ERROR EXTRACTING {extractPath}, SKIPPING. WILL RETRY AT THE END.
+                                """
+                            );
+                            brokenInstalls.Enqueue(item);
+                        }
                     }
                 }
-                catch (Exception)
-                {
-                    var extractPath = Path.Join(
-                        $"{item.dlRec.Count}-{item.dlRec.File.AddonName}{item.dlRec.File.Patch}"
-                    );
-                    progressService.UpdateProgress(
-                        $"""
-
-                        ERROR EXTRACTING {extractPath}, SKIPPING. WILL RETRY AT THE END.
-                        """
-                    );
-                    brokenInstalls.Enqueue(item.dlRec);
-                }
-            }
+            );
         });
 
         await Task.WhenAll(t1, t2);
@@ -292,7 +296,9 @@ public class AddonsAndSeparators(
         progressService.UpdateProgress($"\tExtracting to {extractPath}");
         await downloadableRecord.ExtractAsync(downloadsPath, extractPath);
 
-        progressService.UpdateProgress(_visitedExtracts++ / (double)total * 100);
+        progressService.UpdateProgress(
+            Interlocked.Increment(ref _visitedExtracts) / (double)total * 100
+        );
     }
 }
 
