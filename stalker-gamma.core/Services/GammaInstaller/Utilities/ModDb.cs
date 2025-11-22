@@ -17,6 +17,7 @@ public partial class ModDb(
     public async Task<string?> GetModDbLinkCurl(
         string url,
         string output,
+        bool invalidateMirrorCache = false,
         bool useCurlImpersonate = true,
         params string[]? excludeMirrors
     )
@@ -28,7 +29,11 @@ public partial class ModDb(
             );
         }
         var mirrorTask = Task.Run(() =>
-            _mirrorService.GetMirrorAsync($"{url}/all", excludeMirrors ?? [])
+            _mirrorService.GetMirrorAsync(
+                $"{url}/all",
+                invalidateMirrorCache,
+                excludeMirrors: excludeMirrors ?? []
+            )
         );
         var getContentTask = Task.Run(() => _curlService.GetStringAsync(url));
         var results = await Task.WhenAll(mirrorTask, getContentTask);

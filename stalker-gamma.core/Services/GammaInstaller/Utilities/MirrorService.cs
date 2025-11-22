@@ -8,7 +8,11 @@ public partial class MirrorService(ICurlService cs)
     private readonly ICurlService _cs = cs;
     private FrozenSet<string>? _mirrors;
 
-    public async Task<string> GetMirrorAsync(string mirrorUrl, params string[] excludeMirrors)
+    public async Task<string> GetMirrorAsync(
+        string mirrorUrl,
+        bool invalidateCache = false,
+        params string[] excludeMirrors
+    )
     {
         _mirrors ??= await GetMirrorsAsync(mirrorUrl);
         return _mirrors

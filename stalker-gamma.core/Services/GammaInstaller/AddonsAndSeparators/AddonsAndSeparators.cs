@@ -86,7 +86,7 @@ public class AddonsAndSeparators(
             .Select(f => new DownloadableRecordPipeline(
                 Count: f.Count,
                 File: f.File!,
-                Dl: async () =>
+                Dl: async (invalidateMirrorCache) =>
                 {
                     var shouldDlResult = await f.File!.ShouldDownloadAsync(
                         downloadsPath,
@@ -102,7 +102,11 @@ public class AddonsAndSeparators(
                             progressService.UpdateProgress(
                                 $"_______________ {f.File.AddonName} _______________"
                             );
-                            await f.File.DownloadAsync(downloadsPath, useCurlImpersonate);
+                            await f.File.DownloadAsync(
+                                downloadsPath,
+                                useCurlImpersonate,
+                                invalidateMirrorCache
+                            );
                             return true;
                         case DownloadableRecord.Action.DownloadMd5Mismatch:
                             progressService.UpdateProgress(
@@ -111,14 +115,22 @@ public class AddonsAndSeparators(
                             progressService.UpdateProgress(
                                 $"Md5 mismatch in downloaded file: {f.File.DlPath}. Downloading again."
                             );
-                            await f.File.DownloadAsync(downloadsPath, useCurlImpersonate);
+                            await f.File.DownloadAsync(
+                                downloadsPath,
+                                useCurlImpersonate,
+                                invalidateMirrorCache
+                            );
                             return true;
                         case DownloadableRecord.Action.DownloadForced:
                             progressService.UpdateProgress(
                                 $"_______________ {f.File.AddonName} _______________"
                             );
                             progressService.UpdateProgress("Forced downloading");
-                            await f.File.DownloadAsync(downloadsPath, useCurlImpersonate);
+                            await f.File.DownloadAsync(
+                                downloadsPath,
+                                useCurlImpersonate,
+                                invalidateMirrorCache
+                            );
                             return true;
                         default:
                             throw new ArgumentOutOfRangeException(
@@ -143,7 +155,7 @@ public class AddonsAndSeparators(
         {
             try
             {
-                await brokenInstall.Dl();
+                await brokenInstall.Dl(true);
                 await brokenInstall.Extract.Invoke();
             }
             catch (CurlDownloadException e)
@@ -193,7 +205,7 @@ public class AddonsAndSeparators(
             {
                 try
                 {
-                    var extract = await dlRecGroup.First().Dl();
+                    var extract = await dlRecGroup.First().Dl(false);
                     foreach (var dlRec in dlRecGroup)
                     {
                         await dlChannel.Writer.WriteAsync((dlRec, extract));
@@ -282,6 +294,6 @@ public class AddonsAndSeparators(
 internal record DownloadableRecordPipeline(
     int Count,
     DownloadableRecord File,
-    Func<Task<bool>> Dl,
+    Func<bool, Task<bool>> Dl,
     Func<Task> Extract
 );
