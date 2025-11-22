@@ -17,32 +17,33 @@ public partial class ModDb(
     public async Task<string?> GetModDbLinkCurl(
         string url,
         string output,
+        bool invalidateMirrorCache = false,
         bool useCurlImpersonate = true,
         params string[]? excludeMirrors
     )
     {
-        var content = await _curlService.GetStringAsync(url);
-        var link = WindowLocationRx().Match(content).Groups[1].Value;
-        var linkSplit = link.Split('/');
         if (excludeMirrors is not null && excludeMirrors.Length > 0)
         {
             progressService.UpdateProgress(
                 $"Excluding mirrors: {string.Join(", ", excludeMirrors)}"
             );
         }
-        var mirror =
-            excludeMirrors?.Length == 0
-                ? await _mirrorService.GetMirror()
-                : await _mirrorService.GetMirror(excludeMirrors!);
-        if (string.IsNullOrWhiteSpace(mirror))
-        {
-            progressService.UpdateProgress("Failed to get mirror from API");
-        }
-        else
-        {
-            progressService.UpdateProgress($"\tBest mirror picked: {mirror}");
-            linkSplit[6] = mirror;
-        }
+        var mirrorTask = Task.Run(() =>
+            _mirrorService.GetMirrorAsync(
+                $"{url}/all",
+                invalidateMirrorCache,
+                excludeMirrors: excludeMirrors ?? []
+            )
+        );
+        var getContentTask = Task.Run(() => _curlService.GetStringAsync(url));
+        var results = await Task.WhenAll(mirrorTask, getContentTask);
+
+        var (mirror, content) = (results[0], results[1]);
+        var link = WindowLocationRx().Match(content).Groups[1].Value;
+        var linkSplit = link.Split('/');
+
+        progressService.UpdateProgress($"\tBest mirror picked: {mirror}");
+        linkSplit[6] = mirror;
 
         var downloadLink = string.Join("/", linkSplit);
         progressService.UpdateProgress($"  Retrieved link: {downloadLink}");
