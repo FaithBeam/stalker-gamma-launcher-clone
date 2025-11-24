@@ -68,21 +68,21 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
     private bool _inGrokModDir;
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
     private bool _preserveUserLtx;
-    private readonly ObservableAsPropertyHelper<double?> _progress;
+    private ObservableAsPropertyHelper<double?>? _progress;
     private bool _needUpdate;
     private bool _needModDbUpdate;
     private string _versionString;
     private string _gammaVersionsToolTip = "";
     private string _modsVersionsToolTip = "";
-    private readonly ObservableAsPropertyHelper<bool> _toolsReady;
-    private readonly ObservableAsPropertyHelper<bool> _isRanWithWine;
-    private readonly ObservableAsPropertyHelper<bool?> _longPathsStatus;
-    private readonly ObservableAsPropertyHelper<bool?> _isMo2VersionDowngraded;
-    private readonly ObservableAsPropertyHelper<bool> _isMo2Initialized;
-    private readonly ObservableAsPropertyHelper<string?> _localGammaVersion;
-    private readonly ObservableAsPropertyHelper<bool?> _userLtxSetToFullscreenWine;
-    private readonly ObservableAsPropertyHelper<string?> _anomalyPath;
-    private readonly ObservableAsPropertyHelper<string?> _userLtxPath;
+    private ObservableAsPropertyHelper<bool>? _toolsReady;
+    private ObservableAsPropertyHelper<bool>? _isRanWithWine;
+    private ObservableAsPropertyHelper<bool?>? _longPathsStatus;
+    private ObservableAsPropertyHelper<bool?>? _isMo2VersionDowngraded;
+    private ObservableAsPropertyHelper<bool>? _isMo2Initialized;
+    private ObservableAsPropertyHelper<string?>? _localGammaVersion;
+    private ObservableAsPropertyHelper<bool?>? _userLtxSetToFullscreenWine;
+    private ObservableAsPropertyHelper<string?>? _anomalyPath;
+    private ObservableAsPropertyHelper<string?>? _userLtxPath;
     private readonly ReadOnlyObservableCollection<ModDownloadExtractProgressVm> _modDownloadExtractProgressVms;
 
     public MainTabVm(
@@ -122,87 +122,27 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
         );
 
         var modProgressVms = new SourceList<ModDownloadExtractProgressVm>();
-        var obs = modProgressVms
+        var locker = new object();
+        var modProgObs = modProgressVms
             .Connect()
             .AutoRefresh(x => x.Status)
-            .Filter(ModDlPredicate)
+            .Filter(x => x.Status != Status.Done)
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .Synchronize(locker)
             .Bind(out _modDownloadExtractProgressVms)
-            .ObserveOn(RxApp.TaskpoolScheduler)
-            .DisposeMany()
             .Subscribe();
 
         GetModDownloadExtractProgressVmsCmd = ReactiveCommand.CreateFromTask(async () =>
             await getModDownloadExtractVmsHandler.ExecuteAsync()
         );
-        GetModDownloadExtractProgressVmsCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(
-                $"""
-
-                ERROR GETTING MOD DOWNLOAD PROGRESS VMS
-                {x}
-                """
-            )
-        );
-        GetModDownloadExtractProgressVmsCmd.Subscribe(x =>
-            modProgressVms.Edit(inner =>
-            {
-                inner.Clear();
-                inner.AddRange(
-                    [
-                        new ModDownloadExtractProgressVm(
-                            new GitRecord { AddonName = "Stalker_GAMMA" }
-                        ),
-                        new ModDownloadExtractProgressVm(
-                            new GitRecord { AddonName = "gamma_large_files_v2" }
-                        ),
-                        new ModDownloadExtractProgressVm(
-                            new GitRecord { AddonName = "teivaz_anomaly_gunslinger" }
-                        ),
-                    ]
-                );
-                inner.AddRange(x);
-                inner.AddRange(
-                    [
-                        new ModDownloadExtractProgressVm(
-                            new ModpackSpecific { AddonName = "modpack_addons" }
-                        ),
-                    ]
-                );
-            })
-        );
 
         IsRanWithWineCmd = ReactiveCommand.CreateFromTask(async () =>
             await Task.Run(isRanWithWineService.IsRanWithWine)
         );
-        IsRanWithWineCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(
-                $"""
-
-                ERROR DETERMINING IF RAN WITH WINE
-                {x}
-                """
-            )
-        );
-        _isRanWithWine = IsRanWithWineCmd.ToProperty(this, x => x.IsRanWithWine);
 
         AnomalyPathCmd = ReactiveCommand.CreateFromTask(async () =>
             await Task.Run(getAnomalyPathHandler.Execute)
         );
-        AnomalyPathCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(
-                $"""
-
-                ERROR FINDING ANOMALY PATH
-                {x.Message}
-                {x.StackTrace}
-                """
-            )
-        );
-        _anomalyPath = AnomalyPathCmd.ToProperty(this, x => x.AnomalyPath);
-
-        _userLtxPath = this.WhenAnyValue(x => x.AnomalyPath)
-            .Select(x => Path.Join(x, "appdata", "user.ltx"))
-            .ToProperty(this, x => x.UserLtxPath);
 
         var userLtxSetToFullscreenWineCanExec = this.WhenAnyValue(
             x => x.UserLtxPath,
@@ -216,27 +156,6 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                 ),
             userLtxSetToFullscreenWineCanExec
         );
-        UserLtxSetToFullscreenWineCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(
-                $"""
-
-                ERROR DETERMINING IF USER.LTX IS SET TO FULLSCREEN
-                {x.Message}
-                {x.StackTrace}
-                """
-            )
-        );
-        _userLtxSetToFullscreenWine = UserLtxSetToFullscreenWineCmd.ToProperty(
-            this,
-            x => x.UserLtxSetToFullscreenWine
-        );
-        this.WhenAnyValue(
-                x => x.UserLtxPath,
-                x => x.IsRanWithWine,
-                selector: (userLtxPath, ranWithWine) => ranWithWine && File.Exists(userLtxPath)
-            )
-            .Where(x => x)
-            .Subscribe(_ => UserLtxSetToFullscreenWineCmd.Execute().Subscribe());
 
         UserLtxReplaceFullscreenWithBorderlessFullscreen = ReactiveCommand.CreateFromTask<string>(
             async pathToUserLtx =>
@@ -244,28 +163,6 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                     new UserLtxReplaceFullscreenWithBorderlessFullscreen.Command(pathToUserLtx)
                 )
         );
-        UserLtxReplaceFullscreenWithBorderlessFullscreen.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(
-                $"""
-
-                ERROR EDITING USER.LTX WITH BORDERLESS FULLSCREEN
-                {x.Message}
-                {x.StackTrace}
-                """
-            )
-        );
-        UserLtxSetToFullscreenWineCmd
-            .Where(x => x.HasValue && x.Value)
-            .Subscribe(_ =>
-            {
-                UserLtxReplaceFullscreenWithBorderlessFullscreen.Execute(UserLtxPath!).Subscribe();
-                progressService.UpdateProgress(
-                    """
-
-                    Replaced user.ltx fullscreen option with borderless fullscreen to avoid issues
-                    """
-                );
-            });
 
         LocalGammaVersionsCmd = ReactiveCommand.CreateFromTask(async () =>
             await Task.Run(() =>
@@ -276,17 +173,6 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                 )
             )
         );
-        LocalGammaVersionsCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(
-                $"""
-                   
-                ERROR DETERMINING LOCAL GAMMA VERSION
-                {x.Message}
-                {x.StackTrace}
-                """
-            )
-        );
-        _localGammaVersion = LocalGammaVersionsCmd.ToProperty(this, x => x.LocalGammaVersion);
 
         IsMo2InitializedCmd = ReactiveCommand.CreateFromTask(async () =>
             await Task.Run(() =>
@@ -301,80 +187,20 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                 )
             )
         );
-        IsMo2InitializedCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(
-                $"""
-                   
-                ERROR DETERMINING MODORGANIZER INITIALIZED
-                {x.Message}
-                {x.StackTrace}
-                """
-            )
-        );
-        _isMo2Initialized = IsMo2InitializedCmd.ToProperty(this, x => x.IsMo2Initialized);
 
         IsMo2VersionDowngradedCmd = ReactiveCommand.CreateFromTask(async () =>
             await Task.Run(() =>
                 isMo2VersionDowngraded.Execute(new IsMo2VersionDowngraded.Query(mo2Path))
             )
         );
-        IsMo2VersionDowngradedCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(
-                $"""
-
-                ERROR DETERMINING MODORGANIZER'S VERSION
-                {x.Message}
-                {x.StackTrace}
-                """
-            )
-        );
-        _isMo2VersionDowngraded = IsMo2VersionDowngradedCmd.ToProperty(
-            this,
-            x => x.IsMo2VersionDowngraded
-        );
 
         LongPathsStatusCmd = ReactiveCommand.CreateFromTask(async () =>
             await Task.Run(longPathsStatusHandler.Execute)
         );
-        LongPathsStatusCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(
-                $"""
-
-                ERROR RETRIEVING LONG PATHS STATUS
-                {x.Message}
-                {x.StackTrace}
-                """
-            )
-        );
-        _longPathsStatus = LongPathsStatusCmd.ToProperty(this, x => x.LongPathsStatus);
 
         ToolsReadyCommand = ReactiveCommand.CreateFromTask(async () =>
             await Task.Run(() => new ToolsReadyRecord(curlService.Ready))
         );
-        _toolsReady = ToolsReadyCommand
-            .Select(x => x.CurlReady)
-            .ToProperty(this, x => x.ToolsReady);
-        ToolsReadyCommand
-            .Where(x => !x.CurlReady)
-            .Subscribe(x =>
-            {
-                List<string> notRdy = [];
-                if (!x.CurlReady)
-                {
-                    notRdy.Add("Curl not found");
-                }
-
-                var notRdyTools = string.Join("\n", notRdy);
-                progressService.UpdateProgress(
-                    $"""
-
-                    TOOLS NOT READY
-                    {notRdyTools}
-
-                    Did you place the executable in the correct directory? .Grok's Modpack Installer
-                    """
-                );
-            });
 
         OpenUrlCmd = ReactiveCommand.Create<string>(OpenUrlUtility.OpenUrl);
 
@@ -404,17 +230,6 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                 }),
             canEnableLongPathsOnWindows
         );
-        EnableLongPathsOnWindowsCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(
-                $"""
-
-                ERROR ENABLING LONG PATHS
-                {x.Message}
-                {x.StackTrace}
-                """
-            )
-        );
-        EnableLongPathsOnWindowsCmd.Subscribe(_ => LongPathsStatusCmd.Execute().Subscribe());
 
         var canAddFoldersToWinDefenderExclusion = this.WhenAnyValue(
             x => x.IsRanWithWine,
@@ -447,15 +262,6 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
             },
             canAddFoldersToWinDefenderExclusion
         );
-        AddFoldersToWinDefenderExclusionCmd.Subscribe(progressService.UpdateProgress);
-        AddFoldersToWinDefenderExclusionCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(
-                $"""
-
-                User either denied UAC prompt or there was an error.
-                """
-            )
-        );
 
         var canFirstInstallInitialization = this.WhenAnyValue(
             x => x.IsBusyService.IsBusy,
@@ -480,17 +286,6 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
             },
             canFirstInstallInitialization
         );
-        FirstInstallInitializationCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(
-                $"""
-                Error in first install initialization:
-                {x.Message}
-                {x.InnerException?.Message}
-                {x.StackTrace}
-                """
-            )
-        );
-        FirstInstallInitializationCmd.Subscribe(_ => IsMo2InitializedCmd.Execute().Subscribe());
 
         BackgroundCheckUpdatesCmd = ReactiveCommand.CreateFromTask(() =>
             Task.Run(async () =>
@@ -527,16 +322,6 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                 NeedModDbUpdate =
                     needUpdates.modVersions.LocalVersion != needUpdates.modVersions.RemoteVersion;
             })
-        );
-        BackgroundCheckUpdatesCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(
-                $"""
-
-                ERROR CHECKING FOR UPDATES
-                {x.Message}
-                {x.StackTrace}
-                """
-            )
         );
 
         var canInstallUpdateGamma = this.WhenAnyValue(
@@ -587,7 +372,8 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                         DeleteReshadeDlls,
                         globalSettings.UseCurlImpersonate,
                         PreserveUserLtx,
-                        ModDownloadExtractProgressVms
+                        ModDownloadExtractProgressVms ?? throw new InvalidOperationException(),
+                        locker
                     )
                 );
 
@@ -595,24 +381,6 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
             },
             canInstallUpdateGamma
         );
-        InstallUpdateGammaCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(
-                $"""
-                ERROR INSTALLING/UPDATING GAMMA:
-                {x.Message}
-                {x.StackTrace}
-                """
-            )
-        );
-        InstallUpdateGammaCmd.Subscribe(_ => LocalGammaVersionsCmd.Execute().Subscribe());
-        InstallUpdateGammaCmd.Subscribe(_ => BackgroundCheckUpdatesCmd.Execute().Subscribe());
-        InstallUpdateGammaCmd
-            .Where(_ => IsRanWithWine)
-            .Subscribe(_ =>
-                UserLtxReplaceFullscreenWithBorderlessFullscreen
-                    .Execute(UserLtxPath ?? "")
-                    .Subscribe()
-            );
 
         var canPlay = this.WhenAnyValue(
             x => x.IsBusyService.IsBusy,
@@ -655,14 +423,6 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
             },
             canPlay
         );
-        PlayCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(
-                $"""
-                ERROR PLAYING:
-                {x}
-                """
-            )
-        );
 
         var canDowngradeModOrganizer = this.WhenAnyValue(
             x => x.IsBusyService.IsBusy,
@@ -685,23 +445,8 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
             },
             canDowngradeModOrganizer
         );
-        DowngradeModOrganizerCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(x.Message)
-        );
-        DowngradeModOrganizerCmd.Subscribe(_ => IsMo2VersionDowngradedCmd.Execute().Subscribe());
 
         AppendLineInteraction = new Interaction<string, Unit>();
-
-        _progress = progressService
-            .ProgressObservable.ObserveOn(RxApp.MainThreadScheduler)
-            .Select(x => x.Progress)
-            .WhereNotNull()
-            .ToProperty(this, x => x.Progress);
-        // var progressServiceDisposable = progressService
-        //     .ProgressObservable.ObserveOn(RxApp.MainThreadScheduler)
-        //     .Select(x => x.Message)
-        //     .WhereNotNull()
-        //     .Subscribe(async x => await AppendLineInteraction.Handle(x));
 
         InGroksModPackDir = ReactiveCommand.CreateFromTask(async () =>
             await Task.Run(() =>
@@ -721,6 +466,322 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
         this.WhenActivated(
             (CompositeDisposable d) =>
             {
+                modProgObs.DisposeWith(d);
+                _progress = progressService
+                    .ProgressObservable.ObserveOn(RxApp.MainThreadScheduler)
+                    .Select(x => x.Progress)
+                    .WhereNotNull()
+                    .ToProperty(this, x => x.Progress)
+                    .DisposeWith(d);
+                GetModDownloadExtractProgressVmsCmd
+                    .ThrownExceptions.Subscribe(x =>
+                        progressService.UpdateProgress(
+                            $"""
+
+                            ERROR GETTING MOD DOWNLOAD PROGRESS VMS
+                            {x}
+                            """
+                        )
+                    )
+                    .DisposeWith(d);
+                GetModDownloadExtractProgressVmsCmd
+                    .Subscribe(x =>
+                        modProgressVms.Edit(inner =>
+                        {
+                            inner.Clear();
+                            inner.AddRange(
+                                [
+                                    new ModDownloadExtractProgressVm(
+                                        new GitRecord { AddonName = "Stalker_GAMMA" }
+                                    ),
+                                    new ModDownloadExtractProgressVm(
+                                        new GitRecord { AddonName = "gamma_large_files_v2" }
+                                    ),
+                                    new ModDownloadExtractProgressVm(
+                                        new GitRecord { AddonName = "teivaz_anomaly_gunslinger" }
+                                    ),
+                                ]
+                            );
+                            inner.AddRange(x);
+                            inner.AddRange(
+                                [
+                                    new ModDownloadExtractProgressVm(
+                                        new ModpackSpecific { AddonName = "modpack_addons" }
+                                    ),
+                                ]
+                            );
+                        })
+                    )
+                    .DisposeWith(d);
+                IsMo2InitializedCmd
+                    .ThrownExceptions.Subscribe(x =>
+                        progressService.UpdateProgress(
+                            $"""
+                               
+                            ERROR DETERMINING MODORGANIZER INITIALIZED
+                            {x.Message}
+                            {x.StackTrace}
+                            """
+                        )
+                    )
+                    .DisposeWith(d);
+                _isMo2Initialized = IsMo2InitializedCmd
+                    .ToProperty(this, x => x.IsMo2Initialized)
+                    .DisposeWith(d);
+                _localGammaVersion = LocalGammaVersionsCmd
+                    .ToProperty(this, x => x.LocalGammaVersion)
+                    .DisposeWith(d);
+                _isMo2VersionDowngraded = IsMo2VersionDowngradedCmd
+                    .ToProperty(this, x => x.IsMo2VersionDowngraded)
+                    .DisposeWith(d);
+                _longPathsStatus = LongPathsStatusCmd
+                    .ToProperty(this, x => x.LongPathsStatus)
+                    .DisposeWith(d);
+
+                IsRanWithWineCmd
+                    .ThrownExceptions.Subscribe(x =>
+                        progressService.UpdateProgress(
+                            $"""
+
+                            ERROR DETERMINING IF RAN WITH WINE
+                            {x}
+                            """
+                        )
+                    )
+                    .DisposeWith(d);
+                _isRanWithWine = IsRanWithWineCmd
+                    .ToProperty(this, x => x.IsRanWithWine)
+                    .DisposeWith(d);
+                DowngradeModOrganizerCmd
+                    .ThrownExceptions.Subscribe(x => progressService.UpdateProgress(x.Message))
+                    .DisposeWith(d);
+                DowngradeModOrganizerCmd
+                    .Subscribe(_ => IsMo2VersionDowngradedCmd.Execute().Subscribe().DisposeWith(d))
+                    .DisposeWith(d);
+                PlayCmd
+                    .ThrownExceptions.Subscribe(x =>
+                        progressService.UpdateProgress(
+                            $"""
+                            ERROR PLAYING:
+                            {x}
+                            """
+                        )
+                    )
+                    .DisposeWith(d);
+                InstallUpdateGammaCmd
+                    .ThrownExceptions.Subscribe(x =>
+                        progressService.UpdateProgress(
+                            $"""
+                            ERROR INSTALLING/UPDATING GAMMA:
+                            {x.Message}
+                            {x.StackTrace}
+                            """
+                        )
+                    )
+                    .DisposeWith(d);
+                InstallUpdateGammaCmd
+                    .Subscribe(_ => LocalGammaVersionsCmd.Execute().Subscribe().DisposeWith(d))
+                    .DisposeWith(d);
+                InstallUpdateGammaCmd
+                    .Subscribe(_ => BackgroundCheckUpdatesCmd.Execute().Subscribe().DisposeWith(d))
+                    .DisposeWith(d);
+                InstallUpdateGammaCmd
+                    .Where(_ => IsRanWithWine)
+                    .Subscribe(_ =>
+                        UserLtxReplaceFullscreenWithBorderlessFullscreen
+                            .Execute(UserLtxPath ?? "")
+                            .Subscribe()
+                    )
+                    .DisposeWith(d);
+                BackgroundCheckUpdatesCmd
+                    .ThrownExceptions.Subscribe(x =>
+                        progressService.UpdateProgress(
+                            $"""
+
+                            ERROR CHECKING FOR UPDATES
+                            {x.Message}
+                            {x.StackTrace}
+                            """
+                        )
+                    )
+                    .DisposeWith(d);
+                AddFoldersToWinDefenderExclusionCmd
+                    .Subscribe(progressService.UpdateProgress)
+                    .DisposeWith(d);
+                AddFoldersToWinDefenderExclusionCmd
+                    .ThrownExceptions.Subscribe(x =>
+                        progressService.UpdateProgress(
+                            $"""
+
+                            User either denied UAC prompt or there was an error.
+                            """
+                        )
+                    )
+                    .DisposeWith(d);
+                FirstInstallInitializationCmd
+                    .ThrownExceptions.Subscribe(x =>
+                        progressService.UpdateProgress(
+                            $"""
+                            Error in first install initialization:
+                            {x.Message}
+                            {x.InnerException?.Message}
+                            {x.StackTrace}
+                            """
+                        )
+                    )
+                    .DisposeWith(d);
+                FirstInstallInitializationCmd
+                    .Subscribe(_ => IsMo2InitializedCmd.Execute().Subscribe().DisposeWith(d))
+                    .DisposeWith(d);
+                EnableLongPathsOnWindowsCmd
+                    .ThrownExceptions.Subscribe(x =>
+                        progressService.UpdateProgress(
+                            $"""
+
+                            ERROR ENABLING LONG PATHS
+                            {x.Message}
+                            {x.StackTrace}
+                            """
+                        )
+                    )
+                    .DisposeWith(d);
+                EnableLongPathsOnWindowsCmd
+                    .Subscribe(_ => LongPathsStatusCmd.Execute().Subscribe().DisposeWith(d))
+                    .DisposeWith(d);
+                ToolsReadyCommand
+                    .Where(x => !x.CurlReady)
+                    .Subscribe(x =>
+                    {
+                        List<string> notRdy = [];
+                        if (!x.CurlReady)
+                        {
+                            notRdy.Add("Curl not found");
+                        }
+
+                        var notRdyTools = string.Join("\n", notRdy);
+                        progressService.UpdateProgress(
+                            $"""
+
+                            TOOLS NOT READY
+                            {notRdyTools}
+
+                            Did you place the executable in the correct directory? .Grok's Modpack Installer
+                            """
+                        );
+                    })
+                    .DisposeWith(d);
+                LocalGammaVersionsCmd
+                    .ThrownExceptions.Subscribe(x =>
+                        progressService.UpdateProgress(
+                            $"""
+                               
+                            ERROR DETERMINING LOCAL GAMMA VERSION
+                            {x.Message}
+                            {x.StackTrace}
+                            """
+                        )
+                    )
+                    .DisposeWith(d);
+                UserLtxReplaceFullscreenWithBorderlessFullscreen
+                    .ThrownExceptions.Subscribe(x =>
+                        progressService.UpdateProgress(
+                            $"""
+
+                            ERROR EDITING USER.LTX WITH BORDERLESS FULLSCREEN
+                            {x.Message}
+                            {x.StackTrace}
+                            """
+                        )
+                    )
+                    .DisposeWith(d);
+                UserLtxSetToFullscreenWineCmd
+                    .Where(x => x.HasValue && x.Value)
+                    .Subscribe(_ =>
+                    {
+                        UserLtxReplaceFullscreenWithBorderlessFullscreen
+                            .Execute(UserLtxPath!)
+                            .Subscribe();
+                        progressService.UpdateProgress(
+                            """
+
+                            Replaced user.ltx fullscreen option with borderless fullscreen to avoid issues
+                            """
+                        );
+                    })
+                    .DisposeWith(d);
+                this.WhenAnyValue(
+                        x => x.UserLtxPath,
+                        x => x.IsRanWithWine,
+                        selector: (userLtxPath, ranWithWine) =>
+                            ranWithWine && File.Exists(userLtxPath)
+                    )
+                    .Where(x => x)
+                    .Subscribe(_ =>
+                        UserLtxSetToFullscreenWineCmd.Execute().Subscribe().DisposeWith(d)
+                    )
+                    .DisposeWith(d);
+                AnomalyPathCmd
+                    .ThrownExceptions.Subscribe(x =>
+                        progressService.UpdateProgress(
+                            $"""
+
+                            ERROR FINDING ANOMALY PATH
+                            {x.Message}
+                            {x.StackTrace}
+                            """
+                        )
+                    )
+                    .DisposeWith(d);
+                IsMo2VersionDowngradedCmd
+                    .ThrownExceptions.Subscribe(x =>
+                        progressService.UpdateProgress(
+                            $"""
+
+                            ERROR DETERMINING MODORGANIZER'S VERSION
+                            {x.Message}
+                            {x.StackTrace}
+                            """
+                        )
+                    )
+                    .DisposeWith(d);
+                LongPathsStatusCmd
+                    .ThrownExceptions.Subscribe(x =>
+                        progressService.UpdateProgress(
+                            $"""
+
+                            ERROR RETRIEVING LONG PATHS STATUS
+                            {x.Message}
+                            {x.StackTrace}
+                            """
+                        )
+                    )
+                    .DisposeWith(d);
+                UserLtxSetToFullscreenWineCmd
+                    .ThrownExceptions.Subscribe(x =>
+                        progressService.UpdateProgress(
+                            $"""
+
+                            ERROR DETERMINING IF USER.LTX IS SET TO FULLSCREEN
+                            {x.Message}
+                            {x.StackTrace}
+                            """
+                        )
+                    )
+                    .DisposeWith(d);
+                _userLtxSetToFullscreenWine = UserLtxSetToFullscreenWineCmd
+                    .ToProperty(this, x => x.UserLtxSetToFullscreenWine)
+                    .DisposeWith(d);
+                _anomalyPath = AnomalyPathCmd.ToProperty(this, x => x.AnomalyPath).DisposeWith(d);
+
+                _userLtxPath = this.WhenAnyValue(x => x.AnomalyPath)
+                    .Select(x => Path.Join(x, "appdata", "user.ltx"))
+                    .ToProperty(this, x => x.UserLtxPath)
+                    .DisposeWith(d);
+                _toolsReady = ToolsReadyCommand
+                    .Select(x => x.CurlReady)
+                    .ToProperty(this, x => x.ToolsReady)
+                    .DisposeWith(d);
+
                 InGrokModDir = _dir.Contains(
 #if DEBUG
                     "net10.0",
@@ -729,19 +790,19 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
 #endif
                     StringComparison.OrdinalIgnoreCase);
 
-                InGroksModPackDir.Execute().Subscribe();
+                InGroksModPackDir.Execute().Subscribe().DisposeWith(d);
 
-                AnomalyPathCmd.Execute().Subscribe();
+                AnomalyPathCmd.Execute().Subscribe().DisposeWith(d);
 
-                LocalGammaVersionsCmd.Execute().Subscribe();
+                LocalGammaVersionsCmd.Execute().Subscribe().DisposeWith(d);
 
-                IsMo2VersionDowngradedCmd.Execute().Subscribe();
+                IsMo2VersionDowngradedCmd.Execute().Subscribe().DisposeWith(d);
 
-                IsMo2InitializedCmd.Execute().Subscribe();
+                IsMo2InitializedCmd.Execute().Subscribe().DisposeWith(d);
 
-                IsRanWithWineCmd.Execute().Subscribe();
+                IsRanWithWineCmd.Execute().Subscribe().DisposeWith(d);
 
-                LongPathsStatusCmd.Execute().Subscribe();
+                LongPathsStatusCmd.Execute().Subscribe().DisposeWith(d);
 
                 ToolsReadyCommand
                     .Execute()
@@ -750,12 +811,10 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                     {
                         GetModDownloadExtractProgressVmsCmd.Execute().Subscribe();
                         BackgroundCheckUpdatesCmd.Execute().Subscribe();
-                    });
+                    })
+                    .DisposeWith(d);
             }
         );
-        return;
-
-        bool ModDlPredicate(ModDownloadExtractProgressVm arg) => arg.Status != Status.Done;
     }
 
     public ReadOnlyObservableCollection<ModDownloadExtractProgressVm> ModDownloadExtractProgressVms =>
@@ -773,7 +832,7 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
         set => this.RaiseAndSetIfChanged(ref _needModDbUpdate, value);
     }
 
-    private bool ToolsReady => _toolsReady.Value;
+    private bool ToolsReady => _toolsReady?.Value ?? false;
 
     public bool InGrokModDir
     {
@@ -797,7 +856,7 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
 
     public Interaction<string, Unit> AppendLineInteraction { get; }
 
-    public double Progress => _progress.Value ?? 0;
+    public double Progress => _progress?.Value ?? 0;
 
     public bool CheckMd5
     {
@@ -835,20 +894,20 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
         set => this.RaiseAndSetIfChanged(ref _versionString, value);
     }
 
-    public bool? IsMo2VersionDowngraded => _isMo2VersionDowngraded.Value;
+    public bool? IsMo2VersionDowngraded => _isMo2VersionDowngraded?.Value;
 
-    public bool? LongPathsStatus => _longPathsStatus.Value;
+    public bool? LongPathsStatus => _longPathsStatus?.Value;
 
-    public bool IsRanWithWine => _isRanWithWine.Value;
+    public bool IsRanWithWine => _isRanWithWine?.Value ?? false;
 
-    public bool IsMo2Initialized => _isMo2Initialized.Value;
+    public bool IsMo2Initialized => _isMo2Initialized?.Value ?? false;
 
-    public string? LocalGammaVersion => _localGammaVersion.Value;
+    public string? LocalGammaVersion => _localGammaVersion?.Value;
 
-    public bool? UserLtxSetToFullscreenWine => _userLtxSetToFullscreenWine.Value;
+    public bool? UserLtxSetToFullscreenWine => _userLtxSetToFullscreenWine?.Value;
 
-    public string? AnomalyPath => _anomalyPath.Value;
-    public string? UserLtxPath => _userLtxPath.Value;
+    public string? AnomalyPath => _anomalyPath?.Value;
+    public string? UserLtxPath => _userLtxPath?.Value;
 
     public ReactiveCommand<Unit, bool> IsRanWithWineCmd { get; set; }
     public ReactiveCommand<Unit, Unit> EnableLongPathsOnWindowsCmd { get; set; }

@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Threading.Channels;
+using CliWrap.Exceptions;
 using stalker_gamma.core.Models;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Factories;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
@@ -173,7 +174,14 @@ public class AddonsAndSeparators(
                     }
                 },
                 Extract: async () =>
-                    await ExtractAsync(f.File!, modsPaths, total, f.Count, f.ExtractProgress),
+                    await ExtractAsync(
+                        f.File!,
+                        downloadsPath,
+                        modsPaths,
+                        total,
+                        f.Count,
+                        f.ExtractProgress
+                    ),
                 MyObj: f.MyObj
             ))
             .GroupBy(x => (x.File.ModDbUrl, x.File.Name));
@@ -189,8 +197,12 @@ public class AddonsAndSeparators(
         {
             try
             {
+                brokenInstall.MyObj.Status = Status.Downloading;
                 await brokenInstall.Dl(true);
+                brokenInstall.MyObj.Status = Status.Downloaded;
+                brokenInstall.MyObj.Status = Status.Extracting;
                 await brokenInstall.Extract.Invoke();
+                brokenInstall.MyObj.Status = Status.Done;
             }
             catch (CurlDownloadException e)
             {
@@ -245,12 +257,18 @@ public class AddonsAndSeparators(
                     try
                     {
                         var extract = await dlRecGroup.First().Dl(false);
-                        dlRec.MyObj.Status = Status.Downloaded;
+                        foreach (var dlRec in dlRecGroup)
+                        {
+                            dlRec.MyObj.Status = Status.Downloaded;
+                        }
                         await dlChannel.Writer.WriteAsync((dlRecGroup.ToList(), extract));
                     }
                     catch (CurlDownloadException)
                     {
-                        dlRec.MyObj.Status = Status.Retry;
+                        foreach (var dlRec in dlRecGroup)
+                        {
+                            dlRec.MyObj.Status = Status.Retry;
+                        }
                         progressService.UpdateProgress(
                             $"""
 
@@ -282,14 +300,14 @@ public class AddonsAndSeparators(
                         {
                             if (forceZipExtraction || group.justDownloaded)
                             {
-                                item.dlRec.MyObj.Status = Status.Extracting;
+                                item.MyObj.Status = Status.Extracting;
                                 await item.Extract.Invoke();
-                                item.dlRec.MyObj.Status = Status.Done;
+                                item.MyObj.Status = Status.Done;
                             }
                         }
-                        catch (CommandExecutionException)
+                        catch (Exception)
                         {
-                            item.dlRec.MyObj.Status = Status.Retry;
+                            item.MyObj.Status = Status.Retry;
                             var extractPath = Path.Join(
                                 $"{item.Count}-{item.File.AddonName}{item.File.Patch}"
                             );

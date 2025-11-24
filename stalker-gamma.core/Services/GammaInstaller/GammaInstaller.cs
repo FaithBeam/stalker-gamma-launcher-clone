@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using CliWrap;
 using CliWrap.EventStream;
 using CliWrap.Exceptions;
+using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
 using stalker_gamma.core.Utilities;
 using stalker_gamma.core.ViewModels.Tabs.MainTab;
@@ -148,7 +149,8 @@ public class GammaInstaller(
         bool deleteReshadeDlls,
         bool useCurlImpersonate,
         bool preserveUserLtx,
-        IList<ModDownloadExtractProgressVm> modDownloadExtractProgressVms
+        IList<ModDownloadExtractProgressVm> modDownloadExtractProgressVms,
+        object locker
     )
     {
         if (Directory.Exists(Path.Join(_dir, ".modpack_installer.log")))
@@ -171,11 +173,24 @@ public class GammaInstaller(
             return;
         }
 
-        await DownloadGammaData(
-            modDownloadExtractProgressVms.First(x => x.AddonName == "Stalker_GAMMA"),
-            modDownloadExtractProgressVms.First(x => x.AddonName == "gamma_large_files_v2"),
-            modDownloadExtractProgressVms.First(x => x.AddonName == "teivaz_anomaly_gunslinger")
-        );
+        ModDownloadExtractProgressVm? stalkerGamma;
+        ModDownloadExtractProgressVm? gammaLargeFiles;
+        ModDownloadExtractProgressVm? gunslinger;
+        ModDownloadExtractProgressVm? modpackAddons;
+        lock (locker)
+        {
+            stalkerGamma = modDownloadExtractProgressVms.First(x => x.AddonName == "Stalker_GAMMA");
+            gammaLargeFiles = modDownloadExtractProgressVms.First(x =>
+                x.AddonName == "gamma_large_files_v2"
+            );
+            gunslinger = modDownloadExtractProgressVms.First(x =>
+                x.AddonName == "teivaz_anomaly_gunslinger"
+            );
+            modpackAddons = modDownloadExtractProgressVms.First(x =>
+                x.AddonName == "modpack_addons"
+            );
+        }
+        await DownloadGammaData(stalkerGamma, gammaLargeFiles, gunslinger);
 
         var metadata = (await File.ReadAllTextAsync(Path.Join(_dir, "modpack_maker_metadata.txt")))
             .Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
@@ -198,7 +213,9 @@ public class GammaInstaller(
         await addonsAndSeparators.Install(
             downloadsPath,
             modsPaths,
-            modDownloadExtractProgressVms,
+            modDownloadExtractProgressVms
+                .Where(x => x.ModListRecord is DownloadableRecord or Separator)
+                .ToList(),
             forceGitDownload,
             checkMd5,
             updateLargeFiles,
@@ -206,16 +223,19 @@ public class GammaInstaller(
             useCurlImpersonate
         );
 
-        // modpack specific install
-        modpackSpecific.Install(
-            _dir,
-            modPackPath,
-            modPackAdditionalFiles,
-            modsPaths,
-            modDownloadExtractProgressVms.First(x => x.AddonName == "gamma_large_files_v2"),
-            modDownloadExtractProgressVms.First(x => x.AddonName == "teivaz_anomaly_gunslinger"),
-            modDownloadExtractProgressVms.First(x => x.AddonName == "modpack_addons")
-        );
+        lock (locker)
+        {
+            // modpack specific install
+            modpackSpecific.Install(
+                _dir,
+                modPackPath,
+                modPackAdditionalFiles,
+                modsPaths,
+                gammaLargeFiles,
+                gunslinger,
+                modpackAddons
+            );
+        }
 
         // setup mo2
         mo2.Setup(

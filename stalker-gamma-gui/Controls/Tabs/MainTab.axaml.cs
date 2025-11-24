@@ -45,7 +45,8 @@ public partial class MainTabVm
                             InstallUpdateBtn.Classes.Remove(strobing);
                             break;
                     }
-                });
+                })
+                .DisposeWith(d);
 
             // strobe first install initialization
             this.WhenAnyValue(
@@ -69,7 +70,8 @@ public partial class MainTabVm
                         ToolTip.SetShowOnDisabled(PlayBtn, false);
                         FirstInstallInitializeBtn.Classes.Remove(strobing);
                     }
-                });
+                })
+                .DisposeWith(d);
 
             // Strobe the downgrade mod organizer button when ran with WINE and mo2 hasn't been downgraded
             this.WhenAnyValue(
@@ -101,7 +103,8 @@ public partial class MainTabVm
                             }
                         }
                     }
-                });
+                })
+                .DisposeWith(d);
 
             // set strobing for long paths btn
             // set tool tip for install / update gamma

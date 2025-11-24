@@ -33,6 +33,7 @@ public static class GetModDownloadExtractVms
                 .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .Select(_modListRecordFactory.Create)
                 .Cast<ModListRecord>()
+                // .Where(x => x is not GithubRecord)
                 .Select(_modDownloadExtractProgressVmFactory.Create)
                 .ToList();
         }

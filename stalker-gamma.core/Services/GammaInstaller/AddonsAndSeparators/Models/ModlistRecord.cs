@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Buffers;
+using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -100,19 +101,24 @@ public abstract partial class DownloadableRecord(ICurlService curlService) : Mod
     {
         DlPath ??= Path.Join(downloadsPath, Name);
 
-        if (Path.Exists(extractPath))
+        // if (Path.Exists(extractPath))
+        // {
+        //     new DirectoryInfo(extractPath)
+        //         .GetDirectories("*", SearchOption.AllDirectories)
+        //         .ToList()
+        //         .ForEach(di =>
+        //         {
+        //             di.Attributes &= ~FileAttributes.ReadOnly;
+        //             di.GetFiles("*", SearchOption.TopDirectoryOnly)
+        //                 .ToList()
+        //                 .ForEach(fi => fi.IsReadOnly = false);
+        //         });
+        //     Directory.Delete(extractPath, true);
+        //     Directory.CreateDirectory(extractPath);
+        // }
+
+        if (!Directory.Exists(extractPath))
         {
-            new DirectoryInfo(extractPath)
-                .GetDirectories("*", SearchOption.AllDirectories)
-                .ToList()
-                .ForEach(di =>
-                {
-                    di.Attributes &= ~FileAttributes.ReadOnly;
-                    di.GetFiles("*", SearchOption.TopDirectoryOnly)
-                        .ToList()
-                        .ForEach(fi => fi.IsReadOnly = false);
-                });
-            Directory.Delete(extractPath, true);
             Directory.CreateDirectory(extractPath);
         }
 
@@ -128,10 +134,10 @@ public abstract partial class DownloadableRecord(ICurlService curlService) : Mod
                 switch (cmdEvt)
                 {
                     case ExitedCommandEvent exit:
-                        Debug.WriteLine($"Exit: {exit.ExitCode}");
+                        // Debug.WriteLine($"Exit: {exit.ExitCode}");
                         break;
                     case StandardErrorCommandEvent stdErr:
-                        Debug.WriteLine($"Error: {stdErr.Text}");
+                        // Debug.WriteLine($"Error: {stdErr.Text}");
                         break;
                     case StandardOutputCommandEvent stdOut:
                         if (
@@ -146,11 +152,11 @@ public abstract partial class DownloadableRecord(ICurlService curlService) : Mod
                         }
                         else
                         {
-                            Debug.WriteLine($"Out: {stdOut.Text}");
+                            // Debug.WriteLine($"Out: {stdOut.Text}");
                         }
                         break;
                     case StartedCommandEvent start:
-                        Debug.WriteLine($"Start: {start.ProcessId}");
+                        // Debug.WriteLine($"Start: {start.ProcessId}");
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(cmdEvt));
@@ -318,7 +324,7 @@ public class GithubRecord(ICurlService curlService, IHttpClientFactory hcf)
             Directory.CreateDirectory(downloadsPath);
         }
 
-        using var response = await _hc.GetAsync(Dl);
+        using var response = await _hc.GetAsync(Dl, HttpCompletionOption.ResponseHeadersRead);
         response.EnsureSuccessStatusCode();
 
         var totalBytes = response.Content.Headers.ContentLength;
@@ -332,22 +338,36 @@ public class GithubRecord(ICurlService curlService, IHttpClientFactory hcf)
         );
         await using var contentStream = await response.Content.ReadAsStreamAsync();
 
-        var buffer = new byte[8192];
-        long totalBytesRead = 0;
-        int bytesRead;
-
-        while ((bytesRead = await contentStream.ReadAsync(buffer)) > 0)
+        var buffer = ArrayPool<byte>.Shared.Rent(81920);
+        try
         {
-            await fs.WriteAsync(buffer.AsMemory(0, bytesRead));
-            totalBytesRead += bytesRead;
+            long totalBytesRead = 0;
+            int bytesRead;
 
-            if (totalBytes.HasValue)
+            while (
+                (bytesRead = await contentStream.ReadAsync(buffer.AsMemory(0, buffer.Length))) > 0
+            )
             {
-                var progressPercentage = (double)totalBytesRead / totalBytes.Value * 100.0;
-                progress.Report(progressPercentage);
+                await fs.WriteAsync(buffer.AsMemory(0, bytesRead));
+                totalBytesRead += bytesRead;
+
+                if (totalBytes.HasValue)
+                {
+                    var progressPercentage = (double)totalBytesRead / totalBytes.Value * 100.0;
+                    progress.Report(progressPercentage);
+                }
             }
+
+            progress.Report(100);
         }
-        progress.Report(100);
+        catch (Exception)
+        {
+            throw;
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(buffer);
+        }
     }
 
     public override async Task<Action> ShouldDownloadAsync(

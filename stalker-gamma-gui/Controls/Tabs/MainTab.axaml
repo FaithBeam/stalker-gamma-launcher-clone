@@ -5,6 +5,7 @@
              xmlns:vm="clr-namespace:stalker_gamma.core.ViewModels.Tabs;assembly=stalker-gamma.core"
              xmlns:mainTab="clr-namespace:stalker_gamma.core.ViewModels.Tabs.MainTab;assembly=stalker-gamma.core"
              xmlns:converters="clr-namespace:stalker_gamma_gui.Converters"
+             xmlns:controls="clr-namespace:stalker_gamma_gui.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="stalker_gamma_gui.Controls.Tabs.MainTabVm"
              x:DataType="mainTab:MainTabVm">
@@ -231,7 +232,8 @@
                         <DataGridTextColumn Header="Addon Name" Binding="{Binding AddonName}" Width="400"  />
                         <DataGridTemplateColumn Header="Progress" Width="*">
                             <DataTemplate DataType="mainTab:ModDownloadExtractProgressVm">
-                                <ProgressBar Value="{Binding OverallProgressValue}" Minimum="0" Maximum="100" ShowProgressText="True"/>
+                                <controls:ProgressControl />
+                                <!-- <ProgressBar Value="{Binding OverallProgressValue}" Minimum="0" Maximum="100" ShowProgressText="True"/> -->
                             </DataTemplate>
                         </DataGridTemplateColumn>
                     </DataGrid.Columns>

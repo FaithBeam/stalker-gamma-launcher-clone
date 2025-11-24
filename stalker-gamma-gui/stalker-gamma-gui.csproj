@@ -29,6 +29,7 @@
     </PackageReference>
     <PackageReference Include="Avalonia.ReactiveUI" Version="11.3.8" />
     <PackageReference Include="AvaloniaEdit.TextMate" Version="11.3.0" />
+    <PackageReference Include="DynamicData" Version="9.4.1" />
     <PackageReference Include="LoadingIndicators.Avalonia" Version="11.0.11.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
