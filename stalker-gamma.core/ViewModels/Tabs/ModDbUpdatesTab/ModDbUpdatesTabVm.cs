@@ -56,7 +56,7 @@ public partial class ModDbUpdatesTabVm : ViewModelBase, IActivatableViewModel, I
             }
 
             var localModListRecords = File.ReadAllLines(modListFile)
-                .Select(x => modListRecordFactory.Create(x))
+                .Select(modListRecordFactory.Create)
                 .Where(x => x is DownloadableRecord)
                 .Cast<DownloadableRecord>()
                 .ToList();
@@ -65,7 +65,7 @@ public partial class ModDbUpdatesTabVm : ViewModelBase, IActivatableViewModel, I
                 await curlService.GetStringAsync("https://stalker-gamma.com/api/list?key=")
             )
                 .Split("\n")
-                .Select(x => modListRecordFactory.Create(x))
+                .Select(modListRecordFactory.Create)
                 .Where(x => x is DownloadableRecord)
                 .Cast<DownloadableRecord>()
                 .Where(onlineRec => ShouldUpdateModFilter(localModListRecords, onlineRec))

@@ -7,12 +7,12 @@ namespace stalker_gamma.core.ViewModels.Tabs.MainTab.Queries;
 public static class GetModDownloadExtractVms
 {
     public sealed class Handler(
-        ModDownloadExtractProgressVmFactory modDownloadExtractProgressVmFactory,
+        // ModDownloadExtractProgressVmFactory modDownloadExtractProgressVmFactory,
         ModListRecordFactory modListRecordFactory,
         IHttpClientFactory hcf
     )
     {
-        public async Task<IList<ModDownloadExtractProgressVm>> ExecuteAsync()
+        public async Task<IList<ModListRecord>> ExecuteAsync()
         {
             string stalkerGammaModsTxt;
             try
@@ -34,12 +34,12 @@ public static class GetModDownloadExtractVms
                 .Select(_modListRecordFactory.Create)
                 .Cast<ModListRecord>()
                 // .Where(x => x is not GithubRecord)
-                .Select(_modDownloadExtractProgressVmFactory.Create)
+                // .Select(_modDownloadExtractProgressVmFactory.Create)
                 .ToList();
         }
 
-        private readonly ModDownloadExtractProgressVmFactory _modDownloadExtractProgressVmFactory =
-            modDownloadExtractProgressVmFactory;
+        // private readonly ModDownloadExtractProgressVmFactory _modDownloadExtractProgressVmFactory =
+        //     modDownloadExtractProgressVmFactory;
         private readonly ModListRecordFactory _modListRecordFactory = modListRecordFactory;
         private readonly HttpClient _hc = hcf.CreateClient();
 

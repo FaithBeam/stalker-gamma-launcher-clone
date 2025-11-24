@@ -84,6 +84,27 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
     private ObservableAsPropertyHelper<string?>? _anomalyPath;
     private ObservableAsPropertyHelper<string?>? _userLtxPath;
     private readonly ReadOnlyObservableCollection<ModDownloadExtractProgressVm> _modDownloadExtractProgressVms;
+    private readonly ReadOnlyObservableCollection<ModListRecord> _localMods;
+
+    private Func<ModDownloadExtractProgressVm, bool> CreateModFilterPredicate(
+        (
+            bool forceGitDl,
+            bool forceZipExtract,
+            bool checkMd5,
+            ReadOnlyObservableCollection<ModListRecord> localMods
+        ) trip
+    ) =>
+        vm =>
+            vm.ModListRecord is GitRecord
+            || vm.ModListRecord is ModpackSpecific
+            || (
+                vm.Status != Status.Done
+                && (
+                    trip.forceZipExtract
+                    || (trip.checkMd5 && vm.ModListRecord is ModDbRecord)
+                    || (trip.forceGitDl && vm.ModListRecord is GithubRecord)
+                )
+            );
 
     public MainTabVm(
         IUserLtxReplaceFullscreenWithBorderlessFullscreen userLtxReplaceFullscreenWithBorderlessFullscreen,
@@ -109,7 +130,9 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
         DiffMods.Handler diffMods,
         GetStalkerGammaLastCommit.Handler getStalkerGammaLastCommit,
         GetGitHubRepoCommits.Handler getGitHubRepoCommits,
-        Queries.GetModDownloadExtractVms.Handler getModDownloadExtractVmsHandler
+        Queries.GetModDownloadExtractVms.Handler getModDownloadExtractVmsHandler,
+        ModDownloadExtractProgressVmFactory modDownloadExtractProgressVmFactory,
+        GetLocalMods.Handler getLocalModsHandler
     )
     {
         Activator = new ViewModelActivator();
@@ -121,12 +144,22 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
             "ModOrganizer.exe"
         );
 
-        var modProgressVms = new SourceList<ModDownloadExtractProgressVm>();
+        var localModsSourceList = new SourceList<ModListRecord>();
+        var localModObs = localModsSourceList.Connect().Bind(out _localMods).Subscribe();
+        var modProgressVms = new SourceList<ModListRecord>();
         var locker = new object();
+        var modFilter = this.WhenAnyValue(
+                x => x.ForceGitDownload,
+                x => x.ForceZipExtraction,
+                x => x.CheckMd5,
+                x => x.LocalMods
+            )
+            .Select(CreateModFilterPredicate);
         var modProgObs = modProgressVms
             .Connect()
+            .Transform(modDownloadExtractProgressVmFactory.Create)
             .AutoRefresh(x => x.Status)
-            .Filter(x => x.Status != Status.Done)
+            .Filter(modFilter)
             .ObserveOn(RxApp.MainThreadScheduler)
             .Synchronize(locker)
             .Bind(out _modDownloadExtractProgressVms)
@@ -134,6 +167,10 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
 
         GetModDownloadExtractProgressVmsCmd = ReactiveCommand.CreateFromTask(async () =>
             await getModDownloadExtractVmsHandler.ExecuteAsync()
+        );
+
+        GetLocalModsCmd = ReactiveCommand.CreateFromTask(async () =>
+            await getLocalModsHandler.ExecuteAsync()
         );
 
         IsRanWithWineCmd = ReactiveCommand.CreateFromTask(async () =>
@@ -466,7 +503,26 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
         this.WhenActivated(
             (CompositeDisposable d) =>
             {
-                modProgObs.DisposeWith(d);
+                GetLocalModsCmd
+                    .ThrownExceptions.Subscribe(x =>
+                        progressService.UpdateProgress(
+                            $"""
+
+                            ERROR GETTING LOCAL MODS
+                            {x}
+                            """
+                        )
+                    )
+                    .DisposeWith(d);
+                GetLocalModsCmd
+                    .Subscribe(x =>
+                        localModsSourceList.Edit(inner =>
+                        {
+                            inner.Clear();
+                            inner.AddRange(x);
+                        })
+                    )
+                    .DisposeWith(d);
                 _progress = progressService
                     .ProgressObservable.ObserveOn(RxApp.MainThreadScheduler)
                     .Select(x => x.Progress)
@@ -489,27 +545,27 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                         modProgressVms.Edit(inner =>
                         {
                             inner.Clear();
-                            inner.AddRange(
-                                [
-                                    new ModDownloadExtractProgressVm(
-                                        new GitRecord { AddonName = "Stalker_GAMMA" }
-                                    ),
-                                    new ModDownloadExtractProgressVm(
-                                        new GitRecord { AddonName = "gamma_large_files_v2" }
-                                    ),
-                                    new ModDownloadExtractProgressVm(
-                                        new GitRecord { AddonName = "teivaz_anomaly_gunslinger" }
-                                    ),
-                                ]
-                            );
+                            // inner.AddRange(
+                            //     [
+                            //         new ModDownloadExtractProgressVm(
+                            //             new GitRecord { AddonName = "Stalker_GAMMA" }
+                            //         ),
+                            //         new ModDownloadExtractProgressVm(
+                            //             new GitRecord { AddonName = "gamma_large_files_v2" }
+                            //         ),
+                            //         new ModDownloadExtractProgressVm(
+                            //             new GitRecord { AddonName = "teivaz_anomaly_gunslinger" }
+                            //         ),
+                            //     ]
+                            // );
                             inner.AddRange(x);
-                            inner.AddRange(
-                                [
-                                    new ModDownloadExtractProgressVm(
-                                        new ModpackSpecific { AddonName = "modpack_addons" }
-                                    ),
-                                ]
-                            );
+                            // inner.AddRange(
+                            //     [
+                            //         new ModDownloadExtractProgressVm(
+                            //             new ModpackSpecific { AddonName = "modpack_addons" }
+                            //         ),
+                            //     ]
+                            // );
                         })
                     )
                     .DisposeWith(d);
@@ -820,6 +876,8 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
     public ReadOnlyObservableCollection<ModDownloadExtractProgressVm> ModDownloadExtractProgressVms =>
         _modDownloadExtractProgressVms;
 
+    public ReadOnlyObservableCollection<ModListRecord> LocalMods => _localMods;
+
     public bool NeedUpdate
     {
         get => _needUpdate;
@@ -927,9 +985,7 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
     public ReactiveCommand<Unit, bool?> UserLtxSetToFullscreenWineCmd { get; }
     public ReactiveCommand<string, Unit> UserLtxReplaceFullscreenWithBorderlessFullscreen { get; }
     public ReactiveCommand<Unit, string?> AnomalyPathCmd { get; }
-    public ReactiveCommand<
-        Unit,
-        IList<ModDownloadExtractProgressVm>
-    > GetModDownloadExtractProgressVmsCmd { get; }
+    public ReactiveCommand<Unit, IList<ModListRecord>> GetModDownloadExtractProgressVmsCmd { get; }
+    private ReactiveCommand<Unit, IList<ModListRecord>> GetLocalModsCmd { get; }
     public ViewModelActivator Activator { get; }
 }

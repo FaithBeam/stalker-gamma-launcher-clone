@@ -10,6 +10,7 @@ public static class MainTabRegistrations
     public static IServiceCollection RegisterMainTabServices(this IServiceCollection services) =>
         services
             .AddScoped<Queries.GetModDownloadExtractVms.Handler>()
+            .AddScoped<GetLocalMods.Handler>()
             .AddScoped<ModDownloadExtractProgressVmFactory>()
             .AddScoped<DiffMods.Handler>()
             .AddScoped<IIsMo2VersionDowngraded, IsMo2VersionDowngraded.Handler>()
