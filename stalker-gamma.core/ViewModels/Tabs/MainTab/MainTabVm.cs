@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Text.RegularExpressions;
 using CliWrap;
 using DynamicData;
 using ReactiveUI;
@@ -59,7 +60,7 @@ public interface IMainTabVm
     event PropertyChangedEventHandler? PropertyChanged;
 }
 
-public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
+public partial class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
 {
     private bool _checkMd5 = true;
     private bool _forceGitDownload = true;
@@ -86,13 +87,14 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
     private readonly ReadOnlyObservableCollection<ModDownloadExtractProgressVm> _modDownloadExtractProgressVms;
     private readonly ReadOnlyObservableCollection<ModListRecord> _localMods;
 
+    // lmao
     private Func<ModDownloadExtractProgressVm, bool> CreateModFilterPredicate(
         (
             bool forceGitDl,
             bool forceZipExtract,
             bool checkMd5,
             ReadOnlyObservableCollection<ModListRecord> localMods
-        ) trip
+        ) quad
     ) =>
         vm =>
             vm.ModListRecord is GitRecord
@@ -100,9 +102,32 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
             || (
                 vm.Status != Status.Done
                 && (
-                    trip.forceZipExtract
-                    || (trip.checkMd5 && vm.ModListRecord is ModDbRecord)
-                    || (trip.forceGitDl && vm.ModListRecord is GithubRecord)
+                    quad.forceZipExtract
+                    || (quad.checkMd5 && vm.ModListRecord is ModDbRecord)
+                    || (quad.forceGitDl && vm.ModListRecord is GithubRecord)
+                    || vm.ModListRecord is ModDbRecord mdr
+                        && (
+                            // if new mod
+                            quad.localMods.Where(lm => lm is ModDbRecord)
+                                .Cast<ModDbRecord>()
+                                .All(lm => lm.AddonName != mdr.AddonName)
+                            // or if version update
+                            || quad
+                                .localMods.Where(lm => lm is ModDbRecord)
+                                .Cast<ModDbRecord>()
+                                .FirstOrDefault(lm =>
+                                    lm.AddonName == mdr.AddonName
+                                    && FileNameVersionRx()
+                                        .Match(lm.ZipName!)
+                                        .Groups["version"]
+                                        .Value
+                                        != FileNameVersionRx()
+                                            .Match(mdr.ZipName!)
+                                            .Groups["version"]
+                                            .Value
+                                )
+                                is not null
+                        )
                 )
             );
 
@@ -545,27 +570,15 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                         modProgressVms.Edit(inner =>
                         {
                             inner.Clear();
-                            // inner.AddRange(
-                            //     [
-                            //         new ModDownloadExtractProgressVm(
-                            //             new GitRecord { AddonName = "Stalker_GAMMA" }
-                            //         ),
-                            //         new ModDownloadExtractProgressVm(
-                            //             new GitRecord { AddonName = "gamma_large_files_v2" }
-                            //         ),
-                            //         new ModDownloadExtractProgressVm(
-                            //             new GitRecord { AddonName = "teivaz_anomaly_gunslinger" }
-                            //         ),
-                            //     ]
-                            // );
+                            inner.AddRange(
+                                [
+                                    new GitRecord { AddonName = "Stalker_GAMMA" },
+                                    new GitRecord { AddonName = "gamma_large_files_v2" },
+                                    new GitRecord { AddonName = "teivaz_anomaly_gunslinger" },
+                                ]
+                            );
                             inner.AddRange(x);
-                            // inner.AddRange(
-                            //     [
-                            //         new ModDownloadExtractProgressVm(
-                            //             new ModpackSpecific { AddonName = "modpack_addons" }
-                            //         ),
-                            //     ]
-                            // );
+                            inner.AddRange([new ModpackSpecific { AddonName = "modpack_addons" }]);
                         })
                     )
                     .DisposeWith(d);
@@ -865,8 +878,9 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                     .Where(x => x.CurlReady)
                     .Subscribe(_ =>
                     {
-                        GetModDownloadExtractProgressVmsCmd.Execute().Subscribe();
-                        BackgroundCheckUpdatesCmd.Execute().Subscribe();
+                        GetModDownloadExtractProgressVmsCmd.Execute().Subscribe().DisposeWith(d);
+                        BackgroundCheckUpdatesCmd.Execute().Subscribe().DisposeWith(d);
+                        GetLocalModsCmd.Execute().Subscribe().DisposeWith(d);
                     })
                     .DisposeWith(d);
             }
@@ -988,4 +1002,7 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
     public ReactiveCommand<Unit, IList<ModListRecord>> GetModDownloadExtractProgressVmsCmd { get; }
     private ReactiveCommand<Unit, IList<ModListRecord>> GetLocalModsCmd { get; }
     public ViewModelActivator Activator { get; }
+
+    [GeneratedRegex(@".+(?<version>\d+\.\d+\.\d*.*)\.*")]
+    private static partial Regex FileNameVersionRx();
 }
