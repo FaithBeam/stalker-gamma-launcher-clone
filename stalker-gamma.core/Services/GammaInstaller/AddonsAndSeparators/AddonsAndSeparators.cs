@@ -102,66 +102,24 @@ public class AddonsAndSeparators(
                 f.MyObj,
             })
             .Select(f => new DownloadableRecordPipeline(
-                // Count: f.Count,
                 File: f.File!,
                 Dl: async invalidateMirrorCache =>
                 {
-                    var shouldDlResult = await f.File!.ShouldDownloadAsync(downloadsPath, f.MyObj);
-
-                    switch (shouldDlResult)
+                    var shouldDownload = await f.File!.ShouldDownloadAsync(downloadsPath, f.MyObj);
+                    if (shouldDownload != DownloadableRecord.Action.DoNothing)
                     {
-                        case DownloadableRecord.Action.DoNothing:
-                            f.DlProgress.Report(100);
-                            return false;
-                        case DownloadableRecord.Action.DownloadMissing:
-                            f.MyObj.Status = Status.Downloading;
-                            progressService.UpdateProgress(
-                                $"_______________ {f.File.AddonName} _______________"
-                            );
-                            await f.File.DownloadAsync(
-                                downloadsPath,
-                                useCurlImpersonate,
-                                f.DlProgress,
-                                f.MyObj,
-                                invalidateMirrorCache
-                            );
-                            return true;
-                        case DownloadableRecord.Action.DownloadMd5Mismatch:
-                            f.MyObj.Status = Status.Downloading;
-                            progressService.UpdateProgress(
-                                $"_______________ {f.File.AddonName} _______________"
-                            );
-                            progressService.UpdateProgress(
-                                $"Md5 mismatch in downloaded file: {f.File.DlPath}. Downloading again."
-                            );
-                            await f.File.DownloadAsync(
-                                downloadsPath,
-                                useCurlImpersonate,
-                                f.DlProgress,
-                                f.MyObj,
-                                invalidateMirrorCache
-                            );
-                            return true;
-                        case DownloadableRecord.Action.DownloadForced:
-                            f.MyObj.Status = Status.Downloading;
-                            progressService.UpdateProgress(
-                                $"_______________ {f.File.AddonName} _______________"
-                            );
-                            progressService.UpdateProgress("Forced downloading");
-                            await f.File.DownloadAsync(
-                                downloadsPath,
-                                useCurlImpersonate,
-                                f.DlProgress,
-                                f.MyObj,
-                                invalidateMirrorCache
-                            );
-                            return true;
-                        default:
-                            throw new ArgumentOutOfRangeException(
-                                nameof(shouldDlResult),
-                                $"{shouldDlResult}"
-                            );
+                        f.MyObj.Status = Status.Downloading;
+                        await f.File!.DownloadAsync(
+                            downloadsPath,
+                            useCurlImpersonate,
+                            f.DlProgress,
+                            f.MyObj,
+                            invalidateMirrorCache
+                        );
                     }
+                    f.DlProgress.Report(100);
+                    f.MyObj.Status = Status.Downloaded;
+                    return true;
                 },
                 Extract: async () =>
                     await ExtractAsync(

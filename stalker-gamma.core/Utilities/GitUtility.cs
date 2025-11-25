@@ -54,6 +54,7 @@ public partial class GitUtility(ProgressService progressService)
                             }
                             break;
                         case StandardErrorCommandEvent:
+                            break;
                         case ExitedCommandEvent:
                             modDownloadExtractProgressVm.DownloadProgressInterface.Report(100);
                             modDownloadExtractProgressVm.Status = Status.Downloaded;

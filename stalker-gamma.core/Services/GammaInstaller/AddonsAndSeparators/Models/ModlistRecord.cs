@@ -50,7 +50,13 @@ public abstract partial class DownloadableRecord(ICurlService curlService) : Mod
         if (File.Exists(DlPath))
         {
             modDownloadExtractProgressVm.Status = Status.CheckingMd5;
-            var md5 = await Md5Utility.CalculateFileMd5Async(DlPath);
+            var md5 = await Md5Utility.CalculateFileMd5Async(
+                DlPath,
+                onProgress: (read, total) =>
+                    modDownloadExtractProgressVm.ExtractProgressInterface.Report(
+                        (double)read / total * 100
+                    )
+            );
             if (!string.IsNullOrWhiteSpace(Md5ModDb))
             {
                 // file exists, download if local archive md5 does not match md5moddb
