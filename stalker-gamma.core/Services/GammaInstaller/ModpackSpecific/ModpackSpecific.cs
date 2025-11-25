@@ -30,7 +30,12 @@ public class ModpackSpecific(ProgressService progressService)
         );
 
         gammaLargeFilesVm.Status = Status.Extracting;
-        DirUtils.CopyDirectory(Path.Join(dir, "resources", "gamma_large_files_v2"), modsPaths);
+        DirUtils.CopyDirectory(
+            Path.Join(dir, "resources", "gamma_large_files_v2"),
+            modsPaths,
+            onProgress: (count, total) =>
+                gammaLargeFilesVm.ExtractProgressInterface.Report((double)count / total * 100)
+        );
         gammaLargeFilesVm.Status = Status.Done;
 
         teivazAnomalyGunslingerVm.Status = Status.Extracting;
@@ -46,13 +51,22 @@ public class ModpackSpecific(ProgressService progressService)
                     modsPaths,
                     "312- Gunslinger Guns for Anomaly - Teivazcz & Gunslinger Team",
                     "gamedata"
-                )
+                ),
+                onProgress: (count, total) =>
+                    teivazAnomalyGunslingerVm.ExtractProgressInterface.Report(
+                        (double)count / total * 100
+                    )
             );
         }
         teivazAnomalyGunslingerVm.Status = Status.Done;
 
         modpackAddonsVm.Status = Status.Extracting;
-        DirUtils.CopyDirectory(Path.Join(dir, "G.A.M.M.A", "modpack_addons"), modsPaths);
+        DirUtils.CopyDirectory(
+            Path.Join(dir, "G.A.M.M.A", "modpack_addons"),
+            modsPaths,
+            onProgress: (count, total) =>
+                modpackAddonsVm.ExtractProgressInterface.Report((double)count / total * 100)
+        );
         modpackAddonsVm.Status = Status.Done;
     }
 }

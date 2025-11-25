@@ -5,6 +5,7 @@ using System.Reactive.Linq;
 using System.Text.RegularExpressions;
 using CliWrap;
 using DynamicData;
+using DynamicData.Binding;
 using ReactiveUI;
 using stalker_gamma.core.Models;
 using stalker_gamma.core.Services;
@@ -23,7 +24,7 @@ namespace stalker_gamma.core.ViewModels.Tabs.MainTab;
 public partial class MainTabVm : ViewModelBase, IActivatableViewModel
 {
     private static readonly string Dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
-    private string _modsPath = Path.GetFullPath(Path.Join(Dir, "..", "mods"));
+    private readonly string _modsPath = Path.GetFullPath(Path.Join(Dir, "..", "mods"));
     private ObservableAsPropertyHelper<double?>? _progress;
     private string _versionString;
     private ObservableAsPropertyHelper<bool>? _toolsReady;
@@ -52,7 +53,7 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
             return IsNotDone()
                 && (
                     vm.ModListRecord is GitRecord or ModpackSpecific
-                    || quad.forceZipExtract
+                    || (quad.forceZipExtract && vm.ModListRecord is not Separator)
                     || (quad.checkMd5 && vm.ModListRecord is ModDbRecord)
                     || (quad.forceGitDl && vm.ModListRecord is GithubRecord)
                     || vm.ModListRecord is ModDbRecord mdr && (IsNewMod(mdr) || IsVersionUpdate())
@@ -145,6 +146,11 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
             .Transform(modDownloadExtractProgressVmFactory.Create)
             .AutoRefresh(x => x.Status)
             .Filter(modFilter)
+            .Sort(
+                SortExpressionComparer<ModDownloadExtractProgressVm>.Ascending(x =>
+                    x.ModListRecord.Counter
+                )
+            )
             .ObserveOn(RxApp.MainThreadScheduler)
             .Synchronize(locker)
             .Bind(out _modDownloadExtractProgressVms)
@@ -528,13 +534,29 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                             inner.Clear();
                             inner.AddRange(
                                 [
-                                    new GitRecord { AddonName = "Stalker_GAMMA" },
-                                    new GitRecord { AddonName = "gamma_large_files_v2" },
-                                    new GitRecord { AddonName = "teivaz_anomaly_gunslinger" },
+                                    new GitRecord { AddonName = "Stalker_GAMMA", Counter = -4 },
+                                    new GitRecord
+                                    {
+                                        AddonName = "gamma_large_files_v2",
+                                        Counter = -3,
+                                    },
+                                    new GitRecord
+                                    {
+                                        AddonName = "teivaz_anomaly_gunslinger",
+                                        Counter = -2,
+                                    },
                                 ]
                             );
                             inner.AddRange(x);
-                            inner.AddRange([new ModpackSpecific { AddonName = "modpack_addons" }]);
+                            inner.AddRange(
+                                [
+                                    new ModpackSpecific
+                                    {
+                                        AddonName = "modpack_addons",
+                                        Counter = 999999,
+                                    },
+                                ]
+                            );
                         })
                     )
                     .DisposeWith(d);

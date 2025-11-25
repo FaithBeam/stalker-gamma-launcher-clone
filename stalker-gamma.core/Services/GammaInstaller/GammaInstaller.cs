@@ -321,7 +321,9 @@ public partial class GammaInstaller(
             );
             DirUtils.CopyDirectory(
                 Path.Combine(_dir, "resources", "Stalker_GAMMA", "G.A.M.M.A"),
-                Path.Combine(_dir, "G.A.M.M.A.")
+                Path.Combine(_dir, "G.A.M.M.A."),
+                onProgress: (copied, total) =>
+                    stalkerGamma.ExtractProgressInterface.Report((double)copied / total * 100)
             );
             File.Copy(
                 Path.Combine(

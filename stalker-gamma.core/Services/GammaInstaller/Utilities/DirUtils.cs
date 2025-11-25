@@ -6,7 +6,73 @@ public static class DirUtils
         string sourceDir,
         string destDir,
         bool overwrite = true,
-        string? fileFilter = null
+        string? fileFilter = null,
+        Action<int, int>? onProgress = null
+    )
+    {
+        if (sourceDir.Contains(".git"))
+        {
+            return;
+        }
+
+        // Count total files first if progress callback is provided
+        int totalFiles = 0;
+        int copiedFiles = 0;
+
+        if (onProgress != null)
+        {
+            totalFiles = CountFiles(sourceDir, fileFilter);
+        }
+
+        CopyDirectoryInternal(
+            sourceDir,
+            destDir,
+            overwrite,
+            fileFilter,
+            onProgress,
+            ref copiedFiles,
+            totalFiles
+        );
+    }
+
+    private static int CountFiles(string sourceDir, string? fileFilter)
+    {
+        if (sourceDir.Contains(".git"))
+        {
+            return 0;
+        }
+
+        var sourceDirInfo = new DirectoryInfo(sourceDir);
+        int count = 0;
+
+        foreach (var file in sourceDirInfo.GetFiles())
+        {
+            if (!string.IsNullOrWhiteSpace(fileFilter) && file.Name == fileFilter)
+            {
+                continue;
+            }
+            count++;
+        }
+
+        foreach (var subDir in sourceDirInfo.GetDirectories())
+        {
+            if (subDir.EnumerateFiles("*.*", SearchOption.AllDirectories).Any())
+            {
+                count += CountFiles(subDir.FullName, fileFilter);
+            }
+        }
+
+        return count;
+    }
+
+    private static void CopyDirectoryInternal(
+        string sourceDir,
+        string destDir,
+        bool overwrite,
+        string? fileFilter,
+        Action<int, int>? onProgress,
+        ref int copiedFiles,
+        int totalFiles
     )
     {
         if (sourceDir.Contains(".git"))
@@ -16,7 +82,6 @@ public static class DirUtils
 
         Directory.CreateDirectory(destDir);
         var sourceDirInfo = new DirectoryInfo(sourceDir);
-
         foreach (var file in sourceDirInfo.GetFiles())
         {
             if (!string.IsNullOrWhiteSpace(fileFilter) && file.Name == fileFilter)
@@ -29,11 +94,15 @@ public static class DirUtils
                 if (overwrite)
                 {
                     file.CopyTo(Path.Combine(destDir, file.Name), overwrite);
+                    copiedFiles++;
+                    onProgress?.Invoke(copiedFiles, totalFiles);
                 }
             }
             else
             {
                 file.CopyTo(Path.Combine(destDir, file.Name), overwrite);
+                copiedFiles++;
+                onProgress?.Invoke(copiedFiles, totalFiles);
             }
         }
 
@@ -42,11 +111,14 @@ public static class DirUtils
             // only copy directories if they're not empty
             if (subDir.EnumerateFiles("*.*", SearchOption.AllDirectories).Any())
             {
-                CopyDirectory(
+                CopyDirectoryInternal(
                     subDir.FullName,
                     Path.Combine(destDir, subDir.Name),
                     overwrite,
-                    fileFilter: fileFilter
+                    fileFilter,
+                    onProgress,
+                    ref copiedFiles,
+                    totalFiles
                 );
             }
         }
