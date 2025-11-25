@@ -13,7 +13,7 @@ namespace stalker_gamma.core.Services.GammaInstaller;
 
 public record LocalAndRemoteVersion(string? LocalVersion, string RemoteVersion);
 
-public class GammaInstaller(
+public partial class GammaInstaller(
     ICurlService curlService,
     ProgressService progressService,
     GitUtility gitUtility,
@@ -142,10 +142,6 @@ public class GammaInstaller(
     }
 
     public async Task InstallUpdateGammaAsync(
-        bool forceGitDownload,
-        bool checkMd5,
-        bool updateLargeFiles,
-        bool forceZipExtraction,
         bool deleteReshadeDlls,
         bool useCurlImpersonate,
         bool preserveUserLtx,
@@ -194,7 +190,7 @@ public class GammaInstaller(
 
         var metadata = (await File.ReadAllTextAsync(Path.Join(_dir, "modpack_maker_metadata.txt")))
             .Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-            .Select(x => Regex.Match(x, "^.*= (.+)$").Groups[1].Value)
+            .Select(x => ModpackMakerRx().Match(x).Groups[1].Value)
             .ToList();
 
         var modPackName = metadata[1].Trim().TrimEnd('.');
@@ -216,26 +212,19 @@ public class GammaInstaller(
             modDownloadExtractProgressVms
                 .Where(x => x.ModListRecord is DownloadableRecord or Separator)
                 .ToList(),
-            forceGitDownload,
-            checkMd5,
-            updateLargeFiles,
-            forceZipExtraction,
             useCurlImpersonate
         );
 
-        lock (locker)
-        {
-            // modpack specific install
-            modpackSpecific.Install(
-                _dir,
-                modPackPath,
-                modPackAdditionalFiles,
-                modsPaths,
-                gammaLargeFiles,
-                gunslinger,
-                modpackAddons
-            );
-        }
+        // modpack specific install
+        modpackSpecific.Install(
+            _dir,
+            modPackPath,
+            modPackAdditionalFiles,
+            modsPaths,
+            gammaLargeFiles,
+            gunslinger,
+            modpackAddons
+        );
 
         // setup mo2
         mo2.Setup(
@@ -350,4 +339,7 @@ public class GammaInstaller(
             break;
         }
     }
+
+    [GeneratedRegex("^.*= (.+)$")]
+    private static partial Regex ModpackMakerRx();
 }

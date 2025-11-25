@@ -18,7 +18,7 @@ public static class GetLocalMods
             }
 
             return (await File.ReadAllLinesAsync(modListFile))
-                .Select(modListRecordFactory.Create)
+                .Select((line, idx) => modListRecordFactory.Create(line, idx))
                 .Where(x => x is ModListRecord)
                 .Cast<ModListRecord>()
                 .ToList();

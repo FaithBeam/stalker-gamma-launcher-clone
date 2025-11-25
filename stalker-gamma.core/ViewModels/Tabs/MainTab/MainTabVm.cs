@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -21,60 +20,12 @@ using stalker_gamma.core.ViewModels.Tabs.Queries;
 
 namespace stalker_gamma.core.ViewModels.Tabs.MainTab;
 
-public interface IMainTabVm
+public partial class MainTabVm : ViewModelBase, IActivatableViewModel
 {
-    bool NeedUpdate { get; set; }
-    bool NeedModDbUpdate { get; set; }
-    bool InGrokModDir { get; set; }
-    string GammaVersionToolTip { get; set; }
-    string ModVersionToolTip { get; set; }
-    IIsBusyService IsBusyService { get; }
-    Interaction<string, Unit> AppendLineInteraction { get; }
-    double Progress { get; }
-    bool CheckMd5 { get; set; }
-    bool PreserveUserLtx { get; set; }
-    bool ForceGitDownload { get; set; }
-    bool ForceZipExtraction { get; set; }
-    bool DeleteReshadeDlls { get; set; }
-    string VersionString { get; set; }
-    bool IsRanWithWine { get; }
-    ReactiveCommand<Unit, bool> IsRanWithWineCmd { get; set; }
-    ReactiveCommand<Unit, string> AddFoldersToWinDefenderExclusionCmd { get; set; }
-    ReactiveCommand<Unit, Unit> EnableLongPathsOnWindowsCmd { get; set; }
-    ReactiveCommand<Unit, Unit> FirstInstallInitializationCmd { get; }
-    ReactiveCommand<Unit, Unit> InstallUpdateGammaCmd { get; }
-    ReactiveCommand<Unit, Unit> PlayCmd { get; }
-    ReactiveCommand<string, Unit> OpenUrlCmd { get; }
-    ReactiveCommand<Unit, Unit> DowngradeModOrganizerCmd { get; }
-    ReactiveCommand<Unit, Unit> BackgroundCheckUpdatesCmd { get; }
-    ReactiveCommand<Unit, Unit> InGroksModPackDir { get; }
-    ReactiveCommand<Unit, bool?> LongPathsStatusCmd { get; }
-    ViewModelActivator Activator { get; }
-    IObservable<IReactivePropertyChangedEventArgs<IReactiveObject>> Changing { get; }
-    IObservable<IReactivePropertyChangedEventArgs<IReactiveObject>> Changed { get; }
-    IObservable<Exception> ThrownExceptions { get; }
-    IDisposable SuppressChangeNotifications();
-    bool AreChangeNotificationsEnabled();
-    IDisposable DelayChangeNotifications();
-    event PropertyChangingEventHandler? PropertyChanging;
-    event PropertyChangedEventHandler? PropertyChanged;
-}
-
-public partial class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
-{
-    private bool _checkMd5 = true;
-    private bool _forceGitDownload = true;
-    private bool _forceZipExtraction = true;
-    private bool _deleteReshadeDlls = true;
-    private bool _inGrokModDir;
-    private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
-    private bool _preserveUserLtx;
+    private static readonly string Dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
+    private string _modsPath = Path.GetFullPath(Path.Join(Dir, "..", "mods"));
     private ObservableAsPropertyHelper<double?>? _progress;
-    private bool _needUpdate;
-    private bool _needModDbUpdate;
     private string _versionString;
-    private string _gammaVersionsToolTip = "";
-    private string _modsVersionsToolTip = "";
     private ObservableAsPropertyHelper<bool>? _toolsReady;
     private ObservableAsPropertyHelper<bool>? _isRanWithWine;
     private ObservableAsPropertyHelper<bool?>? _longPathsStatus;
@@ -97,39 +48,48 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabV
         ) quad
     ) =>
         vm =>
-            vm.ModListRecord is GitRecord
-            || vm.ModListRecord is ModpackSpecific
-            || (
-                vm.Status != Status.Done
+        {
+            return IsNotDone()
                 && (
-                    quad.forceZipExtract
+                    vm.ModListRecord is GitRecord or ModpackSpecific
+                    || quad.forceZipExtract
                     || (quad.checkMd5 && vm.ModListRecord is ModDbRecord)
                     || (quad.forceGitDl && vm.ModListRecord is GithubRecord)
-                    || vm.ModListRecord is ModDbRecord mdr
-                        && (
-                            // if new mod
-                            quad.localMods.Where(lm => lm is ModDbRecord)
-                                .Cast<ModDbRecord>()
-                                .All(lm => lm.AddonName != mdr.AddonName)
-                            // or if version update
-                            || quad
-                                .localMods.Where(lm => lm is ModDbRecord)
-                                .Cast<ModDbRecord>()
-                                .FirstOrDefault(lm =>
-                                    lm.AddonName == mdr.AddonName
-                                    && FileNameVersionRx()
-                                        .Match(lm.ZipName!)
-                                        .Groups["version"]
-                                        .Value
-                                        != FileNameVersionRx()
-                                            .Match(mdr.ZipName!)
-                                            .Groups["version"]
-                                            .Value
-                                )
-                                is not null
-                        )
-                )
-            );
+                    || vm.ModListRecord is ModDbRecord mdr && (IsNewMod(mdr) || IsVersionUpdate())
+                    || vm.ModListRecord is Separator s && NewSeparatorFolder(s)
+                );
+
+            bool NewSeparatorFolder(Separator s)
+            {
+                return !Path.Exists(Path.Join(_modsPath, s.FolderName));
+            }
+
+            bool IsNewMod(ModDbRecord modDbRecord)
+            {
+                return quad
+                    .localMods.Where(lm => lm is ModDbRecord)
+                    .Cast<ModDbRecord>()
+                    .All(lm => lm.AddonName != modDbRecord.AddonName);
+            }
+
+            bool IsVersionUpdate()
+            {
+                return quad
+                    .localMods.Where(lm => lm is ModDbRecord)
+                    .Cast<ModDbRecord>()
+                    .FirstOrDefault(lm =>
+                        lm.AddonName == mdr.AddonName
+                        && FileNameVersionRx().Match(lm.ZipName!).Groups["version"].Value
+                            != FileNameVersionRx().Match(mdr.ZipName!).Groups["version"].Value
+                    )
+                    is not null;
+            }
+
+            bool IsNotDone()
+            {
+                return vm.Status != Status.Done;
+            }
+        };
 
     public MainTabVm(
         IUserLtxReplaceFullscreenWithBorderlessFullscreen userLtxReplaceFullscreenWithBorderlessFullscreen,
@@ -365,7 +325,7 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabV
                 var localGammaVersionHash = (
                     await getStalkerGammaLastCommit.ExecuteAsync(
                         new GetStalkerGammaLastCommit.Query(
-                            Path.Join(_dir, "resources", "Stalker_GAMMA")
+                            Path.Join(Dir, "resources", "Stalker_GAMMA")
                         )
                     )
                 )[..9];
@@ -427,10 +387,6 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabV
                 IsBusyService.IsBusy = true;
                 await Task.Run(() =>
                     gammaInstaller.InstallUpdateGammaAsync(
-                        ForceGitDownload,
-                        CheckMd5,
-                        true,
-                        ForceZipExtraction,
                         DeleteReshadeDlls,
                         globalSettings.UseCurlImpersonate,
                         PreserveUserLtx,
@@ -851,7 +807,7 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabV
                     .ToProperty(this, x => x.ToolsReady)
                     .DisposeWith(d);
 
-                InGrokModDir = _dir.Contains(
+                InGrokModDir = Dir.Contains(
 #if DEBUG
                     "net10.0",
 #else
@@ -894,35 +850,35 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabV
 
     public bool NeedUpdate
     {
-        get => _needUpdate;
-        set => this.RaiseAndSetIfChanged(ref _needUpdate, value);
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
     public bool NeedModDbUpdate
     {
-        get => _needModDbUpdate;
-        set => this.RaiseAndSetIfChanged(ref _needModDbUpdate, value);
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
     private bool ToolsReady => _toolsReady?.Value ?? false;
 
     public bool InGrokModDir
     {
-        get => _inGrokModDir;
-        set => this.RaiseAndSetIfChanged(ref _inGrokModDir, value);
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
     public string GammaVersionToolTip
     {
-        get => _gammaVersionsToolTip;
-        set => this.RaiseAndSetIfChanged(ref _gammaVersionsToolTip, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = "";
 
     public string ModVersionToolTip
     {
-        get => _modsVersionsToolTip;
-        set => this.RaiseAndSetIfChanged(ref _modsVersionsToolTip, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = "";
 
     public IIsBusyService IsBusyService { get; }
 
@@ -932,33 +888,33 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabV
 
     public bool CheckMd5
     {
-        get => _checkMd5;
-        set => this.RaiseAndSetIfChanged(ref _checkMd5, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = true;
 
     public bool PreserveUserLtx
     {
-        get => _preserveUserLtx;
-        set => this.RaiseAndSetIfChanged(ref _preserveUserLtx, value);
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
     public bool ForceGitDownload
     {
-        get => _forceGitDownload;
-        set => this.RaiseAndSetIfChanged(ref _forceGitDownload, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = true;
 
     public bool ForceZipExtraction
     {
-        get => _forceZipExtraction;
-        set => this.RaiseAndSetIfChanged(ref _forceZipExtraction, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = true;
 
     public bool DeleteReshadeDlls
     {
-        get => _deleteReshadeDlls;
-        set => this.RaiseAndSetIfChanged(ref _deleteReshadeDlls, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = true;
 
     public string VersionString
     {
