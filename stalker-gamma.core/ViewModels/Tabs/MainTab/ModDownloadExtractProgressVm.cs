@@ -44,7 +44,10 @@ public class ModDownloadExtractProgressVm : ReactiveObject, IActivatableViewMode
 
         this.WhenActivated(d =>
         {
-            _setCompleteObservable = this.WhenAnyValue(x => x.Status, selector: status => status)
+            _setCompleteObservable = this.WhenAnyValue(
+                    x => x.Status,
+                    selector: status => status != Status.Done
+                )
                 .Subscribe(_ => ProgressInterface.Report(0))
                 .DisposeWith(d);
 
