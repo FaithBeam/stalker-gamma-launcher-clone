@@ -17,7 +17,7 @@ public partial class GitUtility(ProgressService progressService)
         string repoName,
         string repoUrl,
         string branch,
-        ModDownloadExtractProgressVm modDownloadExtractProgressVm
+        Action<double> onProgress
     )
     {
         var repoPath = Path.Combine(dir, "resources", repoName);
@@ -33,31 +33,26 @@ public partial class GitUtility(ProgressService progressService)
             progressService.UpdateProgress($" Updating {repoName.Replace('_', ' ')}.");
             await RunGitCommand(repoPath, [.. gitConfig, "reset --hard HEAD", "clean -f -d"]);
 
-            modDownloadExtractProgressVm.Status = Status.Downloading;
-            await RunGitCommandWithProgress(repoPath, "pull")
+            await RunGitCommandWithProgress(repoPath, "pull --progress")
                 .ForEachAsync(cmdEvt =>
                 {
                     switch (cmdEvt)
                     {
-                        case StandardOutputCommandEvent stdOut:
+                        case StandardOutputCommandEvent:
+                            break;
+                        case StandardErrorCommandEvent stdErr:
                             if (
-                                ProgressRx().IsMatch(stdOut.Text)
+                                ProgressRx().IsMatch(stdErr.Text)
                                 && double.TryParse(
-                                    ProgressRx().Match(stdOut.Text).Groups[1].Value,
+                                    ProgressRx().Match(stdErr.Text).Groups[1].Value,
                                     out var parsed
                                 )
                             )
                             {
-                                modDownloadExtractProgressVm.DownloadProgressInterface.Report(
-                                    parsed
-                                );
+                                onProgress(parsed);
                             }
                             break;
-                        case StandardErrorCommandEvent:
-                            break;
                         case ExitedCommandEvent:
-                            modDownloadExtractProgressVm.DownloadProgressInterface.Report(100);
-                            modDownloadExtractProgressVm.Status = Status.Downloaded;
                             break;
                         case StartedCommandEvent:
                             break;
@@ -123,7 +118,7 @@ public partial class GitUtility(ProgressService progressService)
             ? Path.Join(Dir, Path.Join("resources", "bin", "git.exe"))
             : "git";
 
-    [GeneratedRegex(@"(\d+(\.\d+)?)\s*%", RegexOptions.Compiled)]
+    [GeneratedRegex(@"Receiving objects.*(\d+(\.\d+)?)\s*%", RegexOptions.Compiled)]
     private static partial Regex ProgressRx();
 }
 

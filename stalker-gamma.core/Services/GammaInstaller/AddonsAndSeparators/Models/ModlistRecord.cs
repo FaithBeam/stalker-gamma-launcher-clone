@@ -1,5 +1,4 @@
 ﻿using System.Buffers;
-using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -53,7 +52,7 @@ public abstract partial class DownloadableRecord(ICurlService curlService) : Mod
             var md5 = await Md5Utility.CalculateFileMd5Async(
                 DlPath,
                 onProgress: (read, total) =>
-                    modDownloadExtractProgressVm.ExtractProgressInterface.Report(
+                    modDownloadExtractProgressVm.ProgressInterface.Report(
                         (double)read / total * 100
                     )
             );
@@ -97,22 +96,6 @@ public abstract partial class DownloadableRecord(ICurlService curlService) : Mod
     )
     {
         DlPath ??= Path.Join(downloadsPath, Name);
-
-        // if (Path.Exists(extractPath))
-        // {
-        //     new DirectoryInfo(extractPath)
-        //         .GetDirectories("*", SearchOption.AllDirectories)
-        //         .ToList()
-        //         .ForEach(di =>
-        //         {
-        //             di.Attributes &= ~FileAttributes.ReadOnly;
-        //             di.GetFiles("*", SearchOption.TopDirectoryOnly)
-        //                 .ToList()
-        //                 .ForEach(fi => fi.IsReadOnly = false);
-        //         });
-        //     Directory.Delete(extractPath, true);
-        //     Directory.CreateDirectory(extractPath);
-        // }
 
         if (!Directory.Exists(extractPath))
         {

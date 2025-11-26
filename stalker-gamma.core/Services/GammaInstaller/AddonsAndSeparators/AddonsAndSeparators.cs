@@ -48,15 +48,12 @@ public class AddonsAndSeparators(
 
         var total = modDownloadProgresses.Count;
 
-        // var counter = 0;
-
         var summedFiles = modDownloadProgresses
             .Select(f => new
             {
-                // Count = ++counter,
                 File = f.ModListRecord,
-                DlProgress = f.DownloadProgressInterface,
-                ExtractProgress = f.ExtractProgressInterface,
+                DlProgress = f.ProgressInterface,
+                ExtractProgress = f.ProgressInterface,
                 MyObj = f,
             })
             .ToList();
@@ -65,14 +62,12 @@ public class AddonsAndSeparators(
             .Where(f => f.File is Separator)
             .Select(f => new
             {
-                // f.Count,
                 File = f.File as Separator,
                 Progress = f.DlProgress,
                 f.MyObj,
             })
             .Select(f => new
             {
-                // f.Count,
                 f.File,
                 Action = (Action)(
                     () =>
@@ -95,7 +90,6 @@ public class AddonsAndSeparators(
             .Where(f => f.File is DownloadableRecord)
             .Select(f => new
             {
-                // f.Count,
                 File = f.File as DownloadableRecord,
                 f.DlProgress,
                 f.ExtractProgress,
@@ -122,14 +116,7 @@ public class AddonsAndSeparators(
                     return true;
                 },
                 Extract: async () =>
-                    await ExtractAsync(
-                        f.File!,
-                        downloadsPath,
-                        modsPaths,
-                        total,
-                        // f.Count,
-                        f.ExtractProgress
-                    ),
+                    await ExtractAsync(f.File!, downloadsPath, modsPaths, total, f.ExtractProgress),
                 MyObj: f.MyObj
             ))
             .GroupBy(x => (x.File.ModDbUrl, x.File.Name));
@@ -307,7 +294,6 @@ public class AddonsAndSeparators(
 }
 
 internal record DownloadableRecordPipeline(
-    // int Count,
     DownloadableRecord File,
     Func<bool, Task<bool>> Dl,
     Func<Task> Extract,

@@ -34,7 +34,7 @@ public class ModpackSpecific(ProgressService progressService)
             Path.Join(dir, "resources", "gamma_large_files_v2"),
             modsPaths,
             onProgress: (count, total) =>
-                gammaLargeFilesVm.ExtractProgressInterface.Report((double)count / total * 100)
+                gammaLargeFilesVm.ProgressInterface.Report((double)count / total * 100)
         );
         gammaLargeFilesVm.Status = Status.Done;
 
@@ -53,9 +53,7 @@ public class ModpackSpecific(ProgressService progressService)
                     "gamedata"
                 ),
                 onProgress: (count, total) =>
-                    teivazAnomalyGunslingerVm.ExtractProgressInterface.Report(
-                        (double)count / total * 100
-                    )
+                    teivazAnomalyGunslingerVm.ProgressInterface.Report((double)count / total * 100)
             );
         }
         teivazAnomalyGunslingerVm.Status = Status.Done;
@@ -65,7 +63,7 @@ public class ModpackSpecific(ProgressService progressService)
             Path.Join(dir, "G.A.M.M.A", "modpack_addons"),
             modsPaths,
             onProgress: (count, total) =>
-                modpackAddonsVm.ExtractProgressInterface.Report((double)count / total * 100)
+                modpackAddonsVm.ProgressInterface.Report((double)count / total * 100)
         );
         modpackAddonsVm.Status = Status.Done;
     }

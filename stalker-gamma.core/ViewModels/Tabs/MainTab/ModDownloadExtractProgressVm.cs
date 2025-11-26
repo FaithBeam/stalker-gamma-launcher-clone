@@ -16,11 +16,8 @@ public class ModDownloadExtractProgressVm : ReactiveObject, IActivatableViewMode
         set => this.RaiseAndSetIfChanged(ref _status, value);
     }
 
-    private Progress<double> DownloadProgress { get; }
-    public IProgress<double> DownloadProgressInterface => DownloadProgress;
-
-    private Progress<double> ExtractProgress { get; }
-    public IProgress<double> ExtractProgressInterface => ExtractProgress;
+    private Progress<double> Progress { get; }
+    public IProgress<double> ProgressInterface => Progress;
 
     public double OverallProgressValue => _overallProgressValue?.Value ?? 0;
 
@@ -39,71 +36,24 @@ public class ModDownloadExtractProgressVm : ReactiveObject, IActivatableViewMode
             _ => "N/A",
         };
 
-        DownloadProgress = new Progress<double>();
+        Progress = new Progress<double>();
         var dlProgChanged = Observable.FromEventPattern<EventHandler<double>, double>(
-            handler => DownloadProgress.ProgressChanged += handler,
-            handler => DownloadProgress.ProgressChanged -= handler
+            handler => Progress.ProgressChanged += handler,
+            handler => Progress.ProgressChanged -= handler
         );
 
-        ExtractProgress = new Progress<double>();
-        var extractProgChanged = Observable.FromEventPattern<EventHandler<double>, double>(
-            handler => ExtractProgress.ProgressChanged += handler,
-            handler => ExtractProgress.ProgressChanged -= handler
-        );
+        this.WhenActivated(d =>
+        {
+            _setCompleteObservable = this.WhenAnyValue(x => x.Status, selector: status => status)
+                .Subscribe(_ => ProgressInterface.Report(0))
+                .DisposeWith(d);
 
-        this.WhenActivated(
-            (CompositeDisposable d) =>
-            {
-                _setCompleteObservable = this.WhenAnyValue(
-                        x => x.Status,
-                        selector: status => status
-                    )
-                    .Subscribe(onNext =>
-                    {
-                        switch (onNext)
-                        {
-                            case Status.Queued:
-                                break;
-                            case Status.CheckingMd5:
-                                break;
-                            case Status.Downloading:
-                                break;
-                            case Status.Downloaded:
-                                DownloadProgressInterface.Report(100);
-                                break;
-                            case Status.Extracting:
-                                break;
-                            case Status.ExtractAtEnd:
-                                break;
-                            case Status.Done:
-                                DownloadProgressInterface.Report(100);
-                                ExtractProgressInterface.Report(100);
-                                break;
-                            case Status.Warning:
-                                break;
-                            case Status.Error:
-                                break;
-                            case Status.Cancelled:
-                                break;
-                            case Status.Retry:
-                                break;
-                            default:
-                                throw new ArgumentOutOfRangeException(nameof(onNext), onNext, null);
-                        }
-                    })
-                    .DisposeWith(d);
-
-                _overallProgressValue = dlProgChanged
-                    .Select(x => x.EventArgs)
-                    .StartWith(0.0)
-                    .CombineLatest(
-                        extractProgChanged.Select(extract => extract.EventArgs).StartWith(0.0),
-                        (download, extract) => (download + extract) / 2.0
-                    )
-                    .ToProperty(this, x => x.OverallProgressValue)
-                    .DisposeWith(d);
-            }
-        );
+            _overallProgressValue = dlProgChanged
+                .Select(x => x.EventArgs)
+                .StartWith(0.0)
+                .ToProperty(this, x => x.OverallProgressValue)
+                .DisposeWith(d);
+        });
     }
 
     private IDisposable? _setCompleteObservable;
@@ -121,6 +71,7 @@ public class ModDownloadExtractProgressVm : ReactiveObject, IActivatableViewMode
 public enum Status
 {
     Queued,
+    Checking,
     CheckingMd5,
     Downloading,
     Downloaded,
