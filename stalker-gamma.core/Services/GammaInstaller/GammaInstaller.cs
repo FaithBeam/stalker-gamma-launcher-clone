@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using CliWrap;
 using CliWrap.EventStream;
 using CliWrap.Exceptions;
+using DynamicData;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
 using stalker_gamma.core.Utilities;
@@ -145,7 +146,7 @@ public partial class GammaInstaller(
         bool deleteReshadeDlls,
         bool useCurlImpersonate,
         bool preserveUserLtx,
-        IList<ModDownloadExtractProgressVm> modDownloadExtractProgressVms,
+        IReadOnlyList<ModDownloadExtractProgressVm> modDownloadExtractProgressVms,
         object locker
     )
     {

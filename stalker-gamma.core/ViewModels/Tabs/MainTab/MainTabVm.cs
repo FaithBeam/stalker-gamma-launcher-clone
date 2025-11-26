@@ -5,6 +5,7 @@ using System.Reactive.Linq;
 using System.Text.RegularExpressions;
 using CliWrap;
 using DynamicData;
+using DynamicData.Aggregation;
 using DynamicData.Binding;
 using ReactiveUI;
 using stalker_gamma.core.Models;
@@ -141,8 +142,8 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                 x => x.LocalMods
             )
             .Select(CreateModFilterPredicate);
-        var modProgObs = modProgressVms
-            .Connect()
+        var modProgObs = modProgressVms.Connect();
+        var modProgProxies = modProgObs
             .Transform(modDownloadExtractProgressVmFactory.Create)
             .AutoRefresh(x => x.Status)
             .Filter(modFilter)
@@ -153,8 +154,29 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
             )
             .ObserveOn(RxApp.MainThreadScheduler)
             .Synchronize(locker)
-            .Bind(out _modDownloadExtractProgressVms)
+            .BindToObservableList(out var observableList)
             .Subscribe();
+
+        var count = observableList.Connect().ObserveOn(RxApp.MainThreadScheduler).Count();
+        var sum = observableList
+            .Connect()
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .AutoRefresh(x => x.OverallProgressValue)
+            .Transform(x => x.OverallProgressValue)
+            .SelectMany(x => x)
+            .Aggregate(0.0, (acc, curr) => acc + curr.Item.Current);
+
+        var overallProgress = sum.CombineLatest(
+            count,
+            (totalProgress, itemCount) =>
+            {
+                if (itemCount == 0)
+                    return 0.0;
+                return (totalProgress / itemCount);
+            }
+        );
+
+        observableList.Connect().Bind(out _modDownloadExtractProgressVms).Subscribe();
 
         GetModDownloadExtractProgressVmsCmd = ReactiveCommand.CreateFromTask(async () =>
             await getModDownloadExtractVmsHandler.ExecuteAsync()
@@ -490,6 +512,7 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
         this.WhenActivated(
             (CompositeDisposable d) =>
             {
+                overallProgress.Subscribe(x => progressService.UpdateProgress(x)).DisposeWith(d);
                 GetLocalModsCmd
                     .ThrownExceptions.Subscribe(x =>
                         progressService.UpdateProgress(

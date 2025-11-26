@@ -16,7 +16,8 @@ public class AddonsAndSeparators(
 {
     private readonly GlobalSettings _globalSettings = globalSettings;
     private readonly ModListRecordFactory _modListRecordFactory = modListRecordFactory;
-    private static int _visitedExtracts;
+
+    // private static int _visitedExtracts;
 
     public async Task Install(
         string downloadsPath,
@@ -25,7 +26,7 @@ public class AddonsAndSeparators(
         bool useCurlImpersonate
     )
     {
-        _visitedExtracts = 0;
+        // _visitedExtracts = 0;
         progressService.UpdateProgress(
             """
 
@@ -287,9 +288,9 @@ public class AddonsAndSeparators(
 
         progressService.UpdateProgress($"\tExtracting to {extractPath}");
         await downloadableRecord.ExtractAsync(downloadsPath, extractPath, extractProgress);
-        progressService.UpdateProgress(
-            Interlocked.Increment(ref _visitedExtracts) / (double)total * 100
-        );
+        // progressService.UpdateProgress(
+        //     Interlocked.Increment(ref _visitedExtracts) / (double)total * 100
+        // );
     }
 }
 
