@@ -41,20 +41,40 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
     private readonly ReadOnlyObservableCollection<ModDownloadExtractProgressVm> _modDownloadExtractProgressVms;
     private readonly ReadOnlyObservableCollection<ModListRecord> _localMods;
 
-    // lmao
     private Func<ModDownloadExtractProgressVm, bool> CreateModFilterPredicate(
         (InstallType installType, ReadOnlyObservableCollection<ModListRecord> localMods) tuple
     ) =>
         vm =>
         {
-            return IsNotDone()
-                && (
-                    vm.ModListRecord is GitRecord or ModpackSpecific
-                    || tuple.installType == InstallType.FullInstall
-                        && vm.ModListRecord is not Separator or ModDbRecord or GithubRecord
-                    || vm.ModListRecord is ModDbRecord mdr && (IsNewMod(mdr) || IsVersionUpdate())
-                    || vm.ModListRecord is Separator s && NewSeparatorFolder(s)
-                );
+            if (StatusIsDone())
+            {
+                return false;
+            }
+
+            if (vm.ModListRecord is GitRecord or ModpackSpecific)
+            {
+                return true;
+            }
+
+            if (tuple.installType == InstallType.FullInstall)
+            {
+                return true;
+            }
+
+            if (tuple.installType == InstallType.Update)
+            {
+                if (vm.ModListRecord is ModDbRecord mdr && (IsNewMod(mdr) || IsVersionUpdate(mdr)))
+                {
+                    return true;
+                }
+
+                if (vm.ModListRecord is Separator s && NewSeparatorFolder(s))
+                {
+                    return true;
+                }
+            }
+
+            return false;
 
             bool NewSeparatorFolder(Separator s)
             {
@@ -69,22 +89,25 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                     .All(lm => lm.AddonName != modDbRecord.AddonName);
             }
 
-            bool IsVersionUpdate()
+            bool IsVersionUpdate(ModDbRecord modDbRecord)
             {
                 return tuple
                     .localMods.Where(lm => lm is ModDbRecord)
                     .Cast<ModDbRecord>()
                     .FirstOrDefault(lm =>
-                        lm.AddonName == mdr.AddonName
+                        lm.AddonName == modDbRecord.AddonName
                         && FileNameVersionRx().Match(lm.ZipName!).Groups["version"].Value
-                            != FileNameVersionRx().Match(mdr.ZipName!).Groups["version"].Value
+                            != FileNameVersionRx()
+                                .Match(modDbRecord.ZipName!)
+                                .Groups["version"]
+                                .Value
                     )
                     is not null;
             }
 
-            bool IsNotDone()
+            bool StatusIsDone()
             {
-                return vm.Status != Status.Done;
+                return vm.Status == Status.Done;
             }
         };
 
