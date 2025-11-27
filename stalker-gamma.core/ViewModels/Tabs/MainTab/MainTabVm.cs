@@ -993,8 +993,7 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
     public ReactiveCommand<Unit, IList<ModListRecord>> GetModDownloadExtractProgressVmsCmd { get; }
     private ReactiveCommand<Unit, IList<ModListRecord>> GetLocalModsCmd { get; }
     public ViewModelActivator Activator { get; }
-    public IReadOnlyList<InstallType> InstallTypes { get; } =
-        [InstallType.FullInstall, InstallType.Update];
+    public List<InstallType> InstallTypes { get; } = [InstallType.FullInstall, InstallType.Update];
     public InstallType SelectedInstallType
     {
         get;
