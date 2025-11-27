@@ -50,7 +50,7 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
             return IsNotDone()
                 && (
                     vm.ModListRecord is GitRecord or ModpackSpecific
-                    || tuple.installType == InstallType.Full
+                    || tuple.installType == InstallType.FullInstall
                         && vm.ModListRecord is not Separator or ModDbRecord or GithubRecord
                     || vm.ModListRecord is ModDbRecord mdr && (IsNewMod(mdr) || IsVersionUpdate())
                     || vm.ModListRecord is Separator s && NewSeparatorFolder(s)
@@ -994,12 +994,12 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
     private ReactiveCommand<Unit, IList<ModListRecord>> GetLocalModsCmd { get; }
     public ViewModelActivator Activator { get; }
     public IReadOnlyList<InstallType> InstallTypes { get; } =
-        [InstallType.Full, InstallType.Update];
+        [InstallType.FullInstall, InstallType.Update];
     public InstallType SelectedInstallType
     {
         get;
         set => this.RaiseAndSetIfChanged(ref field, value);
-    } = InstallType.Full;
+    } = InstallType.FullInstall;
 
     [GeneratedRegex(@".+(?<version>\d+\.\d+\.\d*.*)\.*")]
     private static partial Regex FileNameVersionRx();
