@@ -15,6 +15,7 @@ using stalker_gamma.core.Services.GammaInstaller;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
 using stalker_gamma.core.Utilities;
 using stalker_gamma.core.ViewModels.Tabs.MainTab.Commands;
+using stalker_gamma.core.ViewModels.Tabs.MainTab.Enums;
 using stalker_gamma.core.ViewModels.Tabs.MainTab.Factories;
 using stalker_gamma.core.ViewModels.Tabs.MainTab.Models;
 using stalker_gamma.core.ViewModels.Tabs.MainTab.Queries;
@@ -42,21 +43,15 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
 
     // lmao
     private Func<ModDownloadExtractProgressVm, bool> CreateModFilterPredicate(
-        (
-            bool forceGitDl,
-            bool forceZipExtract,
-            bool checkMd5,
-            ReadOnlyObservableCollection<ModListRecord> localMods
-        ) quad
+        (InstallType installType, ReadOnlyObservableCollection<ModListRecord> localMods) tuple
     ) =>
         vm =>
         {
             return IsNotDone()
                 && (
                     vm.ModListRecord is GitRecord or ModpackSpecific
-                    || (quad.forceZipExtract && vm.ModListRecord is not Separator)
-                    || (quad.checkMd5 && vm.ModListRecord is ModDbRecord)
-                    || (quad.forceGitDl && vm.ModListRecord is GithubRecord)
+                    || tuple.installType == InstallType.Full
+                        && vm.ModListRecord is not Separator or ModDbRecord or GithubRecord
                     || vm.ModListRecord is ModDbRecord mdr && (IsNewMod(mdr) || IsVersionUpdate())
                     || vm.ModListRecord is Separator s && NewSeparatorFolder(s)
                 );
@@ -68,7 +63,7 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
 
             bool IsNewMod(ModDbRecord modDbRecord)
             {
-                return quad
+                return tuple
                     .localMods.Where(lm => lm is ModDbRecord)
                     .Cast<ModDbRecord>()
                     .All(lm => lm.AddonName != modDbRecord.AddonName);
@@ -76,7 +71,7 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
 
             bool IsVersionUpdate()
             {
-                return quad
+                return tuple
                     .localMods.Where(lm => lm is ModDbRecord)
                     .Cast<ModDbRecord>()
                     .FirstOrDefault(lm =>
@@ -135,12 +130,7 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
         var localModObs = localModsSourceList.Connect().Bind(out _localMods).Subscribe();
         var modProgressVms = new SourceList<ModListRecord>();
         var locker = new object();
-        var modFilter = this.WhenAnyValue(
-                x => x.ForceGitDownload,
-                x => x.ForceZipExtraction,
-                x => x.CheckMd5,
-                x => x.LocalMods
-            )
+        var modFilter = this.WhenAnyValue(x => x.SelectedInstallType, x => x.LocalMods)
             .Select(CreateModFilterPredicate);
         var modProgObs = modProgressVms.Connect();
         modProgObs
@@ -1003,6 +993,13 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
     public ReactiveCommand<Unit, IList<ModListRecord>> GetModDownloadExtractProgressVmsCmd { get; }
     private ReactiveCommand<Unit, IList<ModListRecord>> GetLocalModsCmd { get; }
     public ViewModelActivator Activator { get; }
+    public IReadOnlyList<InstallType> InstallTypes { get; } =
+        [InstallType.Full, InstallType.Update];
+    public InstallType SelectedInstallType
+    {
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = InstallType.Full;
 
     [GeneratedRegex(@".+(?<version>\d+\.\d+\.\d*.*)\.*")]
     private static partial Regex FileNameVersionRx();

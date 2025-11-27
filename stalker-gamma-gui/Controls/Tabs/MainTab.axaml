@@ -35,7 +35,7 @@
     </UserControl.Styles>
 
     <Grid ColumnDefinitions="150,*" Margin="5">
-        <Grid RowDefinitions="Auto,Auto,Auto,*,*,*,*,Auto,*,Auto,Auto,Auto,Auto,Auto,Auto,*,*,*,*,*,*" Margin="0,0,5,0">
+        <Grid RowDefinitions="Auto,Auto,Auto,*,*,*,*,Auto,*,Auto,Auto,Auto,Auto,*,*,*,*,*,*" Margin="0,0,5,0">
             <Image Source="/Assets/stalker-gamma-gamma_logo.png" Width="150" />
             <Label Grid.Row="1" Content="{Binding VersionString}" FontSize="10" Foreground="#696969"
                    HorizontalAlignment="Center" />
@@ -95,52 +95,37 @@
                     GAMMA
                 </TextBlock>
             </Button>
-            <CheckBox Grid.Row="9" IsEnabled="{Binding !IsBusyService.IsBusy}" Foreground="#ff8c00"
-                      IsChecked="{Binding CheckMd5}" FontSize="10">
-                Check MD5
-                <ToolTip.ShowOnDisabled>true</ToolTip.ShowOnDisabled>
+            <ComboBox Grid.Row="9" PlaceholderText="Install Type" BorderBrush="#ff8c00" BorderThickness="1"
+                      HorizontalAlignment="Stretch" Foreground="#ff8c00" HorizontalContentAlignment="Center"
+                      Background="#242424" ItemsSource="{Binding InstallTypes}"
+                      SelectedItem="{Binding SelectedInstallType}" IsEnabled="{Binding !IsBusyService.IsBusy}">
                 <ToolTip.Tip>
-                    <TextBlock
-                        Text="If enabled, compares the local archives integrity to the ModDB's archives information (does not make extra moddb queries). If the information does not match, the add-on will be downloaded and extracted. CPU intensive option.">
+                    <TextBlock>
+                        <Bold>Full</Bold>: Install/Reinstall everything. Choose this if you don't know what to do.<LineBreak/>
+                        <Bold>Update</Bold>: Update the git repos and updated mods.
                     </TextBlock>
                 </ToolTip.Tip>
-            </CheckBox>
+            </ComboBox>
             <CheckBox Grid.Row="10" IsEnabled="{Binding !IsBusyService.IsBusy}" Foreground="#ff8c00"
-                      IsChecked="{Binding ForceGitDownload}" FontSize="10">
-                Force git download
-                <ToolTip.Tip>
-                    <TextBlock
-                        Text="If enabled, the installer will always get the latest version of add-ons stored on GitHub. Turn it off if you do not want to update git add-ons." />
-                </ToolTip.Tip>
-            </CheckBox>
-            <CheckBox Grid.Row="11" IsEnabled="{Binding !IsBusyService.IsBusy}" Foreground="#ff8c00"
-                      IsChecked="{Binding ForceZipExtraction}" FontSize="10">
-                Force zip extraction
-                <ToolTip.Tip>
-                    <TextBlock
-                        Text="If enabled, the installer will always install all addons. Use it if GAMMA is crashing on launch or if you have addons with red crosses." />
-                </ToolTip.Tip>
-            </CheckBox>
-            <CheckBox Grid.Row="12" IsEnabled="{Binding !IsBusyService.IsBusy}" Foreground="#ff8c00"
                       IsChecked="{Binding DeleteReshadeDlls}" FontSize="10">
                 Delete reshade dlls
             </CheckBox>
-            <CheckBox Grid.Row="13" IsEnabled="{Binding !IsBusyService.IsBusy}" FontSize="10" Foreground="#ff8c00"
+            <CheckBox Grid.Row="11" IsEnabled="{Binding !IsBusyService.IsBusy}" FontSize="10" Foreground="#ff8c00"
                       IsChecked="{Binding PreserveUserLtx}">
                 Preserve user.ltx
                 <ToolTip.Tip>
                     If enabled, the installer will not overwrite your user.ltx, preserving your settings.
                 </ToolTip.Tip>
             </CheckBox>
-            <Separator Grid.Row="14" Margin="12,4,12,20" />
-            <Button x:Name="PlayBtn" Grid.Row="15" IsEnabled="{Binding !IsBusyService.IsBusy}" Background="#242424"
+            <Separator Grid.Row="12" Margin="12,4,12,20" />
+            <Button x:Name="PlayBtn" Grid.Row="13" IsEnabled="{Binding !IsBusyService.IsBusy}" Background="#242424"
                     Foreground="#00ff00"
                     BorderBrush="#00ff00" BorderThickness="1" HorizontalContentAlignment="Center"
                     HorizontalAlignment="Stretch" Command="{Binding PlayCmd}" Height="60"
                     VerticalContentAlignment="Center" Margin="0,0,0,20">
                 Play
             </Button>
-            <Button Grid.Row="16" Background="#242424" Foreground="#00ff00"
+            <Button Grid.Row="14" Background="#242424" Foreground="#00ff00"
                     BorderBrush="#00ff00" BorderThickness="1" HorizontalContentAlignment="Center"
                     HorizontalAlignment="Stretch" Command="{Binding OpenUrlCmd}"
                     CommandParameter="https://paypal.me/GrokitachGAMMA" Height="50" FontSize="12"
@@ -154,8 +139,8 @@
                         Text="The money goes to Grok directly. A portion of the donations goes to add-ons makers every month." />
                 </ToolTip.Tip>
             </Button>
-            <Separator Grid.Row="17" Margin="12,4,12,0" />
-            <Button Grid.Row="18" Background="#242424"
+            <Separator Grid.Row="15" Margin="12,4,12,0" />
+            <Button Grid.Row="16" Background="#242424"
                     Foreground="#85fb98"
                     BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center"
                     HorizontalAlignment="Stretch" FontSize="10" Command="{Binding OpenUrlCmd}"
@@ -165,7 +150,7 @@
                     and on the advertisements
                 </TextBlock>
             </Button>
-            <Button Grid.Row="19" Background="#242424"
+            <Button Grid.Row="17" Background="#242424"
                     Foreground="#85fb98"
                     BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center"
                     HorizontalAlignment="Stretch" FontSize="10" Command="{Binding OpenUrlCmd}"
@@ -176,7 +161,7 @@
                     to this project
                 </TextBlock>
             </Button>
-            <Button Grid.Row="20" Background="#242424"
+            <Button Grid.Row="18" Background="#242424"
                     Foreground="#85fb98"
                     BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center"
                     HorizontalAlignment="Stretch" FontSize="10" Command="{Binding OpenUrlCmd}"
@@ -229,7 +214,7 @@
                           AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeColumns="True">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" />
-                        <DataGridTextColumn Header="Addon Name" Binding="{Binding AddonName}" Width="400"  />
+                        <DataGridTextColumn Header="Addon Name" Binding="{Binding AddonName}" Width="400" />
                         <DataGridTemplateColumn Header="Progress" Width="*">
                             <DataTemplate DataType="mainTab:ModDownloadExtractProgressVm">
                                 <controls:ProgressControl />
