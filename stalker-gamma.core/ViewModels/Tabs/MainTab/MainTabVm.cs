@@ -184,8 +184,7 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
             .Subscribe(_ =>
             {
                 var done = unfiltered.Items.Where(x => x.Status == Status.Done).ToList();
-                var total = unfiltered.Count;
-                progressService.UpdateProgress((double)done.Count / total * 100);
+                progressService.UpdateProgress((double)done.Count / InitialFilteredListCount * 100);
             });
 
         observableList.Connect().Bind(out _modDownloadExtractProgressVms).Subscribe();
@@ -425,6 +424,7 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
             async () =>
             {
                 IsBusyService.IsBusy = true;
+                InitialFilteredListCount = observableList.Count;
                 await Task.Run(() =>
                     gammaInstaller.InstallUpdateGammaAsync(
                         DeleteReshadeDlls,
@@ -434,7 +434,6 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                         locker
                     )
                 );
-
                 IsBusyService.IsBusy = false;
             },
             canInstallUpdateGamma
@@ -1018,6 +1017,7 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
         get;
         set => this.RaiseAndSetIfChanged(ref field, value);
     } = InstallType.FullInstall;
+    private int InitialFilteredListCount { get; set; }
 
     [GeneratedRegex(@".+(?<version>\d+\.\d+\.\d*.*)\.*")]
     private static partial Regex FileNameVersionRx();
