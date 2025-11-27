@@ -187,7 +187,7 @@ public partial class GammaInstaller(
                 x.AddonName == "modpack_addons"
             );
         }
-        await DownloadGammaData(stalkerGamma, gammaLargeFiles, gunslinger);
+        await DownloadGammaData(stalkerGamma);
 
         var metadata = (await File.ReadAllTextAsync(Path.Join(_dir, "modpack_maker_metadata.txt")))
             .Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
@@ -196,7 +196,6 @@ public partial class GammaInstaller(
 
         var modPackName = metadata[1].Trim().TrimEnd('.');
         var modOrganizerListFile = metadata[3].Trim();
-        var modPackAdditionalFiles = metadata[4].Trim();
 
         var downloadsPath = Path.GetFullPath(Path.Join(_dir, "..", "downloads"));
 
@@ -217,15 +216,7 @@ public partial class GammaInstaller(
         );
 
         // modpack specific install
-        modpackSpecific.Install(
-            _dir,
-            modPackPath,
-            modPackAdditionalFiles,
-            modsPaths,
-            gammaLargeFiles,
-            gunslinger,
-            modpackAddons
-        );
+        await modpackSpecific.Install(_dir, modsPaths, gammaLargeFiles, gunslinger, modpackAddons);
 
         // setup mo2
         mo2.Setup(
@@ -268,62 +259,47 @@ public partial class GammaInstaller(
     /// <summary>
     /// Downloads G.A.M.M.A. data and updates repositories.
     /// </summary>
-    private async Task DownloadGammaData(
-        ModDownloadExtractProgressVm stalkerGamma,
-        ModDownloadExtractProgressVm gammaLargeFiles,
-        ModDownloadExtractProgressVm teivazAnomalyGunslinger
-    )
+    private async Task DownloadGammaData(ModDownloadExtractProgressVm stalkerGamma)
     {
-        progressService.UpdateProgress(" Updating Github Repositories");
         const string branch = "main";
 
-        stalkerGamma.Status = Status.Checking;
-        await gitUtility.UpdateGitRepo(
-            _dir,
-            "Stalker_GAMMA",
-            "https://github.com/Grokitach/Stalker_GAMMA",
-            branch,
-            onProgress: progress => stalkerGamma.ProgressInterface.Report(progress)
-        );
-        stalkerGamma.ProgressInterface.Report(100);
+        var t1 = Task.Run(async () =>
+        {
+            stalkerGamma.Status = Status.Checking;
+            await gitUtility.UpdateGitRepo(
+                _dir,
+                "Stalker_GAMMA",
+                "https://github.com/Grokitach/Stalker_GAMMA",
+                branch,
+                onProgress: progress => stalkerGamma.ProgressInterface.Report(progress)
+            );
+            stalkerGamma.ProgressInterface.Report(100);
 
-        gammaLargeFiles.Status = Status.Checking;
-        await gitUtility.UpdateGitRepo(
-            _dir,
-            "gamma_large_files_v2",
-            "https://github.com/Grokitach/gamma_large_files_v2",
-            "main",
-            onProgress: progress => gammaLargeFiles.ProgressInterface.Report(progress)
-        );
-        gammaLargeFiles.Status = Status.ExtractAtEnd;
+            stalkerGamma.Status = Status.Extracting;
+            progressService.UpdateProgress(
+                " Installing the modpack definition data (installer can hang, be patient)"
+            );
+            DirUtils.CopyDirectory(
+                Path.Combine(_dir, "resources", "Stalker_GAMMA", "G.A.M.M.A"),
+                Path.Combine(_dir, "G.A.M.M.A."),
+                onProgress: (copied, total) =>
+                    stalkerGamma.ProgressInterface.Report((double)copied / total * 100)
+            );
+            File.Copy(
+                Path.Combine(
+                    _dir,
+                    "resources",
+                    "Stalker_GAMMA",
+                    "G.A.M.M.A_definition_version.txt"
+                ),
+                Path.Combine(_dir, "version.txt"),
+                true
+            );
+            progressService.UpdateProgress(" done");
+            stalkerGamma.Status = Status.Done;
+        });
 
-        teivazAnomalyGunslinger.Status = Status.Checking;
-        await gitUtility.UpdateGitRepo(
-            _dir,
-            "teivaz_anomaly_gunslinger",
-            "https://github.com/Grokitach/teivaz_anomaly_gunslinger",
-            "main",
-            onProgress: progress => teivazAnomalyGunslinger.ProgressInterface.Report(progress)
-        );
-        teivazAnomalyGunslinger.Status = Status.ExtractAtEnd;
-
-        stalkerGamma.Status = Status.Extracting;
-        progressService.UpdateProgress(
-            " Installing the modpack definition data (installer can hang, be patient)"
-        );
-        DirUtils.CopyDirectory(
-            Path.Combine(_dir, "resources", "Stalker_GAMMA", "G.A.M.M.A"),
-            Path.Combine(_dir, "G.A.M.M.A."),
-            onProgress: (copied, total) =>
-                stalkerGamma.ProgressInterface.Report((double)copied / total * 100)
-        );
-        File.Copy(
-            Path.Combine(_dir, "resources", "Stalker_GAMMA", "G.A.M.M.A_definition_version.txt"),
-            Path.Combine(_dir, "version.txt"),
-            true
-        );
-        progressService.UpdateProgress(" done");
-        stalkerGamma.Status = Status.Done;
+        await Task.WhenAll(t1);
     }
 
     [GeneratedRegex("^.*= (.+)$")]

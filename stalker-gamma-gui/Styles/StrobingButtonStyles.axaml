@@ -6,10 +6,10 @@
         </Border>
     </Design.PreviewWith>
 
-    <Style Selector="Button.NotStrobing">
+    <Style Selector="SplitButton.NotStrobing">
         <Setter Property="BorderBrush" Value="#85fb98" />
     </Style>
-    <Style Selector="Button.Strobing">
+    <Style Selector="SplitButton.Strobing">
         <Style.Animations>
             <Animation Duration="0:0:1.0" PlaybackDirection="Alternate" IterationCount="INFINITE">
                 <KeyFrame Cue="0%">

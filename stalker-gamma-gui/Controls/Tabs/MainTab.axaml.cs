@@ -51,7 +51,7 @@ public partial class MainTabVm
             // strobe first install initialization
             this.WhenAnyValue(
                     x => x.ViewModel!.IsMo2Initialized,
-                    selector: (mo2Initialized) => mo2Initialized
+                    selector: mo2Initialized => mo2Initialized
                 )
                 .Subscribe(x =>
                 {

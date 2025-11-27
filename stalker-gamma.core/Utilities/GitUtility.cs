@@ -4,7 +4,6 @@ using System.Text.RegularExpressions;
 using CliWrap;
 using CliWrap.EventStream;
 using stalker_gamma.core.Services;
-using stalker_gamma.core.ViewModels.Tabs.MainTab;
 
 namespace stalker_gamma.core.Utilities;
 
@@ -23,7 +22,7 @@ public partial class GitUtility(ProgressService progressService)
         var repoPath = Path.Combine(dir, "resources", repoName);
         var resourcesPath = Path.Combine(dir, "resources");
         var gitConfig =
-            "config --global --add safe.directory '*' && config --global core.longpaths true && config --global http.postBuffer 524288000 && config --global http.maxRequestBuffer 524288000".Split(
+            "config --add safe.directory '*' && config core.longpaths true && config http.postBuffer 524288000 && config http.maxRequestBuffer 524288000".Split(
                 "&&",
                 StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries
             );

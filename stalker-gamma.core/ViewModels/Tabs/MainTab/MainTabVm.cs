@@ -5,7 +5,6 @@ using System.Reactive.Linq;
 using System.Text.RegularExpressions;
 using CliWrap;
 using DynamicData;
-using DynamicData.Aggregation;
 using DynamicData.Binding;
 using ReactiveUI;
 using stalker_gamma.core.Models;
@@ -28,7 +27,6 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
     private static readonly string Dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
     private readonly string _modsPath = Path.GetFullPath(Path.Join(Dir, "..", "mods"));
     private ObservableAsPropertyHelper<double?>? _progress;
-    private string _versionString;
     private ObservableAsPropertyHelper<bool>? _toolsReady;
     private ObservableAsPropertyHelper<bool>? _isRanWithWine;
     private ObservableAsPropertyHelper<bool?>? _longPathsStatus;
@@ -142,7 +140,7 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
     {
         Activator = new ViewModelActivator();
         IsBusyService = isBusyService;
-        _versionString = $"{versionService.GetVersion()} (Based on 6.7.0.0)";
+        VersionString = $"{versionService.GetVersion()} (Based on 6.7.0.0)";
         var mo2Path = Path.Join(
             Path.GetDirectoryName(AppContext.BaseDirectory),
             "..",
@@ -569,23 +567,21 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                         {
                             inner.Clear();
                             inner.AddRange(
-                                [
-                                    new GitRecord { AddonName = "Stalker_GAMMA", Counter = -4 },
-                                    new GitRecord
-                                    {
-                                        AddonName = "gamma_large_files_v2",
-                                        Counter = -3,
-                                    },
-                                    new GitRecord
-                                    {
-                                        AddonName = "teivaz_anomaly_gunslinger",
-                                        Counter = -2,
-                                    },
-                                ]
+                                [new GitRecord { AddonName = "Stalker_GAMMA", Counter = -1 }]
                             );
                             inner.AddRange(x);
                             inner.AddRange(
                                 [
+                                    new GitRecord
+                                    {
+                                        AddonName = "gamma_large_files_v2",
+                                        Counter = 999997,
+                                    },
+                                    new GitRecord
+                                    {
+                                        AddonName = "teivaz_anomaly_gunslinger",
+                                        Counter = 999998,
+                                    },
                                     new ModpackSpecific
                                     {
                                         AddonName = "modpack_addons",
@@ -976,8 +972,8 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
 
     public string VersionString
     {
-        get => _versionString;
-        set => this.RaiseAndSetIfChanged(ref _versionString, value);
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
     public bool? IsMo2VersionDowngraded => _isMo2VersionDowngraded?.Value;
