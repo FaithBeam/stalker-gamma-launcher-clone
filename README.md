@@ -2,7 +2,8 @@
 
 A clone of Grokitach's Stalker GAMMA Launcher with WINE compatibility and extra features.
 
-<img width="1218" height="1181" alt="image" src="https://github.com/user-attachments/assets/52a21d03-28ed-4883-8614-0c7bbf5aa722" />
+<img width="1419" height="1369" alt="image" src="https://github.com/user-attachments/assets/e879c8cd-a451-41e5-9c09-5f1d39ca2c0c" />
+
 
 ## Features
 
@@ -39,7 +40,7 @@ A clone of Grokitach's Stalker GAMMA Launcher with WINE compatibility and extra 
 3. Run `stalker-gamma-gui.exe`
 4. First install initialization
 5. Enable long paths
-6. Install / Update GAMMA
+6. Full Install
 7. Play
 
 ### Linux
@@ -68,5 +69,5 @@ Development is only supported on Windows for now.
 
 ### Requirements
 
-- [.NET SDK 9](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
-- Gamma RC3 extracted to the `stalker-gamma-gui/bin/Debug/net9.0` folder
+- [.NET SDK 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
+- Gamma RC3 extracted to the `stalker-gamma-gui/bin/Debug/net10.0` folder
