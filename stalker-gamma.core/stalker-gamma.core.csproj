@@ -16,6 +16,7 @@
   <ItemGroup>
     <PackageReference Include="Avalonia.ReactiveUI" Version="11.3.8" />
     <PackageReference Include="CliWrap" Version="3.10.0" />
+    <PackageReference Include="DialogHost.Avalonia" Version="0.10.2" />
     <PackageReference Include="DynamicData" Version="9.4.1" />
     <PackageReference
       Include="Microsoft.Extensions.DependencyInjection.Abstractions"

@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:stalker_gamma.core.ViewModels.Tabs;assembly=stalker-gamma.core"
+             xmlns:dialogHost="clr-namespace:DialogHostAvalonia;assembly=DialogHost.Avalonia"
              xmlns:mainTab="clr-namespace:stalker_gamma.core.ViewModels.Tabs.MainTab;assembly=stalker-gamma.core"
              xmlns:converters="clr-namespace:stalker_gamma_gui.Converters"
              xmlns:controls="clr-namespace:stalker_gamma_gui.Controls"
@@ -35,199 +36,209 @@
         <StyleInclude Source="../../Styles/CheckboxStyles.axaml" />
     </UserControl.Styles>
 
-    <Grid ColumnDefinitions="150,*" Margin="5">
-        <Grid RowDefinitions="Auto,Auto,Auto,*,*,*,*,Auto,Auto,Auto,Auto,Auto,*,*,*,*,*,*" Margin="0,0,5,0">
-            <Image Source="/Assets/stalker-gamma-gamma_logo.png" Width="150" />
-            <Label Grid.Row="1" Content="{Binding VersionString}" FontSize="10" Foreground="#696969"
-                   HorizontalAlignment="Center" />
-            <Separator Grid.Row="2" />
-            <Button x:Name="DowngradeModOrganizerBtn" Grid.Row="3" Content="Downgrade ModOrganizer"
-                    HorizontalAlignment="Stretch"
-                    Background="#242424"
-                    Foreground="#85fb98"
-                    BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center" FontSize="10"
-                    Command="{Binding DowngradeModOrganizerCmd}">
-                <ToolTip.ShowOnDisabled>True</ToolTip.ShowOnDisabled>
-                <ToolTip.Tip>
-                    Downgrade ModOrganizer to 2.4.4. Required for Linux and MacOs users.
-                </ToolTip.Tip>
-            </Button>
-            <Button x:Name="FirstInstallInitializeBtn" Grid.Row="4" Command="{Binding FirstInstallInitializationCmd}"
-                    HorizontalAlignment="Stretch"
-                    Background="#242424"
-                    Foreground="#85fb98"
-                    BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center" FontSize="10">
-                First install initialization
-            </Button>
-            <Button x:Name="AddFoldersToDefenderExclusionBtn" Grid.Row="5"
-                    Command="{Binding AddFoldersToWinDefenderExclusionCmd}"
-                    Content="Add Defender Exclusions" HorizontalAlignment="Stretch"
-                    Background="#242424"
-                    Foreground="#85fb98"
-                    BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center" FontSize="10">
-                <ToolTip.Tip>
+    <dialogHost:DialogHost CloseOnClickAway="True">
+        <dialogHost:DialogHost.DialogContent>
+            <!-- put your dialog content here-->
+        </dialogHost:DialogHost.DialogContent>
+        <Grid ColumnDefinitions="150,*" Margin="5">
+            <Grid RowDefinitions="Auto,Auto,Auto,*,*,*,*,Auto,Auto,Auto,Auto,Auto,*,*,*,*,*,*" Margin="0,0,5,0">
+                <Image Source="/Assets/stalker-gamma-gamma_logo.png" Width="150" />
+                <Label Grid.Row="1" Content="{Binding VersionString}" FontSize="10" Foreground="#696969"
+                       HorizontalAlignment="Center" />
+                <Separator Grid.Row="2" />
+                <Button x:Name="DowngradeModOrganizerBtn" Grid.Row="3" Content="Downgrade ModOrganizer"
+                        HorizontalAlignment="Stretch"
+                        Background="#242424"
+                        Foreground="#85fb98"
+                        BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center" FontSize="10"
+                        Command="{Binding DowngradeModOrganizerCmd}">
+                    <ToolTip.ShowOnDisabled>True</ToolTip.ShowOnDisabled>
+                    <ToolTip.Tip>
+                        Downgrade ModOrganizer to 2.4.4. Required for Linux and MacOs users.
+                    </ToolTip.Tip>
+                </Button>
+                <Button x:Name="FirstInstallInitializeBtn" Grid.Row="4"
+                        Command="{Binding FirstInstallInitializationCmd}"
+                        HorizontalAlignment="Stretch"
+                        Background="#242424"
+                        Foreground="#85fb98"
+                        BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center" FontSize="10">
+                    First install initialization
+                </Button>
+                <Button x:Name="AddFoldersToDefenderExclusionBtn" Grid.Row="5"
+                        Command="{Binding AddFoldersToWinDefenderExclusionCmd}"
+                        Content="Add Defender Exclusions" HorizontalAlignment="Stretch"
+                        Background="#242424"
+                        Foreground="#85fb98"
+                        BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center" FontSize="10">
+                    <ToolTip.Tip>
+                        <TextBlock>
+                            Add your anomaly, gamma, and gamma backup paths to Microsoft Defender exclusions. This will prevent
+                            Defender from actively monitoring these folders, speeding up install/updates/loading.
+                            <LineBreak />
+                            Windows only.
+                        </TextBlock>
+                    </ToolTip.Tip>
+                </Button>
+                <Button x:Name="LongPathsBtn" Grid.Row="6" Content="Enable Long Paths"
+                        Command="{Binding EnableLongPathsOnWindowsCmd}"
+                        Background="#242424"
+                        Foreground="#85fb98"
+                        BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center"
+                        HorizontalAlignment="Stretch" FontSize="10">
+                    <ToolTip.ShowOnDisabled>True</ToolTip.ShowOnDisabled>
+                    <ToolTip.Tip>
+                        <TextBlock>Enable long paths for windows</TextBlock>
+                    </ToolTip.Tip>
+                </Button>
+                <Separator Grid.Row="7" Margin="12,4,12,20" />
+                <SplitButton x:Name="InstallUpdateBtn" Grid.Row="8"
+                             Content="{Binding SelectedInstallType, Converter={StaticResource EnumMemberConverter}}"
+                             Command="{Binding InstallUpdateGammaCmd}" Foreground="#ff8c00"
+                             Background="#242424"
+                             BorderBrush="#ff8c00" BorderThickness="1" HorizontalContentAlignment="Center"
+                             HorizontalAlignment="Stretch" Height="60" VerticalContentAlignment="Center"
+                             Margin="0,0,0,10">
+                    <SplitButton.Flyout>
+                        <Flyout>
+                            <ListBox
+                                ItemsSource="{Binding InstallTypes, Converter={StaticResource EnumMemberConverter}}"
+                                SelectedItem="{Binding SelectedInstallType, Converter={StaticResource EnumMemberConverter}}" />
+                        </Flyout>
+                    </SplitButton.Flyout>
+                </SplitButton>
+                <CheckBox Grid.Row="9" IsEnabled="{Binding !IsBusyService.IsBusy}" Foreground="#ff8c00"
+                          IsChecked="{Binding DeleteReshadeDlls}" FontSize="10">
+                    Delete reshade dlls
+                </CheckBox>
+                <CheckBox Grid.Row="10" IsEnabled="{Binding !IsBusyService.IsBusy}" FontSize="10" Foreground="#ff8c00"
+                          IsChecked="{Binding PreserveUserLtx}">
+                    Preserve user.ltx
+                    <ToolTip.Tip>
+                        If enabled, the installer will not overwrite your user.ltx, preserving your settings.
+                    </ToolTip.Tip>
+                </CheckBox>
+                <Separator Grid.Row="11" Margin="12,4,12,20" />
+                <Button x:Name="PlayBtn" Grid.Row="12" IsEnabled="{Binding !IsBusyService.IsBusy}" Background="#242424"
+                        Foreground="#00ff00"
+                        BorderBrush="#00ff00" BorderThickness="1" HorizontalContentAlignment="Center"
+                        HorizontalAlignment="Stretch" Command="{Binding PlayCmd}" Height="60"
+                        VerticalContentAlignment="Center" Margin="0,0,0,20">
+                    Play
+                </Button>
+                <Button Grid.Row="13" Background="#242424" Foreground="#00ff00"
+                        BorderBrush="#00ff00" BorderThickness="1" HorizontalContentAlignment="Center"
+                        HorizontalAlignment="Stretch" Command="{Binding OpenUrlCmd}"
+                        CommandParameter="https://paypal.me/GrokitachGAMMA" Height="50" FontSize="12"
+                        VerticalContentAlignment="Center">
                     <TextBlock>
-                        Add your anomaly, gamma, and gamma backup paths to Microsoft Defender exclusions. This will prevent
-                        Defender from actively monitoring these folders, speeding up install/updates/loading.
-                        <LineBreak />
-                        Windows only.
+                        Support GAMMA:<LineBreak />
+                        Donate
                     </TextBlock>
-                </ToolTip.Tip>
-            </Button>
-            <Button x:Name="LongPathsBtn" Grid.Row="6" Content="Enable Long Paths"
-                    Command="{Binding EnableLongPathsOnWindowsCmd}"
-                    Background="#242424"
-                    Foreground="#85fb98"
-                    BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center"
-                    HorizontalAlignment="Stretch" FontSize="10">
-                <ToolTip.ShowOnDisabled>True</ToolTip.ShowOnDisabled>
-                <ToolTip.Tip>
-                    <TextBlock>Enable long paths for windows</TextBlock>
-                </ToolTip.Tip>
-            </Button>
-            <Separator Grid.Row="7" Margin="12,4,12,20" />
-            <SplitButton x:Name="InstallUpdateBtn" Grid.Row="8"
-                         Content="{Binding SelectedInstallType, Converter={StaticResource EnumMemberConverter}}"
-                         Command="{Binding InstallUpdateGammaCmd}" Foreground="#ff8c00"
-                         Background="#242424"
-                         BorderBrush="#ff8c00" BorderThickness="1" HorizontalContentAlignment="Center"
-                         HorizontalAlignment="Stretch" Height="60" VerticalContentAlignment="Center" Margin="0,0,0,10">
-                <SplitButton.Flyout>
-                    <Flyout>
-                        <ListBox ItemsSource="{Binding InstallTypes, Converter={StaticResource EnumMemberConverter}}"
-                                 SelectedItem="{Binding SelectedInstallType, Converter={StaticResource EnumMemberConverter}}" />
-                    </Flyout>
-                </SplitButton.Flyout>
-            </SplitButton>
-            <CheckBox Grid.Row="9" IsEnabled="{Binding !IsBusyService.IsBusy}" Foreground="#ff8c00"
-                      IsChecked="{Binding DeleteReshadeDlls}" FontSize="10">
-                Delete reshade dlls
-            </CheckBox>
-            <CheckBox Grid.Row="10" IsEnabled="{Binding !IsBusyService.IsBusy}" FontSize="10" Foreground="#ff8c00"
-                      IsChecked="{Binding PreserveUserLtx}">
-                Preserve user.ltx
-                <ToolTip.Tip>
-                    If enabled, the installer will not overwrite your user.ltx, preserving your settings.
-                </ToolTip.Tip>
-            </CheckBox>
-            <Separator Grid.Row="11" Margin="12,4,12,20" />
-            <Button x:Name="PlayBtn" Grid.Row="12" IsEnabled="{Binding !IsBusyService.IsBusy}" Background="#242424"
-                    Foreground="#00ff00"
-                    BorderBrush="#00ff00" BorderThickness="1" HorizontalContentAlignment="Center"
-                    HorizontalAlignment="Stretch" Command="{Binding PlayCmd}" Height="60"
-                    VerticalContentAlignment="Center" Margin="0,0,0,20">
-                Play
-            </Button>
-            <Button Grid.Row="13" Background="#242424" Foreground="#00ff00"
-                    BorderBrush="#00ff00" BorderThickness="1" HorizontalContentAlignment="Center"
-                    HorizontalAlignment="Stretch" Command="{Binding OpenUrlCmd}"
-                    CommandParameter="https://paypal.me/GrokitachGAMMA" Height="50" FontSize="12"
-                    VerticalContentAlignment="Center">
-                <TextBlock>
-                    Support GAMMA:<LineBreak />
-                    Donate
-                </TextBlock>
-                <ToolTip.Tip>
-                    <TextBlock
-                        Text="The money goes to Grok directly. A portion of the donations goes to add-ons makers every month." />
-                </ToolTip.Tip>
-            </Button>
-            <Separator Grid.Row="14" Margin="12,4,12,0" />
-            <Button Grid.Row="15" Background="#242424"
-                    Foreground="#85fb98"
-                    BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center"
-                    HorizontalAlignment="Stretch" FontSize="10" Command="{Binding OpenUrlCmd}"
-                    CommandParameter="https://www.moddb.com" VerticalContentAlignment="Center">
-                <TextBlock>
-                    Support ModDb: click here<LineBreak />
-                    and on the advertisements
-                </TextBlock>
-            </Button>
-            <Button Grid.Row="16" Background="#242424"
-                    Foreground="#85fb98"
-                    BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center"
-                    HorizontalAlignment="Stretch" FontSize="10" Command="{Binding OpenUrlCmd}"
-                    CommandParameter="https://stalker-gamma.com/mods/list" VerticalContentAlignment="Center">
-                <TextBlock>
-                    Support the many talented<LineBreak />
-                    modders who contributed<LineBreak />
-                    to this project
-                </TextBlock>
-            </Button>
-            <Button Grid.Row="17" Background="#242424"
-                    Foreground="#85fb98"
-                    BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center"
-                    HorizontalAlignment="Stretch" FontSize="10" Command="{Binding OpenUrlCmd}"
-                    CommandParameter="https://store.steampowered.com/franchise/stalker"
-                    VerticalContentAlignment="Center">
-                <TextBlock>
-                    Support GSC Game World:<LineBreak />
-                    buy the original STALKER<LineBreak />
-                    games
-                </TextBlock>
-            </Button>
-        </Grid>
+                    <ToolTip.Tip>
+                        <TextBlock
+                            Text="The money goes to Grok directly. A portion of the donations goes to add-ons makers every month." />
+                    </ToolTip.Tip>
+                </Button>
+                <Separator Grid.Row="14" Margin="12,4,12,0" />
+                <Button Grid.Row="15" Background="#242424"
+                        Foreground="#85fb98"
+                        BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center"
+                        HorizontalAlignment="Stretch" FontSize="10" Command="{Binding OpenUrlCmd}"
+                        CommandParameter="https://www.moddb.com" VerticalContentAlignment="Center">
+                    <TextBlock>
+                        Support ModDb: click here<LineBreak />
+                        and on the advertisements
+                    </TextBlock>
+                </Button>
+                <Button Grid.Row="16" Background="#242424"
+                        Foreground="#85fb98"
+                        BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center"
+                        HorizontalAlignment="Stretch" FontSize="10" Command="{Binding OpenUrlCmd}"
+                        CommandParameter="https://stalker-gamma.com/mods/list" VerticalContentAlignment="Center">
+                    <TextBlock>
+                        Support the many talented<LineBreak />
+                        modders who contributed<LineBreak />
+                        to this project
+                    </TextBlock>
+                </Button>
+                <Button Grid.Row="17" Background="#242424"
+                        Foreground="#85fb98"
+                        BorderBrush="#85fb98" BorderThickness="1" HorizontalContentAlignment="Center"
+                        HorizontalAlignment="Stretch" FontSize="10" Command="{Binding OpenUrlCmd}"
+                        CommandParameter="https://store.steampowered.com/franchise/stalker"
+                        VerticalContentAlignment="Center">
+                    <TextBlock>
+                        Support GSC Game World:<LineBreak />
+                        buy the original STALKER<LineBreak />
+                        games
+                    </TextBlock>
+                </Button>
+            </Grid>
 
-        <Grid Grid.Column="1">
-            <Grid RowDefinitions="Auto,Auto,*,Auto,Auto,Auto">
-                <Grid ColumnDefinitions="Auto">
-                    <Label
-                        Content="Original installer by Grokitach. Cloned by FaithBeam. Backend server by BloodOfSniper"
-                        FontSize="10" Foreground="#696969" />
+            <Grid Grid.Column="1">
+                <Grid RowDefinitions="Auto,Auto,*,Auto,Auto,Auto">
+                    <Grid ColumnDefinitions="Auto">
+                        <Label
+                            Content="Original installer by Grokitach. Cloned by FaithBeam. Backend server by BloodOfSniper"
+                            FontSize="10" Foreground="#696969" />
+                    </Grid>
+                    <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto,*">
+                        <Label Content="G.A.M.M.A. addons update available: " FontSize="10" VerticalAlignment="Center" />
+                        <Label Grid.Column="1" Classes.CanUpdate="{Binding NeedUpdate}"
+                               Classes.NoUpdate="{Binding !NeedUpdate}" Content="{Binding NeedUpdate}" FontSize="10"
+                               VerticalAlignment="Center">
+                            <ToolTip.Tip>
+                                <TextBlock Text="{Binding GammaVersionToolTip}" />
+                            </ToolTip.Tip>
+                        </Label>
+                        <Label Grid.Column="2" Content="ModDB addons update available:" FontSize="10"
+                               VerticalAlignment="Center" />
+                        <Label Grid.Column="3" Classes.CanUpdate="{Binding NeedModDbUpdate}"
+                               Classes.NoUpdate="{Binding !NeedModDbUpdate}" Content="{Binding NeedModDbUpdate}"
+                               FontSize="10" VerticalAlignment="Center">
+                            <ToolTip.Tip>
+                                <TextBlock Text="{Binding ModVersionToolTip}" />
+                            </ToolTip.Tip>
+                            <Label.Styles>
+                                <Style Selector="ToolTip">
+                                    <Setter Property="Background"
+                                            Value="{Binding NeedModDbUpdate, Converter={StaticResource ToolTipShownConverter}}" />
+                                    <Setter Property="BorderBrush"
+                                            Value="{Binding NeedModDbUpdate, Converter={StaticResource ToolTipBorderConverter}}" />
+                                    <Setter Property="BorderThickness" Value="0.5" />
+                                </Style>
+                            </Label.Styles>
+                        </Label>
+                    </Grid>
+                    <DataGrid Grid.Row="2" ItemsSource="{Binding ModDownloadExtractProgressVms}"
+                              AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeColumns="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" />
+                            <DataGridTextColumn Header="Addon Name" Binding="{Binding AddonName}" Width="400" />
+                            <DataGridTemplateColumn Header="Progress" Width="*">
+                                <DataTemplate DataType="mainTab:ModDownloadExtractProgressVm">
+                                    <controls:ProgressControl />
+                                    <!-- <ProgressBar Value="{Binding OverallProgressValue}" Minimum="0" Maximum="100" ShowProgressText="True"/> -->
+                                </DataTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <Grid Grid.Row="3" ColumnDefinitions="Auto,*">
+                        <Label Content="Total Progress" FontSize="10" Foreground="#ababab" />
+                        <ProgressBar Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding Progress}"
+                                     ShowProgressText="True" />
+                    </Grid>
+                    <Label Grid.Row="4"
+                           Content="S.T.A.L.K.E.R. G.A.M.M.A. is a fan-created modification for S.T.A.L.K.E.R. games, developed and wholly owned by GSC Game World."
+                           FontSize="10" Foreground="#ababab" />
+                    <Label Grid.Row="5"
+                           Content="S.T.A.L.K.E.R. G.A.M.M.A. is not an official product of GSC Game World and is a derivative work based on their S.T.A.L.K.E.R. games."
+                           FontSize="10" Foreground="#ababab" />
                 </Grid>
-                <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto,*">
-                    <Label Content="G.A.M.M.A. addons update available: " FontSize="10" VerticalAlignment="Center" />
-                    <Label Grid.Column="1" Classes.CanUpdate="{Binding NeedUpdate}"
-                           Classes.NoUpdate="{Binding !NeedUpdate}" Content="{Binding NeedUpdate}" FontSize="10"
-                           VerticalAlignment="Center">
-                        <ToolTip.Tip>
-                            <TextBlock Text="{Binding GammaVersionToolTip}" />
-                        </ToolTip.Tip>
-                    </Label>
-                    <Label Grid.Column="2" Content="ModDB addons update available:" FontSize="10"
-                           VerticalAlignment="Center" />
-                    <Label Grid.Column="3" Classes.CanUpdate="{Binding NeedModDbUpdate}"
-                           Classes.NoUpdate="{Binding !NeedModDbUpdate}" Content="{Binding NeedModDbUpdate}"
-                           FontSize="10" VerticalAlignment="Center">
-                        <ToolTip.Tip>
-                            <TextBlock Text="{Binding ModVersionToolTip}" />
-                        </ToolTip.Tip>
-                        <Label.Styles>
-                            <Style Selector="ToolTip">
-                                <Setter Property="Background"
-                                        Value="{Binding NeedModDbUpdate, Converter={StaticResource ToolTipShownConverter}}" />
-                                <Setter Property="BorderBrush"
-                                        Value="{Binding NeedModDbUpdate, Converter={StaticResource ToolTipBorderConverter}}" />
-                                <Setter Property="BorderThickness" Value="0.5" />
-                            </Style>
-                        </Label.Styles>
-                    </Label>
-                </Grid>
-                <DataGrid Grid.Row="2" ItemsSource="{Binding ModDownloadExtractProgressVms}"
-                          AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeColumns="True">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" />
-                        <DataGridTextColumn Header="Addon Name" Binding="{Binding AddonName}" Width="400" />
-                        <DataGridTemplateColumn Header="Progress" Width="*">
-                            <DataTemplate DataType="mainTab:ModDownloadExtractProgressVm">
-                                <controls:ProgressControl />
-                                <!-- <ProgressBar Value="{Binding OverallProgressValue}" Minimum="0" Maximum="100" ShowProgressText="True"/> -->
-                            </DataTemplate>
-                        </DataGridTemplateColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
-                <Grid Grid.Row="3" ColumnDefinitions="Auto,*">
-                    <Label Content="Total Progress" FontSize="10" Foreground="#ababab" />
-                    <ProgressBar Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding Progress}"
-                                 ShowProgressText="True" />
-                </Grid>
-                <Label Grid.Row="4"
-                       Content="S.T.A.L.K.E.R. G.A.M.M.A. is a fan-created modification for S.T.A.L.K.E.R. games, developed and wholly owned by GSC Game World."
-                       FontSize="10" Foreground="#ababab" />
-                <Label Grid.Row="5"
-                       Content="S.T.A.L.K.E.R. G.A.M.M.A. is not an official product of GSC Game World and is a derivative work based on their S.T.A.L.K.E.R. games."
-                       FontSize="10" Foreground="#ababab" />
             </Grid>
         </Grid>
-    </Grid>
+    </dialogHost:DialogHost>
+
+
 </UserControl>
