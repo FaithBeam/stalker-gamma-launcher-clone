@@ -16,7 +16,6 @@ public record LocalAndRemoteVersion(string? LocalVersion, string RemoteVersion);
 
 public partial class GammaInstaller(
     ICurlService curlService,
-    ProgressService progressService,
     GitUtility gitUtility,
     AddonsAndSeparators.AddonsAndSeparators addonsAndSeparators,
     ModpackSpecific.ModpackSpecific modpackSpecific,
@@ -76,25 +75,6 @@ public partial class GammaInstaller(
     /// </summary>
     public async Task FirstInstallInitialization()
     {
-        progressService.UpdateProgress(
-            """
-
-            ---------------------------- Launching MO2 ---------------------------
-            How to configure MO2 for Stalker Anomaly:
-            1. Dismiss the error message.
-            2. Click Browse... and select the folder where Anomaly is installed.
-                the selected folder should display appdata, tools, bin, gamedata folders...
-            3. MO2 should load up showing 0 active add-ons. Quit MO2.
-
-            |  It is recommended to uninstall any Global MO2 instance on your computer.
-            |  To do so, open the Windows Start Menu (bottom left)
-            |  Type 'Program' > Select 'Add or remove programs'
-            |  Look for ModOrganizer2 in the list and uninstall it.
-
-            Once you are done with configuring MO2, click Install/Update G.A.M.M.A.
-            """
-        );
-
         var stdOutSb = new StringBuilder();
         var stdErrSb = new StringBuilder();
 
@@ -159,17 +139,6 @@ public partial class GammaInstaller(
             );
         }
 
-        if (!File.Exists(Path.Join(_dir, "modpack_maker_metadata.txt")))
-        {
-            progressService.UpdateProgress(
-                """
-                modpack_maker_metadata.txt file not found in Grok's Modpack Maker root folder, exiting.
-                Please copy the modpack_maker_metadata.txt file from a valid modpack to Grok's Modpack Maker root folder, where 02.modpack_maker.bat file is visible.
-                """
-            );
-            return;
-        }
-
         ModDownloadExtractProgressVm? stalkerGamma;
         ModDownloadExtractProgressVm? gammaLargeFiles;
         ModDownloadExtractProgressVm? gunslinger;
@@ -201,9 +170,6 @@ public partial class GammaInstaller(
 
         var modsPaths = Path.GetFullPath(Path.Join(_dir, "..", "mods"));
         var modPackPath = Path.Join(_dir, modPackName);
-        progressService.UpdateProgress(
-            " Downloading GAMMA mods information from www.stalker-gamma.com"
-        );
 
         // addons and separators install
         await addonsAndSeparators.Install(
@@ -238,15 +204,6 @@ public partial class GammaInstaller(
         // create shortcut
         shortcut.Create(_dir, modPackPath);
 
-        progressService.UpdateProgress(
-            """
-            Installation complete. You can now click Play
-
-            Want to support the author of this modpack? Buy me a coffee <3 https://paypal.me/GrokitachGAMMA
-
-            """
-        );
-
         await _curlService.DownloadFileAsync(
             "https://stalker-gamma.com/api/list?key=",
             _dir,
@@ -276,9 +233,6 @@ public partial class GammaInstaller(
             stalkerGamma.ProgressInterface.Report(100);
 
             stalkerGamma.Status = Status.Extracting;
-            progressService.UpdateProgress(
-                " Installing the modpack definition data (installer can hang, be patient)"
-            );
             DirUtils.CopyDirectory(
                 Path.Combine(_dir, "resources", "Stalker_GAMMA", "G.A.M.M.A"),
                 Path.Combine(_dir, "G.A.M.M.A."),
@@ -295,7 +249,6 @@ public partial class GammaInstaller(
                 Path.Combine(_dir, "version.txt"),
                 true
             );
-            progressService.UpdateProgress(" done");
             stalkerGamma.Status = Status.Done;
         });
 

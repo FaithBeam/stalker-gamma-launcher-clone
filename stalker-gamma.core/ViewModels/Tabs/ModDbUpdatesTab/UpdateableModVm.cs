@@ -18,39 +18,33 @@ public class UpdateableModVm(
     UpdateType updateType
 ) : ViewModelBase
 {
-    private string _addonName = addonName;
-    private string _url = url;
-    private string? _localVersion = localVersion;
-    private string? _remoteVersion = remoteVersion;
-    private UpdateType _updateType = updateType;
-
     public UpdateType UpdateType
     {
-        get => _updateType;
-        set => this.RaiseAndSetIfChanged(ref _updateType, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = updateType;
 
     public string AddonName
     {
-        get => _addonName;
-        set => this.RaiseAndSetIfChanged(ref _addonName, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = addonName;
 
     public string? LocalVersion
     {
-        get => _localVersion;
-        set => this.RaiseAndSetIfChanged(ref _localVersion, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = localVersion;
 
     public string? RemoteVersion
     {
-        get => _remoteVersion;
-        set => this.RaiseAndSetIfChanged(ref _remoteVersion, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = remoteVersion;
 
     public string Url
     {
-        get => _url;
-        set => this.RaiseAndSetIfChanged(ref _url, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = url;
 }

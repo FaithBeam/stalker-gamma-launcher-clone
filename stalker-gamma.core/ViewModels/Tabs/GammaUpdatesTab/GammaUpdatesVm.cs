@@ -6,6 +6,7 @@ using System.Reactive.Linq;
 using DynamicData;
 using ReactiveUI;
 using stalker_gamma.core.Services;
+using stalker_gamma.core.ViewModels.Services;
 using stalker_gamma.core.ViewModels.Tabs.GammaUpdatesTab.Commands;
 using stalker_gamma.core.ViewModels.Tabs.GammaUpdatesTab.Models;
 using stalker_gamma.core.ViewModels.Tabs.GammaUpdatesTab.Queries;
@@ -33,6 +34,7 @@ public class GammaUpdatesVm : ViewModelBase, IActivatableViewModel, IGammaUpdate
 {
     private readonly ProgressService _ps;
     private readonly GetGitDiffFile.Handler _getGitDiffFileHandler;
+    private readonly ModalService _modalService;
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
     private readonly ReadOnlyObservableCollection<GitDiff> _diffs;
     private readonly ObservableAsPropertyHelper<bool> _isLoading;
@@ -43,11 +45,13 @@ public class GammaUpdatesVm : ViewModelBase, IActivatableViewModel, IGammaUpdate
         ProgressService ps,
         GetGitDiff.Handler getGitDiffHandler,
         GetGitDiffFile.Handler getGitDiffFileHandler,
-        GitFetch.Handler gitFetchHandler
+        GitFetch.Handler gitFetchHandler,
+        ModalService modalService
     )
     {
         _ps = ps;
         _getGitDiffFileHandler = getGitDiffFileHandler;
+        _modalService = modalService;
         Activator = new ViewModelActivator();
 
         var gitDiffSourceCache = new SourceCache<GitDiff, string>(x => x.Path);
@@ -76,7 +80,7 @@ public class GammaUpdatesVm : ViewModelBase, IActivatableViewModel, IGammaUpdate
                 inner.AddOrUpdate(x);
             })
         );
-        getGitDiffCmd.ThrownExceptions.Subscribe(x => ps.UpdateProgress(x.ToString()));
+        getGitDiffCmd.ThrownExceptions.Subscribe(x => modalService.ShowErrorDlg(x.ToString()));
 
         this.WhenActivated(
             (CompositeDisposable d) =>
@@ -90,10 +94,10 @@ public class GammaUpdatesVm : ViewModelBase, IActivatableViewModel, IGammaUpdate
     {
         await OpenGitDiffFileWindowInteraction.Handle(
             new GitDiffWindowVm(
-                _ps,
                 _getGitDiffFileHandler,
                 Path.Join(_dir, "resources", "Stalker_GAMMA"),
-                path
+                path,
+                _modalService
             )
         );
     }

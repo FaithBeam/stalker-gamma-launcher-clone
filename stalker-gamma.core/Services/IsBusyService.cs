@@ -9,11 +9,9 @@ public interface IIsBusyService
 
 public class IsBusyService : ReactiveObject, IIsBusyService
 {
-    private bool _isBusy;
-
     public bool IsBusy
     {
-        get => _isBusy;
-        set => this.RaiseAndSetIfChanged(ref _isBusy, value);
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
 }

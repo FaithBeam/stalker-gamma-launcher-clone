@@ -632,7 +632,7 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                     .ToProperty(this, x => x.IsRanWithWine)
                     .DisposeWith(d);
                 DowngradeModOrganizerCmd
-                    .ThrownExceptions.Subscribe(x => progressService.UpdateProgress(x.Message))
+                    .ThrownExceptions.Subscribe(x => modalService.ShowErrorDlg(x.Message))
                     .DisposeWith(d);
                 DowngradeModOrganizerCmd
                     .Subscribe(_ => IsMo2VersionDowngradedCmd.Execute().Subscribe().DisposeWith(d))

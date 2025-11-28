@@ -9,15 +9,12 @@ using stalker_gamma.core.ViewModels.Tabs.MainTab;
 namespace stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators;
 
 public class AddonsAndSeparators(
-    ProgressService progressService,
     ModListRecordFactory modListRecordFactory,
     GlobalSettings globalSettings
 )
 {
     private readonly GlobalSettings _globalSettings = globalSettings;
     private readonly ModListRecordFactory _modListRecordFactory = modListRecordFactory;
-
-    // private static int _visitedExtracts;
 
     public async Task Install(
         string downloadsPath,
@@ -26,17 +23,6 @@ public class AddonsAndSeparators(
         bool useCurlImpersonate
     )
     {
-        // _visitedExtracts = 0;
-        progressService.UpdateProgress(
-            """
-
-            ==================================================================================
-                                    Add-ons and Separators Installation                       
-            ==================================================================================
-
-            """
-        );
-
         if (!Directory.Exists(downloadsPath))
         {
             Directory.CreateDirectory(downloadsPath);
@@ -73,14 +59,7 @@ public class AddonsAndSeparators(
                 Action = (Action)(
                     () =>
                     {
-                        progressService.UpdateProgress(
-                            $"""
-                            _______________ {f.File?.Name} separator _______________
-                            Creating MO2 separator in {Path.Join(modsPaths, f.File?.FolderName)}
-                            """
-                        );
                         f.File?.WriteMetaIni(modsPaths);
-                        progressService.UpdateProgress(" ");
                         f.Progress.Report(100);
                         f.MyObj.Status = Status.Done;
                     }
@@ -140,30 +119,13 @@ public class AddonsAndSeparators(
                 await brokenInstall.Extract.Invoke();
                 brokenInstall.MyObj.Status = Status.Done;
             }
-            catch (CurlDownloadException e)
+            catch (CurlDownloadException)
             {
                 brokenInstall.MyObj.Status = Status.Error;
-                progressService.UpdateProgress(
-                    $"""
-
-                    ERROR DOWNLOADING {brokenInstall.File.Name}
-                    {e}
-                    """
-                );
             }
-            catch (SevenZipExtractException e)
+            catch (SevenZipExtractException)
             {
                 brokenInstall.MyObj.Status = Status.Error;
-                var extractPath = Path.Join(
-                    $"{brokenInstall.File.Counter}-{brokenInstall.File.AddonName}{brokenInstall.File.Patch}"
-                );
-                progressService.UpdateProgress(
-                    $"""
-
-                    ERROR EXTRACTING {extractPath}, SKIPPING.
-                    {e}
-                    """
-                );
             }
         }
     }
@@ -204,12 +166,6 @@ public class AddonsAndSeparators(
                         {
                             dlRec.MyObj.Status = Status.Retry;
                         }
-                        progressService.UpdateProgress(
-                            $"""
-
-                            ERROR DOWNLOADING GROUP {dlRecGroup.Key}, SKIPPING. WILL RETRY AT THE END.
-                            """
-                        );
                         foreach (var dlRec in dlRecGroup)
                         {
                             brokenInstalls.Enqueue(dlRec);
@@ -246,12 +202,6 @@ public class AddonsAndSeparators(
                             var extractPath = Path.Join(
                                 $"{item.File.Counter}-{item.File.AddonName}{item.File.Patch}"
                             );
-                            progressService.UpdateProgress(
-                                $"""
-
-                                ERROR EXTRACTING {extractPath}, SKIPPING. WILL RETRY AT THE END.
-                                """
-                            );
                             brokenInstalls.Enqueue(item);
                         }
                     }
@@ -286,11 +236,7 @@ public class AddonsAndSeparators(
 
         await downloadableRecord.WriteMetaIniAsync(extractPath);
 
-        progressService.UpdateProgress($"\tExtracting to {extractPath}");
         await downloadableRecord.ExtractAsync(downloadsPath, extractPath, extractProgress);
-        // progressService.UpdateProgress(
-        //     Interlocked.Increment(ref _visitedExtracts) / (double)total * 100
-        // );
     }
 }
 

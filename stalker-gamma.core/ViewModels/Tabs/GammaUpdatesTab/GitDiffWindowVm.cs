@@ -3,7 +3,7 @@ using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using ReactiveUI;
-using stalker_gamma.core.Services;
+using stalker_gamma.core.ViewModels.Services;
 using stalker_gamma.core.ViewModels.Tabs.GammaUpdatesTab.Queries;
 
 namespace stalker_gamma.core.ViewModels.Tabs.GammaUpdatesTab;
@@ -26,10 +26,10 @@ public interface IGitDiffWindowVm
 public class GitDiffWindowVm : ViewModelBase, IActivatableViewModel, IGitDiffWindowVm
 {
     public GitDiffWindowVm(
-        ProgressService ps,
         GetGitDiffFile.Handler gitDiffFileHandler,
         string dir,
-        string filePath
+        string filePath,
+        ModalService modalService
     )
     {
         Activator = new ViewModelActivator();
@@ -42,7 +42,7 @@ public class GitDiffWindowVm : ViewModelBase, IActivatableViewModel, IGitDiffWin
             await gitDiffFileHandler.ExecuteAsync(new GetGitDiffFile.Query(dir, filePath))
         );
         GitDiffFileCmd.Subscribe(async x => await GitDiffFileInteraction.Handle(x));
-        GitDiffFileCmd.ThrownExceptions.Subscribe(x => ps.UpdateProgress(x.ToString()));
+        GitDiffFileCmd.ThrownExceptions.Subscribe(x => modalService.ShowErrorDlg(x.ToString()));
 
         this.WhenActivated(d =>
         {

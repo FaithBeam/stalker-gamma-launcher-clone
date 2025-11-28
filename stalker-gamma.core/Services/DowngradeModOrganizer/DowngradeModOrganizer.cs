@@ -4,11 +4,10 @@ using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma.core.Services.DowngradeModOrganizer;
 
-public class DowngradeModOrganizer(ProgressService progressService, VersionService versionService)
+public class DowngradeModOrganizer(VersionService versionService)
 {
     public async Task DowngradeAsync(string version = "v2.4.4")
     {
-        progressService.UpdateProgress($"Downgrading ModOrganizer to {version}");
         var hc = new HttpClient
         {
             BaseAddress = new Uri("https://api.github.com"),
@@ -31,11 +30,8 @@ public class DowngradeModOrganizer(ProgressService progressService, VersionServi
             ?.BrowserDownloadUrl;
         if (string.IsNullOrWhiteSpace(dlUrl))
         {
-            progressService.UpdateProgress("Failed to find download url");
             return;
         }
-
-        progressService.UpdateProgress("Downloading ModOrganizer");
 
         var mo2ArchivePath = $"{getReleaseByTag!.Name!}.7z";
 
@@ -45,7 +41,6 @@ public class DowngradeModOrganizer(ProgressService progressService, VersionServi
             await response.Content.CopyToAsync(fs);
         }
 
-        progressService.UpdateProgress("Removing previous ModOrganizer installation");
         var dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
         var mo2Path = Path.Join(dir, "..");
         foreach (var folder in _foldersToDelete)
@@ -77,9 +72,7 @@ public class DowngradeModOrganizer(ProgressService progressService, VersionServi
             }
         }
 
-        progressService.UpdateProgress($"Extracting {mo2ArchivePath} to {mo2Path}");
         await ArchiveUtility.ExtractAsync(mo2ArchivePath, mo2Path);
-        progressService.UpdateProgress("Finished downgrading ModOrganizer");
     }
 
     private readonly IReadOnlyList<string> _foldersToDelete =

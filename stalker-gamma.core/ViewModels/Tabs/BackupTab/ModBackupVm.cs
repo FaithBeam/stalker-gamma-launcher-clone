@@ -12,53 +12,45 @@ public class ModBackupVm(
     string compressionMethod
 ) : ReactiveObject
 {
-    private string _fileName = fileName;
-    private long _fileSize = fileSize;
-    private string _path = path;
-    private int _gammaVersion = gammaVersion;
-    private string _gammaHash = gammaHash;
-    private string _dateTime = dateTime;
-    private string _compressionMethod = compressionMethod;
-
     public string FileName
     {
-        get => _fileName;
-        set => this.RaiseAndSetIfChanged(ref _fileName, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = fileName;
 
     public long FileSize
     {
-        get => _fileSize;
-        set => this.RaiseAndSetIfChanged(ref _fileSize, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = fileSize;
 
     public string Path
     {
-        get => _path;
-        set => this.RaiseAndSetIfChanged(ref _path, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = path;
 
     public int GammaVersion
     {
-        get => _gammaVersion;
-        set => this.RaiseAndSetIfChanged(ref _gammaVersion, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = gammaVersion;
 
     public string GammaHash
     {
-        get => _gammaHash;
-        set => this.RaiseAndSetIfChanged(ref _gammaHash, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = gammaHash;
 
     public string DateTime
     {
-        get => _dateTime;
-        set => this.RaiseAndSetIfChanged(ref _dateTime, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = dateTime;
 
     public string CompressionMethod
     {
-        get => _compressionMethod;
-        set => this.RaiseAndSetIfChanged(ref _compressionMethod, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = compressionMethod;
 }

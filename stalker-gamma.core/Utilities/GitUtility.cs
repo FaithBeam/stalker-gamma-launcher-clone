@@ -3,14 +3,11 @@ using System.Text;
 using System.Text.RegularExpressions;
 using CliWrap;
 using CliWrap.EventStream;
-using stalker_gamma.core.Services;
 
 namespace stalker_gamma.core.Utilities;
 
-public partial class GitUtility(ProgressService progressService)
+public partial class GitUtility
 {
-    private static readonly string Dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
-
     public async Task UpdateGitRepo(
         string dir,
         string repoName,
@@ -29,7 +26,6 @@ public partial class GitUtility(ProgressService progressService)
 
         if (Directory.Exists(repoPath))
         {
-            progressService.UpdateProgress($" Updating {repoName.Replace('_', ' ')}.");
             await RunGitCommand(repoPath, [.. gitConfig, "reset --hard HEAD", "clean -f -d"]);
 
             await RunGitCommandWithProgress(repoPath, "pull --progress")
@@ -64,9 +60,6 @@ public partial class GitUtility(ProgressService progressService)
         }
         else
         {
-            progressService.UpdateProgress(
-                $" Cloning {repoName.Replace('_', ' ')} (can take some time)."
-            );
             await RunGitCommand(resourcesPath, [.. gitConfig, $"clone {repoUrl}"]);
             await RunGitCommand(repoPath, [.. gitConfig, $"checkout {branch}"]);
         }
@@ -112,10 +105,13 @@ public partial class GitUtility(ProgressService progressService)
         }
     }
 
-    private static string GetGitPath =>
-        OperatingSystem.IsWindows()
-            ? Path.Join(Dir, Path.Join("resources", "bin", "git.exe"))
-            : "git";
+    private static string GetGitPath
+    {
+        get =>
+            OperatingSystem.IsWindows()
+                ? Path.Join(field, Path.Join("resources", "bin", "git.exe"))
+                : "git";
+    } = Path.GetDirectoryName(AppContext.BaseDirectory)!;
 
     [GeneratedRegex(@"Receiving objects.*(\d+(\.\d+)?)\s*%", RegexOptions.Compiled)]
     private static partial Regex ProgressRx();

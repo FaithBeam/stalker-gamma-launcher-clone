@@ -63,7 +63,6 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel, IBackup
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
 
     private Compressor _selectedCompressor;
-    private CompressionLevel _selectedCompressionLevel;
     private readonly ObservableAsPropertyHelper<string?> _estimates;
     private CancellationTokenSource _backupCancellationTokenSource = new();
     private CancellationToken BackupCancellationToken => _backupCancellationTokenSource.Token;
@@ -75,13 +74,9 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel, IBackup
     private readonly ObservableAsPropertyHelper<string?> _totalModsSpace;
     private readonly ReadOnlyObservableCollection<CompressionLevel> _compressionLevels;
     private readonly ReadOnlyObservableCollection<ModBackupVm> _modBackups;
-    private ModBackupVm? _selectedModBackup;
-    private double _backupsListColWidth;
     private readonly ObservableAsPropertyHelper<string> _toggleBackupsListBtnTxt;
 
     private readonly ObservableAsPropertyHelper<BackupType> _selectedBackup;
-    private bool _partialIsChecked = true;
-    private bool _fullIsChecked;
 
     public BackupTabVm(
         GlobalSettings globalSettings,
@@ -517,8 +512,8 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel, IBackup
 
     public double BackupsListColWidth
     {
-        get => _backupsListColWidth;
-        set => this.RaiseAndSetIfChanged(ref _backupsListColWidth, value);
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
     public string ToggleBackupsListBtnTxt => _toggleBackupsListBtnTxt.Value;
@@ -539,8 +534,8 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel, IBackup
 
     public ModBackupVm? SelectedModBackup
     {
-        get => _selectedModBackup;
-        set => this.RaiseAndSetIfChanged(ref _selectedModBackup, value);
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
     public Compressor SelectedCompressor
@@ -553,8 +548,8 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel, IBackup
 
     public CompressionLevel SelectedCompressionLevel
     {
-        get => _selectedCompressionLevel;
-        set => this.RaiseAndSetIfChanged(ref _selectedCompressionLevel, value);
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
     public string? Estimates => _estimates.Value;
@@ -574,14 +569,14 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel, IBackup
 
     public bool PartialIsChecked
     {
-        get => _partialIsChecked;
-        set => this.RaiseAndSetIfChanged(ref _partialIsChecked, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = true;
 
     public bool FullIsChecked
     {
-        get => _fullIsChecked;
-        set => this.RaiseAndSetIfChanged(ref _fullIsChecked, value);
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
     public string GammaBackupFolder => _gammaBackupFolder.Value;

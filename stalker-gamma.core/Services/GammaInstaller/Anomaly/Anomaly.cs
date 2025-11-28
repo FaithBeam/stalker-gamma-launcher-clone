@@ -3,7 +3,7 @@ using stalker_gamma.core.Services.GammaInstaller.Utilities;
 
 namespace stalker_gamma.core.Services.GammaInstaller.Anomaly;
 
-public class Anomaly(ProgressService progressService)
+public class Anomaly
 {
     public async Task Patch(
         string dir,
@@ -13,18 +13,7 @@ public class Anomaly(ProgressService progressService)
         bool preserveUserLtx
     )
     {
-        progressService.UpdateProgress(
-            """
-
-            ==================================================================================
-                             Patching Anomaly bin, audio and MCM preferences                  
-            ==================================================================================
-
-            """
-        );
-
         var modOrganizerIni = Path.Join(dir, "..", "ModOrganizer.ini");
-        progressService.UpdateProgress("\tLocating Anomaly folder from ModOrganizer.ini");
         var mo2Ini = await File.ReadAllTextAsync(modOrganizerIni);
         var anomalyPath =
             Regex
@@ -32,9 +21,6 @@ public class Anomaly(ProgressService progressService)
                 .Groups[1]
                 .Value.Replace(@"\\", "\\")
             ?? throw new AnomalyException($"Anomaly folder not found in {modOrganizerIni}");
-        progressService.UpdateProgress(
-            $"\tCopying user profile, reshade files, and patched exes from {Path.Join(modPackPath, modOrganizerListFile)} to {anomalyPath}"
-        );
         DirUtils.CopyDirectory(
             Path.Join(modPackPath, "modpack_patches"),
             anomalyPath,
@@ -43,7 +29,6 @@ public class Anomaly(ProgressService progressService)
 
         if (deleteReshadeDlls)
         {
-            progressService.UpdateProgress("\tDeleting reshade dlls");
             List<string> reshadeDlls =
             [
                 Path.Join(anomalyPath, "bin", "dxgi.dll"),
@@ -55,7 +40,6 @@ public class Anomaly(ProgressService progressService)
             }
         }
 
-        progressService.UpdateProgress("\tRemoving shader cache");
         if (Path.Exists(Path.Join(anomalyPath, "appdata", "shaders_cache")))
         {
             Directory.Delete(Path.Join(anomalyPath, "appdata", "shaders_cache"), true);

@@ -8,8 +8,6 @@ using ReactiveUI;
 using stalker_gamma.core.Services;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Factories;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
-using stalker_gamma.core.Services.GammaInstaller.Utilities;
-using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma.core.ViewModels.Tabs.ModDbUpdatesTab;
 
@@ -35,11 +33,7 @@ public partial class ModDbUpdatesTabVm : ViewModelBase, IActivatableViewModel, I
     private readonly ReadOnlyObservableCollection<UpdateableModVm> _updateableMods;
     private readonly ObservableAsPropertyHelper<bool> _isLoading;
 
-    public ModDbUpdatesTabVm(
-        ICurlService curlService,
-        ModListRecordFactory modListRecordFactory,
-        ProgressService progressService
-    )
+    public ModDbUpdatesTabVm(ICurlService curlService, ModListRecordFactory modListRecordFactory)
     {
         Activator = new ViewModelActivator();
         var modListFile = Path.Join(_dir, "mods.txt");
@@ -51,7 +45,6 @@ public partial class ModDbUpdatesTabVm : ViewModelBase, IActivatableViewModel, I
         {
             if (!File.Exists(modListFile))
             {
-                progressService.UpdateProgress($"Mods list file not found: {modListFile}");
                 return;
             }
 
@@ -105,9 +98,6 @@ public partial class ModDbUpdatesTabVm : ViewModelBase, IActivatableViewModel, I
             });
         });
         _isLoading = GetOnlineModsCmd.IsExecuting.ToProperty(this, x => x.IsLoading);
-        GetOnlineModsCmd.ThrownExceptions.Subscribe(ex =>
-            progressService.UpdateProgress(ex.ToString())
-        );
 
         this.WhenActivated(
             (CompositeDisposable d) =>

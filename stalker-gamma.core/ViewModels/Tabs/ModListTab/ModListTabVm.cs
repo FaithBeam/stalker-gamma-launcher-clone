@@ -30,9 +30,6 @@ public interface IModListTabVm
 public class ModListTabVm : ViewModelBase, IActivatableViewModel, IModListTabVm
 {
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
-    private int _modsActive;
-    private int _totalMods;
-    private string _modsToolTip = "";
 
     public ModListTabVm(ProgressService progressService)
     {
@@ -43,7 +40,6 @@ public class ModListTabVm : ViewModelBase, IActivatableViewModel, IModListTabVm
         {
             if (!File.Exists(mo2ModsFile))
             {
-                progressService.UpdateProgress($"Mods list file not found: {mo2ModsFile}");
                 return;
             }
 
@@ -116,19 +112,19 @@ public class ModListTabVm : ViewModelBase, IActivatableViewModel, IModListTabVm
 
     public int ModsActive
     {
-        get => _modsActive;
-        set => this.RaiseAndSetIfChanged(ref _modsActive, value);
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
     public int TotalMods
     {
-        get => _totalMods;
-        set => this.RaiseAndSetIfChanged(ref _totalMods, value);
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
     public string ModsToolTip
     {
-        get => _modsToolTip;
-        set => this.RaiseAndSetIfChanged(ref _modsToolTip, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = "";
 }
