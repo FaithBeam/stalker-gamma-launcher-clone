@@ -1,4 +1,5 @@
 ﻿using stalker_gamma.core.Services;
+using stalker_gamma.core.ViewModels.Services;
 using stalker_gamma.core.ViewModels.Tabs.BackupTab;
 using stalker_gamma.core.ViewModels.Tabs.GammaUpdatesTab;
 using stalker_gamma.core.ViewModels.Tabs.MainTab;
@@ -13,7 +14,8 @@ public class MainWindowVm(
     IModDbUpdatesTabVm modDbUpdatesTabVm,
     IModListTabVm modListTabVm,
     IBackupTabVm backupTabVm,
-    IIsBusyService isBusyService
+    IIsBusyService isBusyService,
+    ModalService modalService
 ) : ViewModelBase
 {
     public MainTabVm MainTabVm { get; } = mainTabVm;
@@ -22,4 +24,5 @@ public class MainWindowVm(
     public IModListTabVm ModListTabVm { get; } = modListTabVm;
     public IBackupTabVm BackupTabVm { get; } = backupTabVm;
     public IIsBusyService IsBusyService { get; } = isBusyService;
+    public ModalService ModalService { get; } = modalService;
 }

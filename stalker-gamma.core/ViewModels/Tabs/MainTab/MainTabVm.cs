@@ -13,12 +13,14 @@ using stalker_gamma.core.Services.DowngradeModOrganizer;
 using stalker_gamma.core.Services.GammaInstaller;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
 using stalker_gamma.core.Utilities;
+using stalker_gamma.core.ViewModels.Services;
 using stalker_gamma.core.ViewModels.Tabs.MainTab.Commands;
 using stalker_gamma.core.ViewModels.Tabs.MainTab.Enums;
 using stalker_gamma.core.ViewModels.Tabs.MainTab.Factories;
 using stalker_gamma.core.ViewModels.Tabs.MainTab.Models;
 using stalker_gamma.core.ViewModels.Tabs.MainTab.Queries;
 using stalker_gamma.core.ViewModels.Tabs.Queries;
+using stalker_gamma.core.ViewModels.Utilities;
 
 namespace stalker_gamma.core.ViewModels.Tabs.MainTab;
 
@@ -135,7 +137,8 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
         GetGitHubRepoCommits.Handler getGitHubRepoCommits,
         Queries.GetModDownloadExtractVms.Handler getModDownloadExtractVmsHandler,
         ModDownloadExtractProgressVmFactory modDownloadExtractProgressVmFactory,
-        GetLocalMods.Handler getLocalModsHandler
+        GetLocalMods.Handler getLocalModsHandler,
+        ModalService modalService
     )
     {
         Activator = new ViewModelActivator();
@@ -279,9 +282,8 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                 await Task.Run(() =>
                 {
                     enableLongPathsOnWindows.Execute();
-                    progressService.UpdateProgress(
+                    modalService.ShowInformationDlg(
                         """
-
                         Enabled long paths via registry.
                         HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem
                         Set DWORD LongPathsEnabled 1
@@ -510,7 +512,7 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
             {
                 if (!InGrokModDir)
                 {
-                    progressService.UpdateProgress(
+                    modalService.ShowErrorDlg(
                         """
                         ERROR: This launcher is not put in the correct directory.
                         It needs to be in the .Grok's Modpack Installer directory which is from GAMMA RC3 archive in the discord.
@@ -525,14 +527,14 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
             {
                 GetLocalModsCmd
                     .ThrownExceptions.Subscribe(x =>
-                        progressService.UpdateProgress(
+                    {
+                        modalService.ShowErrorDlg(
                             $"""
-
                             ERROR GETTING LOCAL MODS
                             {x}
                             """
-                        )
-                    )
+                        );
+                    })
                     .DisposeWith(d);
                 GetLocalModsCmd
                     .Subscribe(x =>
@@ -551,14 +553,14 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                     .DisposeWith(d);
                 GetModDownloadExtractProgressVmsCmd
                     .ThrownExceptions.Subscribe(x =>
-                        progressService.UpdateProgress(
+                    {
+                        modalService.ShowErrorDlg(
                             $"""
-
                             ERROR GETTING MOD DOWNLOAD PROGRESS VMS
                             {x}
                             """
-                        )
-                    )
+                        );
+                    })
                     .DisposeWith(d);
                 GetModDownloadExtractProgressVmsCmd
                     .Subscribe(x =>
@@ -593,15 +595,15 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                     .DisposeWith(d);
                 IsMo2InitializedCmd
                     .ThrownExceptions.Subscribe(x =>
-                        progressService.UpdateProgress(
+                    {
+                        modalService.ShowErrorDlg(
                             $"""
-                               
                             ERROR DETERMINING MODORGANIZER INITIALIZED
                             {x.Message}
                             {x.StackTrace}
                             """
-                        )
-                    )
+                        );
+                    })
                     .DisposeWith(d);
                 _isMo2Initialized = IsMo2InitializedCmd
                     .ToProperty(this, x => x.IsMo2Initialized)
@@ -618,14 +620,14 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
 
                 IsRanWithWineCmd
                     .ThrownExceptions.Subscribe(x =>
-                        progressService.UpdateProgress(
+                    {
+                        modalService.ShowErrorDlg(
                             $"""
-
                             ERROR DETERMINING IF RAN WITH WINE
                             {x}
                             """
-                        )
-                    )
+                        );
+                    })
                     .DisposeWith(d);
                 _isRanWithWine = IsRanWithWineCmd
                     .ToProperty(this, x => x.IsRanWithWine)
@@ -638,24 +640,26 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                     .DisposeWith(d);
                 PlayCmd
                     .ThrownExceptions.Subscribe(x =>
-                        progressService.UpdateProgress(
+                    {
+                        modalService.ShowErrorDlg(
                             $"""
                             ERROR PLAYING:
                             {x}
                             """
-                        )
-                    )
+                        );
+                    })
                     .DisposeWith(d);
                 InstallUpdateGammaCmd
                     .ThrownExceptions.Subscribe(x =>
-                        progressService.UpdateProgress(
+                    {
+                        modalService.ShowErrorDlg(
                             $"""
                             ERROR INSTALLING/UPDATING GAMMA:
                             {x.Message}
                             {x.StackTrace}
                             """
-                        )
-                    )
+                        );
+                    })
                     .DisposeWith(d);
                 InstallUpdateGammaCmd
                     .Subscribe(_ => LocalGammaVersionsCmd.Execute().Subscribe().DisposeWith(d))
@@ -673,55 +677,54 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                     .DisposeWith(d);
                 BackgroundCheckUpdatesCmd
                     .ThrownExceptions.Subscribe(x =>
-                        progressService.UpdateProgress(
+                    {
+                        modalService.ShowErrorDlg(
                             $"""
-
                             ERROR CHECKING FOR UPDATES
                             {x.Message}
                             {x.StackTrace}
                             """
-                        )
-                    )
+                        );
+                    })
                     .DisposeWith(d);
                 AddFoldersToWinDefenderExclusionCmd
-                    .Subscribe(progressService.UpdateProgress)
+                    .Subscribe(modalService.ShowInformationDlg)
                     .DisposeWith(d);
                 AddFoldersToWinDefenderExclusionCmd
                     .ThrownExceptions.Subscribe(x =>
-                        progressService.UpdateProgress(
-                            $"""
-
-                            User either denied UAC prompt or there was an error.
-                            """
-                        )
-                    )
+                    {
+                        modalService.ShowErrorDlg(
+                            "User either denied UAC prompt or there was an error."
+                        );
+                    })
                     .DisposeWith(d);
                 FirstInstallInitializationCmd
                     .ThrownExceptions.Subscribe(x =>
-                        progressService.UpdateProgress(
+                    {
+                        modalService.ShowErrorDlg(
                             $"""
                             Error in first install initialization:
                             {x.Message}
                             {x.InnerException?.Message}
                             {x.StackTrace}
                             """
-                        )
-                    )
+                        );
+                    })
                     .DisposeWith(d);
                 FirstInstallInitializationCmd
                     .Subscribe(_ => IsMo2InitializedCmd.Execute().Subscribe().DisposeWith(d))
                     .DisposeWith(d);
                 EnableLongPathsOnWindowsCmd
                     .ThrownExceptions.Subscribe(x =>
-                        progressService.UpdateProgress(
+                    {
+                        modalService.ShowErrorDlg(
                             $"""
-
                             ERROR ENABLING LONG PATHS
                             {x.Message}
                             {x.StackTrace}
                             """
-                        )
-                    )
+                        );
+                    })
                     .DisposeWith(d);
                 EnableLongPathsOnWindowsCmd
                     .Subscribe(_ => LongPathsStatusCmd.Execute().Subscribe().DisposeWith(d))
@@ -737,9 +740,8 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                         }
 
                         var notRdyTools = string.Join("\n", notRdy);
-                        progressService.UpdateProgress(
+                        modalService.ShowErrorDlg(
                             $"""
-
                             TOOLS NOT READY
                             {notRdyTools}
 
@@ -750,27 +752,27 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                     .DisposeWith(d);
                 LocalGammaVersionsCmd
                     .ThrownExceptions.Subscribe(x =>
-                        progressService.UpdateProgress(
+                    {
+                        modalService.ShowErrorDlg(
                             $"""
-                               
                             ERROR DETERMINING LOCAL GAMMA VERSION
                             {x.Message}
                             {x.StackTrace}
                             """
-                        )
-                    )
+                        );
+                    })
                     .DisposeWith(d);
                 UserLtxReplaceFullscreenWithBorderlessFullscreen
                     .ThrownExceptions.Subscribe(x =>
-                        progressService.UpdateProgress(
+                    {
+                        modalService.ShowErrorDlg(
                             $"""
-
                             ERROR EDITING USER.LTX WITH BORDERLESS FULLSCREEN
                             {x.Message}
                             {x.StackTrace}
                             """
-                        )
-                    )
+                        );
+                    })
                     .DisposeWith(d);
                 UserLtxSetToFullscreenWineCmd
                     .Where(x => x.HasValue && x.Value)
@@ -779,11 +781,8 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                         UserLtxReplaceFullscreenWithBorderlessFullscreen
                             .Execute(UserLtxPath!)
                             .Subscribe();
-                        progressService.UpdateProgress(
-                            """
-
-                            Replaced user.ltx fullscreen option with borderless fullscreen to avoid issues
-                            """
+                        modalService.ShowInformationDlg(
+                            "Replaced user.ltx fullscreen option with borderless fullscreen to avoid issues"
                         );
                     })
                     .DisposeWith(d);
@@ -800,51 +799,51 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                     .DisposeWith(d);
                 AnomalyPathCmd
                     .ThrownExceptions.Subscribe(x =>
-                        progressService.UpdateProgress(
+                    {
+                        modalService.ShowErrorDlg(
                             $"""
-
                             ERROR FINDING ANOMALY PATH
                             {x.Message}
                             {x.StackTrace}
                             """
-                        )
-                    )
+                        );
+                    })
                     .DisposeWith(d);
                 IsMo2VersionDowngradedCmd
                     .ThrownExceptions.Subscribe(x =>
-                        progressService.UpdateProgress(
+                    {
+                        modalService.ShowErrorDlg(
                             $"""
-
                             ERROR DETERMINING MODORGANIZER'S VERSION
                             {x.Message}
                             {x.StackTrace}
                             """
-                        )
-                    )
+                        );
+                    })
                     .DisposeWith(d);
                 LongPathsStatusCmd
                     .ThrownExceptions.Subscribe(x =>
-                        progressService.UpdateProgress(
+                    {
+                        modalService.ShowErrorDlg(
                             $"""
-
                             ERROR RETRIEVING LONG PATHS STATUS
                             {x.Message}
                             {x.StackTrace}
                             """
-                        )
-                    )
+                        );
+                    })
                     .DisposeWith(d);
                 UserLtxSetToFullscreenWineCmd
                     .ThrownExceptions.Subscribe(x =>
-                        progressService.UpdateProgress(
+                    {
+                        modalService.ShowErrorDlg(
                             $"""
-
                             ERROR DETERMINING IF USER.LTX IS SET TO FULLSCREEN
                             {x.Message}
                             {x.StackTrace}
                             """
-                        )
-                    )
+                        );
+                    })
                     .DisposeWith(d);
                 _userLtxSetToFullscreenWine = UserLtxSetToFullscreenWineCmd
                     .ToProperty(this, x => x.UserLtxSetToFullscreenWine)
@@ -1017,6 +1016,7 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
         get;
         set => this.RaiseAndSetIfChanged(ref field, value);
     } = InstallType.FullInstall;
+
     private int InitialFilteredListCount { get; set; }
 
     [GeneratedRegex(@".+(?<version>\d+\.\d+\.\d*.*)\.*")]

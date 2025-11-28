@@ -26,6 +26,7 @@ using stalker_gamma.core.Services.GammaInstaller.Shortcut;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
 using stalker_gamma.core.Utilities;
 using stalker_gamma.core.ViewModels.MainWindow;
+using stalker_gamma.core.ViewModels.Services;
 using stalker_gamma.core.ViewModels.Tabs;
 using stalker_gamma.core.ViewModels.Tabs.BackupTab;
 using stalker_gamma.core.ViewModels.Tabs.GammaUpdatesTab;
@@ -95,7 +96,8 @@ public partial class App : Application
                 s.AddSingleton<ProgressService>()
                     .AddSingleton<VersionService>()
                     .AddSingleton<IIsBusyService, IsBusyService>()
-                    .AddSingleton<IOperatingSystemService, OperatingSystemService>();
+                    .AddSingleton<IOperatingSystemService, OperatingSystemService>()
+                    .AddSingleton<ModalService>();
 
                 s.AddScoped<DowngradeModOrganizer>()
                     .AddScoped<IIsRanWithWineService, IsRanWithWineService>()

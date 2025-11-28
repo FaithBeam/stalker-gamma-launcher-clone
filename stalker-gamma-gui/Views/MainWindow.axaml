@@ -3,6 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:mainWindow="clr-namespace:stalker_gamma.core.ViewModels.MainWindow;assembly=stalker-gamma.core"
+        xmlns:dialogHost="clr-namespace:DialogHostAvalonia;assembly=DialogHost.Avalonia"
         xmlns:tabs="clr-namespace:stalker_gamma_gui.Controls.Tabs"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         Width="850"
@@ -18,24 +19,36 @@
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
         <mainWindow:MainWindowVm />
     </Design.DataContext>
-    
-    <Grid>
-        <TabControl Padding="0" >
-            <TabItem x:Name="MainTabItem" FontSize="16" Header="Main" IsEnabled="{Binding !IsBusyService.IsBusy}">
-                <tabs:MainTabVm DataContext="{Binding MainTabVm}" />
-            </TabItem>
-            <TabItem x:Name="ModsListItem" FontSize="16" Header="Mods List" IsEnabled="{Binding !IsBusyService.IsBusy}">
-                <tabs:ModListTab DataContext="{Binding ModListTabVm}" />
-            </TabItem>
-            <TabItem x:Name="GammaUpdates" FontSize="16" Header="GAMMA Updates" IsEnabled="{Binding !IsBusyService.IsBusy}">
-                <tabs:GammaUpdatesTab DataContext="{Binding GammaUpdatesVm}" />
-            </TabItem>
-            <TabItem x:Name="ModsTabItem" FontSize="16" Header="ModDB Updates" IsEnabled="{Binding !IsBusyService.IsBusy}">
-                <tabs:ModDbUpdatesTab DataContext="{Binding ModDbUpdatesTabVm}" />
-            </TabItem>
-            <TabItem x:Name="BackupTabItem" FontSize="16" Header="Backup" IsEnabled="{Binding !IsBusyService.IsBusy}">
-                <tabs:BackupTab DataContext="{Binding BackupTabVm}" />
-            </TabItem>
-        </TabControl>
-    </Grid>
+
+    <dialogHost:DialogHost CloseOnClickAway="True" IsOpen="{Binding ModalService.ModalOpen}">
+        <dialogHost:DialogHost.DialogContent>
+            <StackPanel>
+                <TextBlock HorizontalAlignment="Center" Foreground="#ff8c00" FontSize="18" Text="{Binding ModalService.ModalTitle}" />
+                <SelectableTextBlock Text="{Binding ModalService.ModalText}" />
+            </StackPanel>
+        </dialogHost:DialogHost.DialogContent>
+        <Grid>
+            <TabControl Padding="0">
+                <TabItem x:Name="MainTabItem" FontSize="16" Header="Main" IsEnabled="{Binding !IsBusyService.IsBusy}">
+                    <tabs:MainTabVm DataContext="{Binding MainTabVm}" />
+                </TabItem>
+                <TabItem x:Name="ModsListItem" FontSize="16" Header="Mods List"
+                         IsEnabled="{Binding !IsBusyService.IsBusy}">
+                    <tabs:ModListTab DataContext="{Binding ModListTabVm}" />
+                </TabItem>
+                <TabItem x:Name="GammaUpdates" FontSize="16" Header="GAMMA Updates"
+                         IsEnabled="{Binding !IsBusyService.IsBusy}">
+                    <tabs:GammaUpdatesTab DataContext="{Binding GammaUpdatesVm}" />
+                </TabItem>
+                <TabItem x:Name="ModsTabItem" FontSize="16" Header="ModDB Updates"
+                         IsEnabled="{Binding !IsBusyService.IsBusy}">
+                    <tabs:ModDbUpdatesTab DataContext="{Binding ModDbUpdatesTabVm}" />
+                </TabItem>
+                <TabItem x:Name="BackupTabItem" FontSize="16" Header="Backup"
+                         IsEnabled="{Binding !IsBusyService.IsBusy}">
+                    <tabs:BackupTab DataContext="{Binding BackupTabVm}" />
+                </TabItem>
+            </TabControl>
+        </Grid>
+    </dialogHost:DialogHost>
 </Window>

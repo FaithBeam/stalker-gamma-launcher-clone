@@ -1,5 +1,6 @@
 ﻿using System.Reactive.Linq;
 using CliWrap.EventStream;
+using stalker_gamma.core.Utilities;
 using stalker_gamma.core.ViewModels.Tabs.BackupTab.Services;
 
 namespace stalker_gamma.core.ViewModels.Tabs.BackupTab.Commands;
@@ -49,8 +50,8 @@ public static class RestoreBackup
                 Directory.Delete(dir, true);
             }
 
-            await Utilities
-                .ArchiveUtility.Extract(
+            await ArchiveUtility
+                .Extract(
                     c.PathToArchive,
                     c.DirectoryToExtractTo,
                     workingDirectory: c.WorkingDirectory
