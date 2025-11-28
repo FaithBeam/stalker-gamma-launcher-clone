@@ -20,6 +20,7 @@
         <converters:ToolTipBackgroundConverter x:Key="ToolTipShownConverter" />
         <converters:ToolTipBorderConverter x:Key="ToolTipBorderConverter" />
         <converters:EnumMemberConverter x:Key="EnumMemberConverter" />
+        <converters:DataGridRowBackgroundColorConverter x:Key="BackgroundColorConverter" />
     </UserControl.Resources>
 
     <UserControl.Styles>
@@ -87,21 +88,29 @@
                 </ToolTip.Tip>
             </Button>
             <Separator Grid.Row="7" Margin="12,4,12,20" />
-            <SplitButton x:Name="InstallUpdateBtn" Grid.Row="8"
-                         Content="{Binding SelectedInstallType, Converter={StaticResource EnumMemberConverter}}"
-                         Command="{Binding InstallUpdateGammaCmd}" Foreground="#ff8c00"
-                         Background="#242424"
-                         BorderBrush="#ff8c00" BorderThickness="1" HorizontalContentAlignment="Center"
-                         HorizontalAlignment="Stretch" Height="60" VerticalContentAlignment="Center"
-                         Margin="0,0,0,10">
-                <SplitButton.Flyout>
-                    <Flyout>
-                        <ListBox
-                            ItemsSource="{Binding InstallTypes, Converter={StaticResource EnumMemberConverter}}"
-                            SelectedItem="{Binding SelectedInstallType, Converter={StaticResource EnumMemberConverter}}" />
-                    </Flyout>
-                </SplitButton.Flyout>
-            </SplitButton>
+            <StackPanel Grid.Row="8">
+                <ToolTip.Tip>
+                    <TextBlock>
+                        <Bold>Full Install</Bold>: Completely install / reinstall GAMMA. Use on first install or if your install is broken.<LineBreak />
+                        <Bold>Update</Bold>: Download and install only updated / new mods and GAMMA repos. Use if your current installation works and you want to update it.
+                    </TextBlock>
+                </ToolTip.Tip>
+                <SplitButton x:Name="InstallUpdateBtn"
+                             Content="{Binding SelectedInstallType, Converter={StaticResource EnumMemberConverter}}"
+                             Command="{Binding InstallUpdateGammaCmd}" Foreground="#ff8c00"
+                             Background="#242424"
+                             BorderBrush="#ff8c00" BorderThickness="1" HorizontalContentAlignment="Center"
+                             HorizontalAlignment="Stretch" Height="60" VerticalContentAlignment="Center"
+                             Margin="0,0,0,10">
+                    <SplitButton.Flyout>
+                        <Flyout>
+                            <ListBox
+                                ItemsSource="{Binding InstallTypes, Converter={StaticResource EnumMemberConverter}}"
+                                SelectedItem="{Binding SelectedInstallType, Converter={StaticResource EnumMemberConverter}}" />
+                        </Flyout>
+                    </SplitButton.Flyout>
+                </SplitButton>
+            </StackPanel>
             <CheckBox Grid.Row="9" IsEnabled="{Binding !IsBusyService.IsBusy}" Foreground="#ff8c00"
                       IsChecked="{Binding DeleteReshadeDlls}" FontSize="10">
                 Delete reshade dlls
