@@ -316,7 +316,6 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                     )
                 );
                 return $"""
-
                 Added folder exclusions to Microsoft Defender for:
                 {anomalyPath}
                 {gammaPath}
