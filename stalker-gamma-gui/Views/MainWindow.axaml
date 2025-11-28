@@ -24,6 +24,7 @@
         <dialogHost:DialogHost.DialogContent>
             <StackPanel>
                 <TextBlock HorizontalAlignment="Center" Foreground="#ff8c00" FontSize="18" Text="{Binding ModalService.ModalTitle}" />
+                <Separator/>
                 <SelectableTextBlock Text="{Binding ModalService.ModalText}" />
             </StackPanel>
         </dialogHost:DialogHost.DialogContent>
