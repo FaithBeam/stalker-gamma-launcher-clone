@@ -40,8 +40,9 @@ A clone of Grokitach's Stalker GAMMA Launcher with WINE compatibility and extra 
 3. Run `stalker-gamma-gui.exe`
 4. First install initialization
 5. Enable long paths
-6. Full Install
-7. Play
+6. (Optional but recommended) Add defender exclusions
+7. Full Install
+8. Play
 
 ### Linux
 
