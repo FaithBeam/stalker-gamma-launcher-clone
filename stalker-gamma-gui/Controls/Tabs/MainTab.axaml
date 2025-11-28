@@ -208,13 +208,17 @@
                 </Grid>
                 <DataGrid Grid.Row="2" ItemsSource="{Binding ModDownloadExtractProgressVms}"
                           AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeColumns="True">
+                    <DataGrid.Styles>
+                        <Style Selector="DataGridRow">
+                            <Setter Property="Background" Value="{Binding Converter={StaticResource BackgroundColorConverter}}" />
+                        </Style>
+                    </DataGrid.Styles>
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" />
                         <DataGridTextColumn Header="Addon Name" Binding="{Binding AddonName}" Width="400" />
                         <DataGridTemplateColumn Header="Progress" Width="*">
                             <DataTemplate DataType="mainTab:ModDownloadExtractProgressVm">
                                 <controls:ProgressControl />
-                                <!-- <ProgressBar Value="{Binding OverallProgressValue}" Minimum="0" Maximum="100" ShowProgressText="True"/> -->
                             </DataTemplate>
                         </DataGridTemplateColumn>
                     </DataGrid.Columns>
