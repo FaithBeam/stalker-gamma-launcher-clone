@@ -1,11 +1,12 @@
 using System.Text;
+using System.Text.RegularExpressions;
 using CliWrap;
 using CliWrap.EventStream;
 using CliWrap.Exceptions;
 
 namespace stalker_gamma.core.Utilities;
 
-public static class ArchiveUtility
+public static partial class ArchiveUtility
 {
     private static readonly string Dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
 
@@ -44,6 +45,37 @@ public static class ArchiveUtility
     )
     {
         var args = $"x " + $"-y " + $"\"{archivePath}\" " + $"-o\"{destinationFolder}\" ";
+        var cmd = Cli.Wrap(SevenZip).WithArguments(args);
+        if (!string.IsNullOrWhiteSpace(workingDirectory))
+        {
+            cmd = cmd.WithWorkingDirectory(workingDirectory);
+        }
+
+        try
+        {
+            return ct is not null ? cmd.Observe(ct.Value) : cmd.Observe();
+        }
+        catch (CommandExecutionException e)
+        {
+            throw new SevenZipExtractException(
+                $"""
+                Error extracting archive {archivePath}
+                Args: {args}
+                """,
+                e
+            );
+        }
+    }
+
+    public static IObservable<CommandEvent> ExtractWithProgress(
+        string archivePath,
+        string destinationFolder,
+        CancellationToken? ct = null,
+        string? workingDirectory = null
+    )
+    {
+        var args =
+            $"x " + $"-y " + "-bsp1 " + $"\"{archivePath}\" " + $"-o\"{destinationFolder}\" ";
         var cmd = Cli.Wrap(SevenZip).WithArguments(args);
         if (!string.IsNullOrWhiteSpace(workingDirectory))
         {

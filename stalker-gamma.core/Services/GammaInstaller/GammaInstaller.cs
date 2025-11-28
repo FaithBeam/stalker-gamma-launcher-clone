@@ -4,14 +4,17 @@ using System.Text.RegularExpressions;
 using CliWrap;
 using CliWrap.EventStream;
 using CliWrap.Exceptions;
+using DynamicData;
+using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
 using stalker_gamma.core.Utilities;
+using stalker_gamma.core.ViewModels.Tabs.MainTab;
 
 namespace stalker_gamma.core.Services.GammaInstaller;
 
 public record LocalAndRemoteVersion(string? LocalVersion, string RemoteVersion);
 
-public class GammaInstaller(
+public partial class GammaInstaller(
     ICurlService curlService,
     ProgressService progressService,
     GitUtility gitUtility,
@@ -140,13 +143,11 @@ public class GammaInstaller(
     }
 
     public async Task InstallUpdateGammaAsync(
-        bool forceGitDownload,
-        bool checkMd5,
-        bool updateLargeFiles,
-        bool forceZipExtraction,
         bool deleteReshadeDlls,
         bool useCurlImpersonate,
-        bool preserveUserLtx
+        bool preserveUserLtx,
+        IReadOnlyList<ModDownloadExtractProgressVm> modDownloadExtractProgressVms,
+        object locker
     )
     {
         if (Directory.Exists(Path.Join(_dir, ".modpack_installer.log")))
@@ -169,16 +170,32 @@ public class GammaInstaller(
             return;
         }
 
-        await DownloadGammaData();
+        ModDownloadExtractProgressVm? stalkerGamma;
+        ModDownloadExtractProgressVm? gammaLargeFiles;
+        ModDownloadExtractProgressVm? gunslinger;
+        ModDownloadExtractProgressVm? modpackAddons;
+        lock (locker)
+        {
+            stalkerGamma = modDownloadExtractProgressVms.First(x => x.AddonName == "Stalker_GAMMA");
+            gammaLargeFiles = modDownloadExtractProgressVms.First(x =>
+                x.AddonName == "gamma_large_files_v2"
+            );
+            gunslinger = modDownloadExtractProgressVms.First(x =>
+                x.AddonName == "teivaz_anomaly_gunslinger"
+            );
+            modpackAddons = modDownloadExtractProgressVms.First(x =>
+                x.AddonName == "modpack_addons"
+            );
+        }
+        await DownloadGammaData(stalkerGamma);
 
         var metadata = (await File.ReadAllTextAsync(Path.Join(_dir, "modpack_maker_metadata.txt")))
             .Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-            .Select(x => Regex.Match(x, "^.*= (.+)$").Groups[1].Value)
+            .Select(x => ModpackMakerRx().Match(x).Groups[1].Value)
             .ToList();
 
         var modPackName = metadata[1].Trim().TrimEnd('.');
         var modOrganizerListFile = metadata[3].Trim();
-        var modPackAdditionalFiles = metadata[4].Trim();
 
         var downloadsPath = Path.GetFullPath(Path.Join(_dir, "..", "downloads"));
 
@@ -188,29 +205,18 @@ public class GammaInstaller(
             " Downloading GAMMA mods information from www.stalker-gamma.com"
         );
 
-        await _curlService.DownloadFileAsync(
-            "https://stalker-gamma.com/api/list?key=",
-            _dir,
-            "mods.txt",
-            false
-        );
-
-        var modListFile = Path.Join(_dir, "mods.txt");
-
         // addons and separators install
         await addonsAndSeparators.Install(
             downloadsPath,
             modsPaths,
-            modListFile,
-            forceGitDownload,
-            checkMd5,
-            updateLargeFiles,
-            forceZipExtraction,
+            modDownloadExtractProgressVms
+                .Where(x => x.ModListRecord is DownloadableRecord or Separator)
+                .ToList(),
             useCurlImpersonate
         );
 
         // modpack specific install
-        modpackSpecific.Install(_dir, modPackPath, modPackAdditionalFiles, modsPaths);
+        await modpackSpecific.Install(_dir, modsPaths, gammaLargeFiles, gunslinger, modpackAddons);
 
         // setup mo2
         mo2.Setup(
@@ -253,50 +259,31 @@ public class GammaInstaller(
     /// <summary>
     /// Downloads G.A.M.M.A. data and updates repositories.
     /// </summary>
-    private async Task DownloadGammaData()
+    private async Task DownloadGammaData(ModDownloadExtractProgressVm stalkerGamma)
     {
-        while (true)
+        const string branch = "main";
+
+        var t1 = Task.Run(async () =>
         {
-            progressService.UpdateProgress(" Updating Github Repositories");
-            const string branch = "main";
+            stalkerGamma.Status = Status.Checking;
             await gitUtility.UpdateGitRepo(
                 _dir,
                 "Stalker_GAMMA",
                 "https://github.com/Grokitach/Stalker_GAMMA",
-                branch
+                branch,
+                onProgress: progress => stalkerGamma.ProgressInterface.Report(progress)
             );
+            stalkerGamma.ProgressInterface.Report(100);
 
-            await gitUtility.UpdateGitRepo(
-                _dir,
-                "gamma_large_files_v2",
-                "https://github.com/Grokitach/gamma_large_files_v2",
-                "main"
-            );
-            await gitUtility.UpdateGitRepo(
-                _dir,
-                "teivaz_anomaly_gunslinger",
-                "https://github.com/Grokitach/teivaz_anomaly_gunslinger",
-                "main"
-            );
-
-            // prevent the user from needing to install / update gamma twice
-            var curStalkerGammaHash = (
-                await gitUtility.RunGitCommandObs(
-                    Path.Join(_dir, "resources", "Stalker_GAMMA"),
-                    "rev-parse HEAD"
-                )
-            ).Trim();
-            if (curStalkerGammaHash == "85f6543ac9ea4afb7fdd4264f155d44db9b7afe3")
-            {
-                continue;
-            }
-
+            stalkerGamma.Status = Status.Extracting;
             progressService.UpdateProgress(
                 " Installing the modpack definition data (installer can hang, be patient)"
             );
             DirUtils.CopyDirectory(
                 Path.Combine(_dir, "resources", "Stalker_GAMMA", "G.A.M.M.A"),
-                Path.Combine(_dir, "G.A.M.M.A.")
+                Path.Combine(_dir, "G.A.M.M.A."),
+                onProgress: (copied, total) =>
+                    stalkerGamma.ProgressInterface.Report((double)copied / total * 100)
             );
             File.Copy(
                 Path.Combine(
@@ -309,8 +296,12 @@ public class GammaInstaller(
                 true
             );
             progressService.UpdateProgress(" done");
+            stalkerGamma.Status = Status.Done;
+        });
 
-            break;
-        }
+        await Task.WhenAll(t1);
     }
+
+    [GeneratedRegex("^.*= (.+)$")]
+    private static partial Regex ModpackMakerRx();
 }

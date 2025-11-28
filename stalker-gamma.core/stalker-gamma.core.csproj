@@ -14,13 +14,15 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Avalonia.ReactiveUI" Version="11.3.7" />
-    <PackageReference Include="CliWrap" Version="3.9.0" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="11.3.8" />
+    <PackageReference Include="CliWrap" Version="3.10.0" />
+    <PackageReference Include="DialogHost.Avalonia" Version="0.10.2" />
+    <PackageReference Include="DynamicData" Version="9.4.1" />
     <PackageReference
       Include="Microsoft.Extensions.DependencyInjection.Abstractions"
-      Version="9.0.10"
+      Version="10.0.0"
     />
-    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="9.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="10.0.0" />
     <PackageReference Include="WindowsShortcutFactory" Version="1.2.0" />
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,4 @@
 using System;
-using System.ComponentModel;
 using System.Net;
 using System.Net.Http;
 using Avalonia;
@@ -27,11 +26,11 @@ using stalker_gamma.core.Services.GammaInstaller.Shortcut;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
 using stalker_gamma.core.Utilities;
 using stalker_gamma.core.ViewModels.MainWindow;
+using stalker_gamma.core.ViewModels.Services;
 using stalker_gamma.core.ViewModels.Tabs;
 using stalker_gamma.core.ViewModels.Tabs.BackupTab;
 using stalker_gamma.core.ViewModels.Tabs.GammaUpdatesTab;
 using stalker_gamma.core.ViewModels.Tabs.MainTab;
-using stalker_gamma.core.ViewModels.Tabs.MainTab.Commands;
 using stalker_gamma.core.ViewModels.Tabs.ModDbUpdatesTab;
 using stalker_gamma.core.ViewModels.Tabs.ModListTab;
 
@@ -97,7 +96,8 @@ public partial class App : Application
                 s.AddSingleton<ProgressService>()
                     .AddSingleton<VersionService>()
                     .AddSingleton<IIsBusyService, IsBusyService>()
-                    .AddSingleton<IOperatingSystemService, OperatingSystemService>();
+                    .AddSingleton<IOperatingSystemService, OperatingSystemService>()
+                    .AddSingleton<ModalService>();
 
                 s.AddScoped<DowngradeModOrganizer>()
                     .AddScoped<IIsRanWithWineService, IsRanWithWineService>()
@@ -119,12 +119,12 @@ public partial class App : Application
                     .RegisterMainTabServices()
                     .RegisterGammaUpdatesTabServices();
 
-                s.AddScoped<IMainTabVm, MainTabVm>()
+                s.AddScoped<MainTabVm>()
                     .AddScoped<IBackupTabVm, BackupTabVm>()
                     .AddScoped<IGammaUpdatesVm, GammaUpdatesVm>()
                     .AddScoped<IModListTabVm, ModListTabVm>()
                     .AddScoped<IModDbUpdatesTabVm, ModDbUpdatesTabVm>()
-                    .AddScoped<IMainWindowVm, MainWindowVm>();
+                    .AddScoped<MainWindowVm>();
 
                 var resolver = Locator.CurrentMutable;
                 resolver.InitializeSplat();
@@ -143,7 +143,7 @@ public partial class App : Application
         {
             desktop.MainWindow = new MainWindow
             {
-                DataContext = _container.GetRequiredService<IMainWindowVm>(),
+                DataContext = _container.GetRequiredService<MainWindowVm>(),
             };
         }
 

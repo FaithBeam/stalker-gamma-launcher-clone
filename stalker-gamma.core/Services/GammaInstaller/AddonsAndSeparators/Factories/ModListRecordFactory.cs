@@ -9,8 +9,9 @@ public class ModListRecordFactory(ModDb modDb, ICurlService curlService, IHttpCl
     private readonly ICurlService _curlService = curlService;
     private readonly IHttpClientFactory _hcf = hcf;
 
-    public IModListRecord Create(string line)
+    public IModListRecord Create(string line, int idx)
     {
+        idx++;
         var lineSplit = line.Split('\t');
         var dlLink = lineSplit[0];
 
@@ -23,13 +24,14 @@ public class ModListRecordFactory(ModDb modDb, ICurlService curlService, IHttpCl
 
         if (lineSplit.Length == 1)
         {
-            return new Separator { DlLink = dlLink };
+            return new Separator { DlLink = dlLink, Counter = idx };
         }
 
         if (dlLink.Contains("moddb"))
         {
             return new ModDbRecord(_modDb, _curlService)
             {
+                Counter = idx,
                 DlLink = dlLink,
                 Instructions = instructions,
                 Patch = patch,
@@ -44,6 +46,7 @@ public class ModListRecordFactory(ModDb modDb, ICurlService curlService, IHttpCl
         {
             return new GithubRecord(_curlService, _hcf)
             {
+                Counter = idx,
                 DlLink = dlLink,
                 Instructions = instructions,
                 Patch = patch,
@@ -58,6 +61,7 @@ public class ModListRecordFactory(ModDb modDb, ICurlService curlService, IHttpCl
         {
             return new GammaLargeFile(_curlService)
             {
+                Counter = idx,
                 DlLink = dlLink,
                 Instructions = instructions,
                 Patch = patch,

@@ -12,8 +12,6 @@ namespace stalker_gamma_gui.Controls.Tabs;
 public partial class MainTabVm
     : ReactiveUserControl<stalker_gamma.core.ViewModels.Tabs.MainTab.MainTabVm>
 {
-    private bool _loaded;
-
     public MainTabVm()
     {
         InitializeComponent();
@@ -23,32 +21,6 @@ public partial class MainTabVm
             {
                 return;
             }
-
-            if (!_loaded)
-            {
-                ConsoleOutput.AppendText(
-                    $"""
-                      
-                      
-                      Welcome to the Gigantic Automated Modular Modpack for Anomaly installer
-                      
-                      Be sure to check out the discord #how-to-install channel for full instructions:   https://www.discord.gg/stalker-gamma
-                      
-                      Untick Check MD5 ONLY if your pack is already working and you want to update it.
-                      
-                      Check the update status above and click Install/Update GAMMA if needed.
-                      
-                      Currently working from the {Path.GetDirectoryName(
-                          AppContext.BaseDirectory
-                      )} directory.
-
-                     """
-                );
-            }
-
-            _loaded = true;
-
-            ViewModel.AppendLineInteraction.RegisterHandler(AppendLineHandler);
 
             // strobe install / update gamma when user has not updated enough
             const string strobing = "Strobing";
@@ -73,12 +45,13 @@ public partial class MainTabVm
                             InstallUpdateBtn.Classes.Remove(strobing);
                             break;
                     }
-                });
+                })
+                .DisposeWith(d);
 
             // strobe first install initialization
             this.WhenAnyValue(
                     x => x.ViewModel!.IsMo2Initialized,
-                    selector: (mo2Initialized) => mo2Initialized
+                    selector: mo2Initialized => mo2Initialized
                 )
                 .Subscribe(x =>
                 {
@@ -97,7 +70,8 @@ public partial class MainTabVm
                         ToolTip.SetShowOnDisabled(PlayBtn, false);
                         FirstInstallInitializeBtn.Classes.Remove(strobing);
                     }
-                });
+                })
+                .DisposeWith(d);
 
             // Strobe the downgrade mod organizer button when ran with WINE and mo2 hasn't been downgraded
             this.WhenAnyValue(
@@ -129,7 +103,8 @@ public partial class MainTabVm
                             }
                         }
                     }
-                });
+                })
+                .DisposeWith(d);
 
             // set strobing for long paths btn
             // set tool tip for install / update gamma
@@ -166,16 +141,5 @@ public partial class MainTabVm
                 })
                 .DisposeWith(d);
         });
-    }
-
-    private void AppendLineHandler(IInteractionContext<string, Unit> interactionCtx)
-    {
-        ConsoleOutput.AppendText($"{DateTime.Now:t}:\t{interactionCtx.Input}");
-        ConsoleOutput.AppendText(Environment.NewLine);
-        if (AutoScrollCb.IsChecked.HasValue && AutoScrollCb.IsChecked.Value)
-        {
-            ConsoleOutput.ScrollToLine(ConsoleOutput.LineCount);
-        }
-        interactionCtx.SetOutput(Unit.Default);
     }
 }

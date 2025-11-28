@@ -23,7 +23,7 @@ public static partial class DiffMods
         {
             var localModListRecords =
                 q.ModVersions.LocalVersion?.Split(Environment.NewLine)
-                    .Select(x => _modListRecordFactory.Create(x))
+                    .Select((x, idx) => _modListRecordFactory.Create(x, idx))
                     .Where(x => x is DownloadableRecord)
                     .Cast<DownloadableRecord>()
                     .ToList() ?? [];
@@ -32,7 +32,7 @@ public static partial class DiffMods
                 await _curlService.GetStringAsync("https://stalker-gamma.com/api/list?key=")
             )
                 .Split("\n")
-                .Select(x => _modListRecordFactory.Create(x))
+                .Select((x, idx) => _modListRecordFactory.Create(x, idx))
                 .Where(x => x is DownloadableRecord)
                 .Cast<DownloadableRecord>()
                 .Where(onlineRec => ShouldUpdateModFilter(localModListRecords, onlineRec))

@@ -1,9 +1,11 @@
-﻿using System.Diagnostics;
+﻿using System.Buffers;
 using System.Reactive.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using CliWrap.EventStream;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
 using stalker_gamma.core.Utilities;
+using stalker_gamma.core.ViewModels.Tabs.MainTab;
 
 namespace stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
 
@@ -11,6 +13,7 @@ public interface IModListRecord;
 
 public class ModListRecord : IModListRecord
 {
+    public int Counter { get; set; }
     public string? DlLink { get; set; }
     public string? Instructions { get; set; }
     public string? Patch { get; set; }
@@ -20,7 +23,7 @@ public class ModListRecord : IModListRecord
     public string? Md5ModDb { get; set; }
 }
 
-public abstract class DownloadableRecord(ICurlService curlService) : ModListRecord
+public abstract partial class DownloadableRecord(ICurlService curlService) : ModListRecord
 {
     protected readonly ICurlService CurlService = curlService;
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
@@ -38,27 +41,25 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
 
     public virtual async Task<Action> ShouldDownloadAsync(
         string downloadsPath,
-        bool checkMd5,
-        bool forceGitDownload
+        ModDownloadExtractProgressVm modDownloadExtractProgressVm
     )
     {
         DlPath ??= Path.Join(downloadsPath, Name);
 
         if (File.Exists(DlPath))
         {
-            if (checkMd5)
+            modDownloadExtractProgressVm.Status = Status.CheckingMd5;
+            var md5 = await Md5Utility.CalculateFileMd5Async(
+                DlPath,
+                onProgress: (read, total) =>
+                    modDownloadExtractProgressVm.ProgressInterface.Report(
+                        (double)read / total * 100
+                    )
+            );
+            if (!string.IsNullOrWhiteSpace(Md5ModDb))
             {
-                var md5 = await Md5Utility.CalculateFileMd5Async(DlPath);
-                if (!string.IsNullOrWhiteSpace(Md5ModDb))
-                {
-                    // file exists, download if local archive md5 does not match md5moddb
-                    return md5 == Md5ModDb ? Action.DoNothing : Action.DownloadMd5Mismatch;
-                }
-            }
-            else
-            {
-                // file exists, do not check md5, no need to download again
-                return Action.DoNothing;
+                // file exists, download if local archive md5 does not match md5moddb
+                return md5 == Md5ModDb ? Action.DoNothing : Action.DownloadMd5Mismatch;
             }
         }
 
@@ -69,6 +70,8 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
     public virtual async Task DownloadAsync(
         string downloadsPath,
         bool useCurlImpersonate,
+        IProgress<double> progress,
+        ModDownloadExtractProgressVm modDownloadExtractProgressVm,
         bool invalidateMirrorCache = false
     )
     {
@@ -81,28 +84,21 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
             Dl,
             Path.GetDirectoryName(DlPath) ?? ".",
             Path.GetFileName(DlPath),
-            useCurlImpersonate,
+            progress,
             _dir
         );
     }
 
-    public async Task ExtractAsync(string downloadsPath, string extractPath)
+    public async Task ExtractAsync(
+        string downloadsPath,
+        string extractPath,
+        IProgress<double> progress
+    )
     {
         DlPath ??= Path.Join(downloadsPath, Name);
 
-        if (Path.Exists(extractPath))
+        if (!Directory.Exists(extractPath))
         {
-            new DirectoryInfo(extractPath)
-                .GetDirectories("*", SearchOption.AllDirectories)
-                .ToList()
-                .ForEach(di =>
-                {
-                    di.Attributes &= ~FileAttributes.ReadOnly;
-                    di.GetFiles("*", SearchOption.TopDirectoryOnly)
-                        .ToList()
-                        .ForEach(fi => fi.IsReadOnly = false);
-                });
-            Directory.Delete(extractPath, true);
             Directory.CreateDirectory(extractPath);
         }
 
@@ -112,22 +108,35 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
         }
 
         await ArchiveUtility
-            .Extract(DlPath, extractPath)
+            .ExtractWithProgress(DlPath, extractPath)
             .ForEachAsync(cmdEvt =>
             {
                 switch (cmdEvt)
                 {
                     case ExitedCommandEvent exit:
-                        Debug.WriteLine($"Exit: {exit.ExitCode}");
+                        // Debug.WriteLine($"Exit: {exit.ExitCode}");
                         break;
                     case StandardErrorCommandEvent stdErr:
-                        Debug.WriteLine($"Error: {stdErr.Text}");
+                        // Debug.WriteLine($"Error: {stdErr.Text}");
                         break;
                     case StandardOutputCommandEvent stdOut:
-                        Debug.WriteLine($"Out: {stdOut.Text}");
+                        if (
+                            ProgressRx().IsMatch(stdOut.Text)
+                            && double.TryParse(
+                                ProgressRx().Match(stdOut.Text).Groups[1].Value,
+                                out var parsed
+                            )
+                        )
+                        {
+                            progress.Report(parsed);
+                        }
+                        else
+                        {
+                            // Debug.WriteLine($"Out: {stdOut.Text}");
+                        }
                         break;
                     case StartedCommandEvent start:
-                        Debug.WriteLine($"Start: {start.ProcessId}");
+                        // Debug.WriteLine($"Start: {start.ProcessId}");
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(cmdEvt));
@@ -136,6 +145,9 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
 
         SolveInstructions(extractPath);
     }
+
+    [GeneratedRegex(@"(\d+(\.\d+)?)\s*%", RegexOptions.Compiled)]
+    private static partial Regex ProgressRx();
 
     public async Task WriteMetaIniAsync(string extractPath) =>
         await File.WriteAllTextAsync(
@@ -241,22 +253,26 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
     ];
 }
 
+public class GitRecord : ModListRecord;
+
+public class ModpackSpecific : ModListRecord;
+
 public class Separator : ModListRecord
 {
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
 
     public string Name => DlLink!;
-    public string FolderName => $"{DlLink}_separator";
+    public string FolderName => $"{Counter}- {DlLink}_separator";
 
-    public void WriteMetaIni(string modsPaths, int counter)
+    public void WriteMetaIni(string modsPaths)
     {
-        if (!Path.Exists(Path.Join(modsPaths, $"{counter}-{FolderName}")))
+        if (!Path.Exists(Path.Join(modsPaths, FolderName)))
         {
-            Directory.CreateDirectory(Path.Join(modsPaths, $"{counter}-{FolderName}"));
+            Directory.CreateDirectory(Path.Join(modsPaths, FolderName));
         }
         File.Copy(
             Path.Join(_dir, "resources", "separator_meta.ini"),
-            Path.Join(modsPaths, $"{counter}-{FolderName}", "meta.ini"),
+            Path.Join(modsPaths, FolderName, "meta.ini"),
             true
         );
     }
@@ -272,6 +288,8 @@ public class GithubRecord(ICurlService curlService, IHttpClientFactory hcf)
     public override async Task DownloadAsync(
         string downloadsPath,
         bool useCurlImpersonate,
+        IProgress<double> progress,
+        ModDownloadExtractProgressVm modDownloadExtractProgressVm,
         bool invalidateMirrorCache = false
     )
     {
@@ -286,8 +304,10 @@ public class GithubRecord(ICurlService curlService, IHttpClientFactory hcf)
             Directory.CreateDirectory(downloadsPath);
         }
 
-        using var response = await _hc.GetAsync(Dl);
+        using var response = await _hc.GetAsync(Dl, HttpCompletionOption.ResponseHeadersRead);
         response.EnsureSuccessStatusCode();
+
+        var totalBytes = response.Content.Headers.ContentLength;
 
         await using var fs = new FileStream(
             DlPath,
@@ -297,21 +317,33 @@ public class GithubRecord(ICurlService curlService, IHttpClientFactory hcf)
             bufferSize: BufferSize
         );
         await using var contentStream = await response.Content.ReadAsStreamAsync();
-        await contentStream.CopyToAsync(fs, bufferSize: BufferSize);
-    }
 
-    public override async Task<Action> ShouldDownloadAsync(
-        string downloadsPath,
-        bool checkMd5,
-        bool forceGitDownload
-    )
-    {
-        if (forceGitDownload)
+        var buffer = ArrayPool<byte>.Shared.Rent(81920);
+        try
         {
-            return Action.DownloadForced;
-        }
+            long totalBytesRead = 0;
+            int bytesRead;
 
-        return await base.ShouldDownloadAsync(downloadsPath, checkMd5, forceGitDownload);
+            while (
+                (bytesRead = await contentStream.ReadAsync(buffer.AsMemory(0, buffer.Length))) > 0
+            )
+            {
+                await fs.WriteAsync(buffer.AsMemory(0, bytesRead));
+                totalBytesRead += bytesRead;
+
+                if (totalBytes.HasValue)
+                {
+                    var progressPercentage = (double)totalBytesRead / totalBytes.Value * 100.0;
+                    progress.Report(progressPercentage);
+                }
+            }
+
+            progress.Report(100);
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(buffer);
+        }
     }
 }
 
@@ -328,6 +360,8 @@ public class ModDbRecord(ModDb modDb, ICurlService curlService) : DownloadableRe
     public override async Task DownloadAsync(
         string downloadsPath,
         bool useCurlImpersonate,
+        IProgress<double> progress,
+        ModDownloadExtractProgressVm modDownloadExtractProgressVm,
         bool invalidateMirrorCache = false
     )
     {
@@ -335,6 +369,7 @@ public class ModDbRecord(ModDb modDb, ICurlService curlService) : DownloadableRe
         var mirror = await modDb.GetModDbLinkCurl(
             DlLink!,
             DlPath,
+            progress,
             invalidateMirrorCache: invalidateMirrorCache,
             excludeMirrors: _visitedMirrors.ToArray()
         );
@@ -344,12 +379,12 @@ public class ModDbRecord(ModDb modDb, ICurlService curlService) : DownloadableRe
         }
 
         if (
-            await ShouldDownloadAsync(downloadsPath, true, false)
+            await ShouldDownloadAsync(downloadsPath, modDownloadExtractProgressVm)
             is Action.DownloadMissing
                 or Action.DownloadMd5Mismatch
         )
         {
-            await modDb.GetModDbLinkCurl(DlLink!, DlPath);
+            await modDb.GetModDbLinkCurl(DlLink!, DlPath, progress);
         }
     }
 }

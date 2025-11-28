@@ -1,84 +1,115 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Text.RegularExpressions;
 using CliWrap;
+using DynamicData;
+using DynamicData.Binding;
 using ReactiveUI;
 using stalker_gamma.core.Models;
 using stalker_gamma.core.Services;
 using stalker_gamma.core.Services.DowngradeModOrganizer;
 using stalker_gamma.core.Services.GammaInstaller;
+using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
 using stalker_gamma.core.Utilities;
+using stalker_gamma.core.ViewModels.Services;
 using stalker_gamma.core.ViewModels.Tabs.MainTab.Commands;
+using stalker_gamma.core.ViewModels.Tabs.MainTab.Enums;
+using stalker_gamma.core.ViewModels.Tabs.MainTab.Factories;
 using stalker_gamma.core.ViewModels.Tabs.MainTab.Models;
 using stalker_gamma.core.ViewModels.Tabs.MainTab.Queries;
 using stalker_gamma.core.ViewModels.Tabs.Queries;
+using stalker_gamma.core.ViewModels.Utilities;
 
 namespace stalker_gamma.core.ViewModels.Tabs.MainTab;
 
-public interface IMainTabVm
+public partial class MainTabVm : ViewModelBase, IActivatableViewModel
 {
-    bool NeedUpdate { get; set; }
-    bool NeedModDbUpdate { get; set; }
-    bool InGrokModDir { get; set; }
-    string GammaVersionToolTip { get; set; }
-    string ModVersionToolTip { get; set; }
-    IIsBusyService IsBusyService { get; }
-    Interaction<string, Unit> AppendLineInteraction { get; }
-    double Progress { get; }
-    bool CheckMd5 { get; set; }
-    bool PreserveUserLtx { get; set; }
-    bool ForceGitDownload { get; set; }
-    bool ForceZipExtraction { get; set; }
-    bool DeleteReshadeDlls { get; set; }
-    string VersionString { get; set; }
-    bool IsRanWithWine { get; }
-    ReactiveCommand<Unit, bool> IsRanWithWineCmd { get; set; }
-    ReactiveCommand<Unit, string> AddFoldersToWinDefenderExclusionCmd { get; set; }
-    ReactiveCommand<Unit, Unit> EnableLongPathsOnWindowsCmd { get; set; }
-    ReactiveCommand<Unit, Unit> FirstInstallInitializationCmd { get; }
-    ReactiveCommand<Unit, Unit> InstallUpdateGammaCmd { get; }
-    ReactiveCommand<Unit, Unit> PlayCmd { get; }
-    ReactiveCommand<string, Unit> OpenUrlCmd { get; }
-    ReactiveCommand<Unit, Unit> DowngradeModOrganizerCmd { get; }
-    ReactiveCommand<Unit, Unit> BackgroundCheckUpdatesCmd { get; }
-    ReactiveCommand<Unit, Unit> InGroksModPackDir { get; }
-    ReactiveCommand<Unit, bool?> LongPathsStatusCmd { get; }
-    ViewModelActivator Activator { get; }
-    IObservable<IReactivePropertyChangedEventArgs<IReactiveObject>> Changing { get; }
-    IObservable<IReactivePropertyChangedEventArgs<IReactiveObject>> Changed { get; }
-    IObservable<Exception> ThrownExceptions { get; }
-    IDisposable SuppressChangeNotifications();
-    bool AreChangeNotificationsEnabled();
-    IDisposable DelayChangeNotifications();
-    event PropertyChangingEventHandler? PropertyChanging;
-    event PropertyChangedEventHandler? PropertyChanged;
-}
+    private static readonly string Dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
+    private readonly string _modsPath = Path.GetFullPath(Path.Join(Dir, "..", "mods"));
+    private ObservableAsPropertyHelper<double?>? _progress;
+    private ObservableAsPropertyHelper<bool>? _toolsReady;
+    private ObservableAsPropertyHelper<bool>? _isRanWithWine;
+    private ObservableAsPropertyHelper<bool?>? _longPathsStatus;
+    private ObservableAsPropertyHelper<bool?>? _isMo2VersionDowngraded;
+    private ObservableAsPropertyHelper<bool>? _isMo2Initialized;
+    private ObservableAsPropertyHelper<string?>? _localGammaVersion;
+    private ObservableAsPropertyHelper<bool?>? _userLtxSetToFullscreenWine;
+    private ObservableAsPropertyHelper<string?>? _anomalyPath;
+    private ObservableAsPropertyHelper<string?>? _userLtxPath;
+    private readonly ReadOnlyObservableCollection<ModDownloadExtractProgressVm> _modDownloadExtractProgressVms;
+    private readonly ReadOnlyObservableCollection<ModListRecord> _localMods;
 
-public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
-{
-    private bool _checkMd5 = true;
-    private bool _forceGitDownload = true;
-    private bool _forceZipExtraction = true;
-    private bool _deleteReshadeDlls = true;
-    private bool _inGrokModDir;
-    private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
-    private bool _preserveUserLtx;
-    private readonly ObservableAsPropertyHelper<double?> _progress;
-    private bool _needUpdate;
-    private bool _needModDbUpdate;
-    private string _versionString;
-    private string _gammaVersionsToolTip = "";
-    private string _modsVersionsToolTip = "";
-    private readonly ObservableAsPropertyHelper<bool> _toolsReady;
-    private readonly ObservableAsPropertyHelper<bool> _isRanWithWine;
-    private readonly ObservableAsPropertyHelper<bool?> _longPathsStatus;
-    private readonly ObservableAsPropertyHelper<bool?> _isMo2VersionDowngraded;
-    private readonly ObservableAsPropertyHelper<bool> _isMo2Initialized;
-    private readonly ObservableAsPropertyHelper<string?> _localGammaVersion;
-    private readonly ObservableAsPropertyHelper<bool?> _userLtxSetToFullscreenWine;
-    private readonly ObservableAsPropertyHelper<string?> _anomalyPath;
-    private readonly ObservableAsPropertyHelper<string?> _userLtxPath;
+    private Func<ModDownloadExtractProgressVm, bool> CreateModFilterPredicate(
+        (InstallType installType, ReadOnlyObservableCollection<ModListRecord> localMods) tuple
+    ) =>
+        vm =>
+        {
+            if (StatusIsDone())
+            {
+                return false;
+            }
+
+            if (vm.ModListRecord is GitRecord or ModpackSpecific)
+            {
+                return true;
+            }
+
+            if (tuple.installType == InstallType.FullInstall)
+            {
+                return true;
+            }
+
+            if (tuple.installType == InstallType.Update)
+            {
+                if (vm.ModListRecord is ModDbRecord mdr && (IsNewMod(mdr) || IsVersionUpdate(mdr)))
+                {
+                    return true;
+                }
+
+                if (vm.ModListRecord is Separator s && NewSeparatorFolder(s))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+
+            bool NewSeparatorFolder(Separator s)
+            {
+                return !Path.Exists(Path.Join(_modsPath, s.FolderName));
+            }
+
+            bool IsNewMod(ModDbRecord modDbRecord)
+            {
+                return tuple
+                    .localMods.Where(lm => lm is ModDbRecord)
+                    .Cast<ModDbRecord>()
+                    .All(lm => lm.AddonName != modDbRecord.AddonName);
+            }
+
+            bool IsVersionUpdate(ModDbRecord modDbRecord)
+            {
+                return tuple
+                    .localMods.Where(lm => lm is ModDbRecord)
+                    .Cast<ModDbRecord>()
+                    .FirstOrDefault(lm =>
+                        lm.AddonName == modDbRecord.AddonName
+                        && FileNameVersionRx().Match(lm.ZipName!).Groups["version"].Value
+                            != FileNameVersionRx()
+                                .Match(modDbRecord.ZipName!)
+                                .Groups["version"]
+                                .Value
+                    )
+                    is not null;
+            }
+
+            bool StatusIsDone()
+            {
+                return vm.Status == Status.Done;
+            }
+        };
 
     public MainTabVm(
         IUserLtxReplaceFullscreenWithBorderlessFullscreen userLtxReplaceFullscreenWithBorderlessFullscreen,
@@ -103,50 +134,79 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
         IIsBusyService isBusyService,
         DiffMods.Handler diffMods,
         GetStalkerGammaLastCommit.Handler getStalkerGammaLastCommit,
-        GetGitHubRepoCommits.Handler getGitHubRepoCommits
+        GetGitHubRepoCommits.Handler getGitHubRepoCommits,
+        Queries.GetModDownloadExtractVms.Handler getModDownloadExtractVmsHandler,
+        ModDownloadExtractProgressVmFactory modDownloadExtractProgressVmFactory,
+        GetLocalMods.Handler getLocalModsHandler,
+        ModalService modalService
     )
     {
         Activator = new ViewModelActivator();
         IsBusyService = isBusyService;
-        _versionString = $"{versionService.GetVersion()} (Based on 6.7.0.0)";
+        VersionString = $"{versionService.GetVersion()} (Based on 6.7.0.0)";
         var mo2Path = Path.Join(
             Path.GetDirectoryName(AppContext.BaseDirectory),
             "..",
             "ModOrganizer.exe"
         );
 
+        var localModsSourceList = new SourceList<ModListRecord>();
+        var localModObs = localModsSourceList.Connect().Bind(out _localMods).Subscribe();
+        var modProgressVms = new SourceList<ModListRecord>();
+        var locker = new object();
+        var modFilter = this.WhenAnyValue(x => x.SelectedInstallType, x => x.LocalMods)
+            .Select(CreateModFilterPredicate);
+        var modProgObs = modProgressVms.Connect();
+        modProgObs
+            .Transform(modDownloadExtractProgressVmFactory.Create)
+            .BindToObservableList(out var unfiltered);
+
+        unfiltered
+            .Connect()
+            .AutoRefresh(x => x.Status)
+            .Filter(modFilter)
+            .Sort(
+                SortExpressionComparer<ModDownloadExtractProgressVm>.Ascending(x =>
+                    x.ModListRecord.Counter
+                )
+            )
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .Synchronize(locker)
+            .BindToObservableList(out var observableList)
+            .Subscribe();
+
+        unfiltered
+            .Connect()
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .AutoRefresh(x => x.Status)
+            .SelectMany(x => x)
+            .Where(x =>
+                x.Reason is ListChangeReason.Refresh or ListChangeReason.Replace
+                && x.Item.Current.Status == Status.Done
+            )
+            .Subscribe(_ =>
+            {
+                var done = unfiltered.Items.Where(x => x.Status == Status.Done).ToList();
+                progressService.UpdateProgress((double)done.Count / InitialFilteredListCount * 100);
+            });
+
+        observableList.Connect().Bind(out _modDownloadExtractProgressVms).Subscribe();
+
+        GetModDownloadExtractProgressVmsCmd = ReactiveCommand.CreateFromTask(async () =>
+            await getModDownloadExtractVmsHandler.ExecuteAsync()
+        );
+
+        GetLocalModsCmd = ReactiveCommand.CreateFromTask(async () =>
+            await getLocalModsHandler.ExecuteAsync()
+        );
+
         IsRanWithWineCmd = ReactiveCommand.CreateFromTask(async () =>
             await Task.Run(isRanWithWineService.IsRanWithWine)
         );
-        IsRanWithWineCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(
-                $"""
-
-                ERROR DETERMINING IF RAN WITH WINE
-                {x}
-                """
-            )
-        );
-        _isRanWithWine = IsRanWithWineCmd.ToProperty(this, x => x.IsRanWithWine);
 
         AnomalyPathCmd = ReactiveCommand.CreateFromTask(async () =>
             await Task.Run(getAnomalyPathHandler.Execute)
         );
-        AnomalyPathCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(
-                $"""
-
-                ERROR FINDING ANOMALY PATH
-                {x.Message}
-                {x.StackTrace}
-                """
-            )
-        );
-        _anomalyPath = AnomalyPathCmd.ToProperty(this, x => x.AnomalyPath);
-
-        _userLtxPath = this.WhenAnyValue(x => x.AnomalyPath)
-            .Select(x => Path.Join(x, "appdata", "user.ltx"))
-            .ToProperty(this, x => x.UserLtxPath);
 
         var userLtxSetToFullscreenWineCanExec = this.WhenAnyValue(
             x => x.UserLtxPath,
@@ -160,27 +220,6 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                 ),
             userLtxSetToFullscreenWineCanExec
         );
-        UserLtxSetToFullscreenWineCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(
-                $"""
-
-                ERROR DETERMINING IF USER.LTX IS SET TO FULLSCREEN
-                {x.Message}
-                {x.StackTrace}
-                """
-            )
-        );
-        _userLtxSetToFullscreenWine = UserLtxSetToFullscreenWineCmd.ToProperty(
-            this,
-            x => x.UserLtxSetToFullscreenWine
-        );
-        this.WhenAnyValue(
-                x => x.UserLtxPath,
-                x => x.IsRanWithWine,
-                selector: (userLtxPath, ranWithWine) => ranWithWine && File.Exists(userLtxPath)
-            )
-            .Where(x => x)
-            .Subscribe(_ => UserLtxSetToFullscreenWineCmd.Execute().Subscribe());
 
         UserLtxReplaceFullscreenWithBorderlessFullscreen = ReactiveCommand.CreateFromTask<string>(
             async pathToUserLtx =>
@@ -188,28 +227,6 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                     new UserLtxReplaceFullscreenWithBorderlessFullscreen.Command(pathToUserLtx)
                 )
         );
-        UserLtxReplaceFullscreenWithBorderlessFullscreen.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(
-                $"""
-
-                ERROR EDITING USER.LTX WITH BORDERLESS FULLSCREEN
-                {x.Message}
-                {x.StackTrace}
-                """
-            )
-        );
-        UserLtxSetToFullscreenWineCmd
-            .Where(x => x.HasValue && x.Value)
-            .Subscribe(_ =>
-            {
-                UserLtxReplaceFullscreenWithBorderlessFullscreen.Execute(UserLtxPath!).Subscribe();
-                progressService.UpdateProgress(
-                    """
-
-                    Replaced user.ltx fullscreen option with borderless fullscreen to avoid issues
-                    """
-                );
-            });
 
         LocalGammaVersionsCmd = ReactiveCommand.CreateFromTask(async () =>
             await Task.Run(() =>
@@ -220,17 +237,6 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                 )
             )
         );
-        LocalGammaVersionsCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(
-                $"""
-                   
-                ERROR DETERMINING LOCAL GAMMA VERSION
-                {x.Message}
-                {x.StackTrace}
-                """
-            )
-        );
-        _localGammaVersion = LocalGammaVersionsCmd.ToProperty(this, x => x.LocalGammaVersion);
 
         IsMo2InitializedCmd = ReactiveCommand.CreateFromTask(async () =>
             await Task.Run(() =>
@@ -245,80 +251,20 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                 )
             )
         );
-        IsMo2InitializedCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(
-                $"""
-                   
-                ERROR DETERMINING MODORGANIZER INITIALIZED
-                {x.Message}
-                {x.StackTrace}
-                """
-            )
-        );
-        _isMo2Initialized = IsMo2InitializedCmd.ToProperty(this, x => x.IsMo2Initialized);
 
         IsMo2VersionDowngradedCmd = ReactiveCommand.CreateFromTask(async () =>
             await Task.Run(() =>
                 isMo2VersionDowngraded.Execute(new IsMo2VersionDowngraded.Query(mo2Path))
             )
         );
-        IsMo2VersionDowngradedCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(
-                $"""
-
-                ERROR DETERMINING MODORGANIZER'S VERSION
-                {x.Message}
-                {x.StackTrace}
-                """
-            )
-        );
-        _isMo2VersionDowngraded = IsMo2VersionDowngradedCmd.ToProperty(
-            this,
-            x => x.IsMo2VersionDowngraded
-        );
 
         LongPathsStatusCmd = ReactiveCommand.CreateFromTask(async () =>
             await Task.Run(longPathsStatusHandler.Execute)
         );
-        LongPathsStatusCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(
-                $"""
-
-                ERROR RETRIEVING LONG PATHS STATUS
-                {x.Message}
-                {x.StackTrace}
-                """
-            )
-        );
-        _longPathsStatus = LongPathsStatusCmd.ToProperty(this, x => x.LongPathsStatus);
 
         ToolsReadyCommand = ReactiveCommand.CreateFromTask(async () =>
             await Task.Run(() => new ToolsReadyRecord(curlService.Ready))
         );
-        _toolsReady = ToolsReadyCommand
-            .Select(x => x.CurlReady)
-            .ToProperty(this, x => x.ToolsReady);
-        ToolsReadyCommand
-            .Where(x => !x.CurlReady)
-            .Subscribe(x =>
-            {
-                List<string> notRdy = [];
-                if (!x.CurlReady)
-                {
-                    notRdy.Add("Curl not found");
-                }
-
-                var notRdyTools = string.Join("\n", notRdy);
-                progressService.UpdateProgress(
-                    $"""
-
-                    TOOLS NOT READY
-                    {notRdyTools}
-
-                    Did you place the executable in the correct directory? .Grok's Modpack Installer
-                    """
-                );
-            });
 
         OpenUrlCmd = ReactiveCommand.Create<string>(OpenUrlUtility.OpenUrl);
 
@@ -336,9 +282,8 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                 await Task.Run(() =>
                 {
                     enableLongPathsOnWindows.Execute();
-                    progressService.UpdateProgress(
+                    modalService.ShowInformationDlg(
                         """
-
                         Enabled long paths via registry.
                         HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem
                         Set DWORD LongPathsEnabled 1
@@ -348,17 +293,6 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                 }),
             canEnableLongPathsOnWindows
         );
-        EnableLongPathsOnWindowsCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(
-                $"""
-
-                ERROR ENABLING LONG PATHS
-                {x.Message}
-                {x.StackTrace}
-                """
-            )
-        );
-        EnableLongPathsOnWindowsCmd.Subscribe(_ => LongPathsStatusCmd.Execute().Subscribe());
 
         var canAddFoldersToWinDefenderExclusion = this.WhenAnyValue(
             x => x.IsRanWithWine,
@@ -382,7 +316,6 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                     )
                 );
                 return $"""
-
                 Added folder exclusions to Microsoft Defender for:
                 {anomalyPath}
                 {gammaPath}
@@ -390,15 +323,6 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                 """;
             },
             canAddFoldersToWinDefenderExclusion
-        );
-        AddFoldersToWinDefenderExclusionCmd.Subscribe(progressService.UpdateProgress);
-        AddFoldersToWinDefenderExclusionCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(
-                $"""
-
-                User either denied UAC prompt or there was an error.
-                """
-            )
         );
 
         var canFirstInstallInitialization = this.WhenAnyValue(
@@ -424,17 +348,6 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
             },
             canFirstInstallInitialization
         );
-        FirstInstallInitializationCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(
-                $"""
-                Error in first install initialization:
-                {x.Message}
-                {x.InnerException?.Message}
-                {x.StackTrace}
-                """
-            )
-        );
-        FirstInstallInitializationCmd.Subscribe(_ => IsMo2InitializedCmd.Execute().Subscribe());
 
         BackgroundCheckUpdatesCmd = ReactiveCommand.CreateFromTask(() =>
             Task.Run(async () =>
@@ -452,7 +365,7 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                 var localGammaVersionHash = (
                     await getStalkerGammaLastCommit.ExecuteAsync(
                         new GetStalkerGammaLastCommit.Query(
-                            Path.Join(_dir, "resources", "Stalker_GAMMA")
+                            Path.Join(Dir, "resources", "Stalker_GAMMA")
                         )
                     )
                 )[..9];
@@ -471,16 +384,6 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
                 NeedModDbUpdate =
                     needUpdates.modVersions.LocalVersion != needUpdates.modVersions.RemoteVersion;
             })
-        );
-        BackgroundCheckUpdatesCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(
-                $"""
-
-                ERROR CHECKING FOR UPDATES
-                {x.Message}
-                {x.StackTrace}
-                """
-            )
         );
 
         var canInstallUpdateGamma = this.WhenAnyValue(
@@ -522,40 +425,20 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
             async () =>
             {
                 IsBusyService.IsBusy = true;
+                InitialFilteredListCount = observableList.Count;
                 await Task.Run(() =>
                     gammaInstaller.InstallUpdateGammaAsync(
-                        ForceGitDownload,
-                        CheckMd5,
-                        true,
-                        ForceZipExtraction,
                         DeleteReshadeDlls,
                         globalSettings.UseCurlImpersonate,
-                        PreserveUserLtx
+                        PreserveUserLtx,
+                        ModDownloadExtractProgressVms ?? throw new InvalidOperationException(),
+                        locker
                     )
                 );
-
                 IsBusyService.IsBusy = false;
             },
             canInstallUpdateGamma
         );
-        InstallUpdateGammaCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(
-                $"""
-                ERROR INSTALLING/UPDATING GAMMA:
-                {x.Message}
-                {x.StackTrace}
-                """
-            )
-        );
-        InstallUpdateGammaCmd.Subscribe(_ => LocalGammaVersionsCmd.Execute().Subscribe());
-        InstallUpdateGammaCmd.Subscribe(_ => BackgroundCheckUpdatesCmd.Execute().Subscribe());
-        InstallUpdateGammaCmd
-            .Where(_ => IsRanWithWine)
-            .Subscribe(_ =>
-                UserLtxReplaceFullscreenWithBorderlessFullscreen
-                    .Execute(UserLtxPath ?? "")
-                    .Subscribe()
-            );
 
         var canPlay = this.WhenAnyValue(
             x => x.IsBusyService.IsBusy,
@@ -598,14 +481,6 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
             },
             canPlay
         );
-        PlayCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(
-                $"""
-                ERROR PLAYING:
-                {x}
-                """
-            )
-        );
 
         var canDowngradeModOrganizer = this.WhenAnyValue(
             x => x.IsBusyService.IsBusy,
@@ -628,30 +503,15 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
             },
             canDowngradeModOrganizer
         );
-        DowngradeModOrganizerCmd.ThrownExceptions.Subscribe(x =>
-            progressService.UpdateProgress(x.Message)
-        );
-        DowngradeModOrganizerCmd.Subscribe(_ => IsMo2VersionDowngradedCmd.Execute().Subscribe());
 
         AppendLineInteraction = new Interaction<string, Unit>();
-
-        _progress = progressService
-            .ProgressObservable.ObserveOn(RxApp.MainThreadScheduler)
-            .Select(x => x.Progress)
-            .WhereNotNull()
-            .ToProperty(this, x => x.Progress);
-        var progressServiceDisposable = progressService
-            .ProgressObservable.ObserveOn(RxApp.MainThreadScheduler)
-            .Select(x => x.Message)
-            .WhereNotNull()
-            .Subscribe(async x => await AppendLineInteraction.Handle(x));
 
         InGroksModPackDir = ReactiveCommand.CreateFromTask(async () =>
             await Task.Run(() =>
             {
                 if (!InGrokModDir)
                 {
-                    progressService.UpdateProgress(
+                    modalService.ShowErrorDlg(
                         """
                         ERROR: This launcher is not put in the correct directory.
                         It needs to be in the .Grok's Modpack Installer directory which is from GAMMA RC3 archive in the discord.
@@ -664,7 +524,341 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
         this.WhenActivated(
             (CompositeDisposable d) =>
             {
-                InGrokModDir = _dir.Contains(
+                GetLocalModsCmd
+                    .ThrownExceptions.Subscribe(x =>
+                    {
+                        modalService.ShowErrorDlg(
+                            $"""
+                            ERROR GETTING LOCAL MODS
+                            {x}
+                            """
+                        );
+                    })
+                    .DisposeWith(d);
+                GetLocalModsCmd
+                    .Subscribe(x =>
+                        localModsSourceList.Edit(inner =>
+                        {
+                            inner.Clear();
+                            inner.AddRange(x);
+                        })
+                    )
+                    .DisposeWith(d);
+                _progress = progressService
+                    .ProgressObservable.ObserveOn(RxApp.MainThreadScheduler)
+                    .Select(x => x.Progress)
+                    .WhereNotNull()
+                    .ToProperty(this, x => x.Progress)
+                    .DisposeWith(d);
+                GetModDownloadExtractProgressVmsCmd
+                    .ThrownExceptions.Subscribe(x =>
+                    {
+                        modalService.ShowErrorDlg(
+                            $"""
+                            ERROR GETTING MOD DOWNLOAD PROGRESS VMS
+                            {x}
+                            """
+                        );
+                    })
+                    .DisposeWith(d);
+                GetModDownloadExtractProgressVmsCmd
+                    .Subscribe(x =>
+                        modProgressVms.Edit(inner =>
+                        {
+                            inner.Clear();
+                            inner.AddRange(
+                                [new GitRecord { AddonName = "Stalker_GAMMA", Counter = -1 }]
+                            );
+                            inner.AddRange(x);
+                            inner.AddRange(
+                                [
+                                    new GitRecord
+                                    {
+                                        AddonName = "gamma_large_files_v2",
+                                        Counter = 999997,
+                                    },
+                                    new GitRecord
+                                    {
+                                        AddonName = "teivaz_anomaly_gunslinger",
+                                        Counter = 999998,
+                                    },
+                                    new ModpackSpecific
+                                    {
+                                        AddonName = "modpack_addons",
+                                        Counter = 999999,
+                                    },
+                                ]
+                            );
+                        })
+                    )
+                    .DisposeWith(d);
+                IsMo2InitializedCmd
+                    .ThrownExceptions.Subscribe(x =>
+                    {
+                        modalService.ShowErrorDlg(
+                            $"""
+                            ERROR DETERMINING MODORGANIZER INITIALIZED
+                            {x.Message}
+                            {x.StackTrace}
+                            """
+                        );
+                    })
+                    .DisposeWith(d);
+                _isMo2Initialized = IsMo2InitializedCmd
+                    .ToProperty(this, x => x.IsMo2Initialized)
+                    .DisposeWith(d);
+                _localGammaVersion = LocalGammaVersionsCmd
+                    .ToProperty(this, x => x.LocalGammaVersion)
+                    .DisposeWith(d);
+                _isMo2VersionDowngraded = IsMo2VersionDowngradedCmd
+                    .ToProperty(this, x => x.IsMo2VersionDowngraded)
+                    .DisposeWith(d);
+                _longPathsStatus = LongPathsStatusCmd
+                    .ToProperty(this, x => x.LongPathsStatus)
+                    .DisposeWith(d);
+
+                IsRanWithWineCmd
+                    .ThrownExceptions.Subscribe(x =>
+                    {
+                        modalService.ShowErrorDlg(
+                            $"""
+                            ERROR DETERMINING IF RAN WITH WINE
+                            {x}
+                            """
+                        );
+                    })
+                    .DisposeWith(d);
+                _isRanWithWine = IsRanWithWineCmd
+                    .ToProperty(this, x => x.IsRanWithWine)
+                    .DisposeWith(d);
+                DowngradeModOrganizerCmd
+                    .ThrownExceptions.Subscribe(x => progressService.UpdateProgress(x.Message))
+                    .DisposeWith(d);
+                DowngradeModOrganizerCmd
+                    .Subscribe(_ => IsMo2VersionDowngradedCmd.Execute().Subscribe().DisposeWith(d))
+                    .DisposeWith(d);
+                PlayCmd
+                    .ThrownExceptions.Subscribe(x =>
+                    {
+                        modalService.ShowErrorDlg(
+                            $"""
+                            ERROR PLAYING:
+                            {x}
+                            """
+                        );
+                    })
+                    .DisposeWith(d);
+                InstallUpdateGammaCmd
+                    .ThrownExceptions.Subscribe(x =>
+                    {
+                        modalService.ShowErrorDlg(
+                            $"""
+                            ERROR INSTALLING/UPDATING GAMMA:
+                            {x.Message}
+                            {x.StackTrace}
+                            """
+                        );
+                    })
+                    .DisposeWith(d);
+                InstallUpdateGammaCmd
+                    .Subscribe(_ => LocalGammaVersionsCmd.Execute().Subscribe().DisposeWith(d))
+                    .DisposeWith(d);
+                InstallUpdateGammaCmd
+                    .Subscribe(_ => BackgroundCheckUpdatesCmd.Execute().Subscribe().DisposeWith(d))
+                    .DisposeWith(d);
+                InstallUpdateGammaCmd
+                    .Where(_ => IsRanWithWine)
+                    .Subscribe(_ =>
+                        UserLtxReplaceFullscreenWithBorderlessFullscreen
+                            .Execute(UserLtxPath ?? "")
+                            .Subscribe()
+                    )
+                    .DisposeWith(d);
+                BackgroundCheckUpdatesCmd
+                    .ThrownExceptions.Subscribe(x =>
+                    {
+                        modalService.ShowErrorDlg(
+                            $"""
+                            ERROR CHECKING FOR UPDATES
+                            {x.Message}
+                            {x.StackTrace}
+                            """
+                        );
+                    })
+                    .DisposeWith(d);
+                AddFoldersToWinDefenderExclusionCmd
+                    .Subscribe(modalService.ShowInformationDlg)
+                    .DisposeWith(d);
+                AddFoldersToWinDefenderExclusionCmd
+                    .ThrownExceptions.Subscribe(x =>
+                    {
+                        modalService.ShowErrorDlg(
+                            "User either denied UAC prompt or there was an error."
+                        );
+                    })
+                    .DisposeWith(d);
+                FirstInstallInitializationCmd
+                    .ThrownExceptions.Subscribe(x =>
+                    {
+                        modalService.ShowErrorDlg(
+                            $"""
+                            Error in first install initialization:
+                            {x.Message}
+                            {x.InnerException?.Message}
+                            {x.StackTrace}
+                            """
+                        );
+                    })
+                    .DisposeWith(d);
+                FirstInstallInitializationCmd
+                    .Subscribe(_ => IsMo2InitializedCmd.Execute().Subscribe().DisposeWith(d))
+                    .DisposeWith(d);
+                EnableLongPathsOnWindowsCmd
+                    .ThrownExceptions.Subscribe(x =>
+                    {
+                        modalService.ShowErrorDlg(
+                            $"""
+                            ERROR ENABLING LONG PATHS
+                            {x.Message}
+                            {x.StackTrace}
+                            """
+                        );
+                    })
+                    .DisposeWith(d);
+                EnableLongPathsOnWindowsCmd
+                    .Subscribe(_ => LongPathsStatusCmd.Execute().Subscribe().DisposeWith(d))
+                    .DisposeWith(d);
+                ToolsReadyCommand
+                    .Where(x => !x.CurlReady)
+                    .Subscribe(x =>
+                    {
+                        List<string> notRdy = [];
+                        if (!x.CurlReady)
+                        {
+                            notRdy.Add("Curl not found");
+                        }
+
+                        var notRdyTools = string.Join("\n", notRdy);
+                        modalService.ShowErrorDlg(
+                            $"""
+                            TOOLS NOT READY
+                            {notRdyTools}
+
+                            Did you place the executable in the correct directory? .Grok's Modpack Installer
+                            """
+                        );
+                    })
+                    .DisposeWith(d);
+                LocalGammaVersionsCmd
+                    .ThrownExceptions.Subscribe(x =>
+                    {
+                        modalService.ShowErrorDlg(
+                            $"""
+                            ERROR DETERMINING LOCAL GAMMA VERSION
+                            {x.Message}
+                            {x.StackTrace}
+                            """
+                        );
+                    })
+                    .DisposeWith(d);
+                UserLtxReplaceFullscreenWithBorderlessFullscreen
+                    .ThrownExceptions.Subscribe(x =>
+                    {
+                        modalService.ShowErrorDlg(
+                            $"""
+                            ERROR EDITING USER.LTX WITH BORDERLESS FULLSCREEN
+                            {x.Message}
+                            {x.StackTrace}
+                            """
+                        );
+                    })
+                    .DisposeWith(d);
+                UserLtxSetToFullscreenWineCmd
+                    .Where(x => x.HasValue && x.Value)
+                    .Subscribe(_ =>
+                    {
+                        UserLtxReplaceFullscreenWithBorderlessFullscreen
+                            .Execute(UserLtxPath!)
+                            .Subscribe();
+                        modalService.ShowInformationDlg(
+                            "Replaced user.ltx fullscreen option with borderless fullscreen to avoid issues"
+                        );
+                    })
+                    .DisposeWith(d);
+                this.WhenAnyValue(
+                        x => x.UserLtxPath,
+                        x => x.IsRanWithWine,
+                        selector: (userLtxPath, ranWithWine) =>
+                            ranWithWine && File.Exists(userLtxPath)
+                    )
+                    .Where(x => x)
+                    .Subscribe(_ =>
+                        UserLtxSetToFullscreenWineCmd.Execute().Subscribe().DisposeWith(d)
+                    )
+                    .DisposeWith(d);
+                AnomalyPathCmd
+                    .ThrownExceptions.Subscribe(x =>
+                    {
+                        modalService.ShowErrorDlg(
+                            $"""
+                            ERROR FINDING ANOMALY PATH
+                            {x.Message}
+                            {x.StackTrace}
+                            """
+                        );
+                    })
+                    .DisposeWith(d);
+                IsMo2VersionDowngradedCmd
+                    .ThrownExceptions.Subscribe(x =>
+                    {
+                        modalService.ShowErrorDlg(
+                            $"""
+                            ERROR DETERMINING MODORGANIZER'S VERSION
+                            {x.Message}
+                            {x.StackTrace}
+                            """
+                        );
+                    })
+                    .DisposeWith(d);
+                LongPathsStatusCmd
+                    .ThrownExceptions.Subscribe(x =>
+                    {
+                        modalService.ShowErrorDlg(
+                            $"""
+                            ERROR RETRIEVING LONG PATHS STATUS
+                            {x.Message}
+                            {x.StackTrace}
+                            """
+                        );
+                    })
+                    .DisposeWith(d);
+                UserLtxSetToFullscreenWineCmd
+                    .ThrownExceptions.Subscribe(x =>
+                    {
+                        modalService.ShowErrorDlg(
+                            $"""
+                            ERROR DETERMINING IF USER.LTX IS SET TO FULLSCREEN
+                            {x.Message}
+                            {x.StackTrace}
+                            """
+                        );
+                    })
+                    .DisposeWith(d);
+                _userLtxSetToFullscreenWine = UserLtxSetToFullscreenWineCmd
+                    .ToProperty(this, x => x.UserLtxSetToFullscreenWine)
+                    .DisposeWith(d);
+                _anomalyPath = AnomalyPathCmd.ToProperty(this, x => x.AnomalyPath).DisposeWith(d);
+
+                _userLtxPath = this.WhenAnyValue(x => x.AnomalyPath)
+                    .Select(x => Path.Join(x, "appdata", "user.ltx"))
+                    .ToProperty(this, x => x.UserLtxPath)
+                    .DisposeWith(d);
+                _toolsReady = ToolsReadyCommand
+                    .Select(x => x.CurlReady)
+                    .ToProperty(this, x => x.ToolsReady)
+                    .DisposeWith(d);
+
+                InGrokModDir = Dir.Contains(
 #if DEBUG
                     "net10.0",
 #else
@@ -672,119 +866,127 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
 #endif
                     StringComparison.OrdinalIgnoreCase);
 
-                InGroksModPackDir.Execute().Subscribe();
+                InGroksModPackDir.Execute().Subscribe().DisposeWith(d);
 
-                AnomalyPathCmd.Execute().Subscribe();
+                AnomalyPathCmd.Execute().Subscribe().DisposeWith(d);
 
-                LocalGammaVersionsCmd.Execute().Subscribe();
+                LocalGammaVersionsCmd.Execute().Subscribe().DisposeWith(d);
 
-                IsMo2VersionDowngradedCmd.Execute().Subscribe();
+                IsMo2VersionDowngradedCmd.Execute().Subscribe().DisposeWith(d);
 
-                IsMo2InitializedCmd.Execute().Subscribe();
+                IsMo2InitializedCmd.Execute().Subscribe().DisposeWith(d);
 
-                IsRanWithWineCmd.Execute().Subscribe();
+                IsRanWithWineCmd.Execute().Subscribe().DisposeWith(d);
 
-                LongPathsStatusCmd.Execute().Subscribe();
+                LongPathsStatusCmd.Execute().Subscribe().DisposeWith(d);
 
                 ToolsReadyCommand
                     .Execute()
                     .Where(x => x.CurlReady)
                     .Subscribe(_ =>
                     {
-                        BackgroundCheckUpdatesCmd.Execute().Subscribe();
-                    });
+                        GetModDownloadExtractProgressVmsCmd.Execute().Subscribe().DisposeWith(d);
+                        BackgroundCheckUpdatesCmd.Execute().Subscribe().DisposeWith(d);
+                        GetLocalModsCmd.Execute().Subscribe().DisposeWith(d);
+                    })
+                    .DisposeWith(d);
             }
         );
     }
 
+    public ReadOnlyObservableCollection<ModDownloadExtractProgressVm> ModDownloadExtractProgressVms =>
+        _modDownloadExtractProgressVms;
+
+    public ReadOnlyObservableCollection<ModListRecord> LocalMods => _localMods;
+
     public bool NeedUpdate
     {
-        get => _needUpdate;
-        set => this.RaiseAndSetIfChanged(ref _needUpdate, value);
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
     public bool NeedModDbUpdate
     {
-        get => _needModDbUpdate;
-        set => this.RaiseAndSetIfChanged(ref _needModDbUpdate, value);
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
-    private bool ToolsReady => _toolsReady.Value;
+    private bool ToolsReady => _toolsReady?.Value ?? false;
 
     public bool InGrokModDir
     {
-        get => _inGrokModDir;
-        set => this.RaiseAndSetIfChanged(ref _inGrokModDir, value);
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
     public string GammaVersionToolTip
     {
-        get => _gammaVersionsToolTip;
-        set => this.RaiseAndSetIfChanged(ref _gammaVersionsToolTip, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = "";
 
     public string ModVersionToolTip
     {
-        get => _modsVersionsToolTip;
-        set => this.RaiseAndSetIfChanged(ref _modsVersionsToolTip, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = "";
 
     public IIsBusyService IsBusyService { get; }
 
     public Interaction<string, Unit> AppendLineInteraction { get; }
 
-    public double Progress => _progress.Value ?? 0;
+    public double Progress => _progress?.Value ?? 0;
 
     public bool CheckMd5
     {
-        get => _checkMd5;
-        set => this.RaiseAndSetIfChanged(ref _checkMd5, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = true;
 
     public bool PreserveUserLtx
     {
-        get => _preserveUserLtx;
-        set => this.RaiseAndSetIfChanged(ref _preserveUserLtx, value);
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
     public bool ForceGitDownload
     {
-        get => _forceGitDownload;
-        set => this.RaiseAndSetIfChanged(ref _forceGitDownload, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = true;
 
     public bool ForceZipExtraction
     {
-        get => _forceZipExtraction;
-        set => this.RaiseAndSetIfChanged(ref _forceZipExtraction, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = true;
 
     public bool DeleteReshadeDlls
     {
-        get => _deleteReshadeDlls;
-        set => this.RaiseAndSetIfChanged(ref _deleteReshadeDlls, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = true;
 
     public string VersionString
     {
-        get => _versionString;
-        set => this.RaiseAndSetIfChanged(ref _versionString, value);
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
-    public bool? IsMo2VersionDowngraded => _isMo2VersionDowngraded.Value;
+    public bool? IsMo2VersionDowngraded => _isMo2VersionDowngraded?.Value;
 
-    public bool? LongPathsStatus => _longPathsStatus.Value;
+    public bool? LongPathsStatus => _longPathsStatus?.Value;
 
-    public bool IsRanWithWine => _isRanWithWine.Value;
+    public bool IsRanWithWine => _isRanWithWine?.Value ?? false;
 
-    public bool IsMo2Initialized => _isMo2Initialized.Value;
+    public bool IsMo2Initialized => _isMo2Initialized?.Value ?? false;
 
-    public string? LocalGammaVersion => _localGammaVersion.Value;
+    public string? LocalGammaVersion => _localGammaVersion?.Value;
 
-    public bool? UserLtxSetToFullscreenWine => _userLtxSetToFullscreenWine.Value;
+    public bool? UserLtxSetToFullscreenWine => _userLtxSetToFullscreenWine?.Value;
 
-    public string? AnomalyPath => _anomalyPath.Value;
-    public string? UserLtxPath => _userLtxPath.Value;
+    public string? AnomalyPath => _anomalyPath?.Value;
+    public string? UserLtxPath => _userLtxPath?.Value;
 
     public ReactiveCommand<Unit, bool> IsRanWithWineCmd { get; set; }
     public ReactiveCommand<Unit, Unit> EnableLongPathsOnWindowsCmd { get; set; }
@@ -804,5 +1006,18 @@ public class MainTabVm : ViewModelBase, IActivatableViewModel, IMainTabVm
     public ReactiveCommand<Unit, bool?> UserLtxSetToFullscreenWineCmd { get; }
     public ReactiveCommand<string, Unit> UserLtxReplaceFullscreenWithBorderlessFullscreen { get; }
     public ReactiveCommand<Unit, string?> AnomalyPathCmd { get; }
+    public ReactiveCommand<Unit, IList<ModListRecord>> GetModDownloadExtractProgressVmsCmd { get; }
+    private ReactiveCommand<Unit, IList<ModListRecord>> GetLocalModsCmd { get; }
     public ViewModelActivator Activator { get; }
+    public List<InstallType> InstallTypes { get; } = [InstallType.FullInstall, InstallType.Update];
+    public InstallType SelectedInstallType
+    {
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = InstallType.FullInstall;
+
+    private int InitialFilteredListCount { get; set; }
+
+    [GeneratedRegex(@".+(?<version>\d+\.\d+\.\d*.*)\.*")]
+    private static partial Regex FileNameVersionRx();
 }
