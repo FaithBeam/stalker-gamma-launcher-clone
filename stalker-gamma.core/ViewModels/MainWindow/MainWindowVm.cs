@@ -1,4 +1,12 @@
-﻿using stalker_gamma.core.Services;
+﻿using System.Reactive;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using ReactiveUI;
+using stalker_gamma.core.Models;
+using stalker_gamma.core.Services;
+using stalker_gamma.core.ViewModels.Dialogs;
+using stalker_gamma.core.ViewModels.MainWindow.Factories;
+using stalker_gamma.core.ViewModels.MainWindow.Queries;
 using stalker_gamma.core.ViewModels.Services;
 using stalker_gamma.core.ViewModels.Tabs.BackupTab;
 using stalker_gamma.core.ViewModels.Tabs.GammaUpdatesTab;
@@ -8,7 +16,7 @@ using stalker_gamma.core.ViewModels.Tabs.ModListTab;
 
 namespace stalker_gamma.core.ViewModels.MainWindow;
 
-public class MainWindowVm : ViewModelBase
+public class MainWindowVm : ViewModelBase, IActivatableViewModel
 {
     public MainWindowVm(
         MainTabVm mainTabVm,
@@ -19,7 +27,8 @@ public class MainWindowVm : ViewModelBase
         IIsBusyService isBusyService,
         ModalService modalService,
         UpdateAvailable.Handler updateAvailableHandler,
-        UpdateLauncherDialogVmFactory updateLauncherDialogVmFactory
+        UpdateLauncherDialogVmFactory updateLauncherDialogVmFactory,
+        GlobalSettings globalSettings
     )
     {
         ShowUpdateDialogInteraction = new Interaction<UpdateLauncherDialogVm, DoUpdateCmdParam>();
@@ -42,11 +51,15 @@ public class MainWindowVm : ViewModelBase
         ModListTabVm = modListTabVm;
         BackupTabVm = backupTabVm;
         IsBusyService = isBusyService;
+        ModalService = modalService;
 
         this.WhenActivated(
             (CompositeDisposable d) =>
             {
-                UpdateAvailableCmd.Execute().Subscribe();
+                if (globalSettings.CheckForLauncherUpdates)
+                {
+                    UpdateAvailableCmd.Execute().Subscribe().DisposeWith(d);
+                }
             }
         );
     }

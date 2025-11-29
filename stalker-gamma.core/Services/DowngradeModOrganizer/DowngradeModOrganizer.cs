@@ -4,7 +4,7 @@ using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma.core.Services.DowngradeModOrganizer;
 
-public class DowngradeModOrganizer(VersionService versionService)
+public class DowngradeModOrganizer(IVersionService versionService)
 {
     public async Task DowngradeAsync(string version = "v2.4.4")
     {

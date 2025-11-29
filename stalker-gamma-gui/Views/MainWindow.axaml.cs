@@ -1,12 +1,6 @@
-using System;
-using System.IO;
-using System.Reactive;
 using System.Reactive.Disposables;
 using System.Threading.Tasks;
-using Avalonia.Controls;
 using Avalonia.ReactiveUI;
-using AvaloniaEdit;
-using AvaloniaEdit.Document;
 using ReactiveUI;
 using stalker_gamma_gui.Controls.Dialogs;
 using stalker_gamma.core.ViewModels.Dialogs;

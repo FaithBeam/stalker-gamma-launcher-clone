@@ -90,6 +90,9 @@ public partial class App : Application
                         DownloadThreads = configuration.GetValue<int>("downloadThreads"),
                         ExtractThreads = configuration.GetValue<int>("extractThreads"),
                         GammaBackupPath = configuration.GetValue<string>("gammaBackupPath"),
+                        CheckForLauncherUpdates = configuration.GetValue<bool>(
+                            "checkForLauncherUpdates"
+                        )
 #pragma warning restore IL2026
                     }
                 );
