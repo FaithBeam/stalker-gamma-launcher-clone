@@ -7,7 +7,7 @@ A clone of Grokitach's Stalker GAMMA Launcher with WINE compatibility and extra 
 
 ## Features
 
-- 2-3X faster than the original GAMMA Launcher depending on the system [Performance](https://github.com/FaithBeam/stalker-gamma-launcher-clone/wiki/Performance)
+- 2-3X faster than the original GAMMA Launcher [Performance](https://github.com/FaithBeam/stalker-gamma-launcher-clone/wiki/Performance)
 - [Backups](https://github.com/FaithBeam/stalker-gamma-launcher-clone/wiki/Backups)
 - [Gamma updates information](https://github.com/FaithBeam/stalker-gamma-launcher-clone/wiki/Gamma-Updates-Tab)
 - [ModDb updates information](https://github.com/FaithBeam/stalker-gamma-launcher-clone/wiki/ModDb-Updates-Tab)
