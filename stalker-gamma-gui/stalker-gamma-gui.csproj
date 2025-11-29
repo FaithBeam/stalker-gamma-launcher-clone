@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\stalker-gamma.core\stalker-gamma.core.csproj" />
+    <ProjectReference Include="..\stalker-gamma.updater\stalker-gamma.updater.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="appsettings.json" />

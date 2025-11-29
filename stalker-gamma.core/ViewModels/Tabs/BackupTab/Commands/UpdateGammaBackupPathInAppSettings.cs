@@ -11,7 +11,7 @@ public static class UpdateGammaBackupPathInAppSettings
         public async Task ExecuteAsync(Command c)
         {
             gs.GammaBackupPath = c.NewPath;
-            await gs.WriteAppSettings();
+            await gs.WriteAppSettingsAsync();
         }
     }
 }
