@@ -27,11 +27,34 @@ public class UpdateLauncherDialogVm : ReactiveObject, IActivatableViewModel
             await Task.Run(
                 () =>
                 {
-                    Process.Start(
+                    var downloadProc = Process.Start(
                         new ProcessStartInfo
                         {
                             FileName = "stalker-gamma.updater.exe",
+                            ArgumentList = { "download" },
                             UseShellExecute = true,
+                        }
+                    );
+                    downloadProc?.WaitForExit();
+                    if (downloadProc?.ExitCode == 1)
+                    {
+                        throw new Exception("Update failed");
+                    }
+                    var stalkerGammaUpdaterTempDir = Path.Join(
+                        Path.GetTempPath(),
+                        "stalker-gamma-updater"
+                    );
+                    Process.Start(
+                        new ProcessStartInfo
+                        {
+                            FileName = Path.Join(
+                                stalkerGammaUpdaterTempDir,
+                                "stalker-gamma.updater.exe"
+                            ),
+                            WorkingDirectory = stalkerGammaUpdaterTempDir,
+                            ArgumentList = { "copy", "--destination", _dir },
+                            UseShellExecute = true,
+                            CreateNoWindow = true,
                         }
                     );
                 },

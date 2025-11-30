@@ -40,6 +40,7 @@ public static class UpdateAvailable
                 || string.IsNullOrWhiteSpace(deserialized.TagName)
                 || !Version.TryParse(_versionService.GetVersion(), out var runningVer)
                 || !Version.TryParse(deserialized.TagName, out var latestVer)
+                // || !Version.TryParse("9.9.9", out var latestVer)
                 || string.IsNullOrWhiteSpace(deserialized.Body)
                 || string.IsNullOrWhiteSpace(deserialized.HtmlUrl)
                 || string.IsNullOrWhiteSpace(
