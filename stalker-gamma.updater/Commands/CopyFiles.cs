@@ -43,7 +43,12 @@ public class CopyFiles
             Console.WriteLine($"Successfully copied all files from {srcDir} to {destination}");
 
             Process.Start(
-                new ProcessStartInfo { FileName = stalkerGammaProcessName, UseShellExecute = true }
+                new ProcessStartInfo
+                {
+                    FileName = Path.Join(destination, stalkerGammaProcessName),
+                    UseShellExecute = true,
+                    CreateNoWindow = true,
+                }
             );
 
             return 0;

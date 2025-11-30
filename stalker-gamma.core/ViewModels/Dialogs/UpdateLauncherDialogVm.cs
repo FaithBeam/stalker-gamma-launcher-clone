@@ -40,13 +40,21 @@ public class UpdateLauncherDialogVm : ReactiveObject, IActivatableViewModel
                     {
                         throw new Exception("Update failed");
                     }
-
+                    var stalkerGammaUpdaterTempDir = Path.Join(
+                        Path.GetTempPath(),
+                        "stalker-gamma-updater"
+                    );
                     Process.Start(
                         new ProcessStartInfo
                         {
-                            FileName = "stalker-gamma.updater.exe",
+                            FileName = Path.Join(
+                                stalkerGammaUpdaterTempDir,
+                                "stalker-gamma.updater.exe"
+                            ),
+                            WorkingDirectory = stalkerGammaUpdaterTempDir,
                             ArgumentList = { "copy", "--destination", _dir },
                             UseShellExecute = true,
+                            CreateNoWindow = true,
                         }
                     );
                 },
