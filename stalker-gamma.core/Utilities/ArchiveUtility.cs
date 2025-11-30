@@ -9,15 +9,19 @@ namespace stalker_gamma.core.Utilities;
 
 public static partial class ArchiveUtility
 {
-    private static readonly string Dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
-
     public static async Task ExtractAsync(string archivePath, string destinationFolder)
     {
         var stdOut = new StringBuilder();
         var stdErr = new StringBuilder();
-        var args = $"x \"{archivePath}\" -aoa -o\"{destinationFolder}\"";
-        var cmd = Cli.Wrap(SevenZip)
-            .WithArguments(args)
+        var args = PartJoin(
+            Os7ZPath,
+            "x",
+            $"\"{archivePath}\"",
+            "-aoa",
+            $"-o\"{destinationFolder}\""
+        );
+        var cmd = Cli.Wrap(OsShell)
+            .WithArguments(argBuilder => argBuilder.Add(OsShellArgs).Add(args))
             .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOut))
             .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErr));
         try
@@ -45,8 +49,15 @@ public static partial class ArchiveUtility
         string? workingDirectory = null
     )
     {
-        var args = $"x " + $"-y " + $"\"{archivePath}\" " + $"-o\"{destinationFolder}\" ";
-        var cmd = Cli.Wrap(SevenZip).WithArguments(args);
+        var args = PartJoin(
+            Os7ZPath,
+            "x",
+            "-y",
+            $"\"{archivePath}\"",
+            $"-o\"{destinationFolder}\""
+        );
+        var cmd = Cli.Wrap(OsShell)
+            .WithArguments(argBuilder => argBuilder.Add(OsShellArgs).Add(args));
         if (!string.IsNullOrWhiteSpace(workingDirectory))
         {
             cmd = cmd.WithWorkingDirectory(workingDirectory);
@@ -75,9 +86,16 @@ public static partial class ArchiveUtility
         string? workingDirectory = null
     )
     {
-        var args =
-            $"x " + $"-y " + "-bsp1 " + $"\"{archivePath}\" " + $"-o\"{destinationFolder}\" ";
-        var cmd = Cli.Wrap(SevenZip).WithArguments(args);
+        var args = PartJoin(
+            Os7ZPath,
+            "x",
+            "-y",
+            "-bsp1",
+            $"\"{archivePath}\"",
+            $"-o\"{destinationFolder}\""
+        );
+        var cmd = Cli.Wrap(OsShell)
+            .WithArguments(argBuilder => argBuilder.Add(OsShellArgs).Add(args));
         if (!string.IsNullOrWhiteSpace(workingDirectory))
         {
             cmd = cmd.WithWorkingDirectory(workingDirectory);
@@ -125,8 +143,9 @@ public static partial class ArchiveUtility
 
     public static IObservable<CommandEvent> List(string archivePath, CancellationToken? ct = null)
     {
-        var cli = $"l -slt {archivePath}";
-        var cmd = Cli.Wrap(SevenZip).WithArguments(cli);
+        var cli = PartJoin(Os7ZPath, "l", "-slt", archivePath);
+        var cmd = Cli.Wrap(OsShell)
+            .WithArguments(argBuilder => argBuilder.Add(OsShellArgs).Add(cli));
         return ct is not null ? cmd.Observe(ct.Value) : cmd.Observe();
     }
 
@@ -151,16 +170,20 @@ public static partial class ArchiveUtility
         string? workDirectory = null
     )
     {
-        var cli =
-            $"a "
-            + $"-bsp1 "
-            + $"\"{destination}\" "
-            + $"{string.Join(" ", paths.Select(x => $"\"{x}\""))} "
-            + $"-m0={(compressor == "zstd" ? "bcj" : compressor)} "
-            + $"{(compressor == "zstd" ? "-m1=zstd " : "")}"
-            + $"-mx{compressionLevel} "
-            + $"{(exclusions?.Length == 0 ? "" : string.Join(" ", exclusions!.Select(x => $"-xr!{x}")))}";
-        var cmd = Cli.Wrap(SevenZip).WithArguments(cli);
+        var cli = PartJoin(
+            Os7ZPath,
+            "a",
+            "-bsp",
+            $"\"{destination}\"",
+            $"{string.Join(" ", paths.Select(x => $"\"{x}\""))}",
+            $"-m0={(compressor == "zstd" ? "bcj" : compressor)}",
+            $"{(compressor == "zstd" ? "-m1=zstd " : "")}",
+            $"-mx{compressionLevel}",
+            $"{(exclusions?.Length == 0 ? "" : string.Join(" ", exclusions!.Select(x => $"-xr!{x}")))}"
+        );
+
+        var cmd = Cli.Wrap(OsShell)
+            .WithArguments(argBuilder => argBuilder.Add(OsShellArgs).Add(cli));
         if (workDirectory is not null)
         {
             cmd = cmd.WithWorkingDirectory(workDirectory);
@@ -169,18 +192,20 @@ public static partial class ArchiveUtility
         return cancellationToken is not null ? cmd.Observe(cancellationToken.Value) : cmd.Observe();
     }
 
-    private const string Macos7Zip = "7zz";
-    private const string Windows7Zip = "7z.exe";
-    private const string Linux7Zip = "7zzs";
+    private static readonly string Dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
+    private static readonly string OsShell = OperatingSystem.IsWindows() ? "cmd.exe" : "bash";
+    private static readonly string OsShellArgs = OperatingSystem.IsWindows() ? "/C" : "-c";
+    private static readonly string Os7ZPath = OperatingSystem.IsWindows()
+        ? Path.Join(Dir, "resources", "7zip", "7z.exe")
+        : "7z";
 
-    private static readonly string SevenZipPath =
-        OperatingSystem.IsWindows() ? Windows7Zip
-        : OperatingSystem.IsMacOS() ? Macos7Zip
-        : Linux7Zip;
-
-    private static readonly string SevenZip = OperatingSystem.IsWindows()
-        ? Path.Join(Dir, "Resources", "7zip", SevenZipPath)
-        : SevenZipPath;
+    private static string PartJoin(params string[] parts) =>
+        string.Join(
+            ' ',
+            parts.Select(p =>
+                $"{(OperatingSystem.IsWindows() ? "" : "")}{p}{(OperatingSystem.IsWindows() ? "" : "")}"
+            )
+        );
 
     [GeneratedRegex(@"(\d+(\.\d+)?)\s*%", RegexOptions.Compiled)]
     private static partial Regex ProgressRx();
