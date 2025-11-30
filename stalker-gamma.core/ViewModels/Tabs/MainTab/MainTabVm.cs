@@ -436,6 +436,7 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                     )
                 );
                 IsBusyService.IsBusy = false;
+                modalService.ShowInformationDlg("Installation complete. You can now play.");
             },
             canInstallUpdateGamma
         );
