@@ -352,9 +352,7 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
         BackgroundCheckUpdatesCmd = ReactiveCommand.CreateFromTask(() =>
             Task.Run(async () =>
             {
-                var needUpdates = await gammaInstaller.CheckGammaData(
-                    globalSettings.UseCurlImpersonate
-                );
+                var needUpdates = await gammaInstaller.CheckGammaData();
                 var remoteGammaVersionHash = (
                     await getGitHubRepoCommits.ExecuteAsync(
                         new GetGitHubRepoCommits.Query("Grokitach", "Stalker_GAMMA")

@@ -1,9 +1,30 @@
-﻿namespace stalker_gamma.core.Services;
+﻿using System.Text.RegularExpressions;
+using stalker_gamma.core.Services.GammaInstaller.Utilities;
+using stalker_gamma.core.Utilities;
 
-public class AnomalyInstaller(IHttpClientFactory hcf)
+namespace stalker_gamma.core.Services;
+
+public partial class AnomalyInstaller(ModDb modDb)
 {
-    public async Task DownloadAsync(string downloadPath, string extractPath) { }
+    public async Task DownloadAndExtractAsync(
+        string archivePath,
+        string extractDirectory,
+        Action<double> onProgress
+    )
+    {
+        await _modDb.GetModDbLinkCurl(AnomalyMdbUrl, archivePath, onProgress);
+        await ExtractAnomalyAsync(archivePath, extractDirectory, onProgress);
+    }
+
+    private async Task ExtractAnomalyAsync(
+        string archivePath,
+        string extractDirectory,
+        Action<double> onProgress
+    ) => await ArchiveUtility.ExtractWithProgress(archivePath, extractDirectory, onProgress);
 
     private const string AnomalyMdbUrl = "https://www.moddb.com/downloads/start/277404";
-    private readonly HttpClient _hc = hcf.CreateClient();
+    private readonly ModDb _modDb = modDb;
+
+    [GeneratedRegex(@"(\d+(\.\d+)?)\s*%", RegexOptions.Compiled)]
+    private static partial Regex ProgressRx();
 }

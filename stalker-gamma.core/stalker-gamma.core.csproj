@@ -29,6 +29,8 @@
     <Content Include="resources\**" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="resources\curl-impersonate\linux\" />
+    <Folder Include="resources\curl-impersonate\mac\" />
     <Folder Include="Services\IsRanWithWine\" />
     <Folder Include="ViewModels\Dialogs\DownloadProgress\Commands\" />
   </ItemGroup>

@@ -13,7 +13,7 @@ public partial class ModDb(ICurlService curlService, MirrorService mirrorService
     public async Task<string?> GetModDbLinkCurl(
         string url,
         string output,
-        IProgress<double> progress,
+        Action<double> onProgress,
         bool invalidateMirrorCache = false,
         bool useCurlImpersonate = true,
         params string[]? excludeMirrors
@@ -48,7 +48,7 @@ public partial class ModDb(ICurlService curlService, MirrorService mirrorService
                 downloadLink,
                 parentPath?.FullName ?? "./",
                 Path.GetFileName(output),
-                progress
+                onProgress
             );
 
             return mirror;

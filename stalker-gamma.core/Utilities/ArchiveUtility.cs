@@ -1,3 +1,4 @@
+using System.Reactive.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using CliWrap;
@@ -67,10 +68,10 @@ public static partial class ArchiveUtility
         }
     }
 
-    public static IObservable<CommandEvent> ExtractWithProgress(
+    public static async Task ExtractWithProgress(
         string archivePath,
         string destinationFolder,
-        CancellationToken? ct = null,
+        Action<double> onProgress,
         string? workingDirectory = null
     )
     {
@@ -84,7 +85,31 @@ public static partial class ArchiveUtility
 
         try
         {
-            return ct is not null ? cmd.Observe(ct.Value) : cmd.Observe();
+            await cmd.Observe()
+                .ForEachAsync(cmdEvt =>
+                {
+                    switch (cmdEvt)
+                    {
+                        case StandardOutputCommandEvent stdOut:
+                            if (
+                                ProgressRx().IsMatch(stdOut.Text)
+                                && double.TryParse(
+                                    ProgressRx().Match(stdOut.Text).Groups[1].Value,
+                                    out var parsed
+                                )
+                            )
+                            {
+                                onProgress(parsed);
+                            }
+                            break;
+                        case ExitedCommandEvent:
+                        case StandardErrorCommandEvent:
+                        case StartedCommandEvent:
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException(nameof(cmdEvt));
+                    }
+                });
         }
         catch (CommandExecutionException e)
         {
@@ -156,6 +181,9 @@ public static partial class ArchiveUtility
     private static readonly string SevenZip = OperatingSystem.IsWindows()
         ? Path.Join(Dir, "Resources", "7zip", SevenZipPath)
         : SevenZipPath;
+
+    [GeneratedRegex(@"(\d+(\.\d+)?)\s*%", RegexOptions.Compiled)]
+    private static partial Regex ProgressRx();
 }
 
 public class SevenZipExtractException(string msg, Exception innerException)
