@@ -23,7 +23,7 @@ public class ModListRecord : IModListRecord
     public string? Md5ModDb { get; set; }
 }
 
-public abstract partial class DownloadableRecord(ICurlService curlService) : ModListRecord
+public abstract class DownloadableRecord(ICurlService curlService) : ModListRecord
 {
     protected readonly ICurlService CurlService = curlService;
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
@@ -69,8 +69,7 @@ public abstract partial class DownloadableRecord(ICurlService curlService) : Mod
 
     public virtual async Task DownloadAsync(
         string downloadsPath,
-        bool useCurlImpersonate,
-        IProgress<double> progress,
+        Action<double> onProgress,
         ModDownloadExtractProgressVm modDownloadExtractProgressVm,
         bool invalidateMirrorCache = false
     )
@@ -84,7 +83,7 @@ public abstract partial class DownloadableRecord(ICurlService curlService) : Mod
             Dl,
             Path.GetDirectoryName(DlPath) ?? ".",
             Path.GetFileName(DlPath),
-            progress,
+            onProgress,
             _dir
         );
     }
@@ -92,7 +91,7 @@ public abstract partial class DownloadableRecord(ICurlService curlService) : Mod
     public async Task ExtractAsync(
         string downloadsPath,
         string extractPath,
-        IProgress<double> progress
+        Action<double> onProgress
     )
     {
         DlPath ??= Path.Join(downloadsPath, Name);
@@ -107,47 +106,10 @@ public abstract partial class DownloadableRecord(ICurlService curlService) : Mod
             throw new DownloadableRecordException($"{nameof(DlPath)} is empty");
         }
 
-        await ArchiveUtility
-            .ExtractWithProgress(DlPath, extractPath)
-            .ForEachAsync(cmdEvt =>
-            {
-                switch (cmdEvt)
-                {
-                    case ExitedCommandEvent exit:
-                        // Debug.WriteLine($"Exit: {exit.ExitCode}");
-                        break;
-                    case StandardErrorCommandEvent stdErr:
-                        // Debug.WriteLine($"Error: {stdErr.Text}");
-                        break;
-                    case StandardOutputCommandEvent stdOut:
-                        if (
-                            ProgressRx().IsMatch(stdOut.Text)
-                            && double.TryParse(
-                                ProgressRx().Match(stdOut.Text).Groups[1].Value,
-                                out var parsed
-                            )
-                        )
-                        {
-                            progress.Report(parsed);
-                        }
-                        else
-                        {
-                            // Debug.WriteLine($"Out: {stdOut.Text}");
-                        }
-                        break;
-                    case StartedCommandEvent start:
-                        // Debug.WriteLine($"Start: {start.ProcessId}");
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(cmdEvt));
-                }
-            });
+        await ArchiveUtility.ExtractWithProgress(DlPath, extractPath, onProgress);
 
         SolveInstructions(extractPath);
     }
-
-    [GeneratedRegex(@"(\d+(\.\d+)?)\s*%", RegexOptions.Compiled)]
-    private static partial Regex ProgressRx();
 
     public async Task WriteMetaIniAsync(string extractPath) =>
         await File.WriteAllTextAsync(
@@ -287,8 +249,7 @@ public class GithubRecord(ICurlService curlService, IHttpClientFactory hcf)
 
     public override async Task DownloadAsync(
         string downloadsPath,
-        bool useCurlImpersonate,
-        IProgress<double> progress,
+        Action<double> onProgress,
         ModDownloadExtractProgressVm modDownloadExtractProgressVm,
         bool invalidateMirrorCache = false
     )
@@ -334,11 +295,11 @@ public class GithubRecord(ICurlService curlService, IHttpClientFactory hcf)
                 if (totalBytes.HasValue)
                 {
                     var progressPercentage = (double)totalBytesRead / totalBytes.Value * 100.0;
-                    progress.Report(progressPercentage);
+                    onProgress(progressPercentage);
                 }
             }
 
-            progress.Report(100);
+            onProgress(100);
         }
         finally
         {
@@ -359,8 +320,7 @@ public class ModDbRecord(ModDb modDb, ICurlService curlService) : DownloadableRe
 
     public override async Task DownloadAsync(
         string downloadsPath,
-        bool useCurlImpersonate,
-        IProgress<double> progress,
+        Action<double> onProgress,
         ModDownloadExtractProgressVm modDownloadExtractProgressVm,
         bool invalidateMirrorCache = false
     )
@@ -369,7 +329,7 @@ public class ModDbRecord(ModDb modDb, ICurlService curlService) : DownloadableRe
         var mirror = await modDb.GetModDbLinkCurl(
             DlLink!,
             DlPath,
-            progress,
+            onProgress,
             invalidateMirrorCache: invalidateMirrorCache,
             excludeMirrors: _visitedMirrors.ToArray()
         );
@@ -384,7 +344,7 @@ public class ModDbRecord(ModDb modDb, ICurlService curlService) : DownloadableRe
                 or Action.DownloadMd5Mismatch
         )
         {
-            await modDb.GetModDbLinkCurl(DlLink!, DlPath, progress);
+            await modDb.GetModDbLinkCurl(DlLink!, DlPath, onProgress);
         }
     }
 }

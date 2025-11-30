@@ -21,5 +21,52 @@
       <Link>appsettings.json</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\stalker-gamma.core\resources\7zip\Codecs\LICENSE">
+      <Link>resources\7zip\Codecs\LICENSE</Link>
+    </Content>
+    <Content Include="..\stalker-gamma.core\resources\7zip\Codecs\zstd.dll">
+      <Link>resources\7zip\Codecs\zstd.dll</Link>
+    </Content>
+    <Content Include="..\stalker-gamma.core\resources\curl-impersonate\win\adig.exe">
+      <Link>resources\curl-impersonate\win\adig.exe</Link>
+    </Content>
+    <Content Include="..\stalker-gamma.core\resources\curl-impersonate\win\ahost.exe">
+      <Link>resources\curl-impersonate\win\ahost.exe</Link>
+    </Content>
+    <Content Include="..\stalker-gamma.core\resources\curl-impersonate\win\brotli.exe">
+      <Link>resources\curl-impersonate\win\brotli.exe</Link>
+    </Content>
+    <Content Include="..\stalker-gamma.core\resources\curl-impersonate\win\bssl.exe">
+      <Link>resources\curl-impersonate\win\bssl.exe</Link>
+    </Content>
+    <Content Include="..\stalker-gamma.core\resources\curl-impersonate\win\curl-config">
+      <Link>resources\curl-impersonate\win\curl-config</Link>
+    </Content>
+    <Content Include="..\stalker-gamma.core\resources\curl-impersonate\win\curl.exe">
+      <Link>resources\curl-impersonate\win\curl.exe</Link>
+    </Content>
+    <Content Include="..\stalker-gamma.core\resources\curl-impersonate\win\curl_chrome116.bat">
+      <Link>resources\curl-impersonate\win\curl_chrome116.bat</Link>
+    </Content>
+    <Content Include="..\stalker-gamma.core\resources\curl-impersonate\win\libcurl.dll">
+      <Link>resources\curl-impersonate\win\libcurl.dll</Link>
+    </Content>
+    <Content Include="..\stalker-gamma.core\resources\curl-impersonate\win\wcurl">
+      <Link>resources\curl-impersonate\win\wcurl</Link>
+    </Content>
+    <Content Include="..\stalker-gamma.core\resources\curl-impersonate\win\zlib.dll">
+      <Link>resources\curl-impersonate\win\zlib.dll</Link>
+    </Content>
+    <Content Include="..\stalker-gamma.core\resources\curl-impersonate\win\zstd.exe">
+      <Link>resources\curl-impersonate\win\zstd.exe</Link>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="..\stalker-gamma.core\resources\curl-impersonate\linux\">
+      <Link>resources\curl-impersonate\linux</Link>
+    </Folder>
+    <Folder Include="..\stalker-gamma.core\resources\curl-impersonate\mac\">
+      <Link>resources\curl-impersonate\mac</Link>
+    </Folder>
   </ItemGroup>
 </Project>

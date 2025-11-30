@@ -19,8 +19,7 @@ public class AddonsAndSeparators(
     public async Task Install(
         string downloadsPath,
         string modsPaths,
-        IList<ModDownloadExtractProgressVm> modDownloadProgresses,
-        bool useCurlImpersonate
+        IList<ModDownloadExtractProgressVm> modDownloadProgresses
     )
     {
         if (!Directory.Exists(downloadsPath))
@@ -85,8 +84,7 @@ public class AddonsAndSeparators(
                         f.MyObj.Status = Status.Downloading;
                         await f.File!.DownloadAsync(
                             downloadsPath,
-                            useCurlImpersonate,
-                            f.DlProgress,
+                            f.DlProgress.Report,
                             f.MyObj,
                             invalidateMirrorCache
                         );
@@ -236,7 +234,7 @@ public class AddonsAndSeparators(
 
         await downloadableRecord.WriteMetaIniAsync(extractPath);
 
-        await downloadableRecord.ExtractAsync(downloadsPath, extractPath, extractProgress);
+        await downloadableRecord.ExtractAsync(downloadsPath, extractPath, extractProgress.Report);
     }
 }
 

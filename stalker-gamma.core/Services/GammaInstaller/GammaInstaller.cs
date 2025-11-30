@@ -4,7 +4,6 @@ using System.Text.RegularExpressions;
 using CliWrap;
 using CliWrap.EventStream;
 using CliWrap.Exceptions;
-using DynamicData;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
 using stalker_gamma.core.Utilities;
@@ -33,12 +32,11 @@ public partial class GammaInstaller(
     public async Task<(
         LocalAndRemoteVersion gammaVersions,
         LocalAndRemoteVersion modVersions
-    )> CheckGammaData(bool useCurlImpersonate)
+    )> CheckGammaData()
     {
         var onlineGammaVersion = (
             await _curlService.GetStringAsync(
-                "https://raw.githubusercontent.com/Grokitach/Stalker_GAMMA/main/G.A.M.M.A_definition_version.txt",
-                useCurlImpersonate: useCurlImpersonate
+                "https://raw.githubusercontent.com/Grokitach/Stalker_GAMMA/main/G.A.M.M.A_definition_version.txt"
             )
         ).Trim();
         string? localGammaVersion = null;
@@ -53,10 +51,7 @@ public partial class GammaInstaller(
         string? localMods = null;
         var modsFile = Path.Combine(_dir, "mods.txt");
         var remoteMods = (
-            await _curlService.GetStringAsync(
-                "https://stalker-gamma.com/api/list?key=",
-                useCurlImpersonate: useCurlImpersonate
-            )
+            await _curlService.GetStringAsync("https://stalker-gamma.com/api/list?key=")
         )
             .Trim()
             .ReplaceLineEndings();
@@ -177,8 +172,7 @@ public partial class GammaInstaller(
             modsPaths,
             modDownloadExtractProgressVms
                 .Where(x => x.ModListRecord is DownloadableRecord or Separator)
-                .ToList(),
-            useCurlImpersonate
+                .ToList()
         );
 
         // modpack specific install
@@ -208,7 +202,6 @@ public partial class GammaInstaller(
             "https://stalker-gamma.com/api/list?key=",
             _dir,
             "mods.txt",
-            useCurlImpersonate,
             _dir
         );
     }
