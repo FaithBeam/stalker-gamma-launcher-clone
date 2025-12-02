@@ -19,7 +19,9 @@ public partial class MirrorService(ICurlService cs)
         try
         {
             _mirrors =
-                _mirrors is null || invalidateCache ? await GetMirrorsAsync(mirrorUrl) : _mirrors;
+                _mirrors is null || _mirrors.Count == 0 || invalidateCache
+                    ? await GetMirrorsAsync(mirrorUrl)
+                    : _mirrors;
         }
         finally
         {

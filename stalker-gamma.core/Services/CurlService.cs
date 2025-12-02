@@ -56,15 +56,15 @@ public partial class CurlService(
         string? workingDir = null
     )
     {
-        var cmd = Cli.Wrap(Path.Join(PathToCurlImpersonateWin, "curl.exe"));
+        var cmd = Cli.Wrap(OsShell);
         if (!string.IsNullOrWhiteSpace(workingDir))
         {
             cmd = cmd.WithWorkingDirectory(workingDir);
         }
 
         var args =
-            $"--progress-bar --config \"{Path.Join(PathToCurlImpersonateWin, "config", "chrome116.config")}\" --header \"@{Path.Join(PathToCurlImpersonateWin, "config", "chrome116.header")}\" --clobber -Lo \"{Path.Join(pathToDownloads, fileName)}\" {url}";
-        cmd = cmd.WithArguments(args);
+            $"{OsScriptPath} --progress-bar --clobber -Lo {Path.Join(pathToDownloads, fileName).Replace(" ", "^ ")} {url}";
+        cmd = cmd.WithArguments(argBuilder => argBuilder.Add(OsShellArgs).Add(args));
         try
         {
             await cmd.Observe()
@@ -117,7 +117,7 @@ public partial class CurlService(
         {
             var stdOut = new StringBuilder();
             var stdErr = new StringBuilder();
-            var cmd = Cli.Wrap(Path.Join(PathToCurlImpersonateWin, "curl.exe"))
+            var cmd = Cli.Wrap(OsShell)
                 .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOut))
                 .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErr));
             if (!string.IsNullOrWhiteSpace(workingDir))
@@ -126,8 +126,8 @@ public partial class CurlService(
             }
 
             var args =
-                $"--config \"{Path.Join(PathToCurlImpersonateWin, "config", "chrome116.config")}\" --header \"@{Path.Join(PathToCurlImpersonateWin, "config", "chrome116.header")}\" --clobber -Lo \"{Path.Join(pathToDownloads, fileName)}\" {url}";
-            cmd = cmd.WithArguments(args);
+                $"{OsScriptPath} --clobber -Lo {Path.Join(pathToDownloads, fileName).Replace(" ", "^ ")} {url}";
+            cmd = cmd.WithArguments(argBuilder => argBuilder.Add(OsShellArgs).Add(args));
             try
             {
                 await cmd.ExecuteAsync();
@@ -165,12 +165,28 @@ public partial class CurlService(
         {
             var stdOut = new StringBuilder();
             var stdErr = new StringBuilder();
-            var cmd = Cli.Wrap(Path.Join(PathToCurlImpersonateWin, "curl.exe"))
-                .WithArguments($"{GetStringCmd} {CommonCurlArgs} {url} {extraCmds}")
-                .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOut))
-                .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErr));
-            var result = await cmd.ExecuteAsync();
-            return stdOut.ToString();
+            try
+            {
+                var cmd = Cli.Wrap(OsShell)
+                    .WithArguments(argBuilder =>
+                        argBuilder.Add(OsShellArgs).Add($"{OsScriptPath} --no-progress-meter {url}")
+                    )
+                    .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOut))
+                    .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErr));
+                var result = await cmd.ExecuteAsync();
+                return stdOut.ToString();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(
+                    $"""
+                    {stdOut}
+                    {stdErr}
+                    {e}
+                    """
+                );
+                throw;
+            }
         }
 
         _httpClient ??= new HttpClient();
@@ -179,24 +195,18 @@ public partial class CurlService(
         return content;
     }
 
-    private const string CommonCurlArgs = "--no-progress-meter";
-
     private static readonly string PathToCurlImpersonateWin = Path.Join(
         Dir,
         "resources",
-        "curl-impersonate-win"
+        "curl-impersonate",
+        "win"
     );
-
-    private const string MacosGetStringCmd =
-        "docker run --rm lwthiker/curl-impersonate:0.6-chrome curl_chrome116";
-    private static readonly string WindowsGetStringCmd =
-        $"--config \"{Path.Join(PathToCurlImpersonateWin, "config", "chrome116.config")}\" --header \"@{Path.Join(PathToCurlImpersonateWin, "config", "chrome116.header")}\"";
-    private const string LinuxGetStringCmd =
-        "docker run --rm lwthiker/curl-impersonate:0.6-chrome curl_chrome116";
-    private string GetStringCmd =>
-        _operatingSystemService.IsWindows() ? WindowsGetStringCmd
-        : _operatingSystemService.IsMacOS() ? MacosGetStringCmd
-        : LinuxGetStringCmd;
+    private static readonly string OsShell = OperatingSystem.IsWindows() ? "cmd" : "bash";
+    private static readonly string OsShellArgs = OperatingSystem.IsWindows() ? "/c" : "-c";
+    private static readonly string OsScriptName = OperatingSystem.IsWindows()
+        ? "curl_chrome136.bat"
+        : "curl_chrome136";
+    private static readonly string OsScriptPath = Path.Join(PathToCurlImpersonateWin, OsScriptName);
 
     [GeneratedRegex(@"(\d+(\.\d+)?)\s*%", RegexOptions.Compiled)]
     private static partial Regex CurlProgressRx();
