@@ -206,7 +206,8 @@ public partial class CurlService(
     private static readonly string OsScriptName = OperatingSystem.IsWindows()
         ? "curl_chrome136.bat"
         : "curl_chrome136";
-    private static readonly string OsScriptPath = Path.Join(PathToCurlImpersonateWin, OsScriptName);
+    private static readonly string OsScriptPath = Path.Join(PathToCurlImpersonateWin, OsScriptName)
+        .Replace(" ", "^ ");
 
     [GeneratedRegex(@"(\d+(\.\d+)?)\s*%", RegexOptions.Compiled)]
     private static partial Regex CurlProgressRx();
