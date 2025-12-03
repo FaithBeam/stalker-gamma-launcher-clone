@@ -63,8 +63,9 @@ public partial class CurlService(
         }
 
         var args =
-            $"{OsScriptPath} --progress-bar --clobber -Lo {Path.Join(pathToDownloads, fileName).Replace(" ", "^ ")} {url}";
-        cmd = cmd.WithArguments(argBuilder => argBuilder.Add(OsShellArgs).Add(args));
+            $"{OsScriptName} --progress-bar --clobber -Lo {Path.Join(pathToDownloads, fileName).Replace(" ", "^ ")} {url}";
+        cmd = cmd.WithArguments(argBuilder => argBuilder.Add(OsShellArgs).Add(args))
+            .WithWorkingDirectory(WorkDir);
         try
         {
             await cmd.Observe()
@@ -126,8 +127,9 @@ public partial class CurlService(
             }
 
             var args =
-                $"{OsScriptPath} --clobber -Lo {Path.Join(pathToDownloads, fileName).Replace(" ", "^ ")} {url}";
-            cmd = cmd.WithArguments(argBuilder => argBuilder.Add(OsShellArgs).Add(args));
+                $"{OsScriptName} --clobber -Lo {Path.Join(pathToDownloads, fileName).Replace(" ", "^ ")} {url}";
+            cmd = cmd.WithArguments(argBuilder => argBuilder.Add(OsShellArgs).Add(args))
+                .WithWorkingDirectory(WorkDir);
             try
             {
                 await cmd.ExecuteAsync();
@@ -169,8 +171,9 @@ public partial class CurlService(
             {
                 var cmd = Cli.Wrap(OsShell)
                     .WithArguments(argBuilder =>
-                        argBuilder.Add(OsShellArgs).Add($"{OsScriptPath} --no-progress-meter {url}")
+                        argBuilder.Add(OsShellArgs).Add($"{OsScriptName} --no-progress-meter {url}")
                     )
+                    .WithWorkingDirectory(WorkDir)
                     .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOut))
                     .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErr));
                 var result = await cmd.ExecuteAsync();
@@ -195,6 +198,7 @@ public partial class CurlService(
         return content;
     }
 
+    private static readonly string WorkDir = Path.Join(Dir, "resources", "curl-impersonate", "win");
     private static readonly string PathToCurlImpersonateWin = Path.Join(
         Dir,
         "resources",
@@ -206,8 +210,6 @@ public partial class CurlService(
     private static readonly string OsScriptName = OperatingSystem.IsWindows()
         ? "curl_chrome136.bat"
         : "curl_chrome136";
-    private static readonly string OsScriptPath = Path.Join(PathToCurlImpersonateWin, OsScriptName)
-        .Replace(" ", "^ ");
 
     [GeneratedRegex(@"(\d+(\.\d+)?)\s*%", RegexOptions.Compiled)]
     private static partial Regex CurlProgressRx();
