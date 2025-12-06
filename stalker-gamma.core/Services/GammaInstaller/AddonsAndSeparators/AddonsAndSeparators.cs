@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Threading.Channels;
 using stalker_gamma.core.Models;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Factories;
@@ -194,9 +195,10 @@ public class AddonsAndSeparators(
                                 item.MyObj.Status = Status.Done;
                             }
                         }
-                        catch (Exception)
+                        catch (Exception e)
                         {
                             item.MyObj.Status = Status.Retry;
+                            Debug.WriteLine(e);
                             var extractPath = Path.Join(
                                 $"{item.File.Counter}-{item.File.AddonName}{item.File.Patch}"
                             );

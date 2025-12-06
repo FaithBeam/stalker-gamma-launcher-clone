@@ -2,6 +2,7 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using CliWrap;
+using CliWrap.Builders;
 using CliWrap.EventStream;
 using CliWrap.Exceptions;
 
@@ -13,15 +14,9 @@ public static partial class ArchiveUtility
     {
         var stdOut = new StringBuilder();
         var stdErr = new StringBuilder();
-        var args = PartJoin(
-            Os7ZPath,
-            "x",
-            $"\"{archivePath}\"",
-            "-aoa",
-            $"-o\"{destinationFolder}\""
-        );
-        var cmd = Cli.Wrap(OsShell)
-            .WithArguments(argBuilder => argBuilder.Add(OsShellArgs).Add(args))
+        var args = new[] { "x", $"{archivePath}", "-aoa", $"-o{destinationFolder}" };
+        var cmd = Cli.Wrap(Os7ZPath)
+            .WithArguments(argBuilder => AppendArgument(args, argBuilder))
             .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOut))
             .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErr));
         try
@@ -49,15 +44,8 @@ public static partial class ArchiveUtility
         string? workingDirectory = null
     )
     {
-        var args = PartJoin(
-            Os7ZPath,
-            "x",
-            "-y",
-            $"\"{archivePath}\"",
-            $"-o\"{destinationFolder}\""
-        );
-        var cmd = Cli.Wrap(OsShell)
-            .WithArguments(argBuilder => argBuilder.Add(OsShellArgs).Add(args));
+        var args = new[] { "x", "-y", $"{archivePath}", $"-o{destinationFolder}" };
+        var cmd = Cli.Wrap(Os7ZPath).WithArguments(argBuilder => AppendArgument(args, argBuilder));
         if (!string.IsNullOrWhiteSpace(workingDirectory))
         {
             cmd = cmd.WithWorkingDirectory(workingDirectory);
@@ -86,16 +74,22 @@ public static partial class ArchiveUtility
         string? workingDirectory = null
     )
     {
-        var args = PartJoin(
-            Os7ZPath,
-            "x",
-            "-y",
-            "-bsp1",
-            $"\"{archivePath}\"",
-            $"-o\"{destinationFolder}\""
-        );
-        var cmd = Cli.Wrap(OsShell)
-            .WithArguments(argBuilder => argBuilder.Add(OsShellArgs).Add(args));
+        string pathToUnarchiver;
+        string[] args;
+
+        if (archivePath.EndsWith(".rar") && OperatingSystem.IsMacOS())
+        {
+            pathToUnarchiver = OsRarPath;
+            args = ["x", "-o+", archivePath, destinationFolder];
+        }
+        else
+        {
+            args = ["x", "-y", "-bsp1", archivePath, $"-o\"{destinationFolder}\""];
+            pathToUnarchiver = Os7ZPath;
+        }
+
+        var cmd = Cli.Wrap(pathToUnarchiver)
+            .WithArguments(argBuilder => AppendArgument(args, argBuilder));
         if (!string.IsNullOrWhiteSpace(workingDirectory))
         {
             cmd = cmd.WithWorkingDirectory(workingDirectory);
@@ -143,10 +137,17 @@ public static partial class ArchiveUtility
 
     public static IObservable<CommandEvent> List(string archivePath, CancellationToken? ct = null)
     {
-        var cli = PartJoin(Os7ZPath, "l", "-slt", archivePath);
-        var cmd = Cli.Wrap(OsShell)
-            .WithArguments(argBuilder => argBuilder.Add(OsShellArgs).Add(cli));
+        var args = new[] { "l", "-slt", archivePath };
+        var cmd = Cli.Wrap(Os7ZPath).WithArguments(argBuilder => AppendArgument(args, argBuilder));
         return ct is not null ? cmd.Observe(ct.Value) : cmd.Observe();
+    }
+
+    private static void AppendArgument(string[] args, ArgumentsBuilder argBuilder)
+    {
+        foreach (var arg in args)
+        {
+            argBuilder.Add(arg);
+        }
     }
 
     /// <summary>
@@ -170,20 +171,19 @@ public static partial class ArchiveUtility
         string? workDirectory = null
     )
     {
-        var cli = PartJoin(
-            Os7ZPath,
+        var args = new[]
+        {
             "a",
             "-bsp",
-            $"\"{destination}\"",
-            $"{string.Join(" ", paths.Select(x => $"\"{x}\""))}",
+            $"{destination}",
+            $"{string.Join(" ", paths.Select(x => $"{x}"))}",
             $"-m0={(compressor == "zstd" ? "bcj" : compressor)}",
             $"{(compressor == "zstd" ? "-m1=zstd " : "")}",
             $"-mx{compressionLevel}",
-            $"{(exclusions?.Length == 0 ? "" : string.Join(" ", exclusions!.Select(x => $"-xr!{x}")))}"
-        );
+            $"{(exclusions?.Length == 0 ? "" : string.Join(" ", exclusions!.Select(x => $"-xr!{x}")))}",
+        };
 
-        var cmd = Cli.Wrap(OsShell)
-            .WithArguments(argBuilder => argBuilder.Add(OsShellArgs).Add(cli));
+        var cmd = Cli.Wrap(Os7ZPath).WithArguments(argBuilder => AppendArgument(args, argBuilder));
         if (workDirectory is not null)
         {
             cmd = cmd.WithWorkingDirectory(workDirectory);
@@ -193,19 +193,10 @@ public static partial class ArchiveUtility
     }
 
     private static readonly string Dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
-    private static readonly string OsShell = OperatingSystem.IsWindows() ? "cmd.exe" : "bash";
-    private static readonly string OsShellArgs = OperatingSystem.IsWindows() ? "/C" : "-c";
     private static readonly string Os7ZPath = OperatingSystem.IsWindows()
         ? Path.Join(Dir, "resources", "7zip", "7z.exe")
-        : "7z";
-
-    private static string PartJoin(params string[] parts) =>
-        string.Join(
-            ' ',
-            parts.Select(p =>
-                $"{(OperatingSystem.IsWindows() ? "" : "")}{p}{(OperatingSystem.IsWindows() ? "" : "")}"
-            )
-        );
+        : "7zz";
+    private static readonly string OsRarPath = OperatingSystem.IsMacOS() ? "unrar" : "unrar";
 
     [GeneratedRegex(@"(\d+(\.\d+)?)\s*%", RegexOptions.Compiled)]
     private static partial Regex ProgressRx();

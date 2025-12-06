@@ -5,9 +5,6 @@ namespace stalker_gamma.core.Models;
 
 public class GlobalSettings
 {
-    [JsonPropertyName("useCurlImpersonate")]
-    public bool UseCurlImpersonate { get; set; } = true;
-
     [JsonPropertyName("downloadThreads")]
     public int DownloadThreads { get; set; } = 4;
 

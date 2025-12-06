@@ -29,7 +29,7 @@ public interface ICurlService
         string url,
         string pathToDownloads,
         string fileName,
-        IProgress<double> progress,
+        Action<double>? onProgress = null,
         string? workingDir = null
     );
 }
@@ -52,7 +52,7 @@ public partial class CurlService(
         string url,
         string pathToDownloads,
         string fileName,
-        IProgress<double> progress,
+        Action<double>? onProgress = null,
         string? workingDir = null
     )
     {
@@ -87,7 +87,7 @@ public partial class CurlService(
                                 )
                             )
                             {
-                                progress.Report(parsed);
+                                onProgress?.Invoke(parsed);
                             }
                             break;
                         case ExitedCommandEvent:
@@ -176,29 +176,24 @@ public partial class CurlService(
         }
         catch (CommandExecutionException e)
         {
-            throw new CurlDownloadException(
-                $"""
-                Error getting string from url: {url}
-                """,
-                e
-            );
+            throw new CurlDownloadException($"Error getting string from url: {url}", e);
         }
     }
 
-    private static readonly string OsCurlName = OperatingSystem.IsWindows() ? "curl.exe" : "curl";
+    private static readonly string OsCurlName = OperatingSystem.IsWindows()
+        ? "curl.exe"
+        : "curl-impersonate";
+    private static readonly string OsName =
+        OperatingSystem.IsWindows() ? "win"
+        : OperatingSystem.IsLinux() ? "linux"
+        : "mac";
     private static readonly string PathToCurlImpersonate = Path.Join(
         Dir,
         "resources",
         "curl-impersonate",
-        "win",
+        OsName,
         OsCurlName
     );
-
-    // private static readonly string OsShell = OperatingSystem.IsWindows() ? "cmd" : "bash";
-    // private static readonly string OsShellArgs = OperatingSystem.IsWindows() ? "/c" : "-c";
-    private static readonly string OsScriptName = OperatingSystem.IsWindows()
-        ? "curl_chrome136.bat"
-        : "curl_chrome136";
 
     [GeneratedRegex(@"(\d+(\.\d+)?)\s*%", RegexOptions.Compiled)]
     private static partial Regex CurlProgressRx();

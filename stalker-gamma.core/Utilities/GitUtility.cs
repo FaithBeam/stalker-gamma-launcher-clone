@@ -19,41 +19,58 @@ public partial class GitUtility
     {
         var repoPath = Path.Combine(dir, "resources", repoName);
         var resourcesPath = Path.Combine(dir, "resources");
-        var gitConfig = PartJoin(
-            "config --add safe.directory '*' && config core.longpaths true && config http.postBuffer 524288000 && config http.maxRequestBuffer 524288000".Split(
-                "&&",
-                StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries
-            )
-        );
+        var addSafeDir = new[] { "config", "--add", "safe.directory", "'*'" };
+        var longPaths = new[] { "config", "core.longpaths", "true" };
+        var postBuffer = new[] { "config", "http.postBuffer", "524288000" };
+        var maxRequestBuffer = new[] { "config", "http.maxRequestBuffer", "524288000" };
 
         if (Directory.Exists(repoPath))
         {
             await RunGitCommand(
                 repoPath,
-                [gitConfig, PartJoin("reset,", "--hard", "HEAD"), PartJoin("clean", "-f", "-d")]
+                [
+                    addSafeDir,
+                    longPaths,
+                    postBuffer,
+                    maxRequestBuffer,
+                    ["reset", "--hard", "HEAD"],
+                    ["clean", "-f", "-d"],
+                ]
             );
 
-            await RunGitCommandWithProgressAsync(
+            await RunGitCommandWithProgressAsync(repoPath, onProgress, "pull", "--progress");
+
+            await RunGitCommand(
                 repoPath,
-                PartJoin("pull", "--progress"),
-                onProgress
+                [
+                    ["checkout", branch],
+                ]
             );
-
-            await RunGitCommand(repoPath, [PartJoin("checkout", branch)]);
         }
         else
         {
-            await RunGitCommand(resourcesPath, [gitConfig, PartJoin("clone", repoUrl)]);
-            await RunGitCommand(repoPath, [gitConfig, PartJoin("checkout", branch)]);
+            await RunGitCommand(
+                resourcesPath,
+                [addSafeDir, longPaths, postBuffer, maxRequestBuffer, ["clone", repoUrl]]
+            );
+            await RunGitCommand(
+                repoPath,
+                [addSafeDir, longPaths, postBuffer, maxRequestBuffer, ["checkout", branch]]
+            );
         }
     }
 
-    public async Task<string> RunGitCommandObs(string workingDir, string commands)
+    public async Task<string> RunGitCommandObs(string workingDir, params string[] args)
     {
-        commands = PartJoin(OsGitPath, commands);
         var sb = new StringBuilder();
-        var cmd = Cli.Wrap(OsShell)
-            .WithArguments(argBuilder => argBuilder.Add(OsShellArgs).Add(commands))
+        var cmd = Cli.Wrap(OsGitPath)
+            .WithArguments(argBuilder =>
+            {
+                foreach (var arg in args)
+                {
+                    argBuilder.Add(arg);
+                }
+            })
             .WithWorkingDirectory(workingDir)
             .WithStandardOutputPipe(PipeTarget.ToStringBuilder(sb));
         await cmd.ExecuteAsync();
@@ -62,13 +79,18 @@ public partial class GitUtility
 
     private async Task RunGitCommandWithProgressAsync(
         string workingDir,
-        string command,
-        Action<double> onProgress
+        Action<double> onProgress,
+        params string[] args
     )
     {
-        command = PartJoin(OsGitPath, command);
-        await Cli.Wrap(OsShell)
-            .WithArguments(argBuilder => argBuilder.Add(OsShellArgs).Add(command))
+        await Cli.Wrap(OsGitPath)
+            .WithArguments(argBuilder =>
+            {
+                foreach (var arg in args)
+                {
+                    argBuilder.Add(arg);
+                }
+            })
             .WithWorkingDirectory(workingDir)
             .Observe()
             .ForEachAsync(cmdEvt =>
@@ -100,7 +122,7 @@ public partial class GitUtility
             });
     }
 
-    private async Task RunGitCommand(string workingDir, string[] commands)
+    private async Task RunGitCommand(string workingDir, List<string[]> commands)
     {
         var stdOut = new StringBuilder();
         var stdErr = new StringBuilder();
@@ -108,9 +130,14 @@ public partial class GitUtility
         {
             foreach (var command in commands)
             {
-                var cmd = PartJoin(OsGitPath, command);
-                await Cli.Wrap(OsShell)
-                    .WithArguments(argBuilder => argBuilder.Add(OsShellArgs).Add(cmd))
+                await Cli.Wrap(OsGitPath)
+                    .WithArguments(argBuilder =>
+                    {
+                        foreach (var arg in command)
+                        {
+                            argBuilder.Add(arg);
+                        }
+                    })
                     .WithWorkingDirectory(workingDir)
                     .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOut))
                     .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErr))
@@ -131,8 +158,6 @@ public partial class GitUtility
     }
 
     private static readonly string Dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
-    private static readonly string OsShell = OperatingSystem.IsWindows() ? "cmd.exe" : "bash";
-    private static readonly string OsShellArgs = OperatingSystem.IsWindows() ? "/C" : "-c";
     private static readonly string OsGitPath = OperatingSystem.IsWindows()
         ? Path.Join(Dir, "resources", "bin", "git.exe")
         : "git";
