@@ -402,18 +402,20 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                 mo2Initialized
             ) =>
                 !isBusy
-                && inGrokModDir
                 && toolsReady
-                && mo2Initialized
                 && (
                     !operatingSystemService.IsWindows()
                     || (
                         operatingSystemService.IsWindows()
+                        && inGrokModDir
+                        && mo2Initialized
                         && !isRanWithWine
                         && longPathsStatus.HasValue
                         && longPathsStatus.Value
                     )
                     || operatingSystemService.IsWindows()
+                        && inGrokModDir
+                        && mo2Initialized
                         && isRanWithWine
                         && mo2Downgraded.HasValue
                         && mo2Downgraded.Value
@@ -427,7 +429,6 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                 await Task.Run(() =>
                     gammaInstaller.InstallUpdateGammaAsync(
                         DeleteReshadeDlls,
-                        globalSettings.UseCurlImpersonate,
                         PreserveUserLtx,
                         ModDownloadExtractProgressVms ?? throw new InvalidOperationException(),
                         locker

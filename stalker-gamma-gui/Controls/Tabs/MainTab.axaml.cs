@@ -57,7 +57,7 @@ public partial class MainTabVm
                 )
                 .Subscribe(x =>
                 {
-                    if (!x)
+                    if (!x && OperatingSystem.IsWindows())
                     {
                         ToolTip.SetTip(
                             PlayBtn,
@@ -117,7 +117,9 @@ public partial class MainTabVm
                         (
                             LongPathsStatus: longPathsStatus,
                             RanWithWine: ranWithWine,
-                            IsWindows: OperatingSystem.IsWindows()
+                            IsWindows: OperatingSystem.IsWindows(),
+                            IsLinux: OperatingSystem.IsLinux(),
+                            IsMacOS: OperatingSystem.IsMacOS()
                         )
                 )
                 .Subscribe(x =>

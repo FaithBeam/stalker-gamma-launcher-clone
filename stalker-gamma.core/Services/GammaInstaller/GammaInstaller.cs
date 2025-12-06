@@ -119,7 +119,6 @@ public partial class GammaInstaller(
 
     public async Task InstallUpdateGammaAsync(
         bool deleteReshadeDlls,
-        bool useCurlImpersonate,
         bool preserveUserLtx,
         IReadOnlyList<ModDownloadExtractProgressVm> modDownloadExtractProgressVms,
         object locker
@@ -202,6 +201,7 @@ public partial class GammaInstaller(
             "https://stalker-gamma.com/api/list?key=",
             _dir,
             "mods.txt",
+            null,
             _dir
         );
     }
