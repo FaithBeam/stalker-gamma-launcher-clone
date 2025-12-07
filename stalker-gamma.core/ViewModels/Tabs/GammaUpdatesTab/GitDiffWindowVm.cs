@@ -38,14 +38,16 @@ public class GitDiffWindowVm : ViewModelBase, IActivatableViewModel, IGitDiffWin
 
         GitDiffFileInteraction = new Interaction<string, Unit>();
 
-        GitDiffFileCmd = ReactiveCommand.CreateFromTask(async () =>
-            await gitDiffFileHandler.ExecuteAsync(new GetGitDiffFile.Query(dir, filePath))
+        GitDiffFileCmd = ReactiveCommand.Create(() =>
+            gitDiffFileHandler.Execute(new GetGitDiffFile.Query(dir, filePath))
         );
-        GitDiffFileCmd.Subscribe(async x => await GitDiffFileInteraction.Handle(x));
         GitDiffFileCmd.ThrownExceptions.Subscribe(x => modalService.ShowErrorDlg(x.ToString()));
 
         this.WhenActivated(d =>
         {
+            GitDiffFileCmd
+                .Subscribe(async x => await GitDiffFileInteraction.Handle(x))
+                .DisposeWith(d);
             GitDiffFileCmd.Execute().Subscribe().DisposeWith(d);
         });
     }

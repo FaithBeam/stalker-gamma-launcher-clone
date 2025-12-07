@@ -1,6 +1,4 @@
-﻿using System.Net.Http;
-using System.Threading.Tasks;
-using NSubstitute;
+﻿using System.Threading.Tasks;
 using stalker_gamma.core.Services;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
 
@@ -11,9 +9,7 @@ public class MirrorServiceTests
     [Test]
     public async Task TestMirrorService()
     {
-        var hcf = Substitute.For<IHttpClientFactory>();
-        hcf.CreateClient(Arg.Any<string>()).Returns(new HttpClient());
-        var cs = new CurlService(hcf);
+        var cs = new CurlService();
         var sut = new MirrorService(cs);
 
         var result = await sut.GetMirrorAsync("https://www.moddb.com/downloads/start/183466/all");

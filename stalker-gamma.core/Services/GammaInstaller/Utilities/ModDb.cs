@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using stalker_gamma.core.Models;
 
 namespace stalker_gamma.core.Services.GammaInstaller.Utilities;
 
@@ -15,7 +16,6 @@ public partial class ModDb(ICurlService curlService, MirrorService mirrorService
         string output,
         Action<double> onProgress,
         bool invalidateMirrorCache = false,
-        bool useCurlImpersonate = true,
         params string[]? excludeMirrors
     )
     {

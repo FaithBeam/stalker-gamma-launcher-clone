@@ -1,0 +1,9 @@
+{
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "full-install": {
+      "commandName": "Project",
+      "commandLineArgs": "full-install --anomaly anomaly --gamma gamma --cache-directory cache --anomaly-archive-name anomaly.tar.zst"
+    }
+  }
+}

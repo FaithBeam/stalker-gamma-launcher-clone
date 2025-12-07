@@ -17,19 +17,17 @@ public class ModpackSpecific(GitUtility gitUtility)
         ModDownloadExtractProgressVm modpackAddonsVm
     )
     {
-        var t1 = Task.Run(async () =>
+        var t1 = Task.Run(() =>
         {
             gammaLargeFiles.Status = Status.Checking;
-            await _gitUtility.UpdateGitRepo(
+            _gitUtility.UpdateGitRepo(
                 _dir,
                 "gamma_large_files_v2",
-                "https://github.com/Grokitach/gamma_large_files_v2",
                 "main",
+                onStatus: status => gammaLargeFiles.Status = status,
                 onProgress: progress => gammaLargeFiles.ProgressInterface.Report(progress)
             );
-            gammaLargeFiles.Status = Status.ExtractAtEnd;
 
-            gammaLargeFiles.Status = Status.Extracting;
             DirUtils.CopyDirectory(
                 Path.Join(dir, "resources", "gamma_large_files_v2"),
                 modsPaths,
@@ -39,17 +37,16 @@ public class ModpackSpecific(GitUtility gitUtility)
             gammaLargeFiles.Status = Status.Done;
         });
 
-        var t2 = Task.Run(async () =>
+        var t2 = Task.Run(() =>
         {
             teivazAnomalyGunslinger.Status = Status.Checking;
-            await _gitUtility.UpdateGitRepo(
+            _gitUtility.UpdateGitRepo(
                 _dir,
                 "teivaz_anomaly_gunslinger",
-                "https://github.com/Grokitach/teivaz_anomaly_gunslinger",
                 "main",
+                onStatus: status => teivazAnomalyGunslinger.Status = status,
                 onProgress: progress => teivazAnomalyGunslinger.ProgressInterface.Report(progress)
             );
-            teivazAnomalyGunslinger.Status = Status.ExtractAtEnd;
 
             teivazAnomalyGunslinger.Status = Status.Extracting;
             foreach (

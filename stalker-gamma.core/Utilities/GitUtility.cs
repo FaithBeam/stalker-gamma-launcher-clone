@@ -1,177 +1,58 @@
-using System.Reactive.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using CliWrap;
-using CliWrap.EventStream;
-using CliWrap.Exceptions;
+using LibGit2Sharp;
+using stalker_gamma.core.ViewModels.Tabs.MainTab;
 
 namespace stalker_gamma.core.Utilities;
 
 public partial class GitUtility
 {
-    public async Task UpdateGitRepo(
+    public void UpdateGitRepo(
         string dir,
         string repoName,
-        string repoUrl,
         string branch,
-        Action<double> onProgress
+        Action<double> onProgress,
+        Action<Status> onStatus
     )
     {
         var repoPath = Path.Combine(dir, "resources", repoName);
-        var resourcesPath = Path.Combine(dir, "resources");
-        var addSafeDir = new[] { "config", "--add", "safe.directory", "'*'" };
-        var longPaths = new[] { "config", "core.longpaths", "true" };
-        var postBuffer = new[] { "config", "http.postBuffer", "524288000" };
-        var maxRequestBuffer = new[] { "config", "http.maxRequestBuffer", "524288000" };
 
-        if (Directory.Exists(repoPath))
-        {
-            await RunGitCommand(
-                repoPath,
-                [
-                    addSafeDir,
-                    longPaths,
-                    postBuffer,
-                    maxRequestBuffer,
-                    ["reset", "--hard", "HEAD"],
-                    ["clean", "-f", "-d"],
-                ]
-            );
+        var repo = new Repository(repoPath);
+        repo.Config.Add("safe.directory", "*");
+        repo.Config.Set("core.longpaths", "true");
+        repo.Config.Set("http.postBuffer", "524288000");
+        repo.Config.Set("http.maxRequestBuffer", "524288000");
 
-            await RunGitCommandWithProgressAsync(repoPath, onProgress, "pull", "--progress");
+        repo.Reset(ResetMode.Hard);
 
-            await RunGitCommand(
-                repoPath,
-                [
-                    ["checkout", branch],
-                ]
-            );
-        }
-        else
-        {
-            await RunGitCommand(
-                resourcesPath,
-                [addSafeDir, longPaths, postBuffer, maxRequestBuffer, ["clone", repoUrl]]
-            );
-            await RunGitCommand(
-                repoPath,
-                [addSafeDir, longPaths, postBuffer, maxRequestBuffer, ["checkout", branch]]
-            );
-        }
-    }
-
-    public async Task<string> RunGitCommandObs(string workingDir, params string[] args)
-    {
-        var sb = new StringBuilder();
-        var cmd = Cli.Wrap(OsGitPath)
-            .WithArguments(argBuilder =>
+        Commands.Pull(
+            repo,
+            MySig,
+            new PullOptions
             {
-                foreach (var arg in args)
+                FetchOptions = new FetchOptions
                 {
-                    argBuilder.Add(arg);
-                }
-            })
-            .WithWorkingDirectory(workingDir)
-            .WithStandardOutputPipe(PipeTarget.ToStringBuilder(sb));
-        await cmd.ExecuteAsync();
-        return sb.ToString();
-    }
-
-    private async Task RunGitCommandWithProgressAsync(
-        string workingDir,
-        Action<double> onProgress,
-        params string[] args
-    )
-    {
-        await Cli.Wrap(OsGitPath)
-            .WithArguments(argBuilder =>
-            {
-                foreach (var arg in args)
-                {
-                    argBuilder.Add(arg);
-                }
-            })
-            .WithWorkingDirectory(workingDir)
-            .Observe()
-            .ForEachAsync(cmdEvt =>
-            {
-                switch (cmdEvt)
-                {
-                    case StandardOutputCommandEvent:
-                        break;
-                    case StandardErrorCommandEvent stdErr:
-                        if (
-                            ProgressRx().IsMatch(stdErr.Text)
-                            && double.TryParse(
-                                ProgressRx().Match(stdErr.Text).Groups[1].Value,
-                                out var parsed
-                            )
-                        )
-                        {
-                            onProgress(parsed);
-                        }
-
-                        break;
-                    case ExitedCommandEvent:
-                        break;
-                    case StartedCommandEvent:
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(cmdEvt));
-                }
-            });
-    }
-
-    private async Task RunGitCommand(string workingDir, List<string[]> commands)
-    {
-        var stdOut = new StringBuilder();
-        var stdErr = new StringBuilder();
-        try
-        {
-            foreach (var command in commands)
-            {
-                await Cli.Wrap(OsGitPath)
-                    .WithArguments(argBuilder =>
+                    OnProgress = serverProgressOutput =>
                     {
-                        foreach (var arg in command)
-                        {
-                            argBuilder.Add(arg);
-                        }
-                    })
-                    .WithWorkingDirectory(workingDir)
-                    .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOut))
-                    .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErr))
-                    .ExecuteAsync();
+                        onStatus(Status.Checking);
+                        return true;
+                    },
+                    OnTransferProgress = progHandler =>
+                    {
+                        onStatus(Status.Downloading);
+                        onProgress(
+                            (double)progHandler.ReceivedObjects / progHandler.TotalObjects * 100
+                        );
+                        return true;
+                    },
+                },
             }
-        }
-        catch (CommandExecutionException e)
-        {
-            throw new GitException(
-                $"""
-                ERROR EXECUTING GIT COMMAND
-                stdout: {stdOut}
-                stderr: {stdErr}
-                {e}
-                """
-            );
-        }
-    }
-
-    private static readonly string Dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
-    private static readonly string OsGitPath = OperatingSystem.IsWindows()
-        ? Path.Join(Dir, "resources", "bin", "git.exe")
-        : "git";
-
-    private static string PartJoin(params string[] parts) =>
-        string.Join(
-            ' ',
-            parts.Select(p =>
-                $"{(OperatingSystem.IsWindows() ? "" : "")}{p}{(OperatingSystem.IsWindows() ? "" : "")}"
-            )
         );
 
-    [GeneratedRegex(@"Receiving objects.*(\d+(\.\d+)?)\s*%", RegexOptions.Compiled)]
-    private static partial Regex ProgressRx();
-}
+        Commands.Checkout(repo, branch);
+    }
 
-public class GitException(string message) : Exception(message);
+    private static readonly Signature MySig = new(
+        "stalker-gamma-clone",
+        "stalker-gamma-clone@github.com",
+        DateTimeOffset.Now
+    );
+}

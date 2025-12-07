@@ -1,8 +1,5 @@
 ﻿using System.Buffers;
-using System.Reactive.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
-using CliWrap.EventStream;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
 using stalker_gamma.core.Utilities;
 using stalker_gamma.core.ViewModels.Tabs.MainTab;
@@ -155,6 +152,13 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
         }
 
         var instructionsSplit = Instructions.Split(':');
+        ProcessInstructions(extractPath, instructionsSplit);
+
+        CleanExtractPath(extractPath);
+    }
+
+    private static void ProcessInstructions(string extractPath, string[] instructionsSplit)
+    {
         foreach (var i in instructionsSplit)
         {
             if (Path.Exists(Path.Join(extractPath, i, "gamedata")))
@@ -173,8 +177,6 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
                 }
             }
         }
-
-        CleanExtractPath(extractPath);
     }
 
     public void CleanExtractPath(string extractPath)

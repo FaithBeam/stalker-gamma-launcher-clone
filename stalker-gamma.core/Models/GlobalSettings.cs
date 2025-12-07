@@ -17,6 +17,9 @@ public class GlobalSettings
     [JsonPropertyName("checkForLauncherUpdates")]
     public bool CheckForLauncherUpdates { get; set; } = true;
 
+    [JsonPropertyName("stalkerGammaApiUrl")]
+    public string? StalkerGammaApiUrl { get; set; }
+
     [JsonPropertyName("forceBorderlessFullscreen")]
     public bool ForceBorderlessFullscreen { get; set; } = true;
 

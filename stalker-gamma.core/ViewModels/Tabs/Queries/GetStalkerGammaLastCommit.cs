@@ -1,4 +1,4 @@
-﻿using stalker_gamma.core.Utilities;
+﻿using LibGit2Sharp;
 
 namespace stalker_gamma.core.ViewModels.Tabs.Queries;
 
@@ -6,9 +6,12 @@ public static class GetStalkerGammaLastCommit
 {
     public record Query(string Dir);
 
-    public sealed class Handler(GitUtility gu)
+    public sealed class Handler
     {
-        public async Task<string> ExecuteAsync(Query q) =>
-            (await gu.RunGitCommandObs(q.Dir, "rev-parse", "HEAD")).Trim();
+        public string Execute(Query q)
+        {
+            var repo = new Repository(q.Dir);
+            return repo.Head.Tip.Id.ToString();
+        }
     }
 }

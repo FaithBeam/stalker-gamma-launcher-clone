@@ -7,6 +7,12 @@
     <Nullable>enable</Nullable>
     <PublishAot>true</PublishAot>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\stalker-gamma.core\stalker-gamma.core.csproj" />
   </ItemGroup>
@@ -27,6 +33,12 @@
     <Content Include="..\stalker-gamma.core\resources\7zip\Codecs\zstd.dll">
       <Link>resources\7zip\Codecs\zstd.dll</Link>
     </Content>
+    <Content Include="..\stalker-gamma.core\resources\curl-impersonate\linux\curl-impersonate">
+      <Link>resources\curl-impersonate\linux\curl-impersonate</Link>
+    </Content>
+    <Content Include="..\stalker-gamma.core\resources\curl-impersonate\mac\curl-impersonate">
+      <Link>resources\curl-impersonate\mac\curl-impersonate</Link>
+    </Content>
     <Content Include="..\stalker-gamma.core\resources\curl-impersonate\win\adig.exe">
       <Link>resources\curl-impersonate\win\adig.exe</Link>
     </Content>
@@ -39,14 +51,14 @@
     <Content Include="..\stalker-gamma.core\resources\curl-impersonate\win\bssl.exe">
       <Link>resources\curl-impersonate\win\bssl.exe</Link>
     </Content>
+    <Content Include="..\stalker-gamma.core\resources\curl-impersonate\win\curl-ca-bundle.crt">
+      <Link>resources\curl-impersonate\win\curl-ca-bundle.crt</Link>
+    </Content>
     <Content Include="..\stalker-gamma.core\resources\curl-impersonate\win\curl-config">
       <Link>resources\curl-impersonate\win\curl-config</Link>
     </Content>
     <Content Include="..\stalker-gamma.core\resources\curl-impersonate\win\curl.exe">
       <Link>resources\curl-impersonate\win\curl.exe</Link>
-    </Content>
-    <Content Include="..\stalker-gamma.core\resources\curl-impersonate\win\curl_chrome116.bat">
-      <Link>resources\curl-impersonate\win\curl_chrome116.bat</Link>
     </Content>
     <Content Include="..\stalker-gamma.core\resources\curl-impersonate\win\libcurl.dll">
       <Link>resources\curl-impersonate\win\libcurl.dll</Link>
@@ -60,13 +72,5 @@
     <Content Include="..\stalker-gamma.core\resources\curl-impersonate\win\zstd.exe">
       <Link>resources\curl-impersonate\win\zstd.exe</Link>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="..\stalker-gamma.core\resources\curl-impersonate\linux\">
-      <Link>resources\curl-impersonate\linux</Link>
-    </Folder>
-    <Folder Include="..\stalker-gamma.core\resources\curl-impersonate\mac\">
-      <Link>resources\curl-impersonate\mac</Link>
-    </Folder>
   </ItemGroup>
 </Project>

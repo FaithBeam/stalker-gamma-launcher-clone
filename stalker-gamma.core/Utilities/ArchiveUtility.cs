@@ -15,7 +15,7 @@ public static partial class ArchiveUtility
         var stdOut = new StringBuilder();
         var stdErr = new StringBuilder();
         var args = new[] { "x", $"{archivePath}", "-aoa", $"-o{destinationFolder}" };
-        var cmd = Cli.Wrap(Os7ZPath)
+        var cmd = Cli.Wrap(PathTo7Z)
             .WithArguments(argBuilder => AppendArgument(args, argBuilder))
             .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOut))
             .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErr));
@@ -45,7 +45,7 @@ public static partial class ArchiveUtility
     )
     {
         var args = new[] { "x", "-y", $"{archivePath}", $"-o{destinationFolder}" };
-        var cmd = Cli.Wrap(Os7ZPath).WithArguments(argBuilder => AppendArgument(args, argBuilder));
+        var cmd = Cli.Wrap(PathTo7Z).WithArguments(argBuilder => AppendArgument(args, argBuilder));
         if (!string.IsNullOrWhiteSpace(workingDirectory))
         {
             cmd = cmd.WithWorkingDirectory(workingDirectory);
@@ -74,22 +74,20 @@ public static partial class ArchiveUtility
         string? workingDirectory = null
     )
     {
-        string pathToUnarchiver;
-        string[] args;
-
-        if (archivePath.EndsWith(".rar") && OperatingSystem.IsMacOS())
+        if (!Directory.Exists(destinationFolder))
         {
-            pathToUnarchiver = OsRarPath;
-            args = ["x", "-o+", archivePath, destinationFolder];
-        }
-        else
-        {
-            args = ["x", "-y", "-bsp1", archivePath, $"-o\"{destinationFolder}\""];
-            pathToUnarchiver = Os7ZPath;
+            Directory.CreateDirectory(destinationFolder);
         }
 
-        var cmd = Cli.Wrap(pathToUnarchiver)
-            .WithArguments(argBuilder => AppendArgument(args, argBuilder));
+        var (exe, args) =
+            OperatingSystem.IsMacOS() ? ("tar", ["-xvf", archivePath, "-C", destinationFolder]) // tar macos
+            : OperatingSystem.IsLinux()
+                ? Path.GetExtension(archivePath) == ".rar"
+                        ? ("unrar", ["x", "-o+", archivePath, destinationFolder]) // linux rar
+                    : ("7z", new[] { "x", "-y", "-bsp1", archivePath, $"-o{destinationFolder}" }) // linux 7z
+            : (PathTo7Z, ["x", "-y", "-bsp1", archivePath, $"-o{destinationFolder}"]); // windows 7z
+
+        var cmd = Cli.Wrap(exe).WithArguments(argBuilder => AppendArgument(args, argBuilder));
         if (!string.IsNullOrWhiteSpace(workingDirectory))
         {
             cmd = cmd.WithWorkingDirectory(workingDirectory);
@@ -138,7 +136,7 @@ public static partial class ArchiveUtility
     public static IObservable<CommandEvent> List(string archivePath, CancellationToken? ct = null)
     {
         var args = new[] { "l", "-slt", archivePath };
-        var cmd = Cli.Wrap(Os7ZPath).WithArguments(argBuilder => AppendArgument(args, argBuilder));
+        var cmd = Cli.Wrap(PathTo7Z).WithArguments(argBuilder => AppendArgument(args, argBuilder));
         return ct is not null ? cmd.Observe(ct.Value) : cmd.Observe();
     }
 
@@ -183,7 +181,7 @@ public static partial class ArchiveUtility
             $"{(exclusions?.Length == 0 ? "" : string.Join(" ", exclusions!.Select(x => $"-xr!{x}")))}",
         };
 
-        var cmd = Cli.Wrap(Os7ZPath).WithArguments(argBuilder => AppendArgument(args, argBuilder));
+        var cmd = Cli.Wrap(PathTo7Z).WithArguments(argBuilder => AppendArgument(args, argBuilder));
         if (workDirectory is not null)
         {
             cmd = cmd.WithWorkingDirectory(workDirectory);
@@ -193,10 +191,7 @@ public static partial class ArchiveUtility
     }
 
     private static readonly string Dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
-    private static readonly string Os7ZPath = OperatingSystem.IsWindows()
-        ? Path.Join(Dir, "resources", "7zip", "7z.exe")
-        : "7zz";
-    private static readonly string OsRarPath = OperatingSystem.IsMacOS() ? "unrar" : "unrar";
+    private static readonly string PathTo7Z = Path.Join(Dir, "resources", "7zip", "7z.exe");
 
     [GeneratedRegex(@"(\d+(\.\d+)?)\s*%", RegexOptions.Compiled)]
     private static partial Regex ProgressRx();

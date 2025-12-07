@@ -23,7 +23,7 @@ public interface ICurlService
         string? workingDir = null
     );
 
-    Task<string> GetStringAsync(string url, string extraCmds = "", bool useCurlImpersonate = true);
+    Task<string> GetStringAsync(string url);
 
     Task DownloadFileAsync(
         string url,
@@ -34,14 +34,9 @@ public interface ICurlService
     );
 }
 
-public partial class CurlService(
-    IHttpClientFactory clientFactory,
-    IOperatingSystemService operatingSystemService
-) : ICurlService
+public partial class CurlService : ICurlService
 {
-    private HttpClient? _httpClient = clientFactory.CreateClient();
     private static readonly string Dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
-    private readonly IOperatingSystemService _operatingSystemService = operatingSystemService;
 
     /// <summary>
     /// Whether curl service found curl-impersonate-win.exe and can execute.
@@ -155,11 +150,7 @@ public partial class CurlService(
         }
     }
 
-    public async Task<string> GetStringAsync(
-        string url,
-        string extraCmds = "",
-        bool useCurlImpersonate = true
-    )
+    public async Task<string> GetStringAsync(string url)
     {
         var stdOut = new StringBuilder();
         var stdErr = new StringBuilder();

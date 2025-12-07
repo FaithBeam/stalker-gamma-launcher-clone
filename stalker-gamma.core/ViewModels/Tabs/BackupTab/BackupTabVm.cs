@@ -314,7 +314,7 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel, IBackup
                         ? File.ReadAllText(Path.Join(_dir, "version.txt")).Trim()
                         : "NA";
                     var gammaHash = (
-                        await getStalkerGammaLastCommitHandler.ExecuteAsync(
+                        getStalkerGammaLastCommitHandler.Execute(
                             new GetStalkerGammaLastCommit.Query(
                                 Path.Join(_dir, "resources", "Stalker_GAMMA")
                             )
