@@ -1,14 +1,18 @@
+using System.Buffers;
 using System.Collections.Frozen;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Channels;
 using LibGit2Sharp;
 using stalker_gamma.cli.Services.Enums;
 using stalker_gamma.cli.Services.Models;
 using stalker_gamma.core.Services;
+using stalker_gamma.core.Services.GammaInstaller.Utilities;
+using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma.cli.Services;
 
-public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory hcf)
+public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory hcf, ModDb modDb)
 {
     public async Task InstallAsync(string gammaPath, string? cachePath = null)
     {
@@ -64,7 +68,7 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
                         kvp.Key,
                         kvp.Value.Title!,
                         kvp.Value.Url!,
-                        kvp.Value.MirrorsUrl,
+                        "https://www.moddb.com/addons/start/222467",
                         kvp.Value.Md5Hash,
                         groksMainMenuThemeArchivePath,
                         Path.Join(gammaPath, $"{kvp.Key}-{kvp.Value.Title} - {kvp.Value.Uploader}"),
@@ -80,6 +84,7 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
                         kvp.Value.AddonId is null
                         && !string.IsNullOrWhiteSpace(kvp.Value.Url)
                         && kvp.Value.Url.Contains("github")
+                        && !PlaceHolderUrls.Contains(kvp.Value.Url)
                     )
                     .Select(kvp =>
                         MainToAddonRecord(
@@ -110,10 +115,130 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
 
         // download
         var dlChannel = Channel.CreateUnbounded<IList<AddonRecord>>();
-        foreach (var group in addons)
+        var dlTask = Task.Run(async () =>
         {
-            var t1 = Task.Run(async () => { });
-        }
+            await Parallel.ForEachAsync(
+                addons,
+                new ParallelOptions { MaxDegreeOfParallelism = 4 },
+                async (group, t) =>
+                {
+                    var first = group.First();
+
+                    // if file doesn't exist or md5 doesn't match, download it
+                    if (
+                        !Path.Exists(first.ArchiveDlPath)
+                        || (
+                            !string.IsNullOrWhiteSpace(first.Md5)
+                            && await Md5Utility.CalculateFileMd5Async(first.ArchiveDlPath)
+                                != first.Md5
+                        )
+                    )
+                    {
+                        Console.WriteLine($"Downloading {first.Name}");
+                        switch (first.AddonType)
+                        {
+                            case AddonType.ModDb:
+                            {
+                                var usedMirror = await _modDb.GetModDbLinkCurl(
+                                    first.MirrorUrl!.Replace("/all", ""),
+                                    first.ArchiveDlPath,
+                                    first.OnProgress
+                                );
+                                break;
+                            }
+                            case AddonType.GitHub:
+                            {
+                                const int bufferSize = 1024 * 1024;
+                                using var response = await _hc.GetAsync(
+                                    first.Url,
+                                    HttpCompletionOption.ResponseHeadersRead,
+                                    t
+                                );
+                                response.EnsureSuccessStatusCode();
+
+                                var totalBytes = response.Content.Headers.ContentLength;
+
+                                await using var fs = new FileStream(
+                                    first.ArchiveDlPath,
+                                    FileMode.Create,
+                                    FileAccess.Write,
+                                    FileShare.None,
+                                    bufferSize: bufferSize
+                                );
+                                await using var contentStream =
+                                    await response.Content.ReadAsStreamAsync();
+
+                                var buffer = ArrayPool<byte>.Shared.Rent(81920);
+                                try
+                                {
+                                    long totalBytesRead = 0;
+                                    int bytesRead;
+
+                                    while (
+                                        (
+                                            bytesRead = await contentStream.ReadAsync(
+                                                buffer.AsMemory(0, buffer.Length),
+                                                t
+                                            )
+                                        ) > 0
+                                    )
+                                    {
+                                        await fs.WriteAsync(buffer.AsMemory(0, bytesRead), t);
+                                        totalBytesRead += bytesRead;
+
+                                        if (totalBytes.HasValue)
+                                        {
+                                            var progressPercentage =
+                                                (double)totalBytesRead / totalBytes.Value * 100.0;
+                                            first.OnProgress(progressPercentage);
+                                        }
+                                    }
+
+                                    first.OnProgress(100);
+                                }
+                                finally
+                                {
+                                    ArrayPool<byte>.Shared.Return(buffer);
+                                }
+
+                                break;
+                            }
+                        }
+                    }
+                    dlChannel.Writer.TryWrite(group.ToList());
+                }
+            );
+            dlChannel.Writer.TryComplete();
+        });
+
+        var extractTask = Task.Run(async () =>
+        {
+            await Parallel.ForEachAsync(
+                dlChannel.Reader.ReadAllAsync(),
+                new ParallelOptions { MaxDegreeOfParallelism = 4 },
+                async (group, _) =>
+                {
+                    foreach (var addonRecord in group)
+                    {
+                        Console.WriteLine($"Extracting {addonRecord.Name}");
+
+                        Directory.CreateDirectory(addonRecord.ExtractDirectory);
+
+                        await ArchiveUtility.ExtractWithProgress(
+                            addonRecord.ArchiveDlPath,
+                            addonRecord.ExtractDirectory,
+                            addonRecord.OnProgress
+                        );
+
+                        ProcessInstructions(addonRecord.ExtractDirectory, addonRecord.Instructions);
+
+                        CleanExtractPath(addonRecord.ExtractDirectory);
+                    }
+                }
+            );
+        });
+
+        await Task.WhenAll(dlTask, extractTask);
         #endregion
 
 
@@ -199,10 +324,10 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
         );
     }
 
-    private string MainToSeparator(KeyValuePair<int, Main> kvp, string gammaDir) =>
+    private static string MainToSeparator(KeyValuePair<int, Main> kvp, string gammaDir) =>
         Path.Join(gammaDir, $"{kvp.Key}-{kvp.Value.Title}_separator");
 
-    private AddonRecord MainToAddonRecord(
+    private static AddonRecord MainToAddonRecord(
         int idx,
         Main m,
         string? cacheDir,
@@ -242,6 +367,101 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
         );
     }
 
+    private static async Task WriteMetaIniAsync(string extractPath, string name, string modDbUrl) =>
+        await File.WriteAllTextAsync(
+            Path.Join(extractPath, "meta.ini"),
+            $"""
+            [General]
+            gameName=stalkeranomaly
+            modid=0
+            ignoredversion={name}
+            version={name}
+            newestversion={name}
+            category="-1,"
+            nexusFileStatus=1
+            installationFile={name}
+            repository=
+            comments=
+            notes=
+            nexusDescription=
+            url={modDbUrl}
+            hasCustomURL=true
+            lastNexusQuery=
+            lastNexusUpdate=
+            nexusLastModified=2021-11-09T18:10:18Z
+            converted=false
+            validated=false
+            color=@Variant(\0\0\0\x43\0\xff\xff\0\0\0\0\0\0\0\0)
+            tracked=0
+
+            [installedFiles]
+            1\modid=0
+            1\fileid=0
+            size=1
+
+            """,
+            encoding: Encoding.UTF8
+        );
+
+    private static void ProcessInstructions(string extractPath, string[] instructions)
+    {
+        foreach (var i in instructions)
+        {
+            if (Path.Exists(Path.Join(extractPath, i, "gamedata")))
+            {
+                DirUtils.CopyDirectory(Path.Join(extractPath, i), extractPath);
+            }
+            else
+            {
+                Directory.CreateDirectory(Path.Join(extractPath, "gamedata"));
+                if (Directory.Exists(Path.Join(extractPath, i)))
+                {
+                    DirUtils.CopyDirectory(
+                        Path.Join(extractPath, i),
+                        Path.Join(extractPath, "gamedata")
+                    );
+                }
+            }
+        }
+    }
+
+    private static void CleanExtractPath(string extractPath)
+    {
+        if (!Directory.Exists(extractPath))
+        {
+            return;
+        }
+
+        new DirectoryInfo(extractPath)
+            .GetDirectories("*", SearchOption.AllDirectories)
+            .ToList()
+            .ForEach(di =>
+            {
+                di.Attributes &= ~FileAttributes.ReadOnly;
+                di.GetFiles("*", SearchOption.TopDirectoryOnly)
+                    .ToList()
+                    .ForEach(fi => fi.IsReadOnly = false);
+            });
+
+        var dirInfo = new DirectoryInfo(extractPath);
+        foreach (
+            var d in dirInfo
+                .GetDirectories()
+                .Where(x => !DoNotMatch.Contains(x.Name, StringComparer.OrdinalIgnoreCase))
+        )
+        {
+            d.Delete(true);
+        }
+    }
+
+    private static readonly IReadOnlyList<string> DoNotMatch =
+    [
+        "gamedata",
+        "appdata",
+        "db",
+        "fomod",
+    ];
+
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
 
     private const string GitAuthor = "Grokitach";
@@ -266,6 +486,7 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
 
     private readonly ICurlService _curlService = curlService;
     private readonly IHttpClientFactory _hcf = hcf;
+    private readonly ModDb _modDb = modDb;
     private readonly HttpClient _hc = hcf.CreateClient();
 
     private const string SeparatorMetaIni = """
