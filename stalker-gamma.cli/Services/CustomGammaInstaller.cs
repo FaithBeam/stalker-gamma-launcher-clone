@@ -426,7 +426,7 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
     }
 
     private static string MainToSeparator(KeyValuePair<int, Main> kvp, string gammaDir) =>
-        Path.Join(gammaDir, $"{kvp.Key}-{kvp.Value.Title}_separator");
+        Path.Join(gammaDir, $"{kvp.Key}- {kvp.Value.Title}_separator");
 
     private static AddonRecord MainToAddonRecord(
         int idx,
