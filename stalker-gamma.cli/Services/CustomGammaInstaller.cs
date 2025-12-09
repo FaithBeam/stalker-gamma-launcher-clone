@@ -1,4 +1,5 @@
 using System.Buffers;
+using System.Collections.Concurrent;
 using System.Collections.Frozen;
 using System.Text;
 using System.Text.Json;
@@ -25,6 +26,8 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
             jsonTypeInfo: StalkerGammaApiCtx.Default.StalkerGammaApiResponse
         );
 
+        Directory.CreateDirectory(cachePath!);
+        Directory.CreateDirectory(gammaPath);
         var modsJsonPath = Path.Join(cachePath, "mods.json");
         await File.WriteAllTextAsync(
             modsJsonPath,
@@ -54,7 +57,7 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
                     cachePath,
                     gammaPath,
                     AddonType.ModDb,
-                    Console.WriteLine
+                    pct => Console.WriteLine($"{kvp.Value.Title} - {pct:F2}")
                 )
             )
             // placeholders
@@ -74,7 +77,7 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
                         Path.Join(gammaPath, $"{kvp.Key}-{kvp.Value.Title} - {kvp.Value.Uploader}"),
                         [],
                         AddonType.ModDb,
-                        Console.WriteLine
+                        pct => Console.WriteLine($"{kvp.Value.Title} - {pct:F2}")
                     ))
             )
             // github
@@ -93,7 +96,7 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
                             cachePath,
                             gammaPath,
                             AddonType.GitHub,
-                            Console.WriteLine
+                            pct => Console.WriteLine($"{kvp.Value.Title} - {pct:F2}")
                         )
                     )
             )
@@ -113,8 +116,10 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
             );
         }
 
+        ConcurrentBag<IGrouping<string, AddonRecord>> brokenAddons = new();
+
         // download
-        var dlChannel = Channel.CreateUnbounded<IList<AddonRecord>>();
+        var dlChannel = Channel.CreateUnbounded<IGrouping<string, AddonRecord>>();
         var dlTask = Task.Run(async () =>
         {
             await Parallel.ForEachAsync(
@@ -122,90 +127,17 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
                 new ParallelOptions { MaxDegreeOfParallelism = 4 },
                 async (group, t) =>
                 {
-                    var first = group.First();
-
-                    // if file doesn't exist or md5 doesn't match, download it
-                    if (
-                        !Path.Exists(first.ArchiveDlPath)
-                        || (
-                            !string.IsNullOrWhiteSpace(first.Md5)
-                            && await Md5Utility.CalculateFileMd5Async(first.ArchiveDlPath)
-                                != first.Md5
-                        )
-                    )
+                    try
                     {
-                        Console.WriteLine($"Downloading {first.Name}");
-                        switch (first.AddonType)
-                        {
-                            case AddonType.ModDb:
-                            {
-                                var usedMirror = await _modDb.GetModDbLinkCurl(
-                                    first.MirrorUrl!.Replace("/all", ""),
-                                    first.ArchiveDlPath,
-                                    first.OnProgress
-                                );
-                                break;
-                            }
-                            case AddonType.GitHub:
-                            {
-                                const int bufferSize = 1024 * 1024;
-                                using var response = await _hc.GetAsync(
-                                    first.Url,
-                                    HttpCompletionOption.ResponseHeadersRead,
-                                    t
-                                );
-                                response.EnsureSuccessStatusCode();
-
-                                var totalBytes = response.Content.Headers.ContentLength;
-
-                                await using var fs = new FileStream(
-                                    first.ArchiveDlPath,
-                                    FileMode.Create,
-                                    FileAccess.Write,
-                                    FileShare.None,
-                                    bufferSize: bufferSize
-                                );
-                                await using var contentStream =
-                                    await response.Content.ReadAsStreamAsync();
-
-                                var buffer = ArrayPool<byte>.Shared.Rent(81920);
-                                try
-                                {
-                                    long totalBytesRead = 0;
-                                    int bytesRead;
-
-                                    while (
-                                        (
-                                            bytesRead = await contentStream.ReadAsync(
-                                                buffer.AsMemory(0, buffer.Length),
-                                                t
-                                            )
-                                        ) > 0
-                                    )
-                                    {
-                                        await fs.WriteAsync(buffer.AsMemory(0, bytesRead), t);
-                                        totalBytesRead += bytesRead;
-
-                                        if (totalBytes.HasValue)
-                                        {
-                                            var progressPercentage =
-                                                (double)totalBytesRead / totalBytes.Value * 100.0;
-                                            first.OnProgress(progressPercentage);
-                                        }
-                                    }
-
-                                    first.OnProgress(100);
-                                }
-                                finally
-                                {
-                                    ArrayPool<byte>.Shared.Return(buffer);
-                                }
-
-                                break;
-                            }
-                        }
+                        await DownloadAndVerifyFile(group, invalidateMirror: true, t);
                     }
-                    dlChannel.Writer.TryWrite(group.ToList());
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"WARNING: Unable to download {group.Key}: {e.Message}");
+                        brokenAddons.Add(group);
+                    }
+
+                    dlChannel.Writer.TryWrite(group);
                 }
             );
             dlChannel.Writer.TryComplete();
@@ -218,29 +150,39 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
                 new ParallelOptions { MaxDegreeOfParallelism = 4 },
                 async (group, _) =>
                 {
-                    foreach (var addonRecord in group)
+                    try
                     {
-                        Console.WriteLine($"Extracting {addonRecord.Name}");
-
-                        Directory.CreateDirectory(addonRecord.ExtractDirectory);
-
-                        await ArchiveUtility.ExtractWithProgress(
-                            addonRecord.ArchiveDlPath,
-                            addonRecord.ExtractDirectory,
-                            addonRecord.OnProgress
-                        );
-
-                        ProcessInstructions(addonRecord.ExtractDirectory, addonRecord.Instructions);
-
-                        CleanExtractPath(addonRecord.ExtractDirectory);
+                        await ExtractAndProcessAddon(group);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"WARNING: Unable to extract {group.Key}: {e.Message}");
+                        brokenAddons.Add(group);
                     }
                 }
             );
         });
 
         await Task.WhenAll(dlTask, extractTask);
-        #endregion
 
+        foreach (var brokenAddon in brokenAddons)
+        {
+            try
+            {
+                await DownloadAndVerifyFile(
+                    brokenAddon,
+                    invalidateMirror: true,
+                    CancellationToken.None
+                );
+                await ExtractAndProcessAddon(brokenAddon);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"ERROR Processing broken addon: {brokenAddon.Key} {e.Message}");
+            }
+        }
+
+        #endregion
 
         #region Download Base Git Repos
 
@@ -251,6 +193,25 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
 
         var t1 = Task.Run(() =>
         {
+            if (Directory.Exists(gammaSetupRepoPath))
+            {
+                var gammaSetupRepo = new Repository(gammaSetupRepoPath);
+                LibGit2Sharp.Commands.Pull(gammaSetupRepo, MySig, null);
+            }
+            else
+            {
+                LibGit2Sharp.Repository.Clone(
+                    string.Format(githubUrl, GitAuthor, GammaSetupRepo),
+                    gammaSetupRepoPath
+                );
+            }
+            DirUtils.CopyDirectory(
+                Path.Join(gammaSetupRepoPath, "modpack_addons"),
+                Path.Combine(gammaPath, "G.A.M.M.A"),
+                onProgress: (copied, total) =>
+                    Console.WriteLine($"Gamma Setup: {(double)copied / total * 100:F2}%")
+            );
+
             if (Directory.Exists(stalkerGammaRepoPath))
             {
                 var stalkerGammaRepo = new Repository(stalkerGammaRepoPath);
@@ -263,6 +224,18 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
                     stalkerGammaRepoPath
                 );
             }
+            DirUtils.CopyDirectory(
+                Path.Combine(stalkerGammaRepoPath, "G.A.M.M.A", "modpack_addons"),
+                Path.Combine(gammaPath, "G.A.M.M.A"),
+                overwrite: true,
+                onProgress: (copied, total) =>
+                    Console.WriteLine($"Stalker GAMMA: {(double)copied / total * 100:F2}%")
+            );
+            File.Copy(
+                Path.Combine(stalkerGammaRepoPath, "G.A.M.M.A_definition_version.txt"),
+                Path.Combine(gammaPath, "version.txt"),
+                true
+            );
         });
 
         var t2 = Task.Run(() =>
@@ -279,6 +252,13 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
                     gammaLargeFilesRepoPath
                 );
             }
+            DirUtils.CopyDirectory(
+                gammaLargeFilesRepoPath,
+                gammaPath,
+                overwrite: true,
+                onProgress: (count, total) =>
+                    Console.WriteLine($"GAMMA Large Files: {(double)count / total * 100:F2}%")
+            );
         });
 
         var t3 = Task.Run(() =>
@@ -295,33 +275,154 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
                     teivazAnomalyGunslingerRepoPath
                 );
             }
-        });
-
-        var t4 = Task.Run(() =>
-        {
-            if (Directory.Exists(gammaSetupRepoPath))
+            foreach (
+                var gameDataDir in new DirectoryInfo(
+                    teivazAnomalyGunslingerRepoPath
+                ).EnumerateDirectories("gamedata", SearchOption.AllDirectories)
+            )
             {
-                var gammaSetupRepo = new Repository(gammaSetupRepoPath);
-                LibGit2Sharp.Commands.Pull(gammaSetupRepo, MySig, null);
-            }
-            else
-            {
-                LibGit2Sharp.Repository.Clone(
-                    string.Format(githubUrl, GitAuthor, GammaSetupRepo),
-                    gammaSetupRepoPath
+                DirUtils.CopyDirectory(
+                    gameDataDir.FullName,
+                    Path.Join(
+                        gammaPath,
+                        "312- Gunslinger Guns for Anomaly - Teivazcz & Gunslinger Team",
+                        "gamedata"
+                    ),
+                    overwrite: true,
+                    onProgress: (count, total) =>
+                        Console.WriteLine(
+                            $"Teivaz Anomaly Gunslinger: {(double)count / total * 100:F2}%"
+                        )
                 );
             }
         });
 
-        await Task.WhenAll(t1, t2, t3, t4);
+        await Task.WhenAll(t1, t2, t3);
 
         #endregion
 
         // copy version from stalker gamma repo to cache path
         File.Copy(
             Path.Join(stalkerGammaRepoPath, "G.A.M.M.A_definition_version.txt"),
-            Path.Join(cachePath, "version.txt")
+            Path.Join(cachePath, "version.txt"),
+            true
         );
+    }
+
+    private static async Task ExtractAndProcessAddon(IGrouping<string, AddonRecord> group)
+    {
+        foreach (var addonRecord in group)
+        {
+            Console.WriteLine($"Extracting {addonRecord.Name}");
+
+            Directory.CreateDirectory(addonRecord.ExtractDirectory);
+
+            await ArchiveUtility.ExtractWithProgress(
+                addonRecord.ArchiveDlPath,
+                addonRecord.ExtractDirectory,
+                addonRecord.OnProgress
+            );
+
+            ProcessInstructions(addonRecord.ExtractDirectory, addonRecord.Instructions);
+
+            CleanExtractPath(addonRecord.ExtractDirectory);
+
+            await WriteAddonMetaIniAsync(
+                addonRecord.ExtractDirectory,
+                addonRecord.Name,
+                addonRecord.Url
+            );
+        }
+    }
+
+    private async Task DownloadAndVerifyFile(
+        IGrouping<string, AddonRecord> group,
+        bool invalidateMirror,
+        CancellationToken t
+    )
+    {
+        var first = group.First();
+
+        // if file doesn't exist or md5 doesn't match, download it
+        if (
+            first.AddonType == AddonType.GitHub // always download github files because md5 is not available
+            || Path.Exists(first.ArchiveDlPath)
+                && !string.IsNullOrWhiteSpace(first.Md5)
+                && await Md5Utility.CalculateFileMd5Async(first.ArchiveDlPath) != first.Md5
+            || !Path.Exists(first.ArchiveDlPath)
+        )
+        {
+            Console.WriteLine($"Downloading {first.Name}");
+            switch (first.AddonType)
+            {
+                case AddonType.ModDb:
+                {
+                    var usedMirror = await _modDb.GetModDbLinkCurl(
+                        first.MirrorUrl!.Replace("/all", ""),
+                        first.ArchiveDlPath,
+                        first.OnProgress,
+                        invalidateMirror
+                    );
+                    break;
+                }
+                case AddonType.GitHub:
+                {
+                    const int bufferSize = 1024 * 1024;
+                    using var response = await _hc.GetAsync(
+                        first.Url,
+                        HttpCompletionOption.ResponseHeadersRead,
+                        t
+                    );
+                    response.EnsureSuccessStatusCode();
+
+                    var totalBytes = response.Content.Headers.ContentLength;
+
+                    await using var fs = new FileStream(
+                        first.ArchiveDlPath,
+                        FileMode.Create,
+                        FileAccess.Write,
+                        FileShare.None,
+                        bufferSize: bufferSize
+                    );
+                    await using var contentStream = await response.Content.ReadAsStreamAsync(t);
+
+                    var buffer = ArrayPool<byte>.Shared.Rent(81920);
+                    try
+                    {
+                        long totalBytesRead = 0;
+                        int bytesRead;
+
+                        while (
+                            (
+                                bytesRead = await contentStream.ReadAsync(
+                                    buffer.AsMemory(0, buffer.Length),
+                                    t
+                                )
+                            ) > 0
+                        )
+                        {
+                            await fs.WriteAsync(buffer.AsMemory(0, bytesRead), t);
+                            totalBytesRead += bytesRead;
+
+                            if (totalBytes.HasValue)
+                            {
+                                var progressPercentage =
+                                    (double)totalBytesRead / totalBytes.Value * 100.0;
+                                first.OnProgress(progressPercentage);
+                            }
+                        }
+
+                        first.OnProgress(100);
+                    }
+                    finally
+                    {
+                        ArrayPool<byte>.Shared.Return(buffer);
+                    }
+
+                    break;
+                }
+            }
+        }
     }
 
     private static string MainToSeparator(KeyValuePair<int, Main> kvp, string gammaDir) =>
@@ -346,7 +447,7 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null),
             }
         );
-        var extractDir = Path.Join(gammaDir, $"{idx}-{m.Title} - {m.Uploader}");
+        var extractDir = Path.Join(gammaDir, $"{idx}- {m.Title} - {m.Uploader}");
         var url = type switch
         {
             AddonType.ModDb => m.MirrorsUrl?.Replace("/all", ""),
@@ -366,42 +467,6 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
             onProgress
         );
     }
-
-    private static async Task WriteMetaIniAsync(string extractPath, string name, string modDbUrl) =>
-        await File.WriteAllTextAsync(
-            Path.Join(extractPath, "meta.ini"),
-            $"""
-            [General]
-            gameName=stalkeranomaly
-            modid=0
-            ignoredversion={name}
-            version={name}
-            newestversion={name}
-            category="-1,"
-            nexusFileStatus=1
-            installationFile={name}
-            repository=
-            comments=
-            notes=
-            nexusDescription=
-            url={modDbUrl}
-            hasCustomURL=true
-            lastNexusQuery=
-            lastNexusUpdate=
-            nexusLastModified=2021-11-09T18:10:18Z
-            converted=false
-            validated=false
-            color=@Variant(\0\0\0\x43\0\xff\xff\0\0\0\0\0\0\0\0)
-            tracked=0
-
-            [installedFiles]
-            1\modid=0
-            1\fileid=0
-            size=1
-
-            """,
-            encoding: Encoding.UTF8
-        );
 
     private static void ProcessInstructions(string extractPath, string[] instructions)
     {
@@ -487,7 +552,7 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
     private readonly ICurlService _curlService = curlService;
     private readonly IHttpClientFactory _hcf = hcf;
     private readonly ModDb _modDb = modDb;
-    private readonly HttpClient _hc = hcf.CreateClient();
+    private readonly HttpClient _hc = hcf.CreateClient("githubDlArchive");
 
     private const string SeparatorMetaIni = """
         [General]
@@ -500,6 +565,46 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
         [installedFiles]
         size=0
         """;
+
+    private static async Task WriteAddonMetaIniAsync(
+        string extractPath,
+        string name,
+        string modDbUrl
+    ) =>
+        await File.WriteAllTextAsync(
+            Path.Join(extractPath, "meta.ini"),
+            $"""
+            [General]
+            gameName=stalkeranomaly
+            modid=0
+            ignoredversion={name}
+            version={name}
+            newestversion={name}
+            category="-1,"
+            nexusFileStatus=1
+            installationFile={name}
+            repository=
+            comments=
+            notes=
+            nexusDescription=
+            url={modDbUrl}
+            hasCustomURL=true
+            lastNexusQuery=
+            lastNexusUpdate=
+            nexusLastModified=2021-11-09T18:10:18Z
+            converted=false
+            validated=false
+            color=@Variant(\0\0\0\x43\0\xff\xff\0\0\0\0\0\0\0\0)
+            tracked=0
+
+            [installedFiles]
+            1\modid=0
+            1\fileid=0
+            size=1
+
+            """,
+            encoding: Encoding.UTF8
+        );
 }
 
 internal record AddonRecord(
