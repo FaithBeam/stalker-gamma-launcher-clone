@@ -775,7 +775,7 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                     })
                     .DisposeWith(d);
                 UserLtxSetToFullscreenWineCmd
-                    .Where(x => x.HasValue && x.Value)
+                    .Where(x => x.HasValue && x.Value && globalSettings.ForceBorderlessFullscreen)
                     .Subscribe(_ =>
                     {
                         UserLtxReplaceFullscreenWithBorderlessFullscreen
