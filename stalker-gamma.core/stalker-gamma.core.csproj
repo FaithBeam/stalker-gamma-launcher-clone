@@ -30,6 +30,7 @@
     <Content Include="resources\**" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="resources\7zip\linux\" />
     <Folder Include="resources\curl-impersonate\linux\" />
     <Folder Include="resources\curl-impersonate\mac\" />
     <Folder Include="ViewModels\Dialogs\DownloadProgress\Commands\" />

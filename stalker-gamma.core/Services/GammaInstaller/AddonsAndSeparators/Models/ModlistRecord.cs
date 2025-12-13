@@ -38,20 +38,18 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
 
     public virtual async Task<Action> ShouldDownloadAsync(
         string downloadsPath,
-        ModDownloadExtractProgressVm modDownloadExtractProgressVm
+        Action<Status> onStatus,
+        Action<double> onProgress
     )
     {
         DlPath ??= Path.Join(downloadsPath, Name);
 
         if (File.Exists(DlPath))
         {
-            modDownloadExtractProgressVm.Status = Status.CheckingMd5;
+            onStatus(Status.CheckingMd5);
             var md5 = await Md5Utility.CalculateFileMd5Async(
                 DlPath,
-                onProgress: (read, total) =>
-                    modDownloadExtractProgressVm.ProgressInterface.Report(
-                        (double)read / total * 100
-                    )
+                onProgress: (read, total) => onProgress((double)read / total * 100)
             );
             if (!string.IsNullOrWhiteSpace(Md5ModDb))
             {
@@ -66,8 +64,8 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
 
     public virtual async Task DownloadAsync(
         string downloadsPath,
+        Action<Status> onStatus,
         Action<double> onProgress,
-        ModDownloadExtractProgressVm modDownloadExtractProgressVm,
         bool invalidateMirrorCache = false
     )
     {
@@ -251,8 +249,8 @@ public class GithubRecord(ICurlService curlService, IHttpClientFactory hcf)
 
     public override async Task DownloadAsync(
         string downloadsPath,
+        Action<Status> onStatus,
         Action<double> onProgress,
-        ModDownloadExtractProgressVm modDownloadExtractProgressVm,
         bool invalidateMirrorCache = false
     )
     {
@@ -322,8 +320,8 @@ public class ModDbRecord(ModDb modDb, ICurlService curlService) : DownloadableRe
 
     public override async Task DownloadAsync(
         string downloadsPath,
+        Action<Status> onStatus,
         Action<double> onProgress,
-        ModDownloadExtractProgressVm modDownloadExtractProgressVm,
         bool invalidateMirrorCache = false
     )
     {
@@ -341,7 +339,7 @@ public class ModDbRecord(ModDb modDb, ICurlService curlService) : DownloadableRe
         }
 
         if (
-            await ShouldDownloadAsync(downloadsPath, modDownloadExtractProgressVm)
+            await ShouldDownloadAsync(downloadsPath, onStatus, onProgress)
             is Action.DownloadMissing
                 or Action.DownloadMd5Mismatch
         )

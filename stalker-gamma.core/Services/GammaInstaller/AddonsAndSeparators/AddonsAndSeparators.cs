@@ -79,14 +79,18 @@ public class AddonsAndSeparators(
                 File: f.File!,
                 Dl: async invalidateMirrorCache =>
                 {
-                    var shouldDownload = await f.File!.ShouldDownloadAsync(downloadsPath, f.MyObj);
+                    var shouldDownload = await f.File!.ShouldDownloadAsync(
+                        downloadsPath,
+                        status => f.MyObj.Status = status,
+                        f.DlProgress.Report
+                    );
                     if (shouldDownload != DownloadableRecord.Action.DoNothing)
                     {
                         f.MyObj.Status = Status.Downloading;
                         await f.File!.DownloadAsync(
                             downloadsPath,
+                            status => f.MyObj.Status = status,
                             f.DlProgress.Report,
-                            f.MyObj,
                             invalidateMirrorCache
                         );
                     }

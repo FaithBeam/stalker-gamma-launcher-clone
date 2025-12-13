@@ -3,6 +3,7 @@ using ConsoleAppFramework;
 using Microsoft.Extensions.DependencyInjection;
 using stalker_gamma.cli.Services;
 using stalker_gamma.core.Services;
+using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Factories;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
 using AnomalyInstaller = stalker_gamma.cli.Services.AnomalyInstaller;
 
@@ -16,6 +17,7 @@ public static class Program
             .Create()
             .ConfigureServices(services =>
                 services
+                    .AddScoped<ModListRecordFactory>()
                     .AddScoped<ModDb>()
                     .AddScoped<AnomalyInstaller>()
                     .AddScoped<CustomGammaInstaller>()

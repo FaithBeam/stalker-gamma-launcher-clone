@@ -2,18 +2,21 @@ using System.Buffers;
 using System.Collections.Concurrent;
 using System.Collections.Frozen;
 using System.Text;
-using System.Text.Json;
 using System.Threading.Channels;
 using LibGit2Sharp;
 using stalker_gamma.cli.Services.Enums;
-using stalker_gamma.cli.Services.Models;
-using stalker_gamma.core.Services;
+using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Factories;
+using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
 using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma.cli.Services;
 
-public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory hcf, ModDb modDb)
+public class CustomGammaInstaller(
+    IHttpClientFactory hcf,
+    ModDb modDb,
+    ModListRecordFactory modListRecordFactory
+)
 {
     public async Task InstallAsync(string gammaPath, string? cachePath = null)
     {
@@ -21,35 +24,33 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
 
         #region Download Mods from ModDb and GitHub
 
-        var gammaApiResponse = await JsonSerializer.DeserializeAsync(
-            await _hc.GetStreamAsync("https://stalker-gamma.com/web/api/v1/mods/list"),
-            jsonTypeInfo: StalkerGammaApiCtx.Default.StalkerGammaApiResponse
-        );
+
+        var gammaApiResponse = (await _hc.GetStringAsync("https://stalker-gamma.com/api/list"))
+            .Split("\n", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select((x, idx) => _modListRecordFactory.Create(x, idx))
+            .Cast<ModListRecord>();
 
         Directory.CreateDirectory(cachePath!);
         Directory.CreateDirectory(gammaPath);
-        var modsJsonPath = Path.Join(cachePath, "mods.json");
-        await File.WriteAllTextAsync(
-            modsJsonPath,
-            JsonSerializer.Serialize(
-                gammaApiResponse,
-                StalkerGammaApiCtx.Default.StalkerGammaApiResponse
-            )
-        );
+        // var modsJsonPath = Path.Join(cachePath, "mods.txt");
+        // await File.WriteAllTextAsync(
+        //     modsJsonPath,
+        //     JsonSerializer.Serialize(
+        //         gammaApiResponse,
+        //         StalkerGammaApiCtx.Default.StalkerGammaApiResponse
+        //     )
+        // );
 
-        var indexedResponse = gammaApiResponse!
-            .Main.Select((x, i) => (x, i))
+        var indexedResponse = gammaApiResponse
+            .Select((x, i) => (x, i))
             .ToFrozenDictionary(x => x.i + 1, x => x.x);
 
-        var groksMainMenuThemeArchivePath = Path.Join(cachePath, "Groks_main_menu_theme.zip");
+        var longestLengthTitle =
+            indexedResponse.MaxBy(x => x.Value.AddonName?.Length).Value.AddonName!.Length + 8;
 
         var addons = indexedResponse
             // moddb
-            .Where(kvp =>
-                kvp.Value.AddonId is not null
-                && !string.IsNullOrWhiteSpace(kvp.Value.Url)
-                && !PlaceHolderUrls.Contains(kvp.Value.Url)
-            )
+            .Where(kvp => kvp.Value is ModDbRecord)
             .Select(kvp =>
                 MainToAddonRecord(
                     kvp.Key,
@@ -57,38 +58,16 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
                     cachePath,
                     gammaPath,
                     AddonType.ModDb,
-                    pct => Console.WriteLine($"{kvp.Value.Title} - {pct:F2}")
+                    pct =>
+                        Console.WriteLine(
+                            $"{kvp.Value.AddonName?.PadRight(longestLengthTitle)} - {pct:F2}"
+                        )
                 )
-            )
-            // placeholders
-            .Concat(
-                indexedResponse
-                    .Where(kvp =>
-                        !string.IsNullOrWhiteSpace(kvp.Value.Url)
-                        && PlaceHolderUrls.Contains(kvp.Value.Url)
-                    )
-                    .Select(kvp => new AddonRecord(
-                        kvp.Key,
-                        kvp.Value.Title!,
-                        kvp.Value.Url!,
-                        "https://www.moddb.com/addons/start/222467",
-                        kvp.Value.Md5Hash,
-                        groksMainMenuThemeArchivePath,
-                        Path.Join(gammaPath, $"{kvp.Key}-{kvp.Value.Title} - {kvp.Value.Uploader}"),
-                        [],
-                        AddonType.ModDb,
-                        pct => Console.WriteLine($"{kvp.Value.Title} - {pct:F2}")
-                    ))
             )
             // github
             .Concat(
                 indexedResponse
-                    .Where(kvp =>
-                        kvp.Value.AddonId is null
-                        && !string.IsNullOrWhiteSpace(kvp.Value.Url)
-                        && kvp.Value.Url.Contains("github")
-                        && !PlaceHolderUrls.Contains(kvp.Value.Url)
-                    )
+                    .Where(kvp => kvp.Value is GithubRecord)
                     .Select(kvp =>
                         MainToAddonRecord(
                             kvp.Key,
@@ -96,7 +75,10 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
                             cachePath,
                             gammaPath,
                             AddonType.GitHub,
-                            pct => Console.WriteLine($"{kvp.Value.Title} - {pct:F2}")
+                            pct =>
+                                Console.WriteLine(
+                                    $"{kvp.Value.AddonName?.PadRight(longestLengthTitle)} - {pct:F2}"
+                                )
                         )
                     )
             )
@@ -105,8 +87,10 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
 
         // Write separators
         var separators = indexedResponse
-            .Where(kvp => kvp.Value.AddonId is null && string.IsNullOrWhiteSpace(kvp.Value.Url))
-            .Select(kvp => MainToSeparator(kvp, gammaPath));
+            .Where(kvp => kvp.Value is Separator)
+            .Select(kvp => kvp.Value)
+            .Cast<Separator>()
+            .Select(kvp => Path.Join(gammaPath, kvp.FolderName));
         foreach (var separator in separators)
         {
             Directory.CreateDirectory(separator);
@@ -116,7 +100,7 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
             );
         }
 
-        ConcurrentBag<IGrouping<string, AddonRecord>> brokenAddons = new();
+        ConcurrentBag<IGrouping<string, AddonRecord>> brokenAddons = [];
 
         // download
         var dlChannel = Channel.CreateUnbounded<IGrouping<string, AddonRecord>>();
@@ -207,7 +191,7 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
             }
             DirUtils.CopyDirectory(
                 Path.Join(gammaSetupRepoPath, "modpack_addons"),
-                Path.Combine(gammaPath, "G.A.M.M.A"),
+                Path.Combine(gammaPath),
                 onProgress: (copied, total) =>
                     Console.WriteLine($"Gamma Setup: {(double)copied / total * 100:F2}%")
             );
@@ -226,7 +210,7 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
             }
             DirUtils.CopyDirectory(
                 Path.Combine(stalkerGammaRepoPath, "G.A.M.M.A", "modpack_addons"),
-                Path.Combine(gammaPath, "G.A.M.M.A"),
+                Path.Combine(gammaPath),
                 overwrite: true,
                 onProgress: (copied, total) =>
                     Console.WriteLine($"Stalker GAMMA: {(double)copied / total * 100:F2}%")
@@ -368,7 +352,7 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
                 case AddonType.GitHub:
                 {
                     const int bufferSize = 1024 * 1024;
-                    using var response = await _hc.GetAsync(
+                    using var response = await _githubDlArchiveClient.GetAsync(
                         first.Url,
                         HttpCompletionOption.ResponseHeadersRead,
                         t
@@ -425,44 +409,40 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
         }
     }
 
-    private static string MainToSeparator(KeyValuePair<int, Main> kvp, string gammaDir) =>
-        Path.Join(gammaDir, $"{kvp.Key}- {kvp.Value.Title}_separator");
-
     private static AddonRecord MainToAddonRecord(
         int idx,
-        Main m,
+        ModListRecord m,
         string? cacheDir,
         string gammaDir,
         AddonType type,
         Action<double> onProgress
     )
     {
-        var urlSplit = m.Url!.Split('/');
+        var urlSplit = m.DlLink!.Split('/');
         var archivePath = Path.Join(
             cacheDir,
             type switch
             {
-                AddonType.ModDb => m.Filename,
+                AddonType.ModDb => m.ZipName,
                 AddonType.GitHub => $"{urlSplit[4]}.zip",
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null),
             }
         );
-        var extractDir = Path.Join(gammaDir, $"{idx}- {m.Title} - {m.Uploader}");
-        var url = type switch
-        {
-            AddonType.ModDb => m.MirrorsUrl?.Replace("/all", ""),
-            AddonType.GitHub => m.Url,
-            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null),
-        };
+        var extractDir = Path.Join(gammaDir, $"{idx}-{m.AddonName}{m.Patch}");
         return new AddonRecord(
             idx,
-            m.Title!,
-            url!,
-            m.MirrorsUrl,
-            m.Md5Hash,
+            m.AddonName!,
+            m.DlLink!,
+            m.DlLink + "/all",
+            m.Md5ModDb,
             archivePath,
             extractDir,
-            m.Instructions,
+            m.Instructions is null or "0"
+                ? []
+                : m.Instructions?.Split(
+                    ':',
+                    StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries
+                ) ?? [],
             type,
             onProgress
         );
@@ -540,19 +520,10 @@ public class CustomGammaInstaller(ICurlService curlService, IHttpClientFactory h
         DateTimeOffset.Now
     );
 
-    private static readonly IReadOnlyList<string> PlaceHolderUrls =
-    [
-        "https://www.moddb.com/addons/start/222467",
-        "https://www.moddb.com/addons/groks-main-menu-theme-deathcard-cabin",
-        "https://www.moddb.com/mods/stalker-anomaly/addons/groks-main-menu-theme-deathcard-cabin",
-        "https://github.com/Grokitach/gamma_large_files_v2",
-        "https://github.com/Grokitach/teivaz_anomaly_gunslinger",
-    ];
-
-    private readonly ICurlService _curlService = curlService;
-    private readonly IHttpClientFactory _hcf = hcf;
     private readonly ModDb _modDb = modDb;
-    private readonly HttpClient _hc = hcf.CreateClient("githubDlArchive");
+    private readonly ModListRecordFactory _modListRecordFactory = modListRecordFactory;
+    private readonly HttpClient _hc = hcf.CreateClient();
+    private readonly HttpClient _githubDlArchiveClient = hcf.CreateClient("githubDlArchive");
 
     private const string SeparatorMetaIni = """
         [General]
