@@ -20,6 +20,9 @@ public class GlobalSettings
     [JsonPropertyName("checkForLauncherUpdates")]
     public bool CheckForLauncherUpdates { get; set; } = true;
 
+    [JsonPropertyName("forceBorderlessFullscreen")]
+    public bool ForceBorderlessFullscreen { get; set; }
+
     public async Task WriteAppSettingsAsync() =>
         await File.WriteAllTextAsync(
             "appsettings.json",

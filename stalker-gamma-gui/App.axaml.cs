@@ -92,7 +92,10 @@ public partial class App : Application
                         GammaBackupPath = configuration.GetValue<string>("gammaBackupPath"),
                         CheckForLauncherUpdates = configuration.GetValue<bool>(
                             "checkForLauncherUpdates"
-                        )
+                        ),
+                        ForceBorderlessFullscreen = configuration.GetValue<bool>(
+                            "forceBorderlessFullscreen"
+                        ),
 #pragma warning restore IL2026
                     }
                 );
