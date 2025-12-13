@@ -21,7 +21,7 @@ public class GlobalSettings
     public bool CheckForLauncherUpdates { get; set; } = true;
 
     [JsonPropertyName("forceBorderlessFullscreen")]
-    public bool ForceBorderlessFullscreen { get; set; }
+    public bool ForceBorderlessFullscreen { get; set; } = true;
 
     public async Task WriteAppSettingsAsync() =>
         await File.WriteAllTextAsync(
