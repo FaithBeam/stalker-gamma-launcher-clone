@@ -4,20 +4,13 @@ using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma.core.Services.DowngradeModOrganizer;
 
-public class DowngradeModOrganizer(IVersionService versionService)
+public class DowngradeModOrganizer(IHttpClientFactory hcf)
 {
     public async Task DowngradeAsync(string version = "v2.4.4")
     {
-        var hc = new HttpClient
-        {
-            BaseAddress = new Uri("https://api.github.com"),
-            DefaultRequestHeaders =
-            {
-                { "User-Agent", $"stalker-gamma-installer/{versionService.GetVersion()}" },
-            },
-        };
+        var hc = hcf.CreateClient("githubDlArchive");
         var getReleaseByTagResponse = await hc.GetAsync(
-            $"repos/ModOrganizer2/modorganizer/releases/tags/{version}"
+            $"https://api.github.com/repos/ModOrganizer2/modorganizer/releases/tags/{version}"
         );
         var getReleaseByTag = await JsonSerializer.DeserializeAsync(
             await getReleaseByTagResponse.Content.ReadAsStreamAsync(),
@@ -72,7 +65,7 @@ public class DowngradeModOrganizer(IVersionService versionService)
             }
         }
 
-        await ArchiveUtility.ExtractAsync(mo2ArchivePath, mo2Path);
+        await ArchiveUtility.ExtractWithProgress(mo2ArchivePath, mo2Path, (pct) => { });
     }
 
     private readonly IReadOnlyList<string> _foldersToDelete =

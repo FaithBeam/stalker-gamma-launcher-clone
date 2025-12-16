@@ -1,11 +1,16 @@
 ﻿using ConsoleAppFramework;
 using stalker_gamma.cli.Services;
+using stalker_gamma.core.Services.DowngradeModOrganizer;
 using AnomalyInstaller = stalker_gamma.cli.Services.AnomalyInstaller;
 
 namespace stalker_gamma.cli.Commands;
 
 [RegisterCommands]
-public class FullInstallCmd(AnomalyInstaller anomalyInstaller, CustomGammaInstaller gammaInstaller)
+public class FullInstallCmd(
+    AnomalyInstaller anomalyInstaller,
+    // CustomGammaInstaller gammaInstaller,
+    DowngradeModOrganizer downgradeModOrganizer
+)
 {
     /// <summary>
     /// This will install/update all mods based on Stalker_GAMMA
@@ -32,7 +37,9 @@ public class FullInstallCmd(AnomalyInstaller anomalyInstaller, CustomGammaInstal
         //     AnomalyProgress
         // );
 
-        await gammaInstaller.InstallAsync(gamma, cacheDirectory);
+        // await gammaInstaller.InstallAsync(gamma, cacheDirectory);
+
+        await downgradeModOrganizer.DowngradeAsync();
 
         return;
 
