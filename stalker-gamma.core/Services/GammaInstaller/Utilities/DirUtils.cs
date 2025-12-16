@@ -2,6 +2,45 @@ namespace stalker_gamma.core.Services.GammaInstaller.Utilities;
 
 public static class DirUtils
 {
+    public static void NormalizePermissions(string dir)
+    {
+        var directories = new DirectoryInfo(dir)
+            .GetDirectories("*", SearchOption.AllDirectories)
+            .ToList();
+        directories.ForEach(di =>
+        {
+            if (!OperatingSystem.IsWindows())
+            {
+                di.UnixFileMode =
+                    UnixFileMode.UserRead
+                    | UnixFileMode.UserWrite
+                    | UnixFileMode.UserExecute
+                    | UnixFileMode.GroupRead
+                    | UnixFileMode.GroupExecute
+                    | UnixFileMode.GroupWrite
+                    | UnixFileMode.OtherRead
+                    | UnixFileMode.OtherExecute;
+            }
+            di.Attributes &= ~FileAttributes.ReadOnly;
+            di.GetFiles("*", SearchOption.TopDirectoryOnly)
+                .ToList()
+                .ForEach(fi => fi.IsReadOnly = false);
+        });
+    }
+
+    public static void RecursivelyDeleteDirectory(string dir, IReadOnlyList<string> DoNotMatch)
+    {
+        var dirInfo = new DirectoryInfo(dir);
+        foreach (
+            var d in dirInfo
+                .GetDirectories()
+                .Where(x => !DoNotMatch.Contains(x.Name, StringComparer.OrdinalIgnoreCase))
+        )
+        {
+            d.Delete(true);
+        }
+    }
+
     public static void CopyDirectory(
         string sourceDir,
         string destDir,

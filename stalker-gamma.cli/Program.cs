@@ -5,6 +5,7 @@ using stalker_gamma.cli.Services;
 using stalker_gamma.core.Services;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Factories;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
+using stalker_gamma.core.Utilities;
 using AnomalyInstaller = stalker_gamma.cli.Services.AnomalyInstaller;
 
 namespace stalker_gamma.cli;
@@ -17,6 +18,7 @@ public static class Program
             .Create()
             .ConfigureServices(services =>
                 services
+                    .AddScoped<GitUtility>()
                     .AddScoped<ModListRecordFactory>()
                     .AddScoped<ModDb>()
                     .AddScoped<AnomalyInstaller>()

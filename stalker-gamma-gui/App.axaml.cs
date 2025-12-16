@@ -92,8 +92,7 @@ public partial class App : Application
                         CheckForLauncherUpdates = configuration.GetValue<bool>(
                             "checkForLauncherUpdates"
                         ),
-                        StalkerGammaApiUrl = configuration.GetValue<string>("stalkerGammaApiUrl")
-                        ),
+                        StalkerGammaApiUrl = configuration.GetValue<string>("stalkerGammaApiUrl"),
                         ForceBorderlessFullscreen = configuration.GetValue<bool>(
                             "forceBorderlessFullscreen"
                         ),

@@ -1,7 +1,8 @@
-using System.Buffers;
 using System.Collections.Concurrent;
 using System.Collections.Frozen;
+using System.Collections.Immutable;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Channels;
 using LibGit2Sharp;
 using stalker_gamma.cli.Services.Enums;
@@ -12,16 +13,15 @@ using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma.cli.Services;
 
-public class CustomGammaInstaller(
+public partial class CustomGammaInstaller(
     IHttpClientFactory hcf,
     ModDb modDb,
-    ModListRecordFactory modListRecordFactory
+    ModListRecordFactory modListRecordFactory,
+    GitUtility gu
 )
 {
     public async Task InstallAsync(string gammaPath, string? cachePath = null)
     {
-        const string githubUrl = "https://github.com/{0}/{1}";
-
         #region Download Mods from ModDb and GitHub
 
 
@@ -32,14 +32,6 @@ public class CustomGammaInstaller(
 
         Directory.CreateDirectory(cachePath!);
         Directory.CreateDirectory(gammaPath);
-        // var modsJsonPath = Path.Join(cachePath, "mods.txt");
-        // await File.WriteAllTextAsync(
-        //     modsJsonPath,
-        //     JsonSerializer.Serialize(
-        //         gammaApiResponse,
-        //         StalkerGammaApiCtx.Default.StalkerGammaApiResponse
-        //     )
-        // );
 
         var indexedResponse = gammaApiResponse
             .Select((x, i) => (x, i))
@@ -95,8 +87,8 @@ public class CustomGammaInstaller(
         {
             Directory.CreateDirectory(separator);
             await File.WriteAllTextAsync(
-                Path.Join(separator, "separator_meta.ini"),
-                SeparatorMetaIni
+                Path.Join(separator, "meta.ini"),
+                SeparatorMetaIni.ReplaceLineEndings("\r\n")
             );
         }
 
@@ -184,9 +176,9 @@ public class CustomGammaInstaller(
             }
             else
             {
-                LibGit2Sharp.Repository.Clone(
-                    string.Format(githubUrl, GitAuthor, GammaSetupRepo),
-                    gammaSetupRepoPath
+                _gu.CloneGitRepo(
+                    gammaSetupRepoPath,
+                    string.Format(GithubUrl, GitAuthor, GammaSetupRepo)
                 );
             }
             DirUtils.CopyDirectory(
@@ -203,9 +195,9 @@ public class CustomGammaInstaller(
             }
             else
             {
-                LibGit2Sharp.Repository.Clone(
-                    string.Format(githubUrl, GitAuthor, StalkerGammaRepo),
-                    stalkerGammaRepoPath
+                _gu.CloneGitRepo(
+                    stalkerGammaRepoPath,
+                    string.Format(GithubUrl, GitAuthor, StalkerGammaRepo)
                 );
             }
             DirUtils.CopyDirectory(
@@ -231,9 +223,9 @@ public class CustomGammaInstaller(
             }
             else
             {
-                LibGit2Sharp.Repository.Clone(
-                    string.Format(githubUrl, GitAuthor, GammaLargeFilesRepo),
-                    gammaLargeFilesRepoPath
+                _gu.CloneGitRepo(
+                    gammaLargeFilesRepoPath,
+                    string.Format(GithubUrl, GitAuthor, GammaLargeFilesRepo)
                 );
             }
             DirUtils.CopyDirectory(
@@ -254,9 +246,9 @@ public class CustomGammaInstaller(
             }
             else
             {
-                LibGit2Sharp.Repository.Clone(
-                    string.Format(githubUrl, GitAuthor, TeivazAnomalyGunslingerRepo),
-                    teivazAnomalyGunslingerRepoPath
+                _gu.CloneGitRepo(
+                    teivazAnomalyGunslingerRepoPath,
+                    string.Format(GithubUrl, GitAuthor, TeivazAnomalyGunslingerRepo)
                 );
             }
             foreach (
@@ -301,11 +293,23 @@ public class CustomGammaInstaller(
 
             Directory.CreateDirectory(addonRecord.ExtractDirectory);
 
-            await ArchiveUtility.ExtractWithProgress(
-                addonRecord.ArchiveDlPath,
-                addonRecord.ExtractDirectory,
-                addonRecord.OnProgress
-            );
+            if (addonRecord.AddonType == AddonType.ModDb)
+            {
+                await ArchiveUtility.ExtractWithProgress(
+                    addonRecord.ArchiveDlPath,
+                    addonRecord.ExtractDirectory,
+                    addonRecord.OnProgress
+                );
+            }
+            else
+            {
+                DirUtils.CopyDirectory(
+                    addonRecord.ArchiveDlPath,
+                    addonRecord.ExtractDirectory,
+                    true,
+                    onProgress: (cur, total) => addonRecord.OnProgress((double)cur / total)
+                );
+            }
 
             ProcessInstructions(addonRecord.ExtractDirectory, addonRecord.Instructions);
 
@@ -313,8 +317,8 @@ public class CustomGammaInstaller(
 
             await WriteAddonMetaIniAsync(
                 addonRecord.ExtractDirectory,
-                addonRecord.Name,
-                addonRecord.Url
+                addonRecord.ZipName,
+                addonRecord.NiceUrl
             );
         }
     }
@@ -351,57 +355,31 @@ public class CustomGammaInstaller(
                 }
                 case AddonType.GitHub:
                 {
-                    const int bufferSize = 1024 * 1024;
-                    using var response = await _githubDlArchiveClient.GetAsync(
-                        first.Url,
-                        HttpCompletionOption.ResponseHeadersRead,
-                        t
+                    var profileAndRepoMatch = GithubRx().Match(first.Url);
+                    var (profile, repo) = (
+                        profileAndRepoMatch.Groups["profile"].Value,
+                        profileAndRepoMatch.Groups["repo"].Value
                     );
-                    response.EnsureSuccessStatusCode();
+                    var matchedRef = Rxs.First(rx => rx(first.Url).Success)(first.Url)
+                        .Groups["ref"]
+                        .Value;
 
-                    var totalBytes = response.Content.Headers.ContentLength;
-
-                    await using var fs = new FileStream(
-                        first.ArchiveDlPath,
-                        FileMode.Create,
-                        FileAccess.Write,
-                        FileShare.None,
-                        bufferSize: bufferSize
-                    );
-                    await using var contentStream = await response.Content.ReadAsStreamAsync(t);
-
-                    var buffer = ArrayPool<byte>.Shared.Rent(81920);
-                    try
+                    if (Directory.Exists(first.ArchiveDlPath))
                     {
-                        long totalBytesRead = 0;
-                        int bytesRead;
-
-                        while (
-                            (
-                                bytesRead = await contentStream.ReadAsync(
-                                    buffer.AsMemory(0, buffer.Length),
-                                    t
-                                )
-                            ) > 0
-                        )
-                        {
-                            await fs.WriteAsync(buffer.AsMemory(0, bytesRead), t);
-                            totalBytesRead += bytesRead;
-
-                            if (totalBytes.HasValue)
-                            {
-                                var progressPercentage =
-                                    (double)totalBytesRead / totalBytes.Value * 100.0;
-                                first.OnProgress(progressPercentage);
-                            }
-                        }
-
-                        first.OnProgress(100);
+                        var defaultBranch = _gu.GetDefaultBranch(first.ArchiveDlPath);
+                        _gu.CheckoutBranch(first.ArchiveDlPath, defaultBranch);
                     }
-                    finally
+                    else
                     {
-                        ArrayPool<byte>.Shared.Return(buffer);
+                        _gu.CloneGitRepo(
+                            first.ArchiveDlPath,
+                            string.Format(GithubUrl, profile, repo)
+                        );
                     }
+
+                    _gu.PullGitRepo(first.ArchiveDlPath);
+
+                    _gu.CheckoutBranch(first.ArchiveDlPath, matchedRef);
 
                     break;
                 }
@@ -418,31 +396,43 @@ public class CustomGammaInstaller(
         Action<double> onProgress
     )
     {
-        var urlSplit = m.DlLink!.Split('/');
+        var instructions = m.Instructions is null or "0"
+            ? []
+            : m.Instructions?.Split(
+                    ':',
+                    StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries
+                )
+                .Select(x => x.Replace('\\', Path.DirectorySeparatorChar))
+                .ToArray() ?? [];
+        var githubNameMatch = GithubRx().Match(m.DlLink!);
+        var githubName = $"{githubNameMatch.Groups["repo"]}-{githubNameMatch.Groups["archive"]}";
         var archivePath = Path.Join(
             cacheDir,
             type switch
             {
                 AddonType.ModDb => m.ZipName,
-                AddonType.GitHub => $"{urlSplit[4]}.zip",
+                AddonType.GitHub => githubName,
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null),
             }
         );
         var extractDir = Path.Join(gammaDir, $"{idx}-{m.AddonName}{m.Patch}");
+        var zipName = type switch
+        {
+            AddonType.ModDb => m.ZipName!,
+            AddonType.GitHub => githubName,
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null),
+        };
         return new AddonRecord(
             idx,
             m.AddonName!,
             m.DlLink!,
             m.DlLink + "/all",
+            m.ModDbUrl!,
             m.Md5ModDb,
             archivePath,
+            zipName,
             extractDir,
-            m.Instructions is null or "0"
-                ? []
-                : m.Instructions?.Split(
-                    ':',
-                    StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries
-                ) ?? [],
+            instructions,
             type,
             onProgress
         );
@@ -477,26 +467,9 @@ public class CustomGammaInstaller(
             return;
         }
 
-        new DirectoryInfo(extractPath)
-            .GetDirectories("*", SearchOption.AllDirectories)
-            .ToList()
-            .ForEach(di =>
-            {
-                di.Attributes &= ~FileAttributes.ReadOnly;
-                di.GetFiles("*", SearchOption.TopDirectoryOnly)
-                    .ToList()
-                    .ForEach(fi => fi.IsReadOnly = false);
-            });
+        DirUtils.NormalizePermissions(extractPath);
 
-        var dirInfo = new DirectoryInfo(extractPath);
-        foreach (
-            var d in dirInfo
-                .GetDirectories()
-                .Where(x => !DoNotMatch.Contains(x.Name, StringComparer.OrdinalIgnoreCase))
-        )
-        {
-            d.Delete(true);
-        }
+        DirUtils.RecursivelyDeleteDirectory(extractPath, DoNotMatch);
     }
 
     private static readonly IReadOnlyList<string> DoNotMatch =
@@ -524,6 +497,7 @@ public class CustomGammaInstaller(
     private readonly ModListRecordFactory _modListRecordFactory = modListRecordFactory;
     private readonly HttpClient _hc = hcf.CreateClient();
     private readonly HttpClient _githubDlArchiveClient = hcf.CreateClient("githubDlArchive");
+    private readonly GitUtility _gu = gu;
 
     private const string SeparatorMetaIni = """
         [General]
@@ -535,12 +509,13 @@ public class CustomGammaInstaller(
 
         [installedFiles]
         size=0
+
         """;
 
     private static async Task WriteAddonMetaIniAsync(
         string extractPath,
-        string name,
-        string modDbUrl
+        string archiveName,
+        string niceUrl
     ) =>
         await File.WriteAllTextAsync(
             Path.Join(extractPath, "meta.ini"),
@@ -548,17 +523,17 @@ public class CustomGammaInstaller(
             [General]
             gameName=stalkeranomaly
             modid=0
-            ignoredversion={name}
-            version={name}
-            newestversion={name}
+            ignoredversion={archiveName}
+            version={archiveName}
+            newestversion={archiveName}
             category="-1,"
             nexusFileStatus=1
-            installationFile={name}
+            installationFile={archiveName}
             repository=
             comments=
             notes=
             nexusDescription=
-            url={modDbUrl}
+            url={niceUrl}
             hasCustomURL=true
             lastNexusQuery=
             lastNexusUpdate=
@@ -573,9 +548,32 @@ public class CustomGammaInstaller(
             1\fileid=0
             size=1
 
-            """,
+            """.ReplaceLineEndings("\r\n"),
             encoding: Encoding.UTF8
         );
+
+    private static readonly ImmutableList<Func<string, Match>> Rxs =
+    [
+        txt => Rx1().Match(txt),
+        txt => Rx2().Match(txt),
+        txt => ShaRx().Match(txt),
+    ];
+
+    [GeneratedRegex(
+        @"https://github.com/(?<profile>[\w\-_]*)/+?(?<repo>[\w\-_\.]*).*/(?<archive>.*)\.+?"
+    )]
+    public static partial Regex GithubRx();
+
+    [GeneratedRegex("releases/download/(?<ref>.*)/.*?")]
+    public static partial Regex Rx1();
+
+    [GeneratedRegex("refs/(?<refType>tags|heads)/(?<ref>.+)\\..+")]
+    public static partial Regex Rx2();
+
+    [GeneratedRegex("(?<ref>[a-fA-F0-9]{40})")]
+    public static partial Regex ShaRx();
+
+    private const string GithubUrl = "https://github.com/{0}/{1}";
 }
 
 internal record AddonRecord(
@@ -583,8 +581,10 @@ internal record AddonRecord(
     string Name,
     string Url,
     string? MirrorUrl,
+    string NiceUrl,
     string? Md5,
     string ArchiveDlPath,
+    string ZipName,
     string ExtractDirectory,
     string[] Instructions,
     AddonType AddonType,

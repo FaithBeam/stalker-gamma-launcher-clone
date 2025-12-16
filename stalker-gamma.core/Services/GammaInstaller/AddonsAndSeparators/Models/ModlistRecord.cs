@@ -184,16 +184,7 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
             return;
         }
 
-        new DirectoryInfo(extractPath)
-            .GetDirectories("*", SearchOption.AllDirectories)
-            .ToList()
-            .ForEach(di =>
-            {
-                di.Attributes &= ~FileAttributes.ReadOnly;
-                di.GetFiles("*", SearchOption.TopDirectoryOnly)
-                    .ToList()
-                    .ForEach(fi => fi.IsReadOnly = false);
-            });
+        RemoveReadOnlyFlags(extractPath);
 
         var dirInfo = new DirectoryInfo(extractPath);
         foreach (
@@ -204,6 +195,20 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
         {
             d.Delete(true);
         }
+    }
+
+    private static void RemoveReadOnlyFlags(string extractPath)
+    {
+        new DirectoryInfo(extractPath)
+            .GetDirectories("*", SearchOption.AllDirectories)
+            .ToList()
+            .ForEach(di =>
+            {
+                di.Attributes &= ~FileAttributes.ReadOnly;
+                di.GetFiles("*", SearchOption.TopDirectoryOnly)
+                    .ToList()
+                    .ForEach(fi => fi.IsReadOnly = false);
+            });
     }
 
     private static readonly IReadOnlyList<string> DoNotMatch =
