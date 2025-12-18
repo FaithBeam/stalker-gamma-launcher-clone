@@ -1,18 +1,26 @@
 using System.Text.Json;
-using stalker_gamma.core.Services.DowngradeModOrganizer.Models.Github;
+using stalker_gamma.core.Services.ModOrganizer.DowngradeModOrganizer.Models.Github;
 using stalker_gamma.core.Utilities;
 
-namespace stalker_gamma.core.Services.DowngradeModOrganizer;
+namespace stalker_gamma.core.Services.ModOrganizer.DowngradeModOrganizer;
 
 public class DowngradeModOrganizer(IHttpClientFactory hcf)
 {
-    public async Task DowngradeAsync(string version = "v2.4.4")
+    public async Task DowngradeAsync(
+        string version = "v2.4.4",
+        string cachePath = "",
+        string? extractPath = null
+    )
     {
+        extractPath ??= Path.Join(Path.GetDirectoryName(AppContext.BaseDirectory), "..");
+        Directory.CreateDirectory(cachePath);
+        Directory.CreateDirectory(extractPath);
+
         var hc = hcf.CreateClient("githubDlArchive");
         var getReleaseByTagResponse = await hc.GetAsync(
             $"https://api.github.com/repos/ModOrganizer2/modorganizer/releases/tags/{version}"
         );
-        var getReleaseByTag = await JsonSerializer.DeserializeAsync(
+        var getReleaseByTag = await JsonSerializer.DeserializeAsync<GetReleaseByTag>(
             await getReleaseByTagResponse.Content.ReadAsStreamAsync(),
             jsonTypeInfo: GetReleaseByTagCtx.Default.GetReleaseByTag
         );
@@ -26,19 +34,18 @@ public class DowngradeModOrganizer(IHttpClientFactory hcf)
             return;
         }
 
-        var mo2ArchivePath = $"{getReleaseByTag!.Name!}.7z";
+        var mo2ArchivePath = Path.Join(cachePath, $"ModOrganizer.{getReleaseByTag!.Name!}.7z");
 
-        await using (var fs = File.Create(mo2ArchivePath))
+        if (!File.Exists(mo2ArchivePath))
         {
+            await using var fs = File.Create(mo2ArchivePath);
             using var response = await hc.GetAsync(dlUrl);
             await response.Content.CopyToAsync(fs);
         }
 
-        var dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
-        var mo2Path = Path.Join(dir, "..");
         foreach (var folder in _foldersToDelete)
         {
-            var path = Path.Join(mo2Path, folder);
+            var path = Path.Join(extractPath, folder);
             if (!Directory.Exists(path))
             {
                 continue;
@@ -58,14 +65,14 @@ public class DowngradeModOrganizer(IHttpClientFactory hcf)
         }
         foreach (var file in _filesToDelete)
         {
-            var path = Path.Join(mo2Path, file);
+            var path = Path.Join(extractPath, file);
             if (File.Exists(path))
             {
                 File.Delete(path);
             }
         }
 
-        await ArchiveUtility.ExtractWithProgress(mo2ArchivePath, mo2Path, (pct) => { });
+        await ArchiveUtility.ExtractWithProgress(mo2ArchivePath, extractPath, (pct) => { });
     }
 
     private readonly IReadOnlyList<string> _foldersToDelete =

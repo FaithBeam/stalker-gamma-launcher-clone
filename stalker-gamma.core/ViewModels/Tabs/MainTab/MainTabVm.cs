@@ -9,9 +9,9 @@ using DynamicData.Binding;
 using ReactiveUI;
 using stalker_gamma.core.Models;
 using stalker_gamma.core.Services;
-using stalker_gamma.core.Services.DowngradeModOrganizer;
 using stalker_gamma.core.Services.GammaInstaller;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
+using stalker_gamma.core.Services.ModOrganizer.DowngradeModOrganizer;
 using stalker_gamma.core.Utilities;
 using stalker_gamma.core.ViewModels.Services;
 using stalker_gamma.core.ViewModels.Tabs.MainTab.Commands;
@@ -20,7 +20,6 @@ using stalker_gamma.core.ViewModels.Tabs.MainTab.Factories;
 using stalker_gamma.core.ViewModels.Tabs.MainTab.Models;
 using stalker_gamma.core.ViewModels.Tabs.MainTab.Queries;
 using stalker_gamma.core.ViewModels.Tabs.Queries;
-using stalker_gamma.core.ViewModels.Utilities;
 
 namespace stalker_gamma.core.ViewModels.Tabs.MainTab;
 

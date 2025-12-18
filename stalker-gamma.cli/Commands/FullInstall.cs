@@ -1,6 +1,7 @@
 ﻿using ConsoleAppFramework;
 using stalker_gamma.cli.Services;
-using stalker_gamma.core.Services.DowngradeModOrganizer;
+using stalker_gamma.core.Services.ModOrganizer;
+using stalker_gamma.core.Services.ModOrganizer.DowngradeModOrganizer;
 using AnomalyInstaller = stalker_gamma.cli.Services.AnomalyInstaller;
 
 namespace stalker_gamma.cli.Commands;
@@ -8,8 +9,11 @@ namespace stalker_gamma.cli.Commands;
 [RegisterCommands]
 public class FullInstallCmd(
     AnomalyInstaller anomalyInstaller,
-    // CustomGammaInstaller gammaInstaller,
-    DowngradeModOrganizer downgradeModOrganizer
+    CustomGammaInstaller gammaInstaller,
+    InstallModOrganizerProfile installModOrganizerProfile,
+    DowngradeModOrganizer downgradeModOrganizer,
+    WriteModOrganizerIni writeModOrganizerIni,
+    DisableNexusModHandlerLink disableNexusModHandlerLink
 )
 {
     /// <summary>
@@ -22,29 +26,44 @@ public class FullInstallCmd(
     public async Task FullInstall(
         string anomaly,
         string gamma,
-        string? cacheDirectory = null,
+        string cacheDirectory = "cache",
         string anomalyArchiveName = "anomaly.7z"
     )
     {
-        var cacheProvided = !string.IsNullOrWhiteSpace(cacheDirectory);
-        var anomalyCacheArchivePath = cacheProvided
-            ? Path.Join(cacheDirectory, anomalyArchiveName)
-            : anomalyArchiveName;
+        var anomalyCacheArchivePath = Path.Join(cacheDirectory, anomalyArchiveName);
 
-        // await _anomalyInstaller.DownloadAndExtractAsync(
-        //     anomalyCacheArchivePath,
-        //     anomaly,
-        //     AnomalyProgress
-        // );
+        var anomalyTask = Task.Run(async () =>
+            await anomalyInstaller.DownloadAndExtractAsync(
+                anomalyCacheArchivePath,
+                anomaly,
+                AnomalyProgress
+            )
+        );
 
-        // await gammaInstaller.InstallAsync(gamma, cacheDirectory);
+        var gammaTask = Task.Run(async () =>
+            await gammaInstaller.InstallAsync(anomaly, anomalyTask, gamma, cacheDirectory)
+        );
 
-        await downgradeModOrganizer.DowngradeAsync();
+        var downgradeModOrganizerTask = Task.Run(async () =>
+            await downgradeModOrganizer.DowngradeAsync(
+                cachePath: cacheDirectory,
+                extractPath: gamma
+            )
+        );
+
+        await Task.WhenAll(anomalyTask, gammaTask, downgradeModOrganizerTask);
+
+        await installModOrganizerProfile.InstallAsync(
+            Path.Join(gamma, "downloads", "Stalker_GAMMA"),
+            gamma
+        );
+        await writeModOrganizerIni.WriteAsync(gamma, anomaly);
+        await disableNexusModHandlerLink.DisableAsync(gamma);
+
+        Console.WriteLine("[+] Setup ended... Enjoy your journey in the Zone o/");
 
         return;
 
-        // void AnomalyProgress(double pct) => Console.WriteLine($"[+] Anomaly: {pct}%");
+        void AnomalyProgress(double pct) => Console.WriteLine($"[+] Anomaly: {pct}%");
     }
-
-    private readonly AnomalyInstaller _anomalyInstaller = anomalyInstaller;
 }

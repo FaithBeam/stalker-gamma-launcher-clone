@@ -20,8 +20,16 @@ public partial class CustomGammaInstaller(
     GitUtility gu
 )
 {
-    public async Task InstallAsync(string gammaPath, string? cachePath = null)
+    public async Task InstallAsync(
+        string anomalyPath,
+        Task anomalyTask,
+        string gammaPath,
+        string cachePath
+    )
     {
+        var gammaModsPath = Path.Join(gammaPath, "mods");
+        var gammaDownloadsPath = Path.Join(gammaPath, "downloads");
+
         #region Download Mods from ModDb and GitHub
 
 
@@ -30,8 +38,14 @@ public partial class CustomGammaInstaller(
             .Select((x, idx) => _modListRecordFactory.Create(x, idx))
             .Cast<ModListRecord>();
 
-        Directory.CreateDirectory(cachePath!);
-        Directory.CreateDirectory(gammaPath);
+        Directory.CreateDirectory(cachePath);
+        Directory.CreateDirectory(gammaModsPath);
+
+        var fullCachePath = Path.GetFullPath(cachePath!);
+        if (!Directory.Exists(gammaDownloadsPath))
+        {
+            Directory.CreateSymbolicLink(gammaDownloadsPath, fullCachePath);
+        }
 
         var indexedResponse = gammaApiResponse
             .Select((x, i) => (x, i))
@@ -48,7 +62,7 @@ public partial class CustomGammaInstaller(
                     kvp.Key,
                     kvp.Value,
                     cachePath,
-                    gammaPath,
+                    gammaModsPath,
                     AddonType.ModDb,
                     pct =>
                         Console.WriteLine(
@@ -65,7 +79,7 @@ public partial class CustomGammaInstaller(
                             kvp.Key,
                             kvp.Value,
                             cachePath,
-                            gammaPath,
+                            gammaModsPath,
                             AddonType.GitHub,
                             pct =>
                                 Console.WriteLine(
@@ -82,7 +96,7 @@ public partial class CustomGammaInstaller(
             .Where(kvp => kvp.Value is Separator)
             .Select(kvp => kvp.Value)
             .Cast<Separator>()
-            .Select(kvp => Path.Join(gammaPath, kvp.FolderName));
+            .Select(kvp => Path.Join(gammaModsPath, kvp.FolderName));
         foreach (var separator in separators)
         {
             Directory.CreateDirectory(separator);
@@ -167,7 +181,7 @@ public partial class CustomGammaInstaller(
         var teivazAnomalyGunslingerRepoPath = Path.Join(cachePath, TeivazAnomalyGunslingerRepo);
         var gammaSetupRepoPath = Path.Join(cachePath, GammaSetupRepo);
 
-        var t1 = Task.Run(() =>
+        var gammaSetupAndStalkerGammaTask = Task.Run(() =>
         {
             if (Directory.Exists(gammaSetupRepoPath))
             {
@@ -183,7 +197,7 @@ public partial class CustomGammaInstaller(
             }
             DirUtils.CopyDirectory(
                 Path.Join(gammaSetupRepoPath, "modpack_addons"),
-                Path.Combine(gammaPath),
+                Path.Combine(gammaModsPath),
                 onProgress: (copied, total) =>
                     Console.WriteLine($"Gamma Setup: {(double)copied / total * 100:F2}%")
             );
@@ -202,19 +216,19 @@ public partial class CustomGammaInstaller(
             }
             DirUtils.CopyDirectory(
                 Path.Combine(stalkerGammaRepoPath, "G.A.M.M.A", "modpack_addons"),
-                Path.Combine(gammaPath),
+                Path.Combine(gammaModsPath),
                 overwrite: true,
                 onProgress: (copied, total) =>
                     Console.WriteLine($"Stalker GAMMA: {(double)copied / total * 100:F2}%")
             );
             File.Copy(
                 Path.Combine(stalkerGammaRepoPath, "G.A.M.M.A_definition_version.txt"),
-                Path.Combine(gammaPath, "version.txt"),
+                Path.Combine(gammaModsPath, "version.txt"),
                 true
             );
         });
 
-        var t2 = Task.Run(() =>
+        var gammaLargeFilesTask = Task.Run(() =>
         {
             if (Directory.Exists(gammaLargeFilesRepoPath))
             {
@@ -230,14 +244,14 @@ public partial class CustomGammaInstaller(
             }
             DirUtils.CopyDirectory(
                 gammaLargeFilesRepoPath,
-                gammaPath,
+                gammaModsPath,
                 overwrite: true,
                 onProgress: (count, total) =>
                     Console.WriteLine($"GAMMA Large Files: {(double)count / total * 100:F2}%")
             );
         });
 
-        var t3 = Task.Run(() =>
+        var teivazTask = Task.Run(() =>
         {
             if (Directory.Exists(teivazAnomalyGunslingerRepoPath))
             {
@@ -260,7 +274,7 @@ public partial class CustomGammaInstaller(
                 DirUtils.CopyDirectory(
                     gameDataDir.FullName,
                     Path.Join(
-                        gammaPath,
+                        gammaModsPath,
                         "312- Gunslinger Guns for Anomaly - Teivazcz & Gunslinger Team",
                         "gamedata"
                     ),
@@ -273,7 +287,25 @@ public partial class CustomGammaInstaller(
             }
         });
 
-        await Task.WhenAll(t1, t2, t3);
+        var stalkerGammaModpackPatches = Task.Run(async () =>
+        {
+            // wait for gamma setup, stalker gamma, anomaly to finish downloading and extracting
+            await Task.WhenAll(gammaSetupAndStalkerGammaTask, anomalyTask);
+
+            var cacheModpackPatchPath = Path.Join(
+                stalkerGammaRepoPath,
+                "G.A.M.M.A",
+                "modpack_patches"
+            );
+            DirUtils.CopyDirectory(cacheModpackPatchPath, anomalyPath);
+        });
+
+        await Task.WhenAll(
+            gammaSetupAndStalkerGammaTask,
+            gammaLargeFilesTask,
+            teivazTask,
+            stalkerGammaModpackPatches
+        );
 
         #endregion
 

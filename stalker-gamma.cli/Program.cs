@@ -3,9 +3,10 @@ using ConsoleAppFramework;
 using Microsoft.Extensions.DependencyInjection;
 using stalker_gamma.cli.Services;
 using stalker_gamma.core.Services;
-using stalker_gamma.core.Services.DowngradeModOrganizer;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Factories;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
+using stalker_gamma.core.Services.ModOrganizer;
+using stalker_gamma.core.Services.ModOrganizer.DowngradeModOrganizer;
 using stalker_gamma.core.Utilities;
 using AnomalyInstaller = stalker_gamma.cli.Services.AnomalyInstaller;
 
@@ -20,6 +21,9 @@ public static class Program
             .ConfigureServices(services =>
                 services
                     .AddScoped<DowngradeModOrganizer>()
+                    .AddScoped<DisableNexusModHandlerLink>()
+                    .AddScoped<WriteModOrganizerIni>()
+                    .AddScoped<InstallModOrganizerProfile>()
                     .AddScoped<GitUtility>()
                     .AddScoped<ModListRecordFactory>()
                     .AddScoped<ModDb>()

@@ -24,6 +24,7 @@ using stalker_gamma.core.Services.GammaInstaller.Mo2;
 using stalker_gamma.core.Services.GammaInstaller.ModpackSpecific;
 using stalker_gamma.core.Services.GammaInstaller.Shortcut;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
+using stalker_gamma.core.Services.ModOrganizer.DowngradeModOrganizer;
 using stalker_gamma.core.Utilities;
 using stalker_gamma.core.ViewModels.Dialogs.DownloadProgress;
 using stalker_gamma.core.ViewModels.MainWindow;
