@@ -213,10 +213,10 @@ public partial class GammaInstaller(
     {
         const string branch = "main";
 
-        var t1 = Task.Run(() =>
+        var t1 = Task.Run(async () =>
         {
             stalkerGamma.Status = Status.Checking;
-            gitUtility.UpdateGitRepo(
+            await gitUtility.UpdateGitRepoAsync(
                 _dir,
                 "Stalker_GAMMA",
                 branch,

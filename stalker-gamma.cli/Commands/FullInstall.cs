@@ -25,15 +25,15 @@ public class FullInstallCmd(
     /// <param name="gamma">Directory to extract GAMMA to</param>
     /// <param name="cacheDirectory">cache directory</param>
     /// <param name="anomalyArchiveName">Optionally change the name of the downloaded anomaly archive</param>
-    /// <param name="downloadThreads"></param>
-    /// <param name="extractThreads"></param>
+    /// <param name="downloadThreads">Number of parallel downloads that can occur</param>
+    /// <param name="extractThreads">Number of parallel extracts that can occur</param>
     public async Task FullInstall(
-        string anomaly,
-        string gamma,
+        string anomaly = "anomaly",
+        string gamma = "gamma",
         string cacheDirectory = "cache",
         string anomalyArchiveName = "anomaly.7z",
-        int downloadThreads = 4,
-        int extractThreads = 4
+        int downloadThreads = 2,
+        int extractThreads = 2
     )
     {
         globalSettings.DownloadThreads = downloadThreads;

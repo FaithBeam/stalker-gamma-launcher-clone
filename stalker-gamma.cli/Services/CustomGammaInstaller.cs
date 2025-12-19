@@ -4,7 +4,6 @@ using System.Collections.Immutable;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Channels;
-using LibGit2Sharp;
 using stalker_gamma.cli.Services.Enums;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Factories;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
@@ -122,14 +121,13 @@ public partial class CustomGammaInstaller(
                     try
                     {
                         await DownloadAndVerifyFile(group, invalidateMirror: true, t);
+                        dlChannel.Writer.TryWrite(group);
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine($"WARNING: Unable to download {group.Key}: {e.Message}");
+                        Console.WriteLine($"WARNING: Unable to download {group.Key}: {e}");
                         brokenAddons.Add(group);
                     }
-
-                    dlChannel.Writer.TryWrite(group);
                 }
             );
             dlChannel.Writer.TryComplete();
@@ -170,7 +168,12 @@ public partial class CustomGammaInstaller(
             }
             catch (Exception e)
             {
-                Console.WriteLine($"ERROR Processing broken addon: {brokenAddon.Key} {e.Message}");
+                Console.WriteLine(
+                    $"""
+                    ERROR Processing broken addon: {brokenAddon.Key}
+                    {e}
+                    """
+                );
             }
         }
 
@@ -183,16 +186,15 @@ public partial class CustomGammaInstaller(
         var teivazAnomalyGunslingerRepoPath = Path.Join(cachePath, TeivazAnomalyGunslingerRepo);
         var gammaSetupRepoPath = Path.Join(cachePath, GammaSetupRepo);
 
-        var gammaSetupAndStalkerGammaTask = Task.Run(() =>
+        var gammaSetupAndStalkerGammaTask = Task.Run(async () =>
         {
             if (Directory.Exists(gammaSetupRepoPath))
             {
-                var gammaSetupRepo = new Repository(gammaSetupRepoPath);
-                LibGit2Sharp.Commands.Pull(gammaSetupRepo, MySig, null);
+                await _gu.PullGitRepo(gammaSetupRepoPath);
             }
             else
             {
-                _gu.CloneGitRepo(
+                await _gu.CloneGitRepo(
                     gammaSetupRepoPath,
                     string.Format(GithubUrl, GitAuthor, GammaSetupRepo)
                 );
@@ -206,12 +208,11 @@ public partial class CustomGammaInstaller(
 
             if (Directory.Exists(stalkerGammaRepoPath))
             {
-                var stalkerGammaRepo = new Repository(stalkerGammaRepoPath);
-                LibGit2Sharp.Commands.Pull(stalkerGammaRepo, MySig, null);
+                await _gu.PullGitRepo(stalkerGammaRepoPath);
             }
             else
             {
-                _gu.CloneGitRepo(
+                await _gu.CloneGitRepo(
                     stalkerGammaRepoPath,
                     string.Format(GithubUrl, GitAuthor, StalkerGammaRepo)
                 );
@@ -230,16 +231,15 @@ public partial class CustomGammaInstaller(
             );
         });
 
-        var gammaLargeFilesTask = Task.Run(() =>
+        var gammaLargeFilesTask = Task.Run(async () =>
         {
             if (Directory.Exists(gammaLargeFilesRepoPath))
             {
-                var gammaLargeFilesRepo = new Repository(gammaLargeFilesRepoPath);
-                LibGit2Sharp.Commands.Pull(gammaLargeFilesRepo, MySig, null);
+                await _gu.PullGitRepo(gammaLargeFilesRepoPath);
             }
             else
             {
-                _gu.CloneGitRepo(
+                await _gu.CloneGitRepo(
                     gammaLargeFilesRepoPath,
                     string.Format(GithubUrl, GitAuthor, GammaLargeFilesRepo)
                 );
@@ -253,16 +253,15 @@ public partial class CustomGammaInstaller(
             );
         });
 
-        var teivazTask = Task.Run(() =>
+        var teivazTask = Task.Run(async () =>
         {
             if (Directory.Exists(teivazAnomalyGunslingerRepoPath))
             {
-                var teivazAnomalyGunslingerRepo = new Repository(teivazAnomalyGunslingerRepoPath);
-                LibGit2Sharp.Commands.Pull(teivazAnomalyGunslingerRepo, MySig, null);
+                await _gu.PullGitRepo(teivazAnomalyGunslingerRepoPath);
             }
             else
             {
-                _gu.CloneGitRepo(
+                await _gu.CloneGitRepo(
                     teivazAnomalyGunslingerRepoPath,
                     string.Format(GithubUrl, GitAuthor, TeivazAnomalyGunslingerRepo)
                 );
@@ -400,20 +399,20 @@ public partial class CustomGammaInstaller(
 
                     if (Directory.Exists(first.ArchiveDlPath))
                     {
-                        var defaultBranch = _gu.GetDefaultBranch(first.ArchiveDlPath);
-                        _gu.CheckoutBranch(first.ArchiveDlPath, defaultBranch);
+                        var defaultBranch = await _gu.GetDefaultBranch(first.ArchiveDlPath);
+                        await _gu.CheckoutBranch(first.ArchiveDlPath, defaultBranch);
                     }
                     else
                     {
-                        _gu.CloneGitRepo(
+                        await _gu.CloneGitRepo(
                             first.ArchiveDlPath,
                             string.Format(GithubUrl, profile, repo)
                         );
                     }
 
-                    _gu.PullGitRepo(first.ArchiveDlPath);
+                    await _gu.PullGitRepo(first.ArchiveDlPath);
 
-                    _gu.CheckoutBranch(first.ArchiveDlPath, matchedRef);
+                    await _gu.CheckoutBranch(first.ArchiveDlPath, matchedRef);
 
                     break;
                 }
@@ -521,11 +520,6 @@ public partial class CustomGammaInstaller(
     private const string StalkerGammaRepo = "Stalker_GAMMA";
     private const string GammaLargeFilesRepo = "gamma_large_files_v2";
     private const string TeivazAnomalyGunslingerRepo = "teivaz_anomaly_gunslinger";
-    private static readonly Signature MySig = new(
-        "stalker-gamma-clone",
-        "stalker-gamma-clone@github.com",
-        DateTimeOffset.Now
-    );
 
     private readonly ModDb _modDb = modDb;
     private readonly ModListRecordFactory _modListRecordFactory = modListRecordFactory;

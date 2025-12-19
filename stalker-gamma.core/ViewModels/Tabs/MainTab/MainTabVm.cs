@@ -359,9 +359,11 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                 )
                     ?.FirstOrDefault()
                     ?[..9];
-                var localGammaVersionHash = getStalkerGammaLastCommit.Execute(
-                    new GetStalkerGammaLastCommit.Query(
-                        Path.Join(Dir, "resources", "Stalker_GAMMA")
+                var localGammaVersionHash = (
+                    await getStalkerGammaLastCommit.ExecuteAsync(
+                        new GetStalkerGammaLastCommit.Query(
+                            Path.Join(Dir, "resources", "Stalker_GAMMA")
+                        )
                     )
                 )[..9];
                 GammaVersionToolTip = $"""

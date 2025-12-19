@@ -4,9 +4,9 @@ using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using DynamicData;
-using LibGit2Sharp;
 using ReactiveUI;
 using stalker_gamma.core.Services;
+using stalker_gamma.core.Utilities;
 using stalker_gamma.core.ViewModels.Services;
 using stalker_gamma.core.ViewModels.Tabs.GammaUpdatesTab.Models;
 using stalker_gamma.core.ViewModels.Tabs.GammaUpdatesTab.Queries;
@@ -45,7 +45,8 @@ public class GammaUpdatesVm : ViewModelBase, IActivatableViewModel, IGammaUpdate
         ProgressService ps,
         GetGitDiff.Handler getGitDiffHandler,
         GetGitDiffFile.Handler getGitDiffFileHandler,
-        ModalService modalService
+        ModalService modalService,
+        GitUtility gitUtility
     )
     {
         _ps = ps;
@@ -60,12 +61,12 @@ public class GammaUpdatesVm : ViewModelBase, IActivatableViewModel, IGammaUpdate
         OpenGitDiffFileWindowInteraction = new Interaction<GitDiffWindowVm, Unit>();
         OpenGitDiffFileWindowCmd = ReactiveCommand.CreateFromTask<string>(OpenGitDiffWindow);
 
-        var repo = new LibGit2Sharp.Repository(Path.Join(_dir, "resources", "Stalker_GAMMA"));
+        var stalkerGammaRepoPath = Path.Join(_dir, "resources", "Stalker_GAMMA");
         var getGitDiffCmd = ReactiveCommand.CreateFromTask(() =>
-            Task.Run(() =>
+            Task.Run(async () =>
             {
-                LibGit2Sharp.Commands.Fetch(repo, "origin", [], new FetchOptions(), null);
-                return getGitDiffHandler.Execute(
+                await gitUtility.ExecuteGitCmdAsync(stalkerGammaRepoPath, ["fetch", "origin"]);
+                return await getGitDiffHandler.Execute(
                     new GetGitDiff.Query(Path.Join(_dir, "resources", "Stalker_GAMMA"))
                 );
             })

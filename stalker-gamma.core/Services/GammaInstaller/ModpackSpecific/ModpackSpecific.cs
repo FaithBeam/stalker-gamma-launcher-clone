@@ -17,10 +17,10 @@ public class ModpackSpecific(GitUtility gitUtility)
         ModDownloadExtractProgressVm modpackAddonsVm
     )
     {
-        var t1 = Task.Run(() =>
+        var t1 = Task.Run(async () =>
         {
             gammaLargeFiles.Status = Status.Checking;
-            _gitUtility.UpdateGitRepo(
+            await _gitUtility.UpdateGitRepoAsync(
                 _dir,
                 "gamma_large_files_v2",
                 "main",
@@ -37,10 +37,10 @@ public class ModpackSpecific(GitUtility gitUtility)
             gammaLargeFiles.Status = Status.Done;
         });
 
-        var t2 = Task.Run(() =>
+        var t2 = Task.Run(async () =>
         {
             teivazAnomalyGunslinger.Status = Status.Checking;
-            _gitUtility.UpdateGitRepo(
+            await _gitUtility.UpdateGitRepoAsync(
                 _dir,
                 "teivaz_anomaly_gunslinger",
                 "main",
