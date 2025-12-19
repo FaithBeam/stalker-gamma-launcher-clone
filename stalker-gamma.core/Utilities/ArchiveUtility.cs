@@ -10,33 +10,6 @@ namespace stalker_gamma.core.Utilities;
 
 public static partial class ArchiveUtility
 {
-    public static async Task ExtractAsync(string archivePath, string destinationFolder)
-    {
-        var stdOut = new StringBuilder();
-        var stdErr = new StringBuilder();
-        var args = new[] { "x", $"{archivePath}", "-aoa", $"-o{destinationFolder}" };
-        var cmd = Cli.Wrap(PathTo7Z)
-            .WithArguments(argBuilder => AppendArgument(args, argBuilder))
-            .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOut))
-            .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErr));
-        try
-        {
-            await cmd.ExecuteAsync();
-        }
-        catch (CommandExecutionException e)
-        {
-            throw new SevenZipExtractException(
-                $"""
-                Error extracting archive {archivePath}
-                Args: {args}
-                StdOut: {stdOut}
-                StdErr: {stdErr}
-                """,
-                e
-            );
-        }
-    }
-
     public static IObservable<CommandEvent> Extract(
         string archivePath,
         string destinationFolder,
@@ -82,9 +55,10 @@ public static partial class ArchiveUtility
         var (exe, args) =
             OperatingSystem.IsMacOS() ? ("tar", ["-xvf", archivePath, "-C", destinationFolder]) // tar macos
             : OperatingSystem.IsLinux()
-                ? Path.GetExtension(archivePath) == ".rar"
-                        ? ("unrar", ["x", "-o+", archivePath, destinationFolder]) // linux rar
-                    : ("7z", new[] { "x", "-y", "-bsp1", archivePath, $"-o{destinationFolder}" }) // linux 7z
+                ? (
+                    Path.Join("resources", "7zip", "linux", "7zzs"),
+                    new[] { "x", "-y", "-bsp1", archivePath, $"-o{destinationFolder}" }
+                ) // linux 7z
             : (PathTo7Z, ["x", "-y", "-bsp1", archivePath, $"-o{destinationFolder}"]); // windows 7z
 
         var cmd = Cli.Wrap(exe).WithArguments(argBuilder => AppendArgument(args, argBuilder));
