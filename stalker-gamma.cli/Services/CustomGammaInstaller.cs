@@ -10,10 +10,12 @@ using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Factories;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
 using stalker_gamma.core.Utilities;
+using GlobalSettings = stalker_gamma.core.Models.GlobalSettings;
 
 namespace stalker_gamma.cli.Services;
 
 public partial class CustomGammaInstaller(
+    GlobalSettings globalSettings,
     IHttpClientFactory hcf,
     ModDb modDb,
     ModListRecordFactory modListRecordFactory,
@@ -114,7 +116,7 @@ public partial class CustomGammaInstaller(
         {
             await Parallel.ForEachAsync(
                 addons,
-                new ParallelOptions { MaxDegreeOfParallelism = 4 },
+                new ParallelOptions { MaxDegreeOfParallelism = globalSettings.DownloadThreads },
                 async (group, t) =>
                 {
                     try
@@ -137,7 +139,7 @@ public partial class CustomGammaInstaller(
         {
             await Parallel.ForEachAsync(
                 dlChannel.Reader.ReadAllAsync(),
-                new ParallelOptions { MaxDegreeOfParallelism = 4 },
+                new ParallelOptions { MaxDegreeOfParallelism = globalSettings.ExtractThreads },
                 async (group, _) =>
                 {
                     try

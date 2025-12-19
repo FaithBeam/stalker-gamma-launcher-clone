@@ -1,5 +1,6 @@
 ﻿using ConsoleAppFramework;
 using stalker_gamma.cli.Services;
+using stalker_gamma.core.Models;
 using stalker_gamma.core.Services.ModOrganizer;
 using stalker_gamma.core.Services.ModOrganizer.DowngradeModOrganizer;
 using AnomalyInstaller = stalker_gamma.cli.Services.AnomalyInstaller;
@@ -8,6 +9,7 @@ namespace stalker_gamma.cli.Commands;
 
 [RegisterCommands]
 public class FullInstallCmd(
+    GlobalSettings globalSettings,
     AnomalyInstaller anomalyInstaller,
     CustomGammaInstaller gammaInstaller,
     InstallModOrganizerProfile installModOrganizerProfile,
@@ -23,13 +25,19 @@ public class FullInstallCmd(
     /// <param name="gamma">Directory to extract GAMMA to</param>
     /// <param name="cacheDirectory">cache directory</param>
     /// <param name="anomalyArchiveName">Optionally change the name of the downloaded anomaly archive</param>
+    /// <param name="downloadThreads"></param>
+    /// <param name="extractThreads"></param>
     public async Task FullInstall(
         string anomaly,
         string gamma,
         string cacheDirectory = "cache",
-        string anomalyArchiveName = "anomaly.7z"
+        string anomalyArchiveName = "anomaly.7z",
+        int downloadThreads = 4,
+        int extractThreads = 4
     )
     {
+        globalSettings.DownloadThreads = downloadThreads;
+        globalSettings.ExtractThreads = extractThreads;
         var anomalyCacheArchivePath = Path.Join(cacheDirectory, anomalyArchiveName);
 
         var anomalyTask = Task.Run(async () =>

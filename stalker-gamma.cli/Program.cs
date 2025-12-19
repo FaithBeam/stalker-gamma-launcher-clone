@@ -2,6 +2,7 @@
 using ConsoleAppFramework;
 using Microsoft.Extensions.DependencyInjection;
 using stalker_gamma.cli.Services;
+using stalker_gamma.core.Models;
 using stalker_gamma.core.Services;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Factories;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
@@ -20,6 +21,7 @@ public static class Program
             .Create()
             .ConfigureServices(services =>
                 services
+                    .AddSingleton<GlobalSettings>()
                     .AddScoped<DowngradeModOrganizer>()
                     .AddScoped<DisableNexusModHandlerLink>()
                     .AddScoped<WriteModOrganizerIni>()
