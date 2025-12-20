@@ -328,7 +328,7 @@ public partial class CustomGammaInstaller(
 
             if (addonRecord.AddonType == AddonType.ModDb)
             {
-                await ArchiveUtility.ExtractWithProgress(
+                await ArchiveUtility.ExtractAsync(
                     addonRecord.ArchiveDlPath,
                     addonRecord.ExtractDirectory,
                     addonRecord.OnProgress
@@ -411,7 +411,6 @@ public partial class CustomGammaInstaller(
                     }
 
                     await _gu.PullGitRepo(first.ArchiveDlPath);
-
                     await _gu.CheckoutBranch(first.ArchiveDlPath, matchedRef);
 
                     break;
@@ -590,16 +589,16 @@ public partial class CustomGammaInstaller(
     [GeneratedRegex(
         @"https://github.com/(?<profile>[\w\-_]*)/+?(?<repo>[\w\-_\.]*).*/(?<archive>.*)\.+?"
     )]
-    public static partial Regex GithubRx();
+    private static partial Regex GithubRx();
 
     [GeneratedRegex("releases/download/(?<ref>.*)/.*?")]
-    public static partial Regex Rx1();
+    private static partial Regex Rx1();
 
     [GeneratedRegex("refs/(?<refType>tags|heads)/(?<ref>.+)\\..+")]
-    public static partial Regex Rx2();
+    private static partial Regex Rx2();
 
     [GeneratedRegex("(?<ref>[a-fA-F0-9]{40})")]
-    public static partial Regex ShaRx();
+    private static partial Regex ShaRx();
 
     private const string GithubUrl = "https://github.com/{0}/{1}";
 }

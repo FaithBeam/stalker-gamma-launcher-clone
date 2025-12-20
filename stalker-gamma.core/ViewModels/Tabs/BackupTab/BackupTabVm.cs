@@ -361,8 +361,8 @@ public partial class BackupTabVm : ViewModelBase, IActivatableViewModel, IBackup
                                 dstArchive,
                                 SelectedCompressionLevel,
                                 SelectedCompressor,
-                                BackupCancellationToken,
-                                WorkingDirectory: Path.GetFullPath(commonDir)
+                                WorkingDirectory: Path.GetFullPath(commonDir),
+                                CancellationToken: BackupCancellationToken
                             )
                         );
                     }

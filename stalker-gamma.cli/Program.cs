@@ -25,7 +25,7 @@ public static class Program
                     .AddScoped<DowngradeModOrganizer>()
                     .AddScoped<DisableNexusModHandlerLink>()
                     .AddScoped<WriteModOrganizerIni>()
-                    .AddScoped<InstallModOrganizerProfile>()
+                    .AddScoped<InstallModOrganizerGammaProfile>()
                     .AddScoped<GitUtility>()
                     .AddScoped<ModListRecordFactory>()
                     .AddScoped<ModDb>()

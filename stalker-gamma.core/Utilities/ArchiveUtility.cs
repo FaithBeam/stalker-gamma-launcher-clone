@@ -4,47 +4,19 @@ using System.Text.RegularExpressions;
 using CliWrap;
 using CliWrap.Builders;
 using CliWrap.EventStream;
-using CliWrap.Exceptions;
+using stalker_gamma.core.Models;
 
 namespace stalker_gamma.core.Utilities;
 
 public static partial class ArchiveUtility
 {
-    public static IObservable<CommandEvent> Extract(
+    public static async Task<StdOutStdErrOutput> ExtractAsync(
         string archivePath,
         string destinationFolder,
-        CancellationToken? ct = null,
-        string? workingDirectory = null
-    )
-    {
-        var args = new[] { "x", "-y", $"{archivePath}", $"-o{destinationFolder}" };
-        var cmd = Cli.Wrap(PathTo7Z).WithArguments(argBuilder => AppendArgument(args, argBuilder));
-        if (!string.IsNullOrWhiteSpace(workingDirectory))
-        {
-            cmd = cmd.WithWorkingDirectory(workingDirectory);
-        }
-
-        try
-        {
-            return ct is not null ? cmd.Observe(ct.Value) : cmd.Observe();
-        }
-        catch (CommandExecutionException e)
-        {
-            throw new SevenZipExtractException(
-                $"""
-                Error extracting archive {archivePath}
-                Args: {args}
-                """,
-                e
-            );
-        }
-    }
-
-    public static async Task ExtractWithProgress(
-        string archivePath,
-        string destinationFolder,
-        Action<double> onProgress,
-        string? workingDirectory = null
+        Action<double>? onProgress = null,
+        Action<string>? txtProgress = null,
+        string? workingDirectory = null,
+        CancellationToken? cancellationToken = null
     )
     {
         if (!Directory.Exists(destinationFolder))
@@ -61,65 +33,14 @@ public static partial class ArchiveUtility
                 ) // linux 7z
             : (PathTo7Z, ["x", "-y", "-bsp1", archivePath, $"-o{destinationFolder}"]); // windows 7z
 
-        var cmd = Cli.Wrap(exe).WithArguments(argBuilder => AppendArgument(args, argBuilder));
-        if (!string.IsNullOrWhiteSpace(workingDirectory))
-        {
-            cmd = cmd.WithWorkingDirectory(workingDirectory);
-        }
-
-        try
-        {
-            await cmd.Observe()
-                .ForEachAsync(cmdEvt =>
-                {
-                    switch (cmdEvt)
-                    {
-                        case StandardOutputCommandEvent stdOut:
-                            if (
-                                ProgressRx().IsMatch(stdOut.Text)
-                                && double.TryParse(
-                                    ProgressRx().Match(stdOut.Text).Groups[1].Value,
-                                    out var parsed
-                                )
-                            )
-                            {
-                                onProgress(parsed);
-                            }
-                            break;
-                        case ExitedCommandEvent:
-                        case StandardErrorCommandEvent:
-                        case StartedCommandEvent:
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException(nameof(cmdEvt));
-                    }
-                });
-        }
-        catch (CommandExecutionException e)
-        {
-            throw new SevenZipExtractException(
-                $"""
-                Error extracting archive {archivePath}
-                Args: {args}
-                """,
-                e
-            );
-        }
-    }
-
-    public static IObservable<CommandEvent> List(string archivePath, CancellationToken? ct = null)
-    {
-        var args = new[] { "l", "-slt", archivePath };
-        var cmd = Cli.Wrap(PathTo7Z).WithArguments(argBuilder => AppendArgument(args, argBuilder));
-        return ct is not null ? cmd.Observe(ct.Value) : cmd.Observe();
-    }
-
-    private static void AppendArgument(string[] args, ArgumentsBuilder argBuilder)
-    {
-        foreach (var arg in args)
-        {
-            argBuilder.Add(arg);
-        }
+        return await ExecuteArchiverCmdAsync(
+            exe,
+            args,
+            onProgress,
+            txtProgress,
+            workingDirectory: workingDirectory,
+            cancellationToken: cancellationToken
+        );
     }
 
     /// <summary>
@@ -130,17 +51,19 @@ public static partial class ArchiveUtility
     /// <param name="compressor"></param>
     /// <param name="compressionLevel"></param>
     /// <param name="exclusions">Folders/items to exclude</param>
-    /// <param name="cancellationToken"></param>
     /// <param name="workDirectory"></param>
+    /// <param name="txtProgress"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public static IObservable<CommandEvent> Archive(
+    public static async Task<StdOutStdErrOutput> Archive(
         string[] paths,
         string destination,
         string compressor,
         string compressionLevel,
         string[]? exclusions = null,
-        CancellationToken? cancellationToken = null,
-        string? workDirectory = null
+        string? workDirectory = null,
+        Action<string>? txtProgress = null,
+        CancellationToken? cancellationToken = null
     )
     {
         var args = new[]
@@ -155,13 +78,93 @@ public static partial class ArchiveUtility
             $"{(exclusions?.Length == 0 ? "" : string.Join(" ", exclusions!.Select(x => $"-xr!{x}")))}",
         };
 
-        var cmd = Cli.Wrap(PathTo7Z).WithArguments(argBuilder => AppendArgument(args, argBuilder));
-        if (workDirectory is not null)
+        return await ExecuteArchiverCmdAsync(
+            PathTo7Z,
+            args,
+            workingDirectory: workDirectory,
+            txtProgress: txtProgress,
+            cancellationToken: cancellationToken
+        );
+    }
+
+    private static async Task<StdOutStdErrOutput> ExecuteArchiverCmdAsync(
+        string exe,
+        string[] args,
+        Action<double>? onProgress = null,
+        Action<string>? txtProgress = null,
+        string? workingDirectory = null,
+        CancellationToken? cancellationToken = null
+    )
+    {
+        var stdOut = new StringBuilder();
+        var stdErr = new StringBuilder();
+
+        try
         {
-            cmd = cmd.WithWorkingDirectory(workDirectory);
+            var cmd = Cli.Wrap(exe)
+                .WithArguments(argBuilder => AppendArgument(args, argBuilder))
+                .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErr))
+                .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOut))
+                .WithWorkingDirectory(workingDirectory ?? "");
+
+            if (onProgress is null && txtProgress is null)
+            {
+                await cmd.ExecuteAsync(cancellationToken ?? CancellationToken.None);
+            }
+            else
+            {
+                void WriteProgress(StandardOutputCommandEvent stdOutEvt)
+                {
+                    if (
+                        onProgress is not null
+                        && ProgressRx().IsMatch(stdOutEvt.Text)
+                        && double.TryParse(
+                            ProgressRx().Match(stdOutEvt.Text).Groups[1].Value,
+                            out var parsed
+                        )
+                    )
+                    {
+                        onProgress(parsed);
+                    }
+
+                    txtProgress?.Invoke(stdOutEvt.Text);
+                }
+
+                await cmd.Observe(cancellationToken ?? CancellationToken.None)
+                    .ForEachAsync(cmdEvt =>
+                    {
+                        switch (cmdEvt)
+                        {
+                            case StandardOutputCommandEvent stdOutEvt:
+                                WriteProgress(stdOutEvt);
+                                break;
+                        }
+                    });
+            }
+        }
+        catch (Exception e)
+        {
+            throw new ArchiveUtilityException(
+                $"""
+                Error executing {exe}
+                {string.Join(' ', args)}
+                StdOut: {stdOut}
+                StdErr: {stdErr}
+                Exception: {e}
+                """,
+                e
+            );
         }
 
-        return cancellationToken is not null ? cmd.Observe(cancellationToken.Value) : cmd.Observe();
+        return new StdOutStdErrOutput(stdOut.ToString(), stdErr.ToString());
+    }
+
+    private static void AppendArgument(string[] args, ArgumentsBuilder argBuilder)
+    {
+        foreach (var arg in args)
+        {
+            argBuilder.Add(arg);
+        }
     }
 
     private static readonly string Dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
@@ -171,5 +174,5 @@ public static partial class ArchiveUtility
     private static partial Regex ProgressRx();
 }
 
-public class SevenZipExtractException(string msg, Exception innerException)
+public class ArchiveUtilityException(string msg, Exception innerException)
     : Exception(msg, innerException);

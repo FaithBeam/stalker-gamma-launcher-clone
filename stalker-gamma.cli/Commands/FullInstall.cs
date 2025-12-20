@@ -12,7 +12,7 @@ public class FullInstallCmd(
     GlobalSettings globalSettings,
     AnomalyInstaller anomalyInstaller,
     CustomGammaInstaller gammaInstaller,
-    InstallModOrganizerProfile installModOrganizerProfile,
+    InstallModOrganizerGammaProfile installModOrganizerGammaProfile,
     DowngradeModOrganizer downgradeModOrganizer,
     WriteModOrganizerIni writeModOrganizerIni,
     DisableNexusModHandlerLink disableNexusModHandlerLink
@@ -61,7 +61,7 @@ public class FullInstallCmd(
 
         await Task.WhenAll(anomalyTask, gammaTask, downgradeModOrganizerTask);
 
-        await installModOrganizerProfile.InstallAsync(
+        await installModOrganizerGammaProfile.InstallAsync(
             Path.Join(gamma, "downloads", "Stalker_GAMMA"),
             gamma
         );

@@ -72,7 +72,7 @@ public class DowngradeModOrganizer(IHttpClientFactory hcf)
             }
         }
 
-        await ArchiveUtility.ExtractWithProgress(mo2ArchivePath, extractPath, (pct) => { });
+        await ArchiveUtility.ExtractAsync(mo2ArchivePath, extractPath, (pct) => { });
     }
 
     private readonly IReadOnlyList<string> _foldersToDelete =

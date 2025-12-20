@@ -18,7 +18,7 @@ public class AnomalyInstaller(ModDb modDb)
         }
 
         // extract anomaly
-        await ArchiveUtility.ExtractWithProgress(archivePath, extractDirectory, onProgress);
+        await ArchiveUtility.ExtractAsync(archivePath, extractDirectory, onProgress);
     }
 
     private const string AnomalyMdbUrl = "https://www.moddb.com/downloads/start/277404";

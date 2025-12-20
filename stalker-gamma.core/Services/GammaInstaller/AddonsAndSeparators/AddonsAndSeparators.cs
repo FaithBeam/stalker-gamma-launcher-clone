@@ -122,11 +122,11 @@ public class AddonsAndSeparators(
                 await brokenInstall.Extract.Invoke();
                 brokenInstall.MyObj.Status = Status.Done;
             }
-            catch (CurlDownloadException)
+            catch (CurlServiceException)
             {
                 brokenInstall.MyObj.Status = Status.Error;
             }
-            catch (SevenZipExtractException)
+            catch (ArchiveUtilityException)
             {
                 brokenInstall.MyObj.Status = Status.Error;
             }
@@ -163,7 +163,7 @@ public class AddonsAndSeparators(
                         }
                         await dlChannel.Writer.WriteAsync((dlRecGroup.ToList(), extract));
                     }
-                    catch (CurlDownloadException)
+                    catch (CurlServiceException)
                     {
                         foreach (var dlRec in dlRecGroup)
                         {

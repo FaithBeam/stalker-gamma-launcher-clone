@@ -50,24 +50,12 @@ public static class RestoreBackup
                 Directory.Delete(dir, true);
             }
 
-            await ArchiveUtility
-                .Extract(
-                    c.PathToArchive,
-                    c.DirectoryToExtractTo,
-                    workingDirectory: c.WorkingDirectory
-                )
-                .ForEachAsync(cmdEvt =>
-                {
-                    switch (cmdEvt)
-                    {
-                        case StandardErrorCommandEvent stdErr:
-                            progress.UpdateProgress(stdErr.Text);
-                            break;
-                        case StandardOutputCommandEvent stdOut:
-                            progress.UpdateProgress(stdOut.Text);
-                            break;
-                    }
-                });
+            await ArchiveUtility.ExtractAsync(
+                c.PathToArchive,
+                c.DirectoryToExtractTo,
+                workingDirectory: c.WorkingDirectory,
+                onProgress: progress.UpdateProgress
+            );
         }
     }
 }

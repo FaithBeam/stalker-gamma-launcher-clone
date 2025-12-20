@@ -101,7 +101,7 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
             throw new DownloadableRecordException($"{nameof(DlPath)} is empty");
         }
 
-        await ArchiveUtility.ExtractWithProgress(DlPath, extractPath, onProgress);
+        await ArchiveUtility.ExtractAsync(DlPath, extractPath, onProgress);
 
         SolveInstructions(extractPath);
     }

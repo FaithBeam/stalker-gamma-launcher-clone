@@ -1,6 +1,4 @@
-﻿using System.Reactive.Linq;
-using CliWrap.EventStream;
-using stalker_gamma.core.Utilities;
+﻿using stalker_gamma.core.Utilities;
 using stalker_gamma.core.ViewModels.Tabs.BackupTab.Enums;
 using stalker_gamma.core.ViewModels.Tabs.BackupTab.Services;
 
@@ -13,36 +11,24 @@ public static class CreateBackup
         string Destination,
         CompressionLevel CompressionLevel,
         Compressor Compressor,
-        CancellationToken CancellationToken,
-        string? WorkingDirectory
+        string? WorkingDirectory,
+        CancellationToken CancellationToken
     );
 
     public sealed class Handler(BackupTabProgressService progress)
     {
         public async Task ExecuteAsync(Command c)
         {
-            await ArchiveUtility
-                .Archive(
-                    c.BackupPaths,
-                    c.Destination,
-                    c.Compressor.ToString().ToLower(),
-                    GetCompressionLevel(c.Compressor, c.CompressionLevel),
-                    ["downloads"],
-                    c.CancellationToken,
-                    c.WorkingDirectory
-                )
-                .ForEachAsync(cmdEvent =>
-                {
-                    switch (cmdEvent)
-                    {
-                        case StandardOutputCommandEvent standardOutput:
-                            progress.UpdateProgress(standardOutput.Text);
-                            break;
-                        case StandardErrorCommandEvent standardError:
-                            progress.UpdateProgress(standardError.Text);
-                            break;
-                    }
-                });
+            await ArchiveUtility.Archive(
+                c.BackupPaths,
+                c.Destination,
+                c.Compressor.ToString().ToLower(),
+                GetCompressionLevel(c.Compressor, c.CompressionLevel),
+                ["downloads"],
+                c.WorkingDirectory,
+                txtProgress: progress.UpdateProgress,
+                cancellationToken: c.CancellationToken
+            );
         }
     }
 

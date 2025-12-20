@@ -15,7 +15,6 @@ using Splat.Microsoft.Extensions.DependencyInjection;
 using stalker_gamma_gui.Views;
 using stalker_gamma.core.Models;
 using stalker_gamma.core.Services;
-using stalker_gamma.core.Services.DowngradeModOrganizer;
 using stalker_gamma.core.Services.GammaInstaller;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Factories;

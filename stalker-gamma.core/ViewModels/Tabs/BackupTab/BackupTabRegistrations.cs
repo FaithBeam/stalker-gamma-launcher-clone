@@ -15,6 +15,5 @@ public static class BackupTabRegistrations
             .AddScoped<Queries.GetEstimate.Handler>()
             .AddScoped<Queries.GetDriveSpaceStats.Handler>()
             .AddScoped<Queries.CheckModsList.Handler>()
-            .AddScoped<Queries.GetArchiveCompressionMethod.Handler>()
             .AddScoped<Queries.OpenBackupFolder.Handler>();
 }

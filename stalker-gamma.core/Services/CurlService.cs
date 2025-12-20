@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 using CliWrap;
 using CliWrap.Builders;
 using CliWrap.EventStream;
-using CliWrap.Exceptions;
+using stalker_gamma.core.Models;
 
 namespace stalker_gamma.core.Services;
 
@@ -14,14 +14,6 @@ public interface ICurlService
     /// Whether curl service found curl-impersonate-win.exe and can execute.
     /// </summary>
     bool Ready { get; }
-
-    Task DownloadFileAsync(
-        string url,
-        string pathToDownloads,
-        string fileName,
-        bool useCurlImpersonate,
-        string? workingDir = null
-    );
 
     Task<string> GetStringAsync(string url);
 
@@ -49,126 +41,84 @@ public partial class CurlService : ICurlService
         string fileName,
         Action<double>? onProgress = null,
         string? workingDir = null
-    )
-    {
-        var cmd = Cli.Wrap(PathToCurlImpersonate);
-        if (!string.IsNullOrWhiteSpace(workingDir))
-        {
-            cmd = cmd.WithWorkingDirectory(workingDir);
-        }
-
-        cmd = cmd.WithArguments(argBuilder =>
-            argBuilder
-                .Add("--progress-bar")
-                .Add("--clobber")
-                .Add("-Lo")
-                .Add(Path.Join(pathToDownloads, fileName))
-                .Add(url)
-                .AddImpersonation()
+    ) =>
+        await ExecuteCurlCmdAsync(
+            ["--progress-bar", "--clobber", "-Lo", Path.Join(pathToDownloads, fileName), url],
+            workingDir: workingDir,
+            onProgress: onProgress
         );
-        try
-        {
-            await cmd.Observe()
-                .ForEachAsync(onNext =>
-                {
-                    switch (onNext)
-                    {
-                        case StandardErrorCommandEvent stdErr:
-                            if (
-                                CurlProgressRx().IsMatch(stdErr.Text)
-                                && double.TryParse(
-                                    CurlProgressRx().Match(stdErr.Text).Groups[1].Value,
-                                    out var parsed
-                                )
-                            )
-                            {
-                                onProgress?.Invoke(parsed);
-                            }
-                            break;
-                        case ExitedCommandEvent:
-                        case StandardOutputCommandEvent:
-                        case StartedCommandEvent:
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException(nameof(onNext));
-                    }
-                });
-        }
-        catch (CommandExecutionException e)
-        {
-            throw new CurlDownloadException(
-                $"""
-                Error downloading file: {url}
-                Args: {string.Join(" ", cmd.Arguments)}
-                """,
-                e
-            );
-        }
-    }
 
-    public async Task DownloadFileAsync(
-        string url,
-        string pathToDownloads,
-        string fileName,
-        bool useCurlImpersonate,
-        string? workingDir = null
+    public async Task<string> GetStringAsync(string url) =>
+        (await ExecuteCurlCmdAsync(["--no-progress-meter", url])).StdOut;
+
+    private static async Task<StdOutStdErrOutput> ExecuteCurlCmdAsync(
+        string[] args,
+        Action<double>? onProgress = null,
+        Action<string>? txtProgress = null,
+        string? workingDir = null,
+        CancellationToken? cancellationToken = null
     )
-    {
-        var stdOut = new StringBuilder();
-        var stdErr = new StringBuilder();
-        var cmd = Cli.Wrap(PathToCurlImpersonate)
-            .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOut))
-            .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErr));
-        if (!string.IsNullOrWhiteSpace(workingDir))
-        {
-            cmd = cmd.WithWorkingDirectory(workingDir);
-        }
-
-        cmd = cmd.WithArguments(argBuilder =>
-            argBuilder
-                .Add("--clobber")
-                .Add("-Lo")
-                .Add(Path.Join(pathToDownloads, fileName))
-                .Add(url)
-                .AddImpersonation()
-        );
-        try
-        {
-            await cmd.ExecuteAsync();
-        }
-        catch (CommandExecutionException e)
-        {
-            throw new CurlDownloadException(
-                $"""
-                Error downloading file: {url}
-                Args: {string.Join(" ", cmd.Arguments)}
-                StdOut: {stdOut}
-                StdErr: {stdErr}
-                """,
-                e
-            );
-        }
-    }
-
-    public async Task<string> GetStringAsync(string url)
     {
         var stdOut = new StringBuilder();
         var stdErr = new StringBuilder();
         try
         {
             var cmd = Cli.Wrap(PathToCurlImpersonate)
-                .WithArguments(argBuilder =>
-                    argBuilder.Add("--no-progress-meter").Add(url).AddImpersonation()
-                )
+                .WithArguments(argBuilder => argBuilder.Add(args).AddImpersonation())
                 .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOut))
-                .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErr));
-            var result = await cmd.ExecuteAsync();
-            return stdOut.ToString();
+                .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErr))
+                .WithWorkingDirectory(workingDir ?? "");
+
+            if (onProgress is null && txtProgress is null)
+            {
+                await cmd.ExecuteAsync(cancellationToken ?? CancellationToken.None);
+            }
+            else
+            {
+                void WriteProgress(StandardErrorCommandEvent evt)
+                {
+                    if (
+                        onProgress is not null
+                        && ProgressRx().IsMatch(evt.Text)
+                        && double.TryParse(
+                            ProgressRx().Match(evt.Text).Groups[1].Value,
+                            out var parsed
+                        )
+                    )
+                    {
+                        onProgress(parsed);
+                    }
+
+                    txtProgress?.Invoke(evt.Text);
+                }
+
+                await cmd.Observe(cancellationToken ?? CancellationToken.None)
+                    .ForEachAsync(onNext =>
+                    {
+                        switch (onNext)
+                        {
+                            case StandardErrorCommandEvent stdErrEvt:
+                                WriteProgress(stdErrEvt);
+                                break;
+                        }
+                    });
+            }
         }
-        catch (CommandExecutionException e)
+        catch (Exception e)
         {
-            throw new CurlDownloadException($"Error getting string from url: {url}", e);
+            throw new CurlServiceException(
+                $"""
+                Error executing curl command
+                {string.Join(' ', args)}
+                StdOut: {stdOut}
+                StdErr: {stdErr}
+                Exception: {e}
+                """,
+                e
+            );
         }
+
+        return new StdOutStdErrOutput(stdOut.ToString(), stdErr.ToString());
     }
 
     private static readonly string OsCurlName = OperatingSystem.IsWindows()
@@ -187,18 +137,15 @@ public partial class CurlService : ICurlService
     );
 
     [GeneratedRegex(@"(\d+(\.\d+)?)\s*%", RegexOptions.Compiled)]
-    private static partial Regex CurlProgressRx();
+    private static partial Regex ProgressRx();
 }
 
-public class CurlDownloadException : Exception
-{
-    public CurlDownloadException(string message, Exception innerException)
-        : base(message, innerException) { }
-}
+public class CurlServiceException(string message, Exception innerException)
+    : Exception(message, innerException);
 
-public static class ArgumentsBuilderExtensions
+internal static class ArgumentsBuilderExtensions
 {
-    public static ArgumentsBuilder AddImpersonation(this ArgumentsBuilder argBuilder) =>
+    internal static ArgumentsBuilder AddImpersonation(this ArgumentsBuilder argBuilder) =>
         argBuilder
             .Add("--ciphers")
             .Add(

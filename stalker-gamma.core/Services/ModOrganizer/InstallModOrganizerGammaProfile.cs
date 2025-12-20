@@ -1,6 +1,6 @@
 namespace stalker_gamma.core.Services.ModOrganizer;
 
-public class InstallModOrganizerProfile
+public class InstallModOrganizerGammaProfile
 {
     public async Task InstallAsync(string stalkerGammaRepoPath, string gammaPath)
     {

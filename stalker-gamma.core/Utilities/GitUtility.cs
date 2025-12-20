@@ -1,6 +1,7 @@
 using System.Text;
 using CliWrap;
 using CliWrap.Builders;
+using stalker_gamma.core.Models;
 using stalker_gamma.core.ViewModels.Tabs.MainTab;
 
 namespace stalker_gamma.core.Utilities;
@@ -38,13 +39,13 @@ public partial class GitUtility
         await CheckoutBranch(repoPath, branch);
     }
 
-    public async Task<GitCmdOutput> CloneGitRepo(string outputDir, string repoUrl) =>
+    public async Task<StdOutStdErrOutput> CloneGitRepo(string outputDir, string repoUrl) =>
         await ExecuteGitCmdAsync("", ["clone", repoUrl, outputDir]);
 
-    public async Task<GitCmdOutput> PullGitRepo(string pathToRepo) =>
+    public async Task<StdOutStdErrOutput> PullGitRepo(string pathToRepo) =>
         await ExecuteGitCmdAsync(pathToRepo, ["pull"]);
 
-    public async Task<GitCmdOutput> CheckoutBranch(string pathToRepo, string branch) =>
+    public async Task<StdOutStdErrOutput> CheckoutBranch(string pathToRepo, string branch) =>
         await ExecuteGitCmdAsync(pathToRepo, ["checkout", branch]);
 
     public async Task<string> GetDefaultBranch(string pathToRepo)
@@ -56,7 +57,7 @@ public partial class GitUtility
         return gitCmdResult.StdOut.Replace("origin/", "");
     }
 
-    public async Task<GitCmdOutput> ExecuteGitCmdAsync(string pathToRepo, string[] args)
+    public async Task<StdOutStdErrOutput> ExecuteGitCmdAsync(string pathToRepo, string[] args)
     {
         var stdOut = new StringBuilder();
         var stdErr = new StringBuilder();
@@ -85,7 +86,7 @@ public partial class GitUtility
             );
         }
 
-        return new GitCmdOutput(stdOut.ToString().Trim(), stdErr.ToString().Trim());
+        return new StdOutStdErrOutput(stdOut.ToString().Trim(), stdErr.ToString().Trim());
     }
 
     private static void AppendArgument(string[] args, ArgumentsBuilder argBuilder)
@@ -101,13 +102,5 @@ public partial class GitUtility
         : "git";
 }
 
-public record GitCmdOutput(string StdOut, string StdErr);
-
-public class GitUtilityException : Exception
-{
-    public GitUtilityException(string msg)
-        : base(msg) { }
-
-    public GitUtilityException(string msg, Exception innerException)
-        : base(msg, innerException) { }
-}
+public class GitUtilityException(string msg, Exception innerException)
+    : Exception(msg, innerException);
