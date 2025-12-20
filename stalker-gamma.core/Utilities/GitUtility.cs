@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.RegularExpressions;
 using CliWrap;
 using CliWrap.Builders;
 using stalker_gamma.core.Models;
@@ -35,15 +36,20 @@ public partial class GitUtility
         }
 
         await ExecuteGitCmdAsync(repoPath, ["reset", "--hard"]);
-        await ExecuteGitCmdAsync(repoPath, ["pull"]);
+        await ExecuteGitCmdAsync(repoPath, ["pull"], onProgress: onProgress);
         await CheckoutBranch(repoPath, branch);
     }
 
-    public async Task<StdOutStdErrOutput> CloneGitRepo(string outputDir, string repoUrl) =>
-        await ExecuteGitCmdAsync("", ["clone", repoUrl, outputDir]);
+    public async Task<StdOutStdErrOutput> CloneGitRepo(
+        string outputDir,
+        string repoUrl,
+        Action<double>? onProgress = null
+    ) => await ExecuteGitCmdAsync("", ["clone", repoUrl, outputDir], onProgress: onProgress);
 
-    public async Task<StdOutStdErrOutput> PullGitRepo(string pathToRepo) =>
-        await ExecuteGitCmdAsync(pathToRepo, ["pull"]);
+    public async Task<StdOutStdErrOutput> PullGitRepo(
+        string pathToRepo,
+        Action<double>? onProgress = null
+    ) => await ExecuteGitCmdAsync(pathToRepo, ["pull"], onProgress: onProgress);
 
     public async Task<StdOutStdErrOutput> CheckoutBranch(string pathToRepo, string branch) =>
         await ExecuteGitCmdAsync(pathToRepo, ["checkout", branch]);
@@ -57,18 +63,56 @@ public partial class GitUtility
         return gitCmdResult.StdOut.Replace("origin/", "");
     }
 
-    public async Task<StdOutStdErrOutput> ExecuteGitCmdAsync(string pathToRepo, string[] args)
+    public async Task<StdOutStdErrOutput> ExecuteGitCmdAsync(
+        string workingDir,
+        string[] args,
+        Action<double>? onProgress = null,
+        Action<string>? txtProgress = null
+    )
     {
         var stdOut = new StringBuilder();
         var stdErr = new StringBuilder();
 
+        List<string> finalArgs = [.. args];
+        if (onProgress is not null && (args.Contains("clone") || args.Contains("pull")))
+        {
+            if (!args.Contains("--progress"))
+            {
+                finalArgs.Add("--progress");
+            }
+        }
+
         try
         {
             await Cli.Wrap(PathToGit)
-                .WithArguments(argBuilder => AppendArgument(args, argBuilder))
-                .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOut))
-                .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErr))
-                .WithWorkingDirectory(pathToRepo)
+                .WithArguments(argBuilder => AppendArgument(finalArgs.ToArray(), argBuilder))
+                .WithStandardOutputPipe(
+                    PipeTarget.Merge(
+                        PipeTarget.ToStringBuilder(stdOut),
+                        PipeTarget.ToDelegate(line => txtProgress?.Invoke(line))
+                    )
+                )
+                .WithStandardErrorPipe(
+                    PipeTarget.Merge(
+                        PipeTarget.ToStringBuilder(stdErr),
+                        PipeTarget.ToDelegate(line =>
+                        {
+                            if (onProgress == null)
+                            {
+                                return;
+                            }
+                            var match = ProgressRegex().Match(line);
+                            if (match.Success)
+                            {
+                                if (double.TryParse(match.Groups[1].Value, out var progress))
+                                {
+                                    onProgress(progress);
+                                }
+                            }
+                        })
+                    )
+                )
+                .WithWorkingDirectory(workingDir)
                 .ExecuteAsync();
         }
         catch (Exception e)
@@ -76,7 +120,7 @@ public partial class GitUtility
             throw new GitUtilityException(
                 $"""
                 Error executing git command
-                {pathToRepo}
+                {workingDir}
                 {string.Join(' ', args)}
                 StdOut: {stdOut}
                 StdErr: {stdErr}
@@ -100,6 +144,9 @@ public partial class GitUtility
     private static readonly string PathToGit = OperatingSystem.IsWindows()
         ? Path.Join("resources", "bin", "git.exe")
         : "git";
+
+    [GeneratedRegex(@"Receiving objects:\s*(\d+)%")]
+    private static partial Regex ProgressRegex();
 }
 
 public class GitUtilityException(string msg, Exception innerException)

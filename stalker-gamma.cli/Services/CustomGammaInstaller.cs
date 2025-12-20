@@ -190,13 +190,17 @@ public partial class CustomGammaInstaller(
         {
             if (Directory.Exists(gammaSetupRepoPath))
             {
-                await _gu.PullGitRepo(gammaSetupRepoPath);
+                await _gu.PullGitRepo(
+                    gammaSetupRepoPath,
+                    onProgress: pct => Console.WriteLine($"Gamma Setup: Pull: {pct}%")
+                );
             }
             else
             {
                 await _gu.CloneGitRepo(
                     gammaSetupRepoPath,
-                    string.Format(GithubUrl, GitAuthor, GammaSetupRepo)
+                    string.Format(GithubUrl, GitAuthor, GammaSetupRepo),
+                    onProgress: pct => Console.WriteLine($"Gamma Setup: Clone: {pct}%")
                 );
             }
             DirUtils.CopyDirectory(
@@ -208,13 +212,17 @@ public partial class CustomGammaInstaller(
 
             if (Directory.Exists(stalkerGammaRepoPath))
             {
-                await _gu.PullGitRepo(stalkerGammaRepoPath);
+                await _gu.PullGitRepo(
+                    stalkerGammaRepoPath,
+                    onProgress: pct => Console.WriteLine($"Stalker_GAMMA: Pull: {pct}%")
+                );
             }
             else
             {
                 await _gu.CloneGitRepo(
                     stalkerGammaRepoPath,
-                    string.Format(GithubUrl, GitAuthor, StalkerGammaRepo)
+                    string.Format(GithubUrl, GitAuthor, StalkerGammaRepo),
+                    onProgress: pct => Console.WriteLine($"Stalker_GAMMA: Clone: {pct}%")
                 );
             }
             DirUtils.CopyDirectory(
@@ -235,13 +243,17 @@ public partial class CustomGammaInstaller(
         {
             if (Directory.Exists(gammaLargeFilesRepoPath))
             {
-                await _gu.PullGitRepo(gammaLargeFilesRepoPath);
+                await _gu.PullGitRepo(
+                    gammaLargeFilesRepoPath,
+                    onProgress: pct => Console.WriteLine($"Gamma Large Files: Pull: {pct}%")
+                );
             }
             else
             {
                 await _gu.CloneGitRepo(
                     gammaLargeFilesRepoPath,
-                    string.Format(GithubUrl, GitAuthor, GammaLargeFilesRepo)
+                    string.Format(GithubUrl, GitAuthor, GammaLargeFilesRepo),
+                    onProgress: pct => Console.WriteLine($"Gamma Large Files: Clone: {pct}%")
                 );
             }
             DirUtils.CopyDirectory(
@@ -257,13 +269,17 @@ public partial class CustomGammaInstaller(
         {
             if (Directory.Exists(teivazAnomalyGunslingerRepoPath))
             {
-                await _gu.PullGitRepo(teivazAnomalyGunslingerRepoPath);
+                await _gu.PullGitRepo(
+                    teivazAnomalyGunslingerRepoPath,
+                    onProgress: pct => Console.WriteLine($"Teivaz: Pull: {pct}%")
+                );
             }
             else
             {
                 await _gu.CloneGitRepo(
                     teivazAnomalyGunslingerRepoPath,
-                    string.Format(GithubUrl, GitAuthor, TeivazAnomalyGunslingerRepo)
+                    string.Format(GithubUrl, GitAuthor, TeivazAnomalyGunslingerRepo),
+                    onProgress: pct => Console.WriteLine($"Teivaz: Clone: {pct}%")
                 );
             }
             foreach (
@@ -406,11 +422,15 @@ public partial class CustomGammaInstaller(
                     {
                         await _gu.CloneGitRepo(
                             first.ArchiveDlPath,
-                            string.Format(GithubUrl, profile, repo)
+                            string.Format(GithubUrl, profile, repo),
+                            onProgress: pct => Console.WriteLine($"{first.Name}: Clone: {pct}%")
                         );
                     }
 
-                    await _gu.PullGitRepo(first.ArchiveDlPath);
+                    await _gu.PullGitRepo(
+                        first.ArchiveDlPath,
+                        onProgress: pct => Console.WriteLine($"{first.Name}: Clone: {pct}%")
+                    );
                     await _gu.CheckoutBranch(first.ArchiveDlPath, matchedRef);
 
                     break;

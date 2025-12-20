@@ -101,46 +101,29 @@ public static partial class ArchiveUtility
 
         try
         {
-            var cmd = Cli.Wrap(exe)
+            await Cli.Wrap(exe)
                 .WithArguments(argBuilder => AppendArgument(args, argBuilder))
                 .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErr))
-                .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOut))
-                .WithWorkingDirectory(workingDirectory ?? "");
-
-            if (onProgress is null && txtProgress is null)
-            {
-                await cmd.ExecuteAsync(cancellationToken ?? CancellationToken.None);
-            }
-            else
-            {
-                void WriteProgress(StandardOutputCommandEvent stdOutEvt)
-                {
-                    if (
-                        onProgress is not null
-                        && ProgressRx().IsMatch(stdOutEvt.Text)
-                        && double.TryParse(
-                            ProgressRx().Match(stdOutEvt.Text).Groups[1].Value,
-                            out var parsed
-                        )
-                    )
-                    {
-                        onProgress(parsed);
-                    }
-
-                    txtProgress?.Invoke(stdOutEvt.Text);
-                }
-
-                await cmd.Observe(cancellationToken ?? CancellationToken.None)
-                    .ForEachAsync(cmdEvt =>
-                    {
-                        switch (cmdEvt)
+                .WithStandardOutputPipe(
+                    PipeTarget.Merge(
+                        PipeTarget.ToStringBuilder(stdOut),
+                        PipeTarget.ToDelegate(line =>
                         {
-                            case StandardOutputCommandEvent stdOutEvt:
-                                WriteProgress(stdOutEvt);
-                                break;
-                        }
-                    });
-            }
+                            txtProgress?.Invoke(line);
+                            if (onProgress is null)
+                            {
+                                return;
+                            }
+                            var match = ProgressRx().Match(line);
+                            if (match.Success)
+                            {
+                                onProgress(double.Parse(match.Groups[1].Value));
+                            }
+                        })
+                    )
+                )
+                .WithWorkingDirectory(workingDirectory ?? "")
+                .ExecuteAsync(cancellationToken ?? CancellationToken.None);
         }
         catch (Exception e)
         {

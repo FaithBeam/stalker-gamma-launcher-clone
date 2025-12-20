@@ -63,46 +63,31 @@ public partial class CurlService : ICurlService
         var stdErr = new StringBuilder();
         try
         {
-            var cmd = Cli.Wrap(PathToCurlImpersonate)
+            await Cli.Wrap(PathToCurlImpersonate)
                 .WithArguments(argBuilder => argBuilder.Add(args).AddImpersonation())
                 .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOut))
-                .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErr))
-                .WithWorkingDirectory(workingDir ?? "");
-
-            if (onProgress is null && txtProgress is null)
-            {
-                await cmd.ExecuteAsync(cancellationToken ?? CancellationToken.None);
-            }
-            else
-            {
-                void WriteProgress(StandardErrorCommandEvent evt)
-                {
-                    if (
-                        onProgress is not null
-                        && ProgressRx().IsMatch(evt.Text)
-                        && double.TryParse(
-                            ProgressRx().Match(evt.Text).Groups[1].Value,
-                            out var parsed
-                        )
-                    )
-                    {
-                        onProgress(parsed);
-                    }
-
-                    txtProgress?.Invoke(evt.Text);
-                }
-
-                await cmd.Observe(cancellationToken ?? CancellationToken.None)
-                    .ForEachAsync(onNext =>
-                    {
-                        switch (onNext)
+                .WithStandardErrorPipe(
+                    PipeTarget.Merge(
+                        PipeTarget.ToStringBuilder(stdErr),
+                        PipeTarget.ToDelegate(line =>
                         {
-                            case StandardErrorCommandEvent stdErrEvt:
-                                WriteProgress(stdErrEvt);
-                                break;
-                        }
-                    });
-            }
+                            txtProgress?.Invoke(line);
+                            if (
+                                onProgress is not null
+                                && ProgressRx().IsMatch(line)
+                                && double.TryParse(
+                                    ProgressRx().Match(line).Groups[1].Value,
+                                    out var parsed
+                                )
+                            )
+                            {
+                                onProgress(parsed);
+                            }
+                        })
+                    )
+                )
+                .WithWorkingDirectory(workingDir ?? "")
+                .ExecuteAsync(cancellationToken ?? CancellationToken.None);
         }
         catch (Exception e)
         {
