@@ -35,7 +35,7 @@ public class AnomalyInstallerServiceTests
         await sut.FullInstall(
             "anomaly",
             "gamma",
-            cacheDirectory: "cache",
+            cache: "cache",
             anomalyArchiveName: "anomaly.tar.zst"
         );
 

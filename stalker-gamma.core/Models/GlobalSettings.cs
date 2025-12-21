@@ -17,11 +17,32 @@ public class GlobalSettings
     [JsonPropertyName("checkForLauncherUpdates")]
     public bool CheckForLauncherUpdates { get; set; } = true;
 
-    [JsonPropertyName("stalkerGammaApiUrl")]
-    public string? StalkerGammaApiUrl { get; set; }
-
     [JsonPropertyName("forceBorderlessFullscreen")]
     public bool ForceBorderlessFullscreen { get; set; } = true;
+
+    [JsonPropertyName("stalkerGammaRepo")]
+    public string StalkerGammaRepo { get; set; } = "https://github.com/Grokitach/Stalker_GAMMA";
+
+    [JsonPropertyName("gammaSetupRepo")]
+    public string GammaSetupRepo { get; set; } = "https://github.com/Grokitach/gamma_setup";
+
+    [JsonPropertyName("gammaLargeFilesRepo")]
+    public string GammaLargeFilesRepo { get; set; } =
+        "https://github.com/Grokitach/gamma_large_files_v2";
+
+    [JsonPropertyName("teivazAnomalyGunslingerRepo")]
+    public string TeivazAnomalyGunslingerRepo { get; set; } =
+        "https://github.com/Grokitach/teivaz_anomaly_gunslinger";
+
+    [JsonPropertyName("stalkerAddonApiUrl")]
+    public string StalkerAddonApiUrl { get; set; } = "https://stalker-gamma.com/api/list";
+
+    [JsonPropertyName("stalkerAnomalyModDbUrl")]
+    public string StalkerAnomalyModDbUrl { get; set; } =
+        "https://www.moddb.com/downloads/start/277404";
+
+    [JsonPropertyName("stalkerAnomalyArchiveMd5")]
+    public string StalkerAnomalyArchiveMd5 { get; set; } = "d6bce51a4e6d98f9610ef0aa967ba964";
 
     public async Task WriteAppSettingsAsync() =>
         await File.WriteAllTextAsync(

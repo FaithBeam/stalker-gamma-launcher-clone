@@ -25,18 +25,8 @@ public static class Md5Utility
         }
 
         // Finalize the hash computation
-        md5.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
+        md5.TransformFinalBlock([], 0, 0);
 
         return Convert.ToHexStringLower(md5.Hash!);
-    }
-
-    public static async Task<string> CalculateStringMd5(string content)
-    {
-        using var md5 = MD5.Create();
-        using var ms = new MemoryStream();
-        await using var sw = new StreamWriter(ms);
-        await sw.WriteAsync(content);
-        var hashBytes = await md5.ComputeHashAsync(ms);
-        return Convert.ToHexStringLower(hashBytes);
     }
 }

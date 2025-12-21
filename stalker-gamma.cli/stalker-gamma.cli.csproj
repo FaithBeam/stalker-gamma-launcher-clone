@@ -12,6 +12,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>1701;1702;IL2121;IL2104</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\stalker-gamma.core\stalker-gamma.core.csproj" />
@@ -21,6 +22,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\stalker-gamma-gui\appsettings.json">
@@ -73,4 +75,19 @@
       <Link>resources\curl-impersonate\win\zstd.exe</Link>
     </Content>
   </ItemGroup>
+  <Target
+    Name="CopyMacRuntimeDeps"
+    AfterTargets="Publish"
+    Condition="$([MSBuild]::IsOSPlatform('OSX'))"
+  >
+    <Message
+      Importance="high"
+      Text="Copying macOS runtime dependencies script to publish directory..."
+    />
+    <Copy
+      SourceFiles="$(ProjectDir)..\mac-install-runtime-dependencies.sh"
+      DestinationFiles="$(PublishDir)\stalker-gamma.cli.sh"
+      SkipUnchangedFiles="true"
+    />
+  </Target>
 </Project>

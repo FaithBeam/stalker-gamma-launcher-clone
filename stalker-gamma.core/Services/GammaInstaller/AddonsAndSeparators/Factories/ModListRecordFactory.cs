@@ -17,7 +17,7 @@ public class ModListRecordFactory(ModDb modDb, ICurlService curlService, IHttpCl
 
         var instructions = lineSplit.ElementAtOrDefault(1);
         var patch = lineSplit.ElementAtOrDefault(2);
-        var addonName = lineSplit.ElementAtOrDefault(3);
+        var addonName = lineSplit.ElementAtOrDefault(3)?.TrimStart();
         var modDbUrl = lineSplit.ElementAtOrDefault(4);
         var zipName = lineSplit.ElementAtOrDefault(5);
         var md5ModDb = lineSplit.ElementAtOrDefault(6);

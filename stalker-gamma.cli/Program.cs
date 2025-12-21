@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using ConsoleAppFramework;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
 using stalker_gamma.cli.Services;
 using stalker_gamma.core.Models;
 using stalker_gamma.core.Services;
@@ -17,10 +18,12 @@ public static class Program
 {
     public static async Task Main(string[] args)
     {
+        var log = new LoggerConfiguration().WriteTo.Console().CreateLogger();
         var app = ConsoleApp
             .Create()
             .ConfigureServices(services =>
                 services
+                    .AddSingleton<ILogger>(log)
                     .AddSingleton<GlobalSettings>()
                     .AddScoped<DowngradeModOrganizer>()
                     .AddScoped<DisableNexusModHandlerLink>()

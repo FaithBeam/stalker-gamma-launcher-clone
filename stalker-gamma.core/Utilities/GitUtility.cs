@@ -76,16 +76,13 @@ public partial class GitUtility
         List<string> finalArgs = [.. args];
         if (onProgress is not null && (args.Contains("clone") || args.Contains("pull")))
         {
-            if (!args.Contains("--progress"))
-            {
-                finalArgs.Add("--progress");
-            }
+            finalArgs.Add("--progress");
         }
 
         try
         {
             await Cli.Wrap(PathToGit)
-                .WithArguments(argBuilder => AppendArgument(finalArgs.ToArray(), argBuilder))
+                .WithArguments(argBuilder => AppendArgument([.. finalArgs], argBuilder))
                 .WithStandardOutputPipe(
                     PipeTarget.Merge(
                         PipeTarget.ToStringBuilder(stdOut),
