@@ -6,7 +6,7 @@ public static class Md5Utility
 {
     public static async Task<string> CalculateFileMd5Async(
         string filePath,
-        Action<long, long>? onProgress = null
+        Action<double> onProgress
     )
     {
         using var md5 = MD5.Create();
@@ -21,7 +21,7 @@ public static class Md5Utility
         {
             md5.TransformBlock(buffer, 0, bytesRead, null, 0);
             totalBytesRead += bytesRead;
-            onProgress?.Invoke(totalBytesRead, fileSize);
+            onProgress.Invoke((double)totalBytesRead / fileSize);
         }
 
         // Finalize the hash computation

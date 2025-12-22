@@ -103,7 +103,7 @@ public partial class GitUtility
                             {
                                 if (double.TryParse(match.Groups[1].Value, out var progress))
                                 {
-                                    onProgress(progress);
+                                    onProgress(progress / 100);
                                 }
                             }
                         })

@@ -81,7 +81,7 @@ public partial class CurlService : ICurlService
                                 )
                             )
                             {
-                                onProgress(parsed);
+                                onProgress(parsed / 100);
                             }
                         })
                     )

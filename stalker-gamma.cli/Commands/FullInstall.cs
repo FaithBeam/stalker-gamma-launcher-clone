@@ -68,22 +68,7 @@ public class FullInstallCmd(
         var anomalyCacheArchivePath = Path.Join(cache, anomalyArchiveName);
 
         var anomalyTask = Task.Run(async () =>
-            await anomalyInstaller.DownloadAndExtractAsync(
-                anomalyCacheArchivePath,
-                anomaly,
-                pct =>
-                    _logger.Information(
-                        "{Anomaly} | Download | {Percent}%",
-                        "Anomaly".PadRight(50),
-                        pct
-                    ),
-                pct =>
-                    _logger.Information(
-                        "{Anomaly} | Extract | {Percent}%",
-                        "Anomaly".PadRight(50),
-                        pct
-                    )
-            )
+            await anomalyInstaller.DownloadAndExtractAsync(anomalyCacheArchivePath, anomaly)
         );
 
         var gammaTask = Task.Run(async () =>

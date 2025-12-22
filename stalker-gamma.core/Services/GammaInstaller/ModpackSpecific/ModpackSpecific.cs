@@ -31,8 +31,7 @@ public class ModpackSpecific(GitUtility gitUtility)
             DirUtils.CopyDirectory(
                 Path.Join(dir, "resources", "gamma_large_files_v2"),
                 modsPaths,
-                onProgress: (count, total) =>
-                    gammaLargeFiles.ProgressInterface.Report((double)count / total * 100)
+                onProgress: pct => gammaLargeFiles.ProgressInterface.Report(pct * 100)
             );
             gammaLargeFiles.Status = Status.Done;
         });
@@ -62,10 +61,7 @@ public class ModpackSpecific(GitUtility gitUtility)
                         "312- Gunslinger Guns for Anomaly - Teivazcz & Gunslinger Team",
                         "gamedata"
                     ),
-                    onProgress: (count, total) =>
-                        teivazAnomalyGunslinger.ProgressInterface.Report(
-                            (double)count / total * 100
-                        )
+                    onProgress: pct => teivazAnomalyGunslinger.ProgressInterface.Report(pct * 100)
                 );
             }
             teivazAnomalyGunslinger.Status = Status.Done;
@@ -77,8 +73,7 @@ public class ModpackSpecific(GitUtility gitUtility)
             DirUtils.CopyDirectory(
                 Path.Join(dir, "G.A.M.M.A", "modpack_addons"),
                 modsPaths,
-                onProgress: (count, total) =>
-                    modpackAddonsVm.ProgressInterface.Report((double)count / total * 100)
+                onProgress: pct => modpackAddonsVm.ProgressInterface.Report(pct * 100)
             );
             modpackAddonsVm.Status = Status.Done;
         });

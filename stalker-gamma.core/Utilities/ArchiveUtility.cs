@@ -1,9 +1,7 @@
-using System.Reactive.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using CliWrap;
 using CliWrap.Builders;
-using CliWrap.EventStream;
 using stalker_gamma.core.Models;
 
 namespace stalker_gamma.core.Utilities;
@@ -117,7 +115,7 @@ public static partial class ArchiveUtility
                             var match = ProgressRx().Match(line);
                             if (match.Success)
                             {
-                                onProgress(double.Parse(match.Groups[1].Value));
+                                onProgress(double.Parse(match.Groups[1].Value) / 100);
                             }
                         })
                     )

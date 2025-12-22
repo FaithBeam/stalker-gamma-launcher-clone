@@ -46,7 +46,7 @@ public static class DirUtils
         string destDir,
         bool overwrite = true,
         string? fileFilter = null,
-        Action<int, int>? onProgress = null
+        Action<double>? onProgress = null
     )
     {
         if (sourceDir.Contains(".git"))
@@ -109,7 +109,7 @@ public static class DirUtils
         string destDir,
         bool overwrite,
         string? fileFilter,
-        Action<int, int>? onProgress,
+        Action<double>? onProgress,
         ref int copiedFiles,
         int totalFiles
     )
@@ -134,14 +134,14 @@ public static class DirUtils
                 {
                     file.CopyTo(Path.Combine(destDir, file.Name), overwrite);
                     copiedFiles++;
-                    onProgress?.Invoke(copiedFiles, totalFiles);
+                    onProgress?.Invoke((double)copiedFiles / totalFiles);
                 }
             }
             else
             {
                 file.CopyTo(Path.Combine(destDir, file.Name), overwrite);
                 copiedFiles++;
-                onProgress?.Invoke(copiedFiles, totalFiles);
+                onProgress?.Invoke((double)copiedFiles / totalFiles);
             }
         }
 

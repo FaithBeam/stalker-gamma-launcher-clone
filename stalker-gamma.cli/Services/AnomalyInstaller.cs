@@ -7,12 +7,7 @@ namespace stalker_gamma.cli.Services;
 
 public class AnomalyInstaller(ModDb modDb, GlobalSettings globalSettings, ILogger logger)
 {
-    public async Task DownloadAndExtractAsync(
-        string archivePath,
-        string extractDirectory,
-        Action<double> onDlProgress,
-        Action<double> onExtractProgress
-    )
+    public async Task DownloadAndExtractAsync(string archivePath, string extractDirectory)
     {
         // download anomaly if archive does not exist or doesn't match md5
         if (
@@ -21,12 +16,14 @@ public class AnomalyInstaller(ModDb modDb, GlobalSettings globalSettings, ILogge
                 File.Exists(archivePath)
                 && await Md5Utility.CalculateFileMd5Async(
                     archivePath,
-                    (cur, total) =>
+                    ActionUtils.Debounce<double>(pct =>
                         logger.Information(
-                            "{Name} | Check MD5 | {Percent:P2}%",
-                            "Anomaly".PadRight(50),
-                            (double)cur / total
+                            "{Name} | {Operation} | {Percent:P2}",
+                            "Anomaly".PadRight(40),
+                            "Check MD5",
+                            pct
                         )
+                    )
                 ) != globalSettings.StalkerAnomalyArchiveMd5
             )
         )
@@ -34,12 +31,30 @@ public class AnomalyInstaller(ModDb modDb, GlobalSettings globalSettings, ILogge
             await _modDb.GetModDbLinkCurl(
                 globalSettings.StalkerAnomalyModDbUrl,
                 archivePath,
-                onDlProgress
+                ActionUtils.Debounce<double>(pct =>
+                    logger.Information(
+                        "{Name} | {Operation} | {Percent:P2}",
+                        "Anomaly".PadRight(40),
+                        "Download",
+                        pct
+                    )
+                )
             );
         }
 
         // extract anomaly
-        await ArchiveUtility.ExtractAsync(archivePath, extractDirectory, onExtractProgress);
+        await ArchiveUtility.ExtractAsync(
+            archivePath,
+            extractDirectory,
+            ActionUtils.Debounce<double>(pct =>
+                logger.Information(
+                    "{Name} | {Operation} | {Percent:P2}",
+                    "Anomaly".PadRight(40),
+                    "Extract",
+                    pct
+                )
+            )
+        );
     }
 
     private readonly ModDb _modDb = modDb;

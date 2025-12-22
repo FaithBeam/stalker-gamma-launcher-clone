@@ -49,7 +49,7 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
             onStatus(Status.CheckingMd5);
             var md5 = await Md5Utility.CalculateFileMd5Async(
                 DlPath,
-                onProgress: (read, total) => onProgress((double)read / total * 100)
+                onProgress: pct => onProgress(pct * 100)
             );
             if (!string.IsNullOrWhiteSpace(Md5ModDb))
             {
