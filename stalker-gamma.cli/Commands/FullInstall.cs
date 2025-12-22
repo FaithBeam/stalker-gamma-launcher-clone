@@ -23,11 +23,11 @@ public class FullInstallCmd(
     private readonly ILogger _logger = logger;
 
     /// <summary>
-    /// This will install/update all mods based on Stalker_GAMMA
+    /// This will install/update Anomaly and all GAMMA addons.
     /// </summary>
     /// <param name="anomaly">Directory to extract Anomaly to</param>
     /// <param name="gamma">Directory to extract GAMMA to</param>
-    /// <param name="cache">cache directory</param>
+    /// <param name="cache">Cache directory</param>
     /// <param name="anomalyArchiveName">Optionally change the name of the downloaded anomaly archive</param>
     /// <param name="downloadThreads">Number of parallel downloads that can occur</param>
     /// <param name="extractThreads">Number of parallel extracts that can occur</param>
@@ -43,18 +43,20 @@ public class FullInstallCmd(
         string anomaly = "anomaly",
         string gamma = "gamma",
         string cache = "cache",
-        string anomalyArchiveName = "anomaly.7z",
-        int downloadThreads = 2,
-        int extractThreads = 2,
-        long progressUpdateIntervalMs = 1000,
-        string stalkerAddonApiUrl = "https://stalker-gamma.com/api/list",
-        string gammaSetupRepoUrl = "https://github.com/Grokitach/gamma_setup",
-        string stalkerGammaRepoUrl = "https://github.com/Grokitach/Stalker_GAMMA",
-        string gammaLargeFilesRepoUrl = "https://github.com/Grokitach/gamma_large_files_v2",
-        string teivazAnomalyGunslingerRepoUrl =
+        int downloadThreads = 1,
+        int extractThreads = 1,
+        [Hidden] long progressUpdateIntervalMs = 1000,
+        [Hidden] string anomalyArchiveName = "anomaly.7z",
+        [Hidden] string stalkerAddonApiUrl = "https://stalker-gamma.com/api/list",
+        [Hidden] string gammaSetupRepoUrl = "https://github.com/Grokitach/gamma_setup",
+        [Hidden] string stalkerGammaRepoUrl = "https://github.com/Grokitach/Stalker_GAMMA",
+        [Hidden]
+            string gammaLargeFilesRepoUrl = "https://github.com/Grokitach/gamma_large_files_v2",
+        [Hidden]
+            string teivazAnomalyGunslingerRepoUrl =
             "https://github.com/Grokitach/teivaz_anomaly_gunslinger",
-        string stalkerAnomalyModdbUrl = "https://www.moddb.com/downloads/start/277404",
-        string stalkerAnomalyArchiveMd5 = "d6bce51a4e6d98f9610ef0aa967ba964"
+        [Hidden] string stalkerAnomalyModdbUrl = "https://www.moddb.com/downloads/start/277404",
+        [Hidden] string stalkerAnomalyArchiveMd5 = "d6bce51a4e6d98f9610ef0aa967ba964"
     )
     {
         globalSettings.DownloadThreads = downloadThreads;

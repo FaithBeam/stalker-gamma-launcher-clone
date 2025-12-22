@@ -26,7 +26,7 @@ public static partial class ArchiveUtility
             OperatingSystem.IsMacOS() ? ("tar", ["-xvf", archivePath, "-C", destinationFolder]) // tar macos
             : OperatingSystem.IsLinux()
                 ? (
-                    Path.Join("resources", "7zip", "linux", "7zzs"),
+                    Path.Join("resources", "7zip", "linux", "7zz"),
                     new[] { "x", "-y", "-bsp1", archivePath, $"-o{destinationFolder}" }
                 ) // linux 7z
             : (PathTo7Z, ["x", "-y", "-bsp1", archivePath, $"-o{destinationFolder}"]); // windows 7z
