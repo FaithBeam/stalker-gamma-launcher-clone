@@ -31,6 +31,7 @@ public class FullInstallCmd(
     /// <param name="anomalyArchiveName">Optionally change the name of the downloaded anomaly archive</param>
     /// <param name="downloadThreads">Number of parallel downloads that can occur</param>
     /// <param name="extractThreads">Number of parallel extracts that can occur</param>
+    /// <param name="progressUpdateIntervalMs">How frequently to write progress to the console in milliseconds</param>
     /// <param name="stalkerAddonApiUrl">Escape hatch for stalker gamma api</param>
     /// <param name="gammaSetupRepoUrl">Escape hatch for git repo gamma_setup</param>
     /// <param name="stalkerGammaRepoUrl">Escape hatch for git repo Stalker_GAMMA</param>
@@ -45,6 +46,7 @@ public class FullInstallCmd(
         string anomalyArchiveName = "anomaly.7z",
         int downloadThreads = 2,
         int extractThreads = 2,
+        long progressUpdateIntervalMs = 1000,
         string stalkerAddonApiUrl = "https://stalker-gamma.com/api/list",
         string gammaSetupRepoUrl = "https://github.com/Grokitach/gamma_setup",
         string stalkerGammaRepoUrl = "https://github.com/Grokitach/Stalker_GAMMA",
@@ -64,6 +66,7 @@ public class FullInstallCmd(
         globalSettings.TeivazAnomalyGunslingerRepo = teivazAnomalyGunslingerRepoUrl;
         globalSettings.StalkerAnomalyModDbUrl = stalkerAnomalyModdbUrl;
         globalSettings.StalkerAnomalyArchiveMd5 = stalkerAnomalyArchiveMd5;
+        globalSettings.ProgressUpdateIntervalMs = progressUpdateIntervalMs;
 
         var anomalyCacheArchivePath = Path.Join(cache, anomalyArchiveName);
 
@@ -88,6 +91,6 @@ public class FullInstallCmd(
         await writeModOrganizerIni.WriteAsync(gamma, anomaly);
         await disableNexusModHandlerLink.DisableAsync(gamma);
 
-        _logger.Information("[+] Install finished");
+        _logger.Information("Install finished");
     }
 }

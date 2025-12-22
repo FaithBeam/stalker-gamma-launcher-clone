@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Channels;
 using Serilog;
 using stalker_gamma.cli.Services.Enums;
+using stalker_gamma.core.Services;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Factories;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
@@ -20,7 +21,8 @@ public partial class CustomGammaInstaller(
     ModDb modDb,
     ModListRecordFactory modListRecordFactory,
     GitUtility gu,
-    ILogger logger
+    ILogger logger,
+    ProgressThrottleService progressThrottle
 )
 {
     public async Task InstallAsync(
@@ -64,21 +66,21 @@ public partial class CustomGammaInstaller(
                     cachePath,
                     gammaModsPath,
                     AddonType.ModDb,
-                    ActionUtils.Debounce<double>(pct =>
+                    _progressThrottle.Throttle<double>(pct =>
                         _logger.Information(
                             "{AddonName} | {Operation} | {Percent:P2}",
                             kvp.Value.AddonName![..Math.Min(kvp.Value.AddonName!.Length, 35)]
                                 .PadRight(40),
-                            "Download",
+                            "Download".PadRight(10),
                             pct
                         )
                     ),
-                    ActionUtils.Debounce<double>(pct =>
+                    _progressThrottle.Throttle<double>(pct =>
                         _logger.Information(
                             "{AddonName} | {Operation} | {Percent:P2}",
                             kvp.Value.AddonName![..Math.Min(kvp.Value.AddonName!.Length, 35)]
                                 .PadRight(40),
-                            "Extract",
+                            "Extract".PadRight(10),
                             pct
                         )
                     )
@@ -95,25 +97,25 @@ public partial class CustomGammaInstaller(
                             cachePath,
                             gammaModsPath,
                             AddonType.GitHub,
-                            ActionUtils.Debounce<double>(pct =>
+                            _progressThrottle.Throttle<double>(pct =>
                                 _logger.Information(
                                     "{AddonName} | {Operation} | {Percent:P2}",
                                     kvp.Value.AddonName![
                                             ..Math.Min(kvp.Value.AddonName!.Length, 35)
                                         ]
                                         .PadRight(40),
-                                    "Download",
+                                    "Download".PadRight(10),
                                     pct
                                 )
                             ),
-                            ActionUtils.Debounce<double>(pct =>
+                            _progressThrottle.Throttle<double>(pct =>
                                 _logger.Information(
                                     "{AddonName} | {Operation} | {Percent:P2}",
                                     kvp.Value.AddonName![
                                             ..Math.Min(kvp.Value.AddonName!.Length, 35)
                                         ]
                                         .PadRight(40),
-                                    "Extract",
+                                    "Extract".PadRight(10),
                                     pct
                                 )
                             )
@@ -229,11 +231,11 @@ public partial class CustomGammaInstaller(
             {
                 await _gu.PullGitRepo(
                     gammaSetupRepoPath,
-                    onProgress: ActionUtils.Debounce<double>(pct =>
+                    onProgress: _progressThrottle.Throttle<double>(pct =>
                         _logger.Information(
                             "{Repo} | {Operation} | {Percent:P2}",
                             "Gamma Setup".PadRight(40),
-                            "Pull",
+                            "Pull".PadRight(10),
                             pct
                         )
                     )
@@ -244,11 +246,11 @@ public partial class CustomGammaInstaller(
                 await _gu.CloneGitRepo(
                     gammaSetupRepoPath,
                     globalSettings.GammaSetupRepo,
-                    onProgress: ActionUtils.Debounce<double>(pct =>
+                    onProgress: _progressThrottle.Throttle<double>(pct =>
                         _logger.Information(
                             "{Repo} | {Operation} | {Percent:P2}",
                             "Gamma Setup".PadRight(40),
-                            "Clone",
+                            "Clone".PadRight(10),
                             pct
                         )
                     )
@@ -257,11 +259,11 @@ public partial class CustomGammaInstaller(
             DirUtils.CopyDirectory(
                 Path.Join(gammaSetupRepoPath, "modpack_addons"),
                 Path.Combine(gammaModsPath),
-                onProgress: ActionUtils.Debounce<double>(pct =>
+                onProgress: _progressThrottle.Throttle<double>(pct =>
                     _logger.Information(
                         "{Repo} | {Operation} | {Percent:P2}",
                         "Gamma Setup".PadRight(40),
-                        "Extract",
+                        "Extract".PadRight(10),
                         pct
                     )
                 )
@@ -271,11 +273,11 @@ public partial class CustomGammaInstaller(
             {
                 await _gu.PullGitRepo(
                     stalkerGammaRepoPath,
-                    onProgress: ActionUtils.Debounce<double>(pct =>
+                    onProgress: _progressThrottle.Throttle<double>(pct =>
                         _logger.Information(
                             "{Repo} | {Operation} | {Percent:P2}",
                             "Stalker_GAMMA".PadRight(40),
-                            "Pull",
+                            "Pull".PadRight(10),
                             pct
                         )
                     )
@@ -286,11 +288,11 @@ public partial class CustomGammaInstaller(
                 await _gu.CloneGitRepo(
                     stalkerGammaRepoPath,
                     globalSettings.StalkerGammaRepo,
-                    onProgress: ActionUtils.Debounce<double>(pct =>
+                    onProgress: _progressThrottle.Throttle<double>(pct =>
                         _logger.Information(
                             "{Repo} | {Operation} | {Percent:P2}",
                             "Stalker_GAMMA".PadRight(40),
-                            "Clone",
+                            "Clone".PadRight(10),
                             pct
                         )
                     )
@@ -300,11 +302,11 @@ public partial class CustomGammaInstaller(
                 Path.Combine(stalkerGammaRepoPath, "G.A.M.M.A", "modpack_addons"),
                 Path.Combine(gammaModsPath),
                 overwrite: true,
-                onProgress: ActionUtils.Debounce<double>(pct =>
+                onProgress: _progressThrottle.Throttle<double>(pct =>
                     _logger.Information(
                         "{Repo} | {Operation} | {Percent:P2}",
                         "Stalker_GAMMA".PadRight(40),
-                        "Extract",
+                        "Extract".PadRight(10),
                         pct
                     )
                 )
@@ -322,11 +324,11 @@ public partial class CustomGammaInstaller(
             {
                 await _gu.PullGitRepo(
                     gammaLargeFilesRepoPath,
-                    onProgress: ActionUtils.Debounce<double>(pct =>
+                    onProgress: _progressThrottle.Throttle<double>(pct =>
                         _logger.Information(
                             "{Repo} | {Operation} | {Percent:P2}",
                             "Gamma Large Files".PadRight(40),
-                            "Pull",
+                            "Pull".PadRight(10),
                             pct
                         )
                     )
@@ -337,11 +339,11 @@ public partial class CustomGammaInstaller(
                 await _gu.CloneGitRepo(
                     gammaLargeFilesRepoPath,
                     globalSettings.GammaLargeFilesRepo,
-                    onProgress: ActionUtils.Debounce<double>(pct =>
+                    onProgress: _progressThrottle.Throttle<double>(pct =>
                         _logger.Information(
                             "{Repo} | {Operation} | {Percent:P2}",
                             "Gamma Large Files".PadRight(40),
-                            "Clone",
+                            "Clone".PadRight(10),
                             pct
                         )
                     )
@@ -351,11 +353,11 @@ public partial class CustomGammaInstaller(
                 gammaLargeFilesRepoPath,
                 gammaModsPath,
                 overwrite: true,
-                onProgress: ActionUtils.Debounce<double>(pct =>
+                onProgress: _progressThrottle.Throttle<double>(pct =>
                     _logger.Information(
                         "{Repo} | {Operation} | {Percent:P2}",
                         "Gamma Large Files".PadRight(40),
-                        "Extract",
+                        "Extract".PadRight(10),
                         pct
                     )
                 )
@@ -368,11 +370,11 @@ public partial class CustomGammaInstaller(
             {
                 await _gu.PullGitRepo(
                     teivazAnomalyGunslingerRepoPath,
-                    onProgress: ActionUtils.Debounce<double>(pct =>
+                    onProgress: _progressThrottle.Throttle<double>(pct =>
                         _logger.Information(
                             "{Repo} | {Operation} | {Percent:P2}",
                             "Teivaz".PadRight(40),
-                            "Pull",
+                            "Pull".PadRight(10),
                             pct
                         )
                     )
@@ -383,11 +385,11 @@ public partial class CustomGammaInstaller(
                 await _gu.CloneGitRepo(
                     teivazAnomalyGunslingerRepoPath,
                     globalSettings.TeivazAnomalyGunslingerRepo,
-                    onProgress: ActionUtils.Debounce<double>(pct =>
+                    onProgress: _progressThrottle.Throttle<double>(pct =>
                         _logger.Information(
                             "{Repo} | {Operation} | {Percent:P2}",
                             "Teivaz".PadRight(40),
-                            "Clone",
+                            "Clone".PadRight(10),
                             pct
                         )
                     )
@@ -407,11 +409,11 @@ public partial class CustomGammaInstaller(
                         "gamedata"
                     ),
                     overwrite: true,
-                    onProgress: ActionUtils.Debounce<double>(pct =>
+                    onProgress: _progressThrottle.Throttle<double>(pct =>
                         _logger.Information(
                             "{Repo} | {Operation} | {Percent:P2}",
                             "Teivaz Anomaly Gunslinger".PadRight(40),
-                            "Extract",
+                            "Extract".PadRight(10),
                             pct
                         )
                     )
@@ -469,7 +471,7 @@ public partial class CustomGammaInstaller(
                     addonRecord.ArchiveDlPath,
                     addonRecord.ExtractDirectory,
                     true,
-                    onProgress: ActionUtils.Debounce<double>(pct =>
+                    onProgress: _progressThrottle.Throttle<double>(pct =>
                         addonRecord.OnExtractProgress(pct)
                     )
                 );
@@ -478,6 +480,8 @@ public partial class CustomGammaInstaller(
             ProcessInstructions(addonRecord.ExtractDirectory, addonRecord.Instructions);
 
             CleanExtractPath(addonRecord.ExtractDirectory);
+
+            DirUtils.NormalizePermissions(addonRecord.ExtractDirectory);
 
             await WriteAddonMetaIniAsync(
                 addonRecord.ExtractDirectory,
@@ -530,45 +534,28 @@ public partial class CustomGammaInstaller(
 
                     if (Directory.Exists(first.ArchiveDlPath))
                     {
-                        await _gu.PullGitRepo(
-                            first.ArchiveDlPath,
-                            onProgress: pct =>
-                                _logger.Information(
-                                    "{AddonName} | {Operation} | {Percent:P2}",
-                                    first.Name[..Math.Min(first.Name.Length, 35)].PadRight(40),
-                                    "Pull",
-                                    pct
-                                )
-                        );
-                        var defaultBranch = await _gu.GetDefaultBranch(first.ArchiveDlPath);
-                        await _gu.CheckoutBranch(first.ArchiveDlPath, defaultBranch);
-                    }
-                    else
-                    {
-                        await _gu.CloneGitRepo(
-                            first.ArchiveDlPath,
-                            string.Format(GithubUrl, profile, repo),
-                            onProgress: pct =>
-                                _logger.Information(
-                                    "{AddonName} | {Operation} | {Percent:P2}",
-                                    first.Name[..Math.Min(first.Name.Length, 35)].PadRight(40),
-                                    "Clone",
-                                    pct
-                                )
-                        );
+                        // delete git dir because attempting to update repos on different refs is a pita. Should figure this out later
+                        DirUtils.NormalizePermissions(first.ArchiveDlPath);
+                        Directory.Delete(first.ArchiveDlPath, true);
                     }
 
-                    await _gu.PullGitRepo(
+                    await _gu.CloneGitRepo(
                         first.ArchiveDlPath,
-                        onProgress: pct =>
+                        string.Format(GithubUrl, profile, repo),
+                        onProgress: _progressThrottle.Throttle<double>(pct =>
                             _logger.Information(
                                 "{AddonName} | {Operation} | {Percent:P2}",
                                 first.Name[..Math.Min(first.Name.Length, 35)].PadRight(40),
-                                "Pull",
+                                "Clone".PadRight(10),
                                 pct
                             )
+                        )
                     );
-                    await _gu.CheckoutBranch(first.ArchiveDlPath, matchedRef);
+
+                    if (matchedRef != "latest")
+                    {
+                        await _gu.CheckoutBranch(first.ArchiveDlPath, matchedRef);
+                    }
 
                     break;
                 }
@@ -682,6 +669,7 @@ public partial class CustomGammaInstaller(
     private readonly HttpClient _githubDlArchiveClient = hcf.CreateClient("githubDlArchive");
     private readonly GitUtility _gu = gu;
     private readonly ILogger _logger = logger;
+    private readonly ProgressThrottleService _progressThrottle = progressThrottle;
 
     private const string SeparatorMetaIni = """
         [General]

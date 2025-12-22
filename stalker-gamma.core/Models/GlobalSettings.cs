@@ -20,6 +20,9 @@ public class GlobalSettings
     [JsonPropertyName("forceBorderlessFullscreen")]
     public bool ForceBorderlessFullscreen { get; set; } = true;
 
+    [JsonPropertyName("progressUpdateIntervalMs")]
+    public long ProgressUpdateIntervalMs { get; set; } = 1000;
+
     [JsonPropertyName("stalkerGammaRepo")]
     public string StalkerGammaRepo { get; set; } = "https://github.com/Grokitach/Stalker_GAMMA";
 

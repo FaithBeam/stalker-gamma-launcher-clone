@@ -28,13 +28,13 @@ public static class DirUtils
         });
     }
 
-    public static void RecursivelyDeleteDirectory(string dir, IReadOnlyList<string> DoNotMatch)
+    public static void RecursivelyDeleteDirectory(string dir, IReadOnlyList<string> doNotMatch)
     {
         var dirInfo = new DirectoryInfo(dir);
         foreach (
             var d in dirInfo
                 .GetDirectories()
-                .Where(x => !DoNotMatch.Contains(x.Name, StringComparer.OrdinalIgnoreCase))
+                .Where(x => !doNotMatch.Contains(x.Name, StringComparer.OrdinalIgnoreCase))
         )
         {
             d.Delete(true);

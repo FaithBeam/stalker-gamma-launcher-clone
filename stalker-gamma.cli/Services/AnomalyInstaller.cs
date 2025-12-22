@@ -1,11 +1,17 @@
 ﻿using Serilog;
 using stalker_gamma.core.Models;
+using stalker_gamma.core.Services;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
 using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma.cli.Services;
 
-public class AnomalyInstaller(ModDb modDb, GlobalSettings globalSettings, ILogger logger)
+public class AnomalyInstaller(
+    ModDb modDb,
+    GlobalSettings globalSettings,
+    ILogger logger,
+    ProgressThrottleService progressThrottle
+)
 {
     public async Task DownloadAndExtractAsync(string archivePath, string extractDirectory)
     {
@@ -16,11 +22,11 @@ public class AnomalyInstaller(ModDb modDb, GlobalSettings globalSettings, ILogge
                 File.Exists(archivePath)
                 && await Md5Utility.CalculateFileMd5Async(
                     archivePath,
-                    ActionUtils.Debounce<double>(pct =>
+                    progressThrottle.Throttle<double>(pct =>
                         logger.Information(
                             "{Name} | {Operation} | {Percent:P2}",
                             "Anomaly".PadRight(40),
-                            "Check MD5",
+                            "Check MD5".PadRight(10),
                             pct
                         )
                     )
@@ -31,11 +37,11 @@ public class AnomalyInstaller(ModDb modDb, GlobalSettings globalSettings, ILogge
             await _modDb.GetModDbLinkCurl(
                 globalSettings.StalkerAnomalyModDbUrl,
                 archivePath,
-                ActionUtils.Debounce<double>(pct =>
+                progressThrottle.Throttle<double>(pct =>
                     logger.Information(
                         "{Name} | {Operation} | {Percent:P2}",
                         "Anomaly".PadRight(40),
-                        "Download",
+                        "Download".PadRight(10),
                         pct
                     )
                 )
@@ -46,11 +52,11 @@ public class AnomalyInstaller(ModDb modDb, GlobalSettings globalSettings, ILogge
         await ArchiveUtility.ExtractAsync(
             archivePath,
             extractDirectory,
-            ActionUtils.Debounce<double>(pct =>
+            progressThrottle.Throttle<double>(pct =>
                 logger.Information(
                     "{Name} | {Operation} | {Percent:P2}",
                     "Anomaly".PadRight(40),
-                    "Extract",
+                    "Extract".PadRight(10),
                     pct
                 )
             )

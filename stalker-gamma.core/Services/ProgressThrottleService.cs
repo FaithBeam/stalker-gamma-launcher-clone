@@ -1,10 +1,12 @@
-namespace stalker_gamma.core.Utilities;
+using stalker_gamma.core.Models;
 
-public static class ActionUtils
+namespace stalker_gamma.core.Services;
+
+public class ProgressThrottleService(GlobalSettings gs)
 {
-    public static TimeSpan Interval { get; set; } = TimeSpan.FromMilliseconds(500);
+    public TimeSpan Interval { get; set; } = TimeSpan.FromMilliseconds(gs.ProgressUpdateIntervalMs);
 
-    public static Action<T> Debounce<T>(Action<T> action, TimeSpan? interval = null)
+    public Action<T> Throttle<T>(Action<T> action, TimeSpan? interval = null)
     {
         interval ??= Interval;
         var lastTrigger = DateTime.MinValue;
