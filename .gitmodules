@@ -1,6 +1,0 @@
-[submodule "7-Zip"]
-	path = 7-Zip
-	url = https://github.com/mcmilk/7-Zip
-[submodule "curl-impersonate"]
-	path = curl-impersonate
-	url = https://github.com/lexiforest/curl-impersonate
