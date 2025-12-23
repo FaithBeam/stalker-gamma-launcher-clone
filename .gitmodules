@@ -4,3 +4,6 @@
 [submodule "fb-7-Zip"]
 	path = submodules/7-Zip
 	url = https://github.com/FaithBeam/7-Zip
+[submodule "submodules/zstd"]
+	path = submodules/zstd
+	url = https://github.com/FaithBeam/zstd
