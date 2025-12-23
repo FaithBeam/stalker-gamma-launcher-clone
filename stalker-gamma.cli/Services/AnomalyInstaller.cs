@@ -10,9 +10,13 @@ public class AnomalyInstaller(
     ModDb modDb,
     GlobalSettings globalSettings,
     ILogger logger,
-    ProgressThrottleService progressThrottle
+    ProgressThrottleService progressThrottle,
+    Services.ProgressService progressService
 )
 {
+    private const string StructuredLog =
+        "{AddonName} | {Operation} | {Percent} | {TotalProgress:P2}";
+
     public async Task DownloadAndExtractAsync(string archivePath, string extractDirectory)
     {
         // download anomaly if archive does not exist or doesn't match md5
@@ -24,10 +28,11 @@ public class AnomalyInstaller(
                     archivePath,
                     progressThrottle.Throttle<double>(pct =>
                         logger.Information(
-                            "{Name} | {Operation} | {Percent:P2}",
+                            StructuredLog,
                             "Anomaly".PadRight(40),
                             "Check MD5".PadRight(10),
-                            pct
+                            $"{pct:P2}".PadRight(8),
+                            _progressService.TotalProgress
                         )
                     )
                 ) != globalSettings.StalkerAnomalyArchiveMd5
@@ -39,10 +44,11 @@ public class AnomalyInstaller(
                 archivePath,
                 progressThrottle.Throttle<double>(pct =>
                     logger.Information(
-                        "{Name} | {Operation} | {Percent:P2}",
+                        StructuredLog,
                         "Anomaly".PadRight(40),
                         "Download".PadRight(10),
-                        pct
+                        $"{pct:P2}".PadRight(8),
+                        _progressService.TotalProgress
                     )
                 )
             );
@@ -54,14 +60,18 @@ public class AnomalyInstaller(
             extractDirectory,
             progressThrottle.Throttle<double>(pct =>
                 logger.Information(
-                    "{Name} | {Operation} | {Percent:P2}",
+                    StructuredLog,
                     "Anomaly".PadRight(40),
                     "Extract".PadRight(10),
-                    pct
+                    $"{pct:P2}".PadRight(8),
+                    _progressService.TotalProgress
                 )
             )
         );
+
+        _progressService.IncrementCompleted();
     }
 
     private readonly ModDb _modDb = modDb;
+    private readonly ProgressService _progressService = progressService;
 }

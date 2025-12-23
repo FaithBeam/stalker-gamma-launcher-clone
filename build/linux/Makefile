@@ -1,0 +1,51 @@
+ROOT = $(realpath ../../)
+CUR_DIR = $(realpath .)
+
+7ZIP_SUBMODULE_DIR = $(ROOT)/submodules/7-Zip
+CURL_IMPERSONATE_SUBMODULE_DIR = $(ROOT)/submodules/curl-impersonate
+
+BUILD_DIR = $(CUR_DIR)/build
+CURL_BUILD_DIR = $(BUILD_DIR)/curl-impersonate
+7Z_BUILD_DIR = $(7ZIP_SUBMODULE_DIR)/CPP/7zip/Bundles/Alone2
+STALKER_GAMMA_BUILD_DIR = $(BUILD_DIR)/stalker-gamma-cli
+STALKER_GAMMA_CLI_PROJECT = $(ROOT)/stalker-gamma.cli/stalker-gamma.cli.csproj
+
+patch-makefile:
+	patch --directory=$(CURL_IMPERSONATE_SUBMODULE_DIR) < $(CURL_IMPERSONATE_SUBMODULE_DIR)/patches/makefile.patch
+
+build:
+	mkdir $(BUILD_DIR)
+
+	# build curl-impersonate
+	mkdir $(CURL_BUILD_DIR)
+	(cd $(CURL_BUILD_DIR) && $(CURL_IMPERSONATE_SUBMODULE_DIR)/configure --enable-static --prefix="$(CURL_BUILD_DIR)/install" && make build && make install)
+
+	# build 7zip
+	$(MAKE) -C $(7Z_BUILD_DIR) -f makefile.gcc
+	
+	# build stalker-gamma-cli
+	mkdir $(STALKER_GAMMA_BUILD_DIR)
+	dotnet publish -c Release $(STALKER_GAMMA_CLI_PROJECT) -o $(STALKER_GAMMA_BUILD_DIR)
+
+	# cleanup stalker-gamma-cli debug files
+	rm $(STALKER_GAMMA_BUILD_DIR)/*.pdb
+	rm $(STALKER_GAMMA_BUILD_DIR)/*.dbg
+
+	# copy dependency artifacts to stalker-gamma-cli
+	cp $(CURL_BUILD_DIR)/install/bin/curl-impersonate $(STALKER_GAMMA_BUILD_DIR)/
+	cp $(7Z_BUILD_DIR)/_o/7zz $(STALKER_GAMMA_BUILD_DIR)/
+	cp install.sh $(STALKER_GAMMA_BUILD_DIR)/
+	cp uninstall.sh $(STALKER_GAMMA_BUILD_DIR)/
+
+archive:
+	tar -czvf stalker-gamma-cli.tar.gz --directory=$(STALKER_GAMMA_BUILD_DIR) .
+
+install:
+	$(STALKER_GAMMA_BUILD_DIR)/install.sh
+	
+clean:
+	rm -rf $(BUILD_DIR)
+	rm -rf $(7Z_BUILD_DIR)/_o
+
+uninstall:
+	./uninstall.sh

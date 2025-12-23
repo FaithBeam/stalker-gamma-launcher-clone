@@ -22,9 +22,13 @@ public partial class CustomGammaInstaller(
     ModListRecordFactory modListRecordFactory,
     GitUtility gu,
     ILogger logger,
-    ProgressThrottleService progressThrottle
+    ProgressThrottleService progressThrottle,
+    Services.ProgressService progressService
 )
 {
+    private const string StructuredLog =
+        "{AddonName} | {Operation} | {Percent} | {TotalProgress:P2}";
+
     public async Task InstallAsync(
         string anomalyPath,
         Task anomalyTask,
@@ -68,20 +72,22 @@ public partial class CustomGammaInstaller(
                     AddonType.ModDb,
                     _progressThrottle.Throttle<double>(pct =>
                         _logger.Information(
-                            "{AddonName} | {Operation} | {Percent:P2}",
+                            StructuredLog,
                             kvp.Value.AddonName![..Math.Min(kvp.Value.AddonName!.Length, 35)]
                                 .PadRight(40),
                             "Download".PadRight(10),
-                            pct
+                            $"{pct:P2}".PadRight(8),
+                            _progressService.TotalProgress
                         )
                     ),
                     _progressThrottle.Throttle<double>(pct =>
                         _logger.Information(
-                            "{AddonName} | {Operation} | {Percent:P2}",
+                            StructuredLog,
                             kvp.Value.AddonName![..Math.Min(kvp.Value.AddonName!.Length, 35)]
                                 .PadRight(40),
                             "Extract".PadRight(10),
-                            pct
+                            $"{pct:P2}".PadRight(8),
+                            _progressService.TotalProgress
                         )
                     )
                 )
@@ -98,32 +104,38 @@ public partial class CustomGammaInstaller(
                             gammaModsPath,
                             AddonType.GitHub,
                             _progressThrottle.Throttle<double>(pct =>
+                            {
                                 _logger.Information(
-                                    "{AddonName} | {Operation} | {Percent:P2}",
+                                    StructuredLog,
                                     kvp.Value.AddonName![
                                             ..Math.Min(kvp.Value.AddonName!.Length, 35)
                                         ]
                                         .PadRight(40),
                                     "Download".PadRight(10),
-                                    pct
-                                )
-                            ),
+                                    $"{pct:P2}".PadRight(8),
+                                    _progressService.TotalProgress
+                                );
+                            }),
                             _progressThrottle.Throttle<double>(pct =>
                                 _logger.Information(
-                                    "{AddonName} | {Operation} | {Percent:P2}",
+                                    StructuredLog,
                                     kvp.Value.AddonName![
                                             ..Math.Min(kvp.Value.AddonName!.Length, 35)
                                         ]
                                         .PadRight(40),
                                     "Extract".PadRight(10),
-                                    pct
+                                    $"{pct:P2}".PadRight(8),
+                                    _progressService.TotalProgress
                                 )
                             )
                         )
                     )
             )
             .GroupBy(x => x.ArchiveDlPath)
-            .OrderBy(x => x.First().Index);
+            .OrderBy(x => x.First().Index)
+            .ToList();
+
+        _progressService.TotalAddons = addons.Count + 1 + 5;
 
         // Write separators
         var separators = indexedResponse
@@ -233,10 +245,11 @@ public partial class CustomGammaInstaller(
                     gammaSetupRepoPath,
                     onProgress: _progressThrottle.Throttle<double>(pct =>
                         _logger.Information(
-                            "{Repo} | {Operation} | {Percent:P2}",
+                            StructuredLog,
                             "Gamma Setup".PadRight(40),
                             "Pull".PadRight(10),
-                            pct
+                            $"{pct:P2}".PadRight(8),
+                            _progressService.TotalProgress
                         )
                     )
                 );
@@ -248,10 +261,11 @@ public partial class CustomGammaInstaller(
                     globalSettings.GammaSetupRepo,
                     onProgress: _progressThrottle.Throttle<double>(pct =>
                         _logger.Information(
-                            "{Repo} | {Operation} | {Percent:P2}",
+                            StructuredLog,
                             "Gamma Setup".PadRight(40),
                             "Clone".PadRight(10),
-                            pct
+                            $"{pct:P2}".PadRight(8),
+                            _progressService.TotalProgress
                         )
                     )
                 );
@@ -261,13 +275,15 @@ public partial class CustomGammaInstaller(
                 Path.Combine(gammaModsPath),
                 onProgress: _progressThrottle.Throttle<double>(pct =>
                     _logger.Information(
-                        "{Repo} | {Operation} | {Percent:P2}",
+                        StructuredLog,
                         "Gamma Setup".PadRight(40),
                         "Extract".PadRight(10),
-                        pct
+                        $"{pct:P2}".PadRight(8),
+                        _progressService.TotalProgress
                     )
                 )
             );
+            _progressService.IncrementCompleted();
 
             if (Directory.Exists(stalkerGammaRepoPath))
             {
@@ -275,10 +291,11 @@ public partial class CustomGammaInstaller(
                     stalkerGammaRepoPath,
                     onProgress: _progressThrottle.Throttle<double>(pct =>
                         _logger.Information(
-                            "{Repo} | {Operation} | {Percent:P2}",
+                            StructuredLog,
                             "Stalker_GAMMA".PadRight(40),
                             "Pull".PadRight(10),
-                            pct
+                            $"{pct:P2}".PadRight(8),
+                            _progressService.TotalProgress
                         )
                     )
                 );
@@ -290,10 +307,11 @@ public partial class CustomGammaInstaller(
                     globalSettings.StalkerGammaRepo,
                     onProgress: _progressThrottle.Throttle<double>(pct =>
                         _logger.Information(
-                            "{Repo} | {Operation} | {Percent:P2}",
+                            StructuredLog,
                             "Stalker_GAMMA".PadRight(40),
                             "Clone".PadRight(10),
-                            pct
+                            $"{pct:P2}".PadRight(8),
+                            _progressService.TotalProgress
                         )
                     )
                 );
@@ -304,10 +322,11 @@ public partial class CustomGammaInstaller(
                 overwrite: true,
                 onProgress: _progressThrottle.Throttle<double>(pct =>
                     _logger.Information(
-                        "{Repo} | {Operation} | {Percent:P2}",
+                        StructuredLog,
                         "Stalker_GAMMA".PadRight(40),
                         "Extract".PadRight(10),
-                        pct
+                        $"{pct:P2}".PadRight(8),
+                        _progressService.TotalProgress
                     )
                 )
             );
@@ -316,6 +335,7 @@ public partial class CustomGammaInstaller(
                 Path.Combine(gammaModsPath, "version.txt"),
                 true
             );
+            _progressService.IncrementCompleted();
         });
 
         var gammaLargeFilesTask = Task.Run(async () =>
@@ -326,10 +346,11 @@ public partial class CustomGammaInstaller(
                     gammaLargeFilesRepoPath,
                     onProgress: _progressThrottle.Throttle<double>(pct =>
                         _logger.Information(
-                            "{Repo} | {Operation} | {Percent:P2}",
+                            StructuredLog,
                             "Gamma Large Files".PadRight(40),
                             "Pull".PadRight(10),
-                            pct
+                            $"{pct:P2}".PadRight(8),
+                            _progressService.TotalProgress
                         )
                     )
                 );
@@ -341,10 +362,11 @@ public partial class CustomGammaInstaller(
                     globalSettings.GammaLargeFilesRepo,
                     onProgress: _progressThrottle.Throttle<double>(pct =>
                         _logger.Information(
-                            "{Repo} | {Operation} | {Percent:P2}",
+                            StructuredLog,
                             "Gamma Large Files".PadRight(40),
                             "Clone".PadRight(10),
-                            pct
+                            $"{pct:P2}".PadRight(8),
+                            _progressService.TotalProgress
                         )
                     )
                 );
@@ -355,13 +377,15 @@ public partial class CustomGammaInstaller(
                 overwrite: true,
                 onProgress: _progressThrottle.Throttle<double>(pct =>
                     _logger.Information(
-                        "{Repo} | {Operation} | {Percent:P2}",
+                        StructuredLog,
                         "Gamma Large Files".PadRight(40),
                         "Extract".PadRight(10),
-                        pct
+                        $"{pct:P2}".PadRight(8),
+                        _progressService.TotalProgress
                     )
                 )
             );
+            _progressService.IncrementCompleted();
         });
 
         var teivazTask = Task.Run(async () =>
@@ -372,10 +396,11 @@ public partial class CustomGammaInstaller(
                     teivazAnomalyGunslingerRepoPath,
                     onProgress: _progressThrottle.Throttle<double>(pct =>
                         _logger.Information(
-                            "{Repo} | {Operation} | {Percent:P2}",
+                            StructuredLog,
                             "Teivaz".PadRight(40),
                             "Pull".PadRight(10),
-                            pct
+                            $"{pct:P2}".PadRight(8),
+                            _progressService.TotalProgress
                         )
                     )
                 );
@@ -387,10 +412,11 @@ public partial class CustomGammaInstaller(
                     globalSettings.TeivazAnomalyGunslingerRepo,
                     onProgress: _progressThrottle.Throttle<double>(pct =>
                         _logger.Information(
-                            "{Repo} | {Operation} | {Percent:P2}",
+                            StructuredLog,
                             "Teivaz".PadRight(40),
                             "Clone".PadRight(10),
-                            pct
+                            $"{pct:P2}".PadRight(8),
+                            _progressService.TotalProgress
                         )
                     )
                 );
@@ -411,14 +437,16 @@ public partial class CustomGammaInstaller(
                     overwrite: true,
                     onProgress: _progressThrottle.Throttle<double>(pct =>
                         _logger.Information(
-                            "{Repo} | {Operation} | {Percent:P2}",
+                            StructuredLog,
                             "Teivaz Anomaly Gunslinger".PadRight(40),
                             "Extract".PadRight(10),
-                            pct
+                            $"{pct:P2}".PadRight(8),
+                            _progressService.TotalProgress
                         )
                     )
                 );
             }
+            _progressService.IncrementCompleted();
         });
 
         var stalkerGammaModpackPatches = Task.Run(async () =>
@@ -432,6 +460,7 @@ public partial class CustomGammaInstaller(
                 "modpack_patches"
             );
             DirUtils.CopyDirectory(cacheModpackPatchPath, anomalyPath);
+            _progressService.IncrementCompleted();
         });
 
         await Task.WhenAll(
@@ -462,7 +491,7 @@ public partial class CustomGammaInstaller(
                 await ArchiveUtility.ExtractAsync(
                     addonRecord.ArchiveDlPath,
                     addonRecord.ExtractDirectory,
-                    addonRecord.OnDlProgress
+                    addonRecord.OnExtractProgress
                 );
             }
             else
@@ -489,6 +518,8 @@ public partial class CustomGammaInstaller(
                 addonRecord.NiceUrl
             );
         }
+
+        _progressService.IncrementCompleted();
     }
 
     private async Task DownloadAndVerifyFile(
@@ -544,10 +575,11 @@ public partial class CustomGammaInstaller(
                         string.Format(GithubUrl, profile, repo),
                         onProgress: _progressThrottle.Throttle<double>(pct =>
                             _logger.Information(
-                                "{AddonName} | {Operation} | {Percent:P2}",
+                                StructuredLog,
                                 first.Name[..Math.Min(first.Name.Length, 35)].PadRight(40),
                                 "Clone".PadRight(10),
-                                pct
+                                $"{pct:P2}".PadRight(8),
+                                _progressService.TotalProgress
                             )
                         )
                     );
@@ -666,10 +698,10 @@ public partial class CustomGammaInstaller(
     private readonly ModDb _modDb = modDb;
     private readonly ModListRecordFactory _modListRecordFactory = modListRecordFactory;
     private readonly HttpClient _hc = hcf.CreateClient();
-    private readonly HttpClient _githubDlArchiveClient = hcf.CreateClient("githubDlArchive");
     private readonly GitUtility _gu = gu;
     private readonly ILogger _logger = logger;
     private readonly ProgressThrottleService _progressThrottle = progressThrottle;
+    private readonly ProgressService _progressService = progressService;
 
     private const string SeparatorMetaIni = """
         [General]

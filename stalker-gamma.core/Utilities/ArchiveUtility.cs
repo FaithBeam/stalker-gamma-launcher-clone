@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 using CliWrap;
+using CliWrap.Buffered;
 using CliWrap.Builders;
 using stalker_gamma.core.Models;
 
@@ -26,7 +27,7 @@ public static partial class ArchiveUtility
             OperatingSystem.IsMacOS() ? ("tar", ["-xvf", archivePath, "-C", destinationFolder]) // tar macos
             : OperatingSystem.IsLinux()
                 ? (
-                    Path.Join("resources", "7zip", "linux", "7zz"),
+                    Path.Join(Dir, "7zz"),
                     new[] { "x", "-y", "-bsp1", archivePath, $"-o{destinationFolder}" }
                 ) // linux 7z
             : (PathTo7Z, ["x", "-y", "-bsp1", archivePath, $"-o{destinationFolder}"]); // windows 7z
@@ -105,19 +106,47 @@ public static partial class ArchiveUtility
                 .WithStandardOutputPipe(
                     PipeTarget.Merge(
                         PipeTarget.ToStringBuilder(stdOut),
-                        PipeTarget.ToDelegate(line =>
-                        {
-                            txtProgress?.Invoke(line);
-                            if (onProgress is null)
+                        PipeTarget.Create(
+                            async (origin, ct) =>
                             {
-                                return;
+                                // Buffer must be bigger than the process's stdout/stderr buffer
+                                const int bufferSize = 1024;
+
+                                using var reader = new StreamReader(
+                                    origin,
+                                    Console.OutputEncoding,
+                                    false,
+                                    bufferSize,
+                                    true
+                                );
+                                var buffer = new char[bufferSize];
+
+                                int charsRead;
+                                while (
+                                    (charsRead = await reader.ReadAsync(buffer, 0, buffer.Length))
+                                    > 0
+                                )
+                                {
+                                    ct.ThrowIfCancellationRequested();
+
+                                    var data = new string(buffer, 0, charsRead);
+
+                                    // Do something with data here
+                                    if (onProgress is null)
+                                    {
+                                        return;
+                                    }
+                                    var matches = ProgressRx().Matches(data).ToList();
+                                    if (matches.Count > 0)
+                                    {
+                                        foreach (var m in matches)
+                                        {
+                                            onProgress(double.Parse(m.Groups[1].Value) / 100);
+                                        }
+                                    }
+                                }
                             }
-                            var match = ProgressRx().Match(line);
-                            if (match.Success)
-                            {
-                                onProgress(double.Parse(match.Groups[1].Value) / 100);
-                            }
-                        })
+                        )
                     )
                 )
                 .WithWorkingDirectory(workingDirectory ?? "")
@@ -136,6 +165,9 @@ public static partial class ArchiveUtility
                 e
             );
         }
+
+        // make sure to report 100% progress because 7zip many times stops reporting at 99%
+        onProgress?.Invoke(1);
 
         return new StdOutStdErrOutput(stdOut.ToString(), stdErr.ToString());
     }

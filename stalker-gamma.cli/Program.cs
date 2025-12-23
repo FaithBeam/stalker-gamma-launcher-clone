@@ -26,6 +26,7 @@ public static class Program
                     .AddSingleton<ILogger>(log)
                     .AddSingleton<GlobalSettings>()
                     .AddSingleton<ProgressThrottleService>()
+                    .AddSingleton<Services.ProgressService>()
                     .AddScoped<DowngradeModOrganizer>()
                     .AddScoped<DisableNexusModHandlerLink>()
                     .AddScoped<WriteModOrganizerIni>()

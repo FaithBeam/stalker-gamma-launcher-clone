@@ -27,12 +27,6 @@
     <PackageReference Include="WindowsShortcutFactory" Version="1.2.0" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="resources\**" CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="resources\7zip\linux\" />
-    <Folder Include="resources\curl-impersonate\linux\" />
-    <Folder Include="resources\curl-impersonate\mac\" />
     <Folder Include="ViewModels\Dialogs\DownloadProgress\Commands\" />
   </ItemGroup>
 </Project>

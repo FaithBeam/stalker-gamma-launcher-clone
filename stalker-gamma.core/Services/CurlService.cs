@@ -109,17 +109,7 @@ public partial class CurlService : ICurlService
     private static readonly string OsCurlName = OperatingSystem.IsWindows()
         ? "curl.exe"
         : "curl-impersonate";
-    private static readonly string OsName =
-        OperatingSystem.IsWindows() ? "win"
-        : OperatingSystem.IsLinux() ? "linux"
-        : "mac";
-    private static readonly string PathToCurlImpersonate = Path.Join(
-        Dir,
-        "resources",
-        "curl-impersonate",
-        OsName,
-        OsCurlName
-    );
+    private static readonly string PathToCurlImpersonate = Path.Join(Dir, OsCurlName);
 
     [GeneratedRegex(@"(\d+(\.\d+)?)\s*%", RegexOptions.Compiled)]
     private static partial Regex ProgressRx();

@@ -40,8 +40,8 @@ public class FullInstallCmd(
     /// <param name="stalkerAnomalyModdbUrl">Escape hatch for Stalker Anomaly</param>
     /// <param name="stalkerAnomalyArchiveMd5">The hash of the archive downloaded from --stalker-anomaly-moddb-url</param>
     public async Task FullInstall(
-        string anomaly = "anomaly",
-        string gamma = "gamma",
+        string anomaly,
+        string gamma,
         string cache = "cache",
         int downloadThreads = 1,
         int extractThreads = 1,
