@@ -1,7 +1,9 @@
+patch-makefile:
+	patch --directory=curl-impersonate < curl-impersonate/patches/makefile.patch
+
 build:
 	mkdir curl-impersonate/build
 	(cd curl-impersonate/build && ../configure --enable-static --prefix="$(shell pwd)/curl-impersonate/build/install" && make build && make install)
-	#patch --directory=curl-impersonate < curl-impersonate/makefile.patch
 
 	$(MAKE) -C 7-Zip/CPP/7zip/Bundles/Alone2 -f makefile.gcc
 	dotnet publish -c Release stalker-gamma.cli/stalker-gamma.cli.csproj -o bin
