@@ -1,9 +1,7 @@
-using System.Reactive.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using CliWrap;
 using CliWrap.Builders;
-using CliWrap.EventStream;
 using stalker_gamma.core.Models;
 
 namespace stalker_gamma.core.Services;
@@ -106,10 +104,10 @@ public partial class CurlService : ICurlService
         return new StdOutStdErrOutput(stdOut.ToString(), stdErr.ToString());
     }
 
-    private static readonly string OsCurlName = OperatingSystem.IsWindows()
-        ? "curl.exe"
-        : "curl-impersonate";
-    private static readonly string PathToCurlImpersonate = Path.Join(Dir, OsCurlName);
+    private static readonly string PathToCurlImpersonate = Path.Join(
+        Dir,
+        OperatingSystem.IsWindows() ? "curl.exe" : "curl-impersonate"
+    );
 
     [GeneratedRegex(@"(\d+(\.\d+)?)\s*%", RegexOptions.Compiled)]
     private static partial Regex ProgressRx();

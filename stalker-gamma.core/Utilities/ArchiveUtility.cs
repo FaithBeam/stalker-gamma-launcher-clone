@@ -23,18 +23,8 @@ public static partial class ArchiveUtility
             Directory.CreateDirectory(destinationFolder);
         }
 
-        var (exe, args) =
-            OperatingSystem.IsMacOS() ? ("tar", ["-xvf", archivePath, "-C", destinationFolder]) // tar macos
-            : OperatingSystem.IsLinux()
-                ? (
-                    Path.Join(Dir, "7zz"),
-                    new[] { "x", "-y", "-bsp1", archivePath, $"-o{destinationFolder}" }
-                ) // linux 7z
-            : (PathTo7Z, ["x", "-y", "-bsp1", archivePath, $"-o{destinationFolder}"]); // windows 7z
-
         return await ExecuteArchiverCmdAsync(
-            exe,
-            args,
+            ["x", "-y", "-bsp1", archivePath, $"-o{destinationFolder}"],
             onProgress,
             txtProgress,
             workingDirectory: workingDirectory,
@@ -78,7 +68,6 @@ public static partial class ArchiveUtility
         };
 
         return await ExecuteArchiverCmdAsync(
-            PathTo7Z,
             args,
             workingDirectory: workDirectory,
             txtProgress: txtProgress,
@@ -87,7 +76,6 @@ public static partial class ArchiveUtility
     }
 
     private static async Task<StdOutStdErrOutput> ExecuteArchiverCmdAsync(
-        string exe,
         string[] args,
         Action<double>? onProgress = null,
         Action<string>? txtProgress = null,
@@ -100,7 +88,7 @@ public static partial class ArchiveUtility
 
         try
         {
-            await Cli.Wrap(exe)
+            await Cli.Wrap(PathTo7Z)
                 .WithArguments(argBuilder => AppendArgument(args, argBuilder))
                 .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErr))
                 .WithStandardOutputPipe(
@@ -156,7 +144,7 @@ public static partial class ArchiveUtility
         {
             throw new ArchiveUtilityException(
                 $"""
-                Error executing {exe}
+                Error executing {PathTo7Z}
                 {string.Join(' ', args)}
                 StdOut: {stdOut}
                 StdErr: {stdErr}
@@ -181,7 +169,11 @@ public static partial class ArchiveUtility
     }
 
     private static readonly string Dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
-    private static readonly string PathTo7Z = Path.Join(Dir, "resources", "7zip", "7z.exe");
+
+    private static readonly string PathTo7Z = Path.Join(
+        Dir,
+        OperatingSystem.IsWindows() ? "7zz.exe" : "7zz"
+    );
 
     [GeneratedRegex(@"(\d+(\.\d+)?)\s*%", RegexOptions.Compiled)]
     private static partial Regex ProgressRx();

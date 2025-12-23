@@ -1,7 +1,6 @@
 ROOT = $(realpath ../../)
 CUR_DIR = $(realpath .)
 
-ZSTD_SUBMODULE_DIR = $(ROOT)/submodules/zstd
 7ZIP_SUBMODULE_DIR = $(ROOT)/submodules/7-Zip
 CURL_IMPERSONATE_SUBMODULE_DIR = $(ROOT)/submodules/curl-impersonate
 
@@ -12,38 +11,38 @@ STALKER_GAMMA_BUILD_DIR = $(BUILD_DIR)/stalker-gamma-cli
 STALKER_GAMMA_CLI_PROJECT = $(ROOT)/stalker-gamma.cli/stalker-gamma.cli.csproj
 
 build:
-	mkdir "$(BUILD_DIR)"
+	mkdir $(BUILD_DIR)
 
 	# build curl-impersonate
-	mkdir "$(CURL_BUILD_DIR)"
-	(cd "$(CURL_BUILD_DIR)" && "$(CURL_IMPERSONATE_SUBMODULE_DIR)/configure" --enable-static --prefix="$(CURL_BUILD_DIR)/install" LDFLAGS="-L$(brew --prefix zstd)/lib" CPPFLAGS="-I$(brew --prefix zstd)/include" && make build && make install)
+	mkdir $(CURL_BUILD_DIR)
+	(cd $(CURL_BUILD_DIR) && $(CURL_IMPERSONATE_SUBMODULE_DIR)/configure --enable-static --prefix=$(CURL_BUILD_DIR)/install LDFLAGS="-L$(brew --prefix zstd)/lib" CPPFLAGS="-I$(brew --prefix zstd)/include" && gmake build && gmake install)
 
 	# build 7zip
-	$(MAKE) -C "$(7Z_BUILD_DIR)" -f makefile.gcc
+	$(MAKE) -C $(7Z_BUILD_DIR) -f makefile.gcc
 	
 	# build stalker-gamma-cli
-	mkdir "$(STALKER_GAMMA_BUILD_DIR)"
-	dotnet publish -c Release "$(STALKER_GAMMA_CLI_PROJECT)" -o "$(STALKER_GAMMA_BUILD_DIR)"
+	mkdir $(STALKER_GAMMA_BUILD_DIR)
+	dotnet publish -c Release $(STALKER_GAMMA_CLI_PROJECT) -o $(STALKER_GAMMA_BUILD_DIR)
 
 	# cleanup stalker-gamma-cli debug files
-	rm "$(STALKER_GAMMA_BUILD_DIR)/*.pdb"
-	rm "$(STALKER_GAMMA_BUILD_DIR)/*.dbg"
+	rm $(STALKER_GAMMA_BUILD_DIR)/*.pdb
+	rm -rf $(STALKER_GAMMA_BUILD_DIR)/*.dSYM
 
 	# copy dependency artifacts to stalker-gamma-cli
-	cp "$(CURL_BUILD_DIR)/install/bin/curl-impersonate" "$(STALKER_GAMMA_BUILD_DIR)/"
-	cp "$(7Z_BUILD_DIR)/_o/7zz" "$(STALKER_GAMMA_BUILD_DIR)/"
+	cp $(CURL_BUILD_DIR)/install/bin/curl-impersonate $(STALKER_GAMMA_BUILD_DIR)/
+	cp $(7Z_BUILD_DIR)/_o/7zz $(STALKER_GAMMA_BUILD_DIR)/
 #	cp install.sh $(STALKER_GAMMA_BUILD_DIR)/
 #	cp uninstall.sh $(STALKER_GAMMA_BUILD_DIR)/
 
 archive:
-	tar -czvf stalker-gamma-cli.tar.gz --directory="$(STALKER_GAMMA_BUILD_DIR)" .
+	tar -czvf stalker-gamma-cli.tar.gz --directory=$(STALKER_GAMMA_BUILD_DIR) .
 
 install:
-	"$(STALKER_GAMMA_BUILD_DIR)/install.sh"
+	$(STALKER_GAMMA_BUILD_DIR)/install.sh
 	
 clean:
-	rm -rf "$(BUILD_DIR)"
-	rm -rf "$(7Z_BUILD_DIR)/_o"
+	rm -rf $(BUILD_DIR)
+	$(MAKE) -C $(7Z_BUILD_DIR) -f makefile.gcc clean
 
 uninstall:
 	./uninstall.sh
