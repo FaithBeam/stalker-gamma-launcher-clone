@@ -239,83 +239,91 @@ public partial class CustomGammaInstaller(
 
         var gammaSetupAndStalkerGammaTask = Task.Run(async () =>
         {
-            if (Directory.Exists(gammaSetupRepoPath))
+            var gammaSetupTask = Task.Run(async () =>
             {
-                await _gu.PullGitRepo(
-                    gammaSetupRepoPath,
+                if (Directory.Exists(gammaSetupRepoPath))
+                {
+                    await _gu.PullGitRepo(
+                        gammaSetupRepoPath,
+                        onProgress: _progressThrottle.Throttle<double>(pct =>
+                            _logger.Information(
+                                StructuredLog,
+                                "Gamma Setup".PadRight(40),
+                                "Pull".PadRight(10),
+                                $"{pct:P2}".PadRight(8),
+                                _progressService.TotalProgress
+                            )
+                        )
+                    );
+                }
+                else
+                {
+                    await _gu.CloneGitRepo(
+                        gammaSetupRepoPath,
+                        globalSettings.GammaSetupRepo,
+                        onProgress: _progressThrottle.Throttle<double>(pct =>
+                            _logger.Information(
+                                StructuredLog,
+                                "Gamma Setup".PadRight(40),
+                                "Clone".PadRight(10),
+                                $"{pct:P2}".PadRight(8),
+                                _progressService.TotalProgress
+                            )
+                        )
+                    );
+                }
+                DirUtils.CopyDirectory(
+                    Path.Join(gammaSetupRepoPath, "modpack_addons"),
+                    Path.Combine(gammaModsPath),
                     onProgress: _progressThrottle.Throttle<double>(pct =>
                         _logger.Information(
                             StructuredLog,
                             "Gamma Setup".PadRight(40),
-                            "Pull".PadRight(10),
+                            "Extract".PadRight(10),
                             $"{pct:P2}".PadRight(8),
                             _progressService.TotalProgress
                         )
                     )
                 );
-            }
-            else
+                _progressService.IncrementCompleted();
+            });
+            var stalkerGammaTask = Task.Run(async () =>
             {
-                await _gu.CloneGitRepo(
-                    gammaSetupRepoPath,
-                    globalSettings.GammaSetupRepo,
-                    onProgress: _progressThrottle.Throttle<double>(pct =>
-                        _logger.Information(
-                            StructuredLog,
-                            "Gamma Setup".PadRight(40),
-                            "Clone".PadRight(10),
-                            $"{pct:P2}".PadRight(8),
-                            _progressService.TotalProgress
+                if (Directory.Exists(stalkerGammaRepoPath))
+                {
+                    await _gu.PullGitRepo(
+                        stalkerGammaRepoPath,
+                        onProgress: _progressThrottle.Throttle<double>(pct =>
+                            _logger.Information(
+                                StructuredLog,
+                                "Stalker_GAMMA".PadRight(40),
+                                "Pull".PadRight(10),
+                                $"{pct:P2}".PadRight(8),
+                                _progressService.TotalProgress
+                            )
                         )
-                    )
-                );
-            }
-            DirUtils.CopyDirectory(
-                Path.Join(gammaSetupRepoPath, "modpack_addons"),
-                Path.Combine(gammaModsPath),
-                onProgress: _progressThrottle.Throttle<double>(pct =>
-                    _logger.Information(
-                        StructuredLog,
-                        "Gamma Setup".PadRight(40),
-                        "Extract".PadRight(10),
-                        $"{pct:P2}".PadRight(8),
-                        _progressService.TotalProgress
-                    )
-                )
-            );
-            _progressService.IncrementCompleted();
+                    );
+                }
+                else
+                {
+                    await _gu.CloneGitRepo(
+                        stalkerGammaRepoPath,
+                        globalSettings.StalkerGammaRepo,
+                        onProgress: _progressThrottle.Throttle<double>(pct =>
+                            _logger.Information(
+                                StructuredLog,
+                                "Stalker_GAMMA".PadRight(40),
+                                "Clone".PadRight(10),
+                                $"{pct:P2}".PadRight(8),
+                                _progressService.TotalProgress
+                            )
+                        )
+                    );
+                }
+            });
 
-            if (Directory.Exists(stalkerGammaRepoPath))
-            {
-                await _gu.PullGitRepo(
-                    stalkerGammaRepoPath,
-                    onProgress: _progressThrottle.Throttle<double>(pct =>
-                        _logger.Information(
-                            StructuredLog,
-                            "Stalker_GAMMA".PadRight(40),
-                            "Pull".PadRight(10),
-                            $"{pct:P2}".PadRight(8),
-                            _progressService.TotalProgress
-                        )
-                    )
-                );
-            }
-            else
-            {
-                await _gu.CloneGitRepo(
-                    stalkerGammaRepoPath,
-                    globalSettings.StalkerGammaRepo,
-                    onProgress: _progressThrottle.Throttle<double>(pct =>
-                        _logger.Information(
-                            StructuredLog,
-                            "Stalker_GAMMA".PadRight(40),
-                            "Clone".PadRight(10),
-                            $"{pct:P2}".PadRight(8),
-                            _progressService.TotalProgress
-                        )
-                    )
-                );
-            }
+            await Task.WhenAll(gammaSetupTask, stalkerGammaTask);
+
             DirUtils.CopyDirectory(
                 Path.Combine(stalkerGammaRepoPath, "G.A.M.M.A", "modpack_addons"),
                 Path.Combine(gammaModsPath),
