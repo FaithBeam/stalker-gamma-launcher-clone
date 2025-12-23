@@ -9,6 +9,7 @@ CURL_BUILD_DIR = $(BUILD_DIR)/curl-impersonate
 7Z_BUILD_DIR = $(7ZIP_SUBMODULE_DIR)/CPP/7zip/Bundles/Alone2
 STALKER_GAMMA_BUILD_DIR = $(BUILD_DIR)/stalker-gamma-cli
 STALKER_GAMMA_CLI_PROJECT = $(ROOT)/stalker-gamma.cli/stalker-gamma.cli.csproj
+ARTIFACT_OUTPUT_DIR ?= $(STALKER_GAMMA_BUILD_DIR)
 
 build:
 	mkdir $(BUILD_DIR)
@@ -22,20 +23,20 @@ build:
 	
 	# build stalker-gamma-cli
 	mkdir $(STALKER_GAMMA_BUILD_DIR)
-	dotnet publish -c Release $(STALKER_GAMMA_CLI_PROJECT) -o $(STALKER_GAMMA_BUILD_DIR)
+	dotnet publish -c Release $(STALKER_GAMMA_CLI_PROJECT) -o $(ARTIFACT_OUTPUT_DIR)
 
 	# cleanup stalker-gamma-cli debug files
-	rm $(STALKER_GAMMA_BUILD_DIR)/*.pdb
-	rm -rf $(STALKER_GAMMA_BUILD_DIR)/*.dSYM
+	rm $(ARTIFACT_OUTPUT_DIR)/*.pdb
+	rm -rf $(ARTIFACT_OUTPUT_DIR)/*.dSYM
 
 	# copy dependency artifacts to stalker-gamma-cli
-	cp $(CURL_BUILD_DIR)/install/bin/curl-impersonate $(STALKER_GAMMA_BUILD_DIR)/
-	cp $(7Z_BUILD_DIR)/_o/7zz $(STALKER_GAMMA_BUILD_DIR)/
-#	cp install.sh $(STALKER_GAMMA_BUILD_DIR)/
-#	cp uninstall.sh $(STALKER_GAMMA_BUILD_DIR)/
+	cp $(CURL_BUILD_DIR)/install/bin/curl-impersonate $(ARTIFACT_OUTPUT_DIR)/
+	cp $(7Z_BUILD_DIR)/_o/7zz $(ARTIFACT_OUTPUT_DIR)/
+	cp install.sh $(ARTIFACT_OUTPUT_DIR)/
+	cp uninstall.sh $(ARTIFACT_OUTPUT_DIR)/
 
 archive:
-	tar -czvf stalker-gamma-cli.tar.gz --directory=$(STALKER_GAMMA_BUILD_DIR) .
+	tar -czvf stalker-gamma-cli.tar.gz --directory=$(ARTIFACT_OUTPUT_DIR) .
 
 install:
 	$(STALKER_GAMMA_BUILD_DIR)/install.sh
