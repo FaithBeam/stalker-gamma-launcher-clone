@@ -4,6 +4,3 @@
 [submodule "fb-7-Zip"]
 	path = 7-Zip
 	url = https://github.com/FaithBeam/7-Zip
-[submodule "makeself"]
-	path = makeself
-	url = https://github.com/FaithBeam/makeself
