@@ -51,6 +51,18 @@ New-Item -Path $gitExtractDir -ItemType Directory -Force
 tar -xzf $gitDlPath -C $gitExtractDir
 #endregion
 
+#region dotnet-install
+$dotnetInstallPath = Join-Path $buildDir "dotnet-install.ps1"
+Invoke-WebRequest -Uri "https://dot.net/v1/dotnet-install.ps1" -OutFile $dotnetInstallPath
+
+# Install the SDK version required (targeting net10.0 as per project info)
+& $dotnetInstallPath -Channel 10.0 -InstallDir (Join-Path $buildDir ".dotnet")
+
+# Add the local dotnet to the current session path
+$env:PATH = "$(Join-Path $buildDir ".dotnet");$env:PATH"
+$env:DOTNET_ROOT = "$(Join-Path $buildDir ".dotnet")"
+#endregion
+
 #region stalker-gamma-cli
 $stalkerCliDir = Join-Path $buildDir "stalker-gamma-cli"
 $pathToProject = (Join-Path (Join-Path $repoRoot "stalker-gamma.cli") "stalker-gamma.cli.csproj")
