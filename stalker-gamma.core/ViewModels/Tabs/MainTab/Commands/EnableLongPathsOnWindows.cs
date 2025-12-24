@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+﻿using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma.core.ViewModels.Tabs.MainTab.Commands;
 
@@ -11,23 +11,7 @@ public static class EnableLongPathsOnWindows
             const string command = """
                 Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value "1"
                 """;
-            ExecutePowerShellCommand(command);
+            PowerShellUtility.Execute(command);
         }
-    }
-
-    private static void ExecutePowerShellCommand(string command)
-    {
-        using var process = new Process();
-        process.StartInfo = new ProcessStartInfo
-        {
-            FileName = "powershell.exe",
-            Arguments = $"-Command \"{command}\"",
-            UseShellExecute = true,
-            CreateNoWindow = true,
-            Verb = "runas", // Still need elevation
-        };
-
-        process.Start();
-        process.WaitForExit();
     }
 }

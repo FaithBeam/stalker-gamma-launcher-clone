@@ -59,10 +59,17 @@ public partial class CurlService : ICurlService
     {
         var stdOut = new StringBuilder();
         var stdErr = new StringBuilder();
+
+        List<string> finalArgs = [.. args];
+        if (OperatingSystem.IsWindows())
+        {
+            finalArgs.AddRange("--cacert", Path.Join("resources", "cacert.pem"));
+        }
+
         try
         {
             await Cli.Wrap(PathToCurlImpersonate)
-                .WithArguments(argBuilder => argBuilder.Add(args).AddImpersonation())
+                .WithArguments(argBuilder => argBuilder.Add(finalArgs).AddImpersonation())
                 .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOut))
                 .WithStandardErrorPipe(
                     PipeTarget.Merge(
@@ -106,6 +113,7 @@ public partial class CurlService : ICurlService
 
     private static readonly string PathToCurlImpersonate = Path.Join(
         Dir,
+        "resources",
         OperatingSystem.IsWindows() ? "curl.exe" : "curl-impersonate"
     );
 

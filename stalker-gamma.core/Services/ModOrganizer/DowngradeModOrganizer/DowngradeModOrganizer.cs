@@ -36,16 +36,13 @@ public class DowngradeModOrganizer(IHttpClientFactory hcf)
 
         var mo2ArchivePath = Path.Join(cachePath, $"ModOrganizer.{getReleaseByTag!.Name!}.7z");
 
-        if (
-            !File.Exists(mo2ArchivePath)
-            || (
-                File.Exists(mo2ArchivePath)
-                && await Md5Utility.CalculateFileMd5Async(mo2ArchivePath, _ => { })
-                    != "03ebaee8eda760a46b7dd828e3e6494355fc842bac24c221d109a22c0b273df2"
-            )
-        )
+        if (File.Exists(mo2ArchivePath))
         {
-            await using var fs = File.Create(mo2ArchivePath);
+            File.Delete(mo2ArchivePath);
+        }
+
+        await using (var fs = File.Create(mo2ArchivePath))
+        {
             using var response = await hc.GetAsync(dlUrl);
             await response.Content.CopyToAsync(fs);
         }

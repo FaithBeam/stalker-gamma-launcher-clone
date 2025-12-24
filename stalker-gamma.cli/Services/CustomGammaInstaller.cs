@@ -53,7 +53,17 @@ public partial class CustomGammaInstaller(
         var fullCachePath = Path.GetFullPath(cachePath!);
         if (!Directory.Exists(gammaDownloadsPath))
         {
-            Directory.CreateSymbolicLink(gammaDownloadsPath, fullCachePath);
+            // windows requires elevation for symbolic links
+            if (OperatingSystem.IsWindows())
+            {
+                PowerShellUtility.Execute(
+                    $"New-Item -ItemType SymbolicLink -Path {gammaDownloadsPath} -Value {fullCachePath}"
+                );
+            }
+            else
+            {
+                Directory.CreateSymbolicLink(gammaDownloadsPath, fullCachePath);
+            }
         }
 
         var indexedResponse = gammaApiResponse
@@ -514,6 +524,26 @@ public partial class CustomGammaInstaller(
                 );
             }
 
+            // fix instructions because I broke github downloads by downloading them with git instead of archives
+            var extractDirs = Directory.GetDirectories(addonRecord.ExtractDirectory);
+            if (
+                addonRecord.Instructions.Count == 0
+                && extractDirs.Length == 1
+                && !extractDirs[0].EndsWith("gamedata")
+                && addonRecord.AddonType == AddonType.GitHub
+            )
+            {
+                var innerDir = Directory.GetDirectories(extractDirs[0])[0];
+                if (innerDir.EndsWith("gamedata"))
+                {
+                    addonRecord.Instructions.Add(
+                        OperatingSystem.IsWindows()
+                            ? extractDirs[0].Split('\\')[^1]
+                            : extractDirs[0].Split('/')[^1]
+                    );
+                }
+            }
+
             ProcessInstructions(addonRecord.ExtractDirectory, addonRecord.Instructions);
 
             CleanExtractPath(addonRecord.ExtractDirectory);
@@ -649,14 +679,14 @@ public partial class CustomGammaInstaller(
             archivePath,
             zipName,
             extractDir,
-            instructions,
+            instructions.ToList(),
             type,
             onDlProgress,
             onExtractProgress
         );
     }
 
-    private static void ProcessInstructions(string extractPath, string[] instructions)
+    private static void ProcessInstructions(string extractPath, IList<string> instructions)
     {
         foreach (var i in instructions)
         {
@@ -798,7 +828,7 @@ internal record AddonRecord(
     string ArchiveDlPath,
     string ZipName,
     string ExtractDirectory,
-    string[] Instructions,
+    List<string> Instructions,
     AddonType AddonType,
     Action<double> OnDlProgress,
     Action<double> OnExtractProgress

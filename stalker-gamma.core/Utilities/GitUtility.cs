@@ -63,6 +63,9 @@ public partial class GitUtility
         return gitCmdResult.StdOut.Replace("origin/", "");
     }
 
+    public async Task EnableLongPathsAsync() =>
+        await ExecuteGitCmdAsync("", ["config", "--system", "core.longpaths", "true"]);
+
     public async Task<StdOutStdErrOutput> ExecuteGitCmdAsync(
         string workingDir,
         string[] args,
@@ -139,7 +142,7 @@ public partial class GitUtility
     }
 
     private static readonly string PathToGit = OperatingSystem.IsWindows()
-        ? Path.Join("resources", "bin", "git.exe")
+        ? Path.Join("resources", "git", "cmd", "git.exe")
         : "git";
 
     [GeneratedRegex(@"Receiving objects:\s*(\d+)%")]

@@ -2,12 +2,26 @@ namespace stalker_gamma.core.Services.ModOrganizer;
 
 public class WriteModOrganizerIni
 {
-    public async Task WriteAsync(string gammaPath, string anomalyPath, string drivePrefix = "Z:")
+    public async Task WriteAsync(
+        string gammaPath,
+        string anomalyPath,
+        string mo2Version,
+        string drivePrefix = "Z:"
+    )
     {
-        var gammaPathWithDrivePrefix = Path.Join(drivePrefix, Path.GetFullPath(gammaPath));
-        var anomalyPathWithDrivePrefix = Path.Join(drivePrefix, Path.GetFullPath(anomalyPath));
+        var gammaPathWithDrivePrefix =
+            OperatingSystem.IsWindows() && Path.IsPathRooted(gammaPath)
+                ? gammaPath
+                : Path.Join(drivePrefix, Path.GetFullPath(gammaPath));
+        var anomalyPathWithDrivePrefix = (
+            OperatingSystem.IsWindows() && Path.IsPathRooted(anomalyPath)
+                ? anomalyPath
+                : Path.Join(drivePrefix, Path.GetFullPath(anomalyPath))
+        ).Replace(@"\", "/");
         const string selectedProfile = "G.A.M.M.A";
-        var escapedWinAnomalyPath = anomalyPathWithDrivePrefix.TrimEnd('/').Replace("/", @"\\");
+        var escapedWinAnomalyPath = OperatingSystem.IsWindows()
+            ? anomalyPathWithDrivePrefix.Replace(@"\", @"\\")
+            : anomalyPathWithDrivePrefix.TrimEnd('/').Replace("/", @"\\");
         var modOrganizerIniPath = Path.Join(gammaPath, "ModOrganizer.ini");
         await File.WriteAllTextAsync(
             modOrganizerIniPath,
@@ -16,7 +30,7 @@ public class WriteModOrganizerIni
             gameName=STALKER Anomaly
             selected_profile=@ByteArray({selectedProfile})
             gamePath=@ByteArray({escapedWinAnomalyPath})
-            version=2.4.4
+            version={mo2Version.TrimStart('v')}
             first_start=false
 
             [PluginPersistance]

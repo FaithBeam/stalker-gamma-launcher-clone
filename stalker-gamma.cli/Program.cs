@@ -27,6 +27,8 @@ public static class Program
                     .AddSingleton<GlobalSettings>()
                     .AddSingleton<ProgressThrottleService>()
                     .AddSingleton<Services.ProgressService>()
+                    .AddScoped<EnableLongPathsOnWindowsService>()
+                    .AddScoped<AddFoldersToWinDefenderExclusionService>()
                     .AddScoped<DowngradeModOrganizer>()
                     .AddScoped<DisableNexusModHandlerLink>()
                     .AddScoped<WriteModOrganizerIni>()

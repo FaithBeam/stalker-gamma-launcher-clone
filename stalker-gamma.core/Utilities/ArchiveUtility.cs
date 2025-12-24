@@ -172,6 +172,7 @@ public static partial class ArchiveUtility
 
     private static readonly string PathTo7Z = Path.Join(
         Dir,
+        "resources",
         OperatingSystem.IsWindows() ? "7zz.exe" : "7zz"
     );
 
