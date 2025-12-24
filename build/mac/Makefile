@@ -9,6 +9,7 @@ CURL_BUILD_DIR = $(BUILD_DIR)/curl-impersonate
 7Z_BUILD_DIR = $(7ZIP_SUBMODULE_DIR)/CPP/7zip/Bundles/Alone2
 STALKER_GAMMA_BUILD_DIR = $(BUILD_DIR)/stalker-gamma-cli
 STALKER_GAMMA_CLI_PROJECT = $(ROOT)/stalker-gamma.cli/stalker-gamma.cli.csproj
+STALKER_RESOURCES_DIR = $(STALKER_GAMMA_BUILD_DIR)/resources
 ARTIFACT_OUTPUT_DIR ?= $(STALKER_GAMMA_BUILD_DIR)
 
 build:
@@ -30,8 +31,9 @@ build:
 	rm -rf $(ARTIFACT_OUTPUT_DIR)/*.dSYM
 
 	# copy dependency artifacts to stalker-gamma-cli
-	cp $(CURL_BUILD_DIR)/install/bin/curl-impersonate $(ARTIFACT_OUTPUT_DIR)/
-	cp $(7Z_BUILD_DIR)/_o/7zz $(ARTIFACT_OUTPUT_DIR)/
+	mkdir $(STALKER_RESOURCES_DIR)
+	cp $(CURL_BUILD_DIR)/install/bin/curl-impersonate $(STALKER_RESOURCES_DIR)/
+	cp $(7Z_BUILD_DIR)/_o/7zz $(STALKER_RESOURCES_DIR)/
 	cp install.sh $(ARTIFACT_OUTPUT_DIR)/
 	cp uninstall.sh $(ARTIFACT_OUTPUT_DIR)/
 
