@@ -38,7 +38,7 @@ build:
 	cp uninstall.sh $(ARTIFACT_OUTPUT_DIR)/
 
 archive:
-	tar -czvf stalker-gamma-cli.tar.gz --directory=$(ARTIFACT_OUTPUT_DIR) .
+	tar -cvJf stalker-gamma-cli.tar.xz --directory=$(ARTIFACT_OUTPUT_DIR) .
 
 install:
 	$(STALKER_GAMMA_BUILD_DIR)/install.sh
