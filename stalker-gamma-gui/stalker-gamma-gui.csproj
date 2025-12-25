@@ -53,4 +53,8 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="ViewModels\MainWindow\Models\" />
+    <Folder Include="ViewModels\MainWindow\Queries\" />
+  </ItemGroup>
 </Project>

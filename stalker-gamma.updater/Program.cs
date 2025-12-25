@@ -2,7 +2,6 @@ using System.Net;
 using ConsoleAppFramework;
 using Microsoft.Extensions.DependencyInjection;
 using stalker_gamma.core.Services;
-using stalker_gamma.core.ViewModels.MainWindow.Queries;
 
 namespace stalker_gamma.updater;
 

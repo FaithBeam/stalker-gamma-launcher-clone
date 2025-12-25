@@ -3,7 +3,6 @@ using System.Text.RegularExpressions;
 using CliWrap;
 using CliWrap.Builders;
 using stalker_gamma.core.Models;
-using stalker_gamma.core.ViewModels.Tabs.MainTab;
 
 namespace stalker_gamma.core.Utilities;
 
@@ -16,8 +15,7 @@ public partial class GitUtility
         string dir,
         string repoName,
         string branch,
-        Action<double> onProgress,
-        Action<Status> onStatus
+        Action<double> onProgress
     )
     {
         var repoPath = Path.Combine(dir, "resources", repoName);

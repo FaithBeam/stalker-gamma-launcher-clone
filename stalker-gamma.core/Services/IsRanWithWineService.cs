@@ -7,20 +7,15 @@ public interface IIsRanWithWineService
     bool IsRanWithWine();
 }
 
-public class IsRanWithWineService(IOperatingSystemService operatingSystemService)
-    : IIsRanWithWineService
+public class IsRanWithWineService : IIsRanWithWineService
 {
-    private readonly IOperatingSystemService _operatingSystemService = operatingSystemService;
-
     public bool IsRanWithWine()
     {
         try
         {
-            if (_operatingSystemService.IsWindows())
+            if (OperatingSystem.IsWindows())
             {
-#pragma warning disable CA1416
                 using var key = Registry.CurrentUser.OpenSubKey("Software\\Wine");
-#pragma warning restore CA1416
                 if (key is not null)
                 {
                     return true;

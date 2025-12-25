@@ -1,7 +1,6 @@
 ﻿using Serilog;
 using stalker_gamma.core.Models;
 using stalker_gamma.core.Services;
-using stalker_gamma.core.Services.GammaInstaller.Utilities;
 using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma.cli.Services;
@@ -17,7 +16,8 @@ public class AnomalyInstaller(
     private const string StructuredLog =
         "{AddonName} | {Operation} | {Percent} | {TotalProgress:P2}";
 
-    public async Task DownloadAndExtractAsync(string archivePath, string extractDirectory)
+    public async Task DownloadAndExtractAsync(string archivePath, string extractDirectory,
+        CancellationToken? cancellationToken = null)
     {
         // download anomaly if archive does not exist or doesn't match md5
         if (
@@ -50,7 +50,8 @@ public class AnomalyInstaller(
                         $"{pct:P2}".PadRight(8),
                         _progressService.TotalProgress
                     )
-                )
+                ),
+                cancellationToken
             );
         }
 
@@ -66,7 +67,7 @@ public class AnomalyInstaller(
                     $"{pct:P2}".PadRight(8),
                     _progressService.TotalProgress
                 )
-            )
+            ), cancellationToken: cancellationToken
         );
 
         _progressService.IncrementCompleted();

@@ -13,14 +13,15 @@ public interface ICurlService
     /// </summary>
     bool Ready { get; }
 
-    Task<string> GetStringAsync(string url);
+    Task<string> GetStringAsync(string url, CancellationToken? cancellationToken = null);
 
     Task DownloadFileAsync(
         string url,
         string pathToDownloads,
         string fileName,
         Action<double>? onProgress = null,
-        string? workingDir = null
+        string? workingDir = null,
+        CancellationToken? cancellationToken = null
     );
 }
 
@@ -38,24 +39,21 @@ public partial class CurlService : ICurlService
         string pathToDownloads,
         string fileName,
         Action<double>? onProgress = null,
-        string? workingDir = null
+        string? workingDir = null,
+        CancellationToken? cancellationToken = null
     ) =>
         await ExecuteCurlCmdAsync(
             ["--progress-bar", "--clobber", "-Lo", Path.Join(pathToDownloads, fileName), url],
-            workingDir: workingDir,
-            onProgress: onProgress
-        );
+            onProgress: onProgress, workingDir: workingDir, cancellationToken: cancellationToken);
 
-    public async Task<string> GetStringAsync(string url) =>
-        (await ExecuteCurlCmdAsync(["--no-progress-meter", url])).StdOut;
+    public async Task<string> GetStringAsync(string url, CancellationToken? cancellationToken = null) =>
+        (await ExecuteCurlCmdAsync(["--no-progress-meter", url], cancellationToken: cancellationToken)).StdOut;
 
-    private static async Task<StdOutStdErrOutput> ExecuteCurlCmdAsync(
-        string[] args,
+    private static async Task<StdOutStdErrOutput> ExecuteCurlCmdAsync(string[] args,
         Action<double>? onProgress = null,
         Action<string>? txtProgress = null,
         string? workingDir = null,
-        CancellationToken? cancellationToken = null
-    )
+        CancellationToken? cancellationToken = null)
     {
         var stdOut = new StringBuilder();
         var stdErr = new StringBuilder();

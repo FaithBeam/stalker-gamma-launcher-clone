@@ -6,23 +6,22 @@ namespace stalker_gamma.core.Services.ModOrganizer.DowngradeModOrganizer;
 
 public class DowngradeModOrganizer(IHttpClientFactory hcf)
 {
-    public async Task DowngradeAsync(
-        string version = "v2.4.4",
+    public async Task DowngradeAsync(string version = "v2.4.4",
         string cachePath = "",
-        string? extractPath = null
-    )
+        string? extractPath = null, CancellationToken? cancellationToken = null)
     {
+        cancellationToken ??= CancellationToken.None;
         extractPath ??= Path.Join(Path.GetDirectoryName(AppContext.BaseDirectory), "..");
         Directory.CreateDirectory(cachePath);
         Directory.CreateDirectory(extractPath);
 
         var hc = hcf.CreateClient("githubDlArchive");
         var getReleaseByTagResponse = await hc.GetAsync(
-            $"https://api.github.com/repos/ModOrganizer2/modorganizer/releases/tags/{version}"
+            $"https://api.github.com/repos/ModOrganizer2/modorganizer/releases/tags/{version}", (CancellationToken)cancellationToken
         );
         var getReleaseByTag = await JsonSerializer.DeserializeAsync<GetReleaseByTag>(
-            await getReleaseByTagResponse.Content.ReadAsStreamAsync(),
-            jsonTypeInfo: GetReleaseByTagCtx.Default.GetReleaseByTag
+            await getReleaseByTagResponse.Content.ReadAsStreamAsync((CancellationToken)cancellationToken),
+            jsonTypeInfo: GetReleaseByTagCtx.Default.GetReleaseByTag, (CancellationToken)cancellationToken
         );
         var dlUrl = getReleaseByTag
             ?.Assets?.FirstOrDefault(x =>
@@ -43,8 +42,8 @@ public class DowngradeModOrganizer(IHttpClientFactory hcf)
 
         await using (var fs = File.Create(mo2ArchivePath))
         {
-            using var response = await hc.GetAsync(dlUrl);
-            await response.Content.CopyToAsync(fs);
+            using var response = await hc.GetAsync(dlUrl, (CancellationToken)cancellationToken);
+            await response.Content.CopyToAsync(fs, (CancellationToken)cancellationToken);
         }
 
         foreach (var folder in _foldersToDelete)
@@ -76,7 +75,7 @@ public class DowngradeModOrganizer(IHttpClientFactory hcf)
             }
         }
 
-        await ArchiveUtility.ExtractAsync(mo2ArchivePath, extractPath, (pct) => { });
+        await ArchiveUtility.ExtractAsync(mo2ArchivePath, extractPath, (pct) => { }, cancellationToken: cancellationToken);
     }
 
     private readonly IReadOnlyList<string> _foldersToDelete =

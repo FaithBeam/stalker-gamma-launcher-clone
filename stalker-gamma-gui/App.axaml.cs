@@ -13,16 +13,15 @@ using ReactiveUI;
 using Splat;
 using Splat.Microsoft.Extensions.DependencyInjection;
 using stalker_gamma_gui.Views;
+using stalker_gamma.core.Factories;
 using stalker_gamma.core.Models;
 using stalker_gamma.core.Services;
 using stalker_gamma.core.Services.GammaInstaller;
 using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators;
-using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Factories;
 using stalker_gamma.core.Services.GammaInstaller.Anomaly;
 using stalker_gamma.core.Services.GammaInstaller.Mo2;
 using stalker_gamma.core.Services.GammaInstaller.ModpackSpecific;
 using stalker_gamma.core.Services.GammaInstaller.Shortcut;
-using stalker_gamma.core.Services.GammaInstaller.Utilities;
 using stalker_gamma.core.Services.ModOrganizer.DowngradeModOrganizer;
 using stalker_gamma.core.Utilities;
 using stalker_gamma.core.ViewModels.Dialogs.DownloadProgress;
@@ -34,6 +33,7 @@ using stalker_gamma.core.ViewModels.Tabs.GammaUpdatesTab;
 using stalker_gamma.core.ViewModels.Tabs.MainTab;
 using stalker_gamma.core.ViewModels.Tabs.ModDbUpdatesTab;
 using stalker_gamma.core.ViewModels.Tabs.ModListTab;
+using ModpackSpecific = stalker_gamma.core.Services.GammaInstaller.ModpackSpecific.ModpackSpecific;
 
 namespace stalker_gamma_gui;
 
@@ -52,6 +52,9 @@ public partial class App : Application
             .SetBasePath(AppContext.BaseDirectory)
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .Build();
+        var settingsFileService = new SettingsFileService();
+        var mainWindow = new MainWindow();
+
         var host = Host.CreateDefaultBuilder()
             .ConfigureServices(s =>
             {
@@ -99,6 +102,10 @@ public partial class App : Application
                     }
                 );
 
+                s.AddSingleton(new FileService(mainWindow));
+
+                s.AddSingleton(settingsFileService).AddSingleton(settingsFileService.SettingsFile);
+
                 s.AddSingleton<ProgressService>()
                     .AddSingleton<IVersionService, VersionService>()
                     .AddSingleton<IIsBusyService, IsBusyService>()
@@ -142,17 +149,16 @@ public partial class App : Application
             })
             .Build();
 
-        _container = host.Services;
-        _container.UseMicrosoftDependencyResolver();
-
         RxApp.MainThreadScheduler = AvaloniaScheduler.Instance;
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.MainWindow = new MainWindow
-            {
-                DataContext = _container.GetRequiredService<MainWindowVm>(),
-            };
+            desktop.MainWindow = mainWindow;
+
+            _container = host.Services;
+            _container.UseMicrosoftDependencyResolver();
+
+            desktop.MainWindow.DataContext = _container.GetRequiredService<MainWindowVm>();
         }
 
         base.OnFrameworkInitializationCompleted();

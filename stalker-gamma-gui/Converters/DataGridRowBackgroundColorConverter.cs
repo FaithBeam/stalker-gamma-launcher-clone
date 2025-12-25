@@ -2,7 +2,7 @@
 using System.Globalization;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
-using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
+using stalker_gamma.core.Models;
 using stalker_gamma.core.ViewModels.Tabs.MainTab;
 
 namespace stalker_gamma_gui.Converters;

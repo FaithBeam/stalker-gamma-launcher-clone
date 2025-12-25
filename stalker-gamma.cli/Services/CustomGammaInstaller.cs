@@ -6,10 +6,9 @@ using System.Text.RegularExpressions;
 using System.Threading.Channels;
 using Serilog;
 using stalker_gamma.cli.Services.Enums;
+using stalker_gamma.core.Factories;
+using stalker_gamma.core.Models;
 using stalker_gamma.core.Services;
-using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Factories;
-using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators.Models;
-using stalker_gamma.core.Services.GammaInstaller.Utilities;
 using stalker_gamma.core.Utilities;
 using GlobalSettings = stalker_gamma.core.Models.GlobalSettings;
 
@@ -29,20 +28,19 @@ public partial class CustomGammaInstaller(
     private const string StructuredLog =
         "{AddonName} | {Operation} | {Percent} | {TotalProgress:P2}";
 
-    public async Task InstallAsync(
-        string anomalyPath,
+    public async Task InstallAsync(string anomalyPath,
         Task anomalyTask,
         string gammaPath,
-        string cachePath
-    )
+        string cachePath, CancellationToken? cancellationToken=null)
     {
+        cancellationToken ??= CancellationToken.None;
         var gammaModsPath = Path.Join(gammaPath, "mods");
         var gammaDownloadsPath = Path.Join(gammaPath, "downloads");
 
         #region Download Mods from ModDb and GitHub
 
 
-        var gammaApiResponse = (await _hc.GetStringAsync(globalSettings.StalkerAddonApiUrl))
+        var gammaApiResponse = (await _hc.GetStringAsync(globalSettings.StalkerAddonApiUrl, cancellationToken: (CancellationToken)cancellationToken))
             .Split("\n", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Select((x, idx) => _modListRecordFactory.Create(x, idx))
             .Cast<ModListRecord>();
@@ -190,18 +188,18 @@ public partial class CustomGammaInstaller(
                 }
             );
             dlChannel.Writer.TryComplete();
-        });
+        }, (CancellationToken)cancellationToken);
 
         var extractTask = Task.Run(async () =>
         {
             await Parallel.ForEachAsync(
                 dlChannel.Reader.ReadAllAsync(),
                 new ParallelOptions { MaxDegreeOfParallelism = globalSettings.ExtractThreads },
-                async (group, _) =>
+                async (group,ct) =>
                 {
                     try
                     {
-                        await ExtractAndProcessAddon(group);
+                        await ExtractAndProcessAddon(group, ct);
                     }
                     catch (Exception e)
                     {
@@ -210,7 +208,7 @@ public partial class CustomGammaInstaller(
                     }
                 }
             );
-        });
+        }, (CancellationToken)cancellationToken);
 
         await Task.WhenAll(dlTask, extractTask);
 
@@ -223,7 +221,7 @@ public partial class CustomGammaInstaller(
                     invalidateMirror: true,
                     CancellationToken.None
                 );
-                await ExtractAndProcessAddon(brokenAddon);
+                await ExtractAndProcessAddon(brokenAddon, (CancellationToken)cancellationToken);
             }
             catch (Exception e)
             {
@@ -498,7 +496,7 @@ public partial class CustomGammaInstaller(
         );
     }
 
-    private async Task ExtractAndProcessAddon(IGrouping<string, AddonRecord> group)
+    private async Task ExtractAndProcessAddon(IGrouping<string, AddonRecord> group, CancellationToken ct)
     {
         foreach (var addonRecord in group)
         {
@@ -586,7 +584,7 @@ public partial class CustomGammaInstaller(
                         first.MirrorUrl!.Replace("/all", ""),
                         first.ArchiveDlPath,
                         first.OnDlProgress,
-                        invalidateMirror
+                        invalidateMirrorCache: invalidateMirror
                     );
                     break;
                 }

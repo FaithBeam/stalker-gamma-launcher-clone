@@ -2,16 +2,16 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:vm="clr-namespace:stalker_gamma.core.ViewModels.Dialogs;assembly=stalker-gamma.core"
         xmlns:avaloniaEdit="https://github.com/avaloniaui/avaloniaedit"
+        xmlns:dialogs="clr-namespace:stalker_gamma.core.ViewModels.Dialogs"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="stalker_gamma_gui.Controls.Dialogs.UpdateDialog"
-        x:DataType="vm:UpdateLauncherDialogVm"
+        x:DataType="dialogs:UpdateLauncherDialogVm"
         Width="600"
         Height="400"
         Title="UpdateDialog">
     <Design.DataContext>
-        <vm:UpdateLauncherDialogVm />
+        <dialogs:UpdateLauncherDialogVm />
     </Design.DataContext>
     <Grid RowDefinitions="*,Auto">
         <avaloniaEdit:TextEditor x:Name="TextEditor" Name="TextEditor" IsReadOnly="True" Background="#242424"
@@ -19,19 +19,19 @@
         <Grid Grid.Row="1" ColumnDefinitions="*,*,*">
             <Button x:Name="YesBtn" Click="YesBtn_OnClick" Command="{Binding Path=DoUpdateCmd}" HorizontalAlignment="Stretch">
                 <Button.CommandParameter>
-                    <vm:DoUpdateCmdParam>Yes</vm:DoUpdateCmdParam>
+                    <dialogs:DoUpdateCmdParam>Yes</dialogs:DoUpdateCmdParam>
                 </Button.CommandParameter>
                 Yes
             </Button>
             <Button x:Name="NoBtn" Click="NoBtn_OnClick" Grid.Column="1" Command="{Binding Path=DoUpdateCmd}" HorizontalAlignment="Stretch">
                 <Button.CommandParameter>
-                    <vm:DoUpdateCmdParam>No</vm:DoUpdateCmdParam>
+                    <dialogs:DoUpdateCmdParam>No</dialogs:DoUpdateCmdParam>
                 </Button.CommandParameter>
                 No
             </Button>
             <Button x:Name="NoDoNotAskAgainBtn" Click="NoDoNotAskAgainBtn_OnClick" Grid.Column="2" Command="{Binding Path=DoUpdateCmd}" HorizontalAlignment="Stretch">
                 <Button.CommandParameter>
-                    <vm:DoUpdateCmdParam>NoAndDisable</vm:DoUpdateCmdParam>
+                    <dialogs:DoUpdateCmdParam>NoAndDisable</dialogs:DoUpdateCmdParam>
                 </Button.CommandParameter>
                 No (Do not ask again)
             </Button>

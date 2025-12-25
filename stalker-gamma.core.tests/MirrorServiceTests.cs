@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using stalker_gamma.core.Services;
 using stalker_gamma.core.Services.GammaInstaller.Utilities;
+using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma.core.tests;
 

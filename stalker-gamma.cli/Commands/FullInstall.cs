@@ -48,6 +48,7 @@ public class FullInstallCmd(
     /// <param name="stalkerAnomalyModdbUrl">Escape hatch for Stalker Anomaly</param>
     /// <param name="stalkerAnomalyArchiveMd5">The hash of the archive downloaded from --stalker-anomaly-moddb-url</param>
     public async Task FullInstall(
+        CancellationToken cancellationToken,
         string anomaly,
         string gamma,
         string cache = "cache",
@@ -102,20 +103,18 @@ public class FullInstallCmd(
         }
 
         var anomalyTask = Task.Run(async () =>
-            await anomalyInstaller.DownloadAndExtractAsync(anomalyCacheArchivePath, anomaly)
-        );
+            await anomalyInstaller.DownloadAndExtractAsync(anomalyCacheArchivePath, anomaly, cancellationToken), cancellationToken);
 
         var gammaTask = Task.Run(async () =>
-            await gammaInstaller.InstallAsync(anomaly, anomalyTask, gamma, cache)
-        );
+            await gammaInstaller.InstallAsync(anomaly, anomalyTask, gamma, cache, cancellationToken), cancellationToken);
 
         var downgradeModOrganizerTask = Task.Run(async () =>
             await downgradeModOrganizer.DowngradeAsync(
                 cachePath: cache,
                 extractPath: gamma,
-                version: mo2Version
-            )
-        );
+                version: mo2Version,
+                cancellationToken: cancellationToken
+            ), cancellationToken);
 
         await Task.WhenAll(anomalyTask, gammaTask, downgradeModOrganizerTask);
 

@@ -2,7 +2,6 @@
 using System.IO.Compression;
 using ConsoleAppFramework;
 using stalker_gamma.core.Services;
-using stalker_gamma.core.ViewModels.MainWindow.Queries;
 
 namespace stalker_gamma.updater.Commands;
 
