@@ -13,7 +13,7 @@ using stalker_gamma.core.Factories;
 using stalker_gamma.core.Models;
 using stalker_gamma.core.Services;
 
-namespace stalker_gamma.core.ViewModels.Tabs.ModDbUpdatesTab;
+namespace stalker_gamma_gui.ViewModels.Tabs.ModDbUpdatesTab;
 
 public interface IModDbUpdatesTabVm
 {

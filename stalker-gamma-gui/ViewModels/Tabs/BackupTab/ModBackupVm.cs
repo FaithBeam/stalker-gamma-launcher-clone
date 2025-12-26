@@ -1,6 +1,6 @@
 ﻿using ReactiveUI;
 
-namespace stalker_gamma.core.ViewModels.Tabs.BackupTab;
+namespace stalker_gamma_gui.ViewModels.Tabs.BackupTab;
 
 public class ModBackupVm(
     string fileName,

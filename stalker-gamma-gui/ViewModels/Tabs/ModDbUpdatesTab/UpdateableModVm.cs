@@ -1,6 +1,6 @@
 ﻿using ReactiveUI;
 
-namespace stalker_gamma.core.ViewModels.Tabs.ModDbUpdatesTab;
+namespace stalker_gamma_gui.ViewModels.Tabs.ModDbUpdatesTab;
 
 public enum UpdateType
 {

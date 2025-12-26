@@ -1,7 +1,7 @@
 ﻿using System.Reactive.Disposables;
 using Avalonia.ReactiveUI;
 using ReactiveUI;
-using stalker_gamma.core.ViewModels.Tabs.MainTab;
+using stalker_gamma_gui.ViewModels.Tabs.MainTab;
 
 namespace stalker_gamma_gui.Controls;
 

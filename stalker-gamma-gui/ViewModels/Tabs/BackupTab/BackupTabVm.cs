@@ -14,15 +14,15 @@ using System.Threading.Tasks;
 using DynamicData;
 using DynamicData.Binding;
 using ReactiveUI;
+using stalker_gamma_gui.ViewModels.Tabs.BackupTab.Enums;
+using stalker_gamma_gui.ViewModels.Tabs.BackupTab.Models;
+using stalker_gamma_gui.ViewModels.Tabs.BackupTab.Services;
+using stalker_gamma_gui.ViewModels.Tabs.Queries;
 using stalker_gamma.core.Models;
 using stalker_gamma.core.Services;
 using stalker_gamma.core.Utilities;
-using stalker_gamma.core.ViewModels.Tabs.BackupTab.Enums;
-using stalker_gamma.core.ViewModels.Tabs.BackupTab.Models;
-using stalker_gamma.core.ViewModels.Tabs.BackupTab.Services;
-using stalker_gamma.core.ViewModels.Tabs.Queries;
 
-namespace stalker_gamma.core.ViewModels.Tabs.BackupTab;
+namespace stalker_gamma_gui.ViewModels.Tabs.BackupTab;
 
 public interface IBackupTabVm
 {

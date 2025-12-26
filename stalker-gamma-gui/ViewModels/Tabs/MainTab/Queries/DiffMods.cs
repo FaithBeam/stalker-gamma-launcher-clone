@@ -4,13 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using stalker_gamma_gui.Services.GammaInstaller;
+using stalker_gamma_gui.ViewModels.Tabs.ModDbUpdatesTab;
 using stalker_gamma.core.Factories;
 using stalker_gamma.core.Models;
 using stalker_gamma.core.Services;
-using stalker_gamma.core.Services.GammaInstaller;
-using stalker_gamma.core.ViewModels.Tabs.ModDbUpdatesTab;
 
-namespace stalker_gamma.core.ViewModels.Tabs.MainTab.Queries;
+namespace stalker_gamma_gui.ViewModels.Tabs.MainTab.Queries;
 
 public static partial class DiffMods
 {

@@ -1,8 +1,8 @@
+using stalker_gamma_gui.ViewModels.Dialogs;
 using stalker_gamma.core.Models;
 using stalker_gamma.core.Services;
-using stalker_gamma.core.ViewModels.Dialogs;
 
-namespace stalker_gamma.core.ViewModels.MainWindow.Factories;
+namespace stalker_gamma_gui.ViewModels.MainWindow.Factories;
 
 public class UpdateLauncherDialogVmFactory(GlobalSettings gs)
 {

@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using stalker_gamma.core.Utilities;
 
-namespace stalker_gamma.core.ViewModels.Tabs.MainTab.Commands;
+namespace stalker_gamma_gui.ViewModels.Tabs.MainTab.Commands;
 
 public static class AddFoldersToWinDefenderExclusion
 {

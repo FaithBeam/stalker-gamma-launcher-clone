@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using stalker_gamma.core.ViewModels.Tabs.Queries;
+using stalker_gamma_gui.ViewModels.Tabs.Queries;
 
-namespace stalker_gamma.core.ViewModels.Tabs.BackupTab.Queries;
+namespace stalker_gamma_gui.ViewModels.Tabs.BackupTab.Queries;
 
 public static class OpenBackupFolder
 {

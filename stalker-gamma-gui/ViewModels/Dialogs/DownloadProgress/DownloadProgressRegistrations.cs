@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace stalker_gamma.core.ViewModels.Dialogs.DownloadProgress;
+namespace stalker_gamma_gui.ViewModels.Dialogs.DownloadProgress;
 
 public static class DownloadProgressRegistrations
 {

@@ -1,8 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
+using stalker_gamma_gui.ViewModels.MainWindow.Factories;
 using stalker_gamma.core.Services;
-using stalker_gamma.core.ViewModels.MainWindow.Factories;
 
-namespace stalker_gamma.core.ViewModels.MainWindow;
+namespace stalker_gamma_gui.ViewModels.MainWindow;
 
 public static class MainWindowRegistrations
 {

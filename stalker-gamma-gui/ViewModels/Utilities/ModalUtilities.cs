@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace stalker_gamma.core.ViewModels.Utilities;
+namespace stalker_gamma_gui.ViewModels.Utilities;
 
 public static class ModalUtilities
 {

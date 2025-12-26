@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using stalker_gamma.core.ViewModels.Tabs.BackupTab.Services;
+using stalker_gamma_gui.ViewModels.Tabs.BackupTab.Services;
 
-namespace stalker_gamma.core.ViewModels.Tabs.BackupTab;
+namespace stalker_gamma_gui.ViewModels.Tabs.BackupTab;
 
 public static class BackupTabRegistrations
 {

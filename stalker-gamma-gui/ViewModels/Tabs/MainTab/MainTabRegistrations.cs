@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using stalker_gamma.core.ViewModels.Tabs.MainTab.Commands;
-using stalker_gamma.core.ViewModels.Tabs.MainTab.Factories;
-using stalker_gamma.core.ViewModels.Tabs.MainTab.Queries;
+using stalker_gamma_gui.ViewModels.Tabs.MainTab.Commands;
+using stalker_gamma_gui.ViewModels.Tabs.MainTab.Factories;
+using stalker_gamma_gui.ViewModels.Tabs.MainTab.Queries;
 
-namespace stalker_gamma.core.ViewModels.Tabs.MainTab;
+namespace stalker_gamma_gui.ViewModels.Tabs.MainTab;
 
 public static class MainTabRegistrations
 {

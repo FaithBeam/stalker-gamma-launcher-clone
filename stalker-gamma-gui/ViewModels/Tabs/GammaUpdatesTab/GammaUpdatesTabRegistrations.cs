@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using stalker_gamma.core.ViewModels.Tabs.GammaUpdatesTab.Queries;
+using stalker_gamma_gui.ViewModels.Tabs.GammaUpdatesTab.Queries;
 
-namespace stalker_gamma.core.ViewModels.Tabs.GammaUpdatesTab;
+namespace stalker_gamma_gui.ViewModels.Tabs.GammaUpdatesTab;
 
 public static class GammaUpdatesTabRegistrations
 {

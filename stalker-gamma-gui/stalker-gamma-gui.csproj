@@ -11,6 +11,9 @@
     <IsAotCompatible>true</IsAotCompatible>
     <TrimMode>link</TrimMode>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
     <TrimmerRootAssembly Include="Avalonia.Themes.Fluent" />
@@ -52,9 +55,5 @@
     <Content Include="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ViewModels\MainWindow\Models\" />
-    <Folder Include="ViewModels\MainWindow\Queries\" />
   </ItemGroup>
 </Project>

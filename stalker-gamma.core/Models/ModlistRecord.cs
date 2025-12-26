@@ -26,6 +26,10 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
     public abstract string Name { get; }
     public string? DlPath { get; set; }
     public string? Dl => DlLink;
+    public Action<string> OnStatus { get; set; } = _ => { };
+    public Action<double> OnMd5Progress { get; set; } = _ => { };
+    public Action<double> OnDownloadProgress { get; set; } = _ => { };
+    public Action<double> OnExtractProgress { get; set; } = _ => { };
 
     public enum Action
     {
@@ -35,20 +39,16 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
         DownloadMd5Mismatch,
     }
 
-    public virtual async Task<Action> ShouldDownloadAsync(
-        string downloadsPath,
-        Action<string> onStatus,
-        Action<double> onProgress
-    )
+    public virtual async Task<Action> ShouldDownloadAsync(string downloadsPath)
     {
         DlPath ??= Path.Join(downloadsPath, Name);
 
         if (File.Exists(DlPath))
         {
-            onStatus("CheckingMd5");
+            OnStatus("CheckingMd5");
             var md5 = await Md5Utility.CalculateFileMd5Async(
                 DlPath,
-                onProgress: pct => onProgress(pct * 100)
+                onProgress: pct => OnMd5Progress(pct * 100)
             );
             if (!string.IsNullOrWhiteSpace(Md5ModDb))
             {
@@ -63,8 +63,6 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
 
     public virtual async Task DownloadAsync(
         string downloadsPath,
-        Action<string> onStatus,
-        Action<double> onProgress,
         bool invalidateMirrorCache = false
     )
     {
@@ -77,16 +75,12 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
             Dl,
             Path.GetDirectoryName(DlPath) ?? ".",
             Path.GetFileName(DlPath),
-            onProgress,
+            OnDownloadProgress,
             _dir
         );
     }
 
-    public async Task ExtractAsync(
-        string downloadsPath,
-        string extractPath,
-        Action<double> onProgress
-    )
+    public async Task ExtractAsync(string downloadsPath, string extractPath)
     {
         DlPath ??= Path.Join(downloadsPath, Name);
 
@@ -100,7 +94,7 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
             throw new DownloadableRecordException($"{nameof(DlPath)} is empty");
         }
 
-        await ArchiveUtility.ExtractAsync(DlPath, extractPath, onProgress);
+        await ArchiveUtility.ExtractAsync(DlPath, extractPath, OnExtractProgress);
 
         SolveInstructions(extractPath);
     }
@@ -253,8 +247,6 @@ public class GithubRecord(ICurlService curlService, IHttpClientFactory hcf)
 
     public override async Task DownloadAsync(
         string downloadsPath,
-        Action<string> onStatus,
-        Action<double> onProgress,
         bool invalidateMirrorCache = false
     )
     {
@@ -299,11 +291,11 @@ public class GithubRecord(ICurlService curlService, IHttpClientFactory hcf)
                 if (totalBytes.HasValue)
                 {
                     var progressPercentage = (double)totalBytesRead / totalBytes.Value * 100.0;
-                    onProgress(progressPercentage);
+                    OnDownloadProgress(progressPercentage);
                 }
             }
 
-            onProgress(100);
+            OnDownloadProgress(100);
         }
         finally
         {
@@ -324,8 +316,6 @@ public class ModDbRecord(ModDb modDb, ICurlService curlService) : DownloadableRe
 
     public override async Task DownloadAsync(
         string downloadsPath,
-        Action<string> onStatus,
-        Action<double> onProgress,
         bool invalidateMirrorCache = false
     )
     {
@@ -333,7 +323,7 @@ public class ModDbRecord(ModDb modDb, ICurlService curlService) : DownloadableRe
         var mirror = await modDb.GetModDbLinkCurl(
             DlLink!,
             DlPath,
-            onProgress,
+            OnDownloadProgress,
             invalidateMirrorCache: invalidateMirrorCache,
             excludeMirrors: _visitedMirrors.ToArray()
         );
@@ -343,12 +333,12 @@ public class ModDbRecord(ModDb modDb, ICurlService curlService) : DownloadableRe
         }
 
         if (
-            await ShouldDownloadAsync(downloadsPath, onStatus, onProgress)
+            await ShouldDownloadAsync(downloadsPath)
             is Action.DownloadMissing
                 or Action.DownloadMd5Mismatch
         )
         {
-            await modDb.GetModDbLinkCurl(DlLink!, DlPath, onProgress);
+            await modDb.GetModDbLinkCurl(DlLink!, DlPath, OnDownloadProgress);
         }
     }
 }

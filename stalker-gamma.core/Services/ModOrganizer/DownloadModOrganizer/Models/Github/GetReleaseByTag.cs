@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace stalker_gamma.core.Services.ModOrganizer.DowngradeModOrganizer.Models.Github;
+namespace stalker_gamma.core.Services.ModOrganizer.DownloadModOrganizer.Models.Github;
 
 [JsonSerializable(typeof(GetReleaseByTag))]
 public partial class GetReleaseByTagCtx : JsonSerializerContext;

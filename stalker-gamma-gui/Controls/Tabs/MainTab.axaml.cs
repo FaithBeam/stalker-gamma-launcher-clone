@@ -8,7 +8,7 @@ using ReactiveUI;
 namespace stalker_gamma_gui.Controls.Tabs;
 
 public partial class MainTabVm
-    : ReactiveUserControl<stalker_gamma.core.ViewModels.Tabs.MainTab.MainTabVm>
+    : ReactiveUserControl<stalker_gamma_gui.ViewModels.Tabs.MainTab.MainTabVm>
 {
     public MainTabVm()
     {
@@ -24,24 +24,21 @@ public partial class MainTabVm
             const string strobing = "Strobing";
             this.WhenAnyValue(
                     x => x.ViewModel!.LocalGammaVersion,
-                    selector: localGammaVersion => localGammaVersion
+                    selector: localGammaVersion => int.Parse(localGammaVersion ?? "0")
                 )
-                .Where(x => !string.IsNullOrEmpty(x))
                 .Subscribe(lgv =>
                 {
-                    switch (lgv)
+                    if (lgv < 920)
                     {
-                        case "200":
-                        case "865":
-                            ToolTip.SetTip(PlayBtn, "You must update / install gamma first");
-                            ToolTip.SetShowOnDisabled(PlayBtn, true);
-                            InstallUpdateBtn.Classes.Add(strobing);
-                            break;
-                        default:
-                            ToolTip.SetTip(PlayBtn, null);
-                            ToolTip.SetShowOnDisabled(PlayBtn, false);
-                            InstallUpdateBtn.Classes.Remove(strobing);
-                            break;
+                        ToolTip.SetTip(PlayBtn, "You must update / install gamma first");
+                        ToolTip.SetShowOnDisabled(PlayBtn, true);
+                        InstallUpdateBtn.Classes.Add(strobing);
+                    }
+                    else
+                    {
+                        ToolTip.SetTip(PlayBtn, null);
+                        ToolTip.SetShowOnDisabled(PlayBtn, false);
+                        InstallUpdateBtn.Classes.Remove(strobing);
                     }
                 })
                 .DisposeWith(d);
@@ -53,7 +50,7 @@ public partial class MainTabVm
                 )
                 .Subscribe(x =>
                 {
-                    if (!x && OperatingSystem.IsWindows())
+                    if (!x)
                     {
                         ToolTip.SetTip(
                             PlayBtn,
@@ -67,39 +64,6 @@ public partial class MainTabVm
                         ToolTip.SetTip(PlayBtn, null);
                         ToolTip.SetShowOnDisabled(PlayBtn, false);
                         FirstInstallInitializeBtn.Classes.Remove(strobing);
-                    }
-                })
-                .DisposeWith(d);
-
-            // Strobe the downgrade mod organizer button when ran with WINE and mo2 hasn't been downgraded
-            this.WhenAnyValue(
-                    x => x.ViewModel!.IsMo2VersionDowngraded,
-                    x => x.ViewModel!.IsRanWithWine,
-                    selector: (mo2Downgraded, ranWithWine) =>
-                        (RanWithWine: ranWithWine, Mo2Downgraded: mo2Downgraded)
-                )
-                .Subscribe(x =>
-                {
-                    if (x.RanWithWine)
-                    {
-                        if (x.Mo2Downgraded.HasValue)
-                        {
-                            if (!x.Mo2Downgraded.Value)
-                            {
-                                ToolTip.SetTip(
-                                    InstallUpdateBtn,
-                                    "You must downgrade mod organizer first"
-                                );
-                                ToolTip.SetShowOnDisabled(InstallUpdateBtn, true);
-                                DowngradeModOrganizerBtn.Classes.Add(strobing);
-                            }
-                            else
-                            {
-                                ToolTip.SetTip(InstallUpdateBtn, null);
-                                ToolTip.SetShowOnDisabled(InstallUpdateBtn, false);
-                                DowngradeModOrganizerBtn.Classes.Remove(strobing);
-                            }
-                        }
                     }
                 })
                 .DisposeWith(d);

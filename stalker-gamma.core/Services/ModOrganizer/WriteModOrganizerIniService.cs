@@ -1,6 +1,6 @@
 namespace stalker_gamma.core.Services.ModOrganizer;
 
-public class WriteModOrganizerIni
+public class WriteModOrganizerIniService
 {
     public async Task WriteAsync(
         string gammaPath,

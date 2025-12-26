@@ -1,7 +1,7 @@
 ﻿using System;
-using stalker_gamma.core.ViewModels.Tabs.BackupTab.Enums;
+using stalker_gamma_gui.ViewModels.Tabs.BackupTab.Enums;
 
-namespace stalker_gamma.core.ViewModels.Tabs.BackupTab.Queries;
+namespace stalker_gamma_gui.ViewModels.Tabs.BackupTab.Queries;
 
 public static class GetEstimate
 {

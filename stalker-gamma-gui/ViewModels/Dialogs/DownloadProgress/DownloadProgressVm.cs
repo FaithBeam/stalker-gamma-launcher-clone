@@ -1,7 +1,7 @@
 using System.Reactive.Disposables;
 using ReactiveUI;
 
-namespace stalker_gamma.core.ViewModels.Dialogs.DownloadProgress;
+namespace stalker_gamma_gui.ViewModels.Dialogs.DownloadProgress;
 
 public class DownloadProgressVm : ReactiveObject, IActivatableViewModel
 {

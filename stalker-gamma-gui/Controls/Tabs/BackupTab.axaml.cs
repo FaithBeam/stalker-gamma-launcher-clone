@@ -10,7 +10,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
 using Avalonia.ReactiveUI;
 using ReactiveUI;
-using stalker_gamma.core.ViewModels.Tabs.BackupTab;
+using stalker_gamma_gui.ViewModels.Tabs.BackupTab;
 
 namespace stalker_gamma_gui.Controls.Tabs;
 

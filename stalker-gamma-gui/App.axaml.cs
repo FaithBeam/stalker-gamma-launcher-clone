@@ -12,28 +12,26 @@ using Microsoft.Extensions.Options;
 using ReactiveUI;
 using Splat;
 using Splat.Microsoft.Extensions.DependencyInjection;
+using stalker_gamma_gui.Services;
+using stalker_gamma_gui.Services.GammaInstaller.Shortcut;
+using stalker_gamma_gui.ViewModels.Dialogs.DownloadProgress;
+using stalker_gamma_gui.ViewModels.MainWindow;
+using stalker_gamma_gui.ViewModels.Services;
+using stalker_gamma_gui.ViewModels.Tabs;
+using stalker_gamma_gui.ViewModels.Tabs.BackupTab;
+using stalker_gamma_gui.ViewModels.Tabs.GammaUpdatesTab;
+using stalker_gamma_gui.ViewModels.Tabs.MainTab;
+using stalker_gamma_gui.ViewModels.Tabs.ModDbUpdatesTab;
+using stalker_gamma_gui.ViewModels.Tabs.ModListTab;
 using stalker_gamma_gui.Views;
 using stalker_gamma.core.Factories;
 using stalker_gamma.core.Models;
 using stalker_gamma.core.Services;
-using stalker_gamma.core.Services.GammaInstaller;
-using stalker_gamma.core.Services.GammaInstaller.AddonsAndSeparators;
-using stalker_gamma.core.Services.GammaInstaller.Anomaly;
-using stalker_gamma.core.Services.GammaInstaller.Mo2;
-using stalker_gamma.core.Services.GammaInstaller.ModpackSpecific;
-using stalker_gamma.core.Services.GammaInstaller.Shortcut;
-using stalker_gamma.core.Services.ModOrganizer.DowngradeModOrganizer;
+using stalker_gamma.core.Services.ModOrganizer;
+using stalker_gamma.core.Services.ModOrganizer.DownloadModOrganizer;
 using stalker_gamma.core.Utilities;
-using stalker_gamma.core.ViewModels.Dialogs.DownloadProgress;
-using stalker_gamma.core.ViewModels.MainWindow;
-using stalker_gamma.core.ViewModels.Services;
-using stalker_gamma.core.ViewModels.Tabs;
-using stalker_gamma.core.ViewModels.Tabs.BackupTab;
-using stalker_gamma.core.ViewModels.Tabs.GammaUpdatesTab;
-using stalker_gamma.core.ViewModels.Tabs.MainTab;
-using stalker_gamma.core.ViewModels.Tabs.ModDbUpdatesTab;
-using stalker_gamma.core.ViewModels.Tabs.ModListTab;
-using ModpackSpecific = stalker_gamma.core.Services.GammaInstaller.ModpackSpecific.ModpackSpecific;
+using GammaInstaller = stalker_gamma_gui.Services.GammaInstaller.GammaInstaller;
+using ProgressService = stalker_gamma_gui.Services.ProgressService;
 
 namespace stalker_gamma_gui;
 
@@ -52,7 +50,6 @@ public partial class App : Application
             .SetBasePath(AppContext.BaseDirectory)
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .Build();
-        var settingsFileService = new SettingsFileService();
         var mainWindow = new MainWindow();
 
         var host = Host.CreateDefaultBuilder()
@@ -98,13 +95,15 @@ public partial class App : Application
                         ForceBorderlessFullscreen = configuration.GetValue<bool>(
                             "forceBorderlessFullscreen"
                         ),
+                        StalkerAnomalyArchiveMd5 =
+                            configuration.GetValue<string>("anomalyArchiveMd5") ?? ""
 #pragma warning restore IL2026
                     }
                 );
 
-                s.AddSingleton(new FileService(mainWindow));
+                s.AddSingleton(new FilePickerService(mainWindow));
 
-                s.AddSingleton(settingsFileService).AddSingleton(settingsFileService.SettingsFile);
+                s.AddSingleton<SettingsFileService>();
 
                 s.AddSingleton<ProgressService>()
                     .AddSingleton<IVersionService, VersionService>()
@@ -112,7 +111,9 @@ public partial class App : Application
                     .AddSingleton<IOperatingSystemService, OperatingSystemService>()
                     .AddSingleton<ModalService>();
 
-                s.AddScoped<DowngradeModOrganizer>()
+                s.AddScoped<DownloadModOrganizerService>()
+                    .AddScoped<AnomalyInstaller>()
+                    .AddScoped<WriteModOrganizerIniService>()
                     .AddScoped<IIsRanWithWineService, IsRanWithWineService>()
                     .AddScoped<IILongPathsStatusService, LongPathsStatus.Handler>()
                     .AddScoped<ICurlService, CurlService>()
@@ -120,10 +121,6 @@ public partial class App : Application
                     .AddScoped<GitUtility>()
                     .AddScoped<ModDb>()
                     .AddScoped<ModListRecordFactory>()
-                    .AddScoped<AddonsAndSeparators>()
-                    .AddScoped<Anomaly>()
-                    .AddScoped<Mo2>()
-                    .AddScoped<ModpackSpecific>()
                     .AddScoped<Shortcut>()
                     .AddScoped<GammaInstaller>();
 

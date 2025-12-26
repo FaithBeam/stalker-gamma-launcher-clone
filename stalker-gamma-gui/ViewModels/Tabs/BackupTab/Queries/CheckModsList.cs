@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using DynamicData;
 
-namespace stalker_gamma.core.ViewModels.Tabs.BackupTab.Queries;
+namespace stalker_gamma_gui.ViewModels.Tabs.BackupTab.Queries;
 
 public static class CheckModsList
 {

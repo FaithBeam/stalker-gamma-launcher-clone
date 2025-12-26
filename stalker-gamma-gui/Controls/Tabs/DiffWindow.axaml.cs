@@ -3,7 +3,7 @@ using System.Reactive.Disposables;
 using Avalonia.ReactiveUI;
 using AvaloniaEdit.TextMate;
 using ReactiveUI;
-using stalker_gamma.core.ViewModels.Tabs.GammaUpdatesTab;
+using stalker_gamma_gui.ViewModels.Tabs.GammaUpdatesTab;
 using TextMateSharp.Grammars;
 
 namespace stalker_gamma_gui.Controls.Tabs;

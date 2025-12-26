@@ -3,18 +3,18 @@ using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using ReactiveUI;
+using stalker_gamma_gui.ViewModels.Dialogs;
+using stalker_gamma_gui.ViewModels.MainWindow.Factories;
+using stalker_gamma_gui.ViewModels.Services;
+using stalker_gamma_gui.ViewModels.Tabs.BackupTab;
+using stalker_gamma_gui.ViewModels.Tabs.GammaUpdatesTab;
+using stalker_gamma_gui.ViewModels.Tabs.MainTab;
+using stalker_gamma_gui.ViewModels.Tabs.ModDbUpdatesTab;
+using stalker_gamma_gui.ViewModels.Tabs.ModListTab;
 using stalker_gamma.core.Models;
 using stalker_gamma.core.Services;
-using stalker_gamma.core.ViewModels.Dialogs;
-using stalker_gamma.core.ViewModels.MainWindow.Factories;
-using stalker_gamma.core.ViewModels.Services;
-using stalker_gamma.core.ViewModels.Tabs.BackupTab;
-using stalker_gamma.core.ViewModels.Tabs.GammaUpdatesTab;
-using stalker_gamma.core.ViewModels.Tabs.MainTab;
-using stalker_gamma.core.ViewModels.Tabs.ModDbUpdatesTab;
-using stalker_gamma.core.ViewModels.Tabs.ModListTab;
 
-namespace stalker_gamma.core.ViewModels.MainWindow;
+namespace stalker_gamma_gui.ViewModels.MainWindow;
 
 public class MainWindowVm : ViewModelBase, IActivatableViewModel
 {

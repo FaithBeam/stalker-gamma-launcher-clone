@@ -1,14 +1,17 @@
 using System.Text.Json;
-using stalker_gamma.core.Services.ModOrganizer.DowngradeModOrganizer.Models.Github;
+using stalker_gamma.core.Services.ModOrganizer.DownloadModOrganizer.Models.Github;
 using stalker_gamma.core.Utilities;
 
-namespace stalker_gamma.core.Services.ModOrganizer.DowngradeModOrganizer;
+namespace stalker_gamma.core.Services.ModOrganizer.DownloadModOrganizer;
 
-public class DowngradeModOrganizer(IHttpClientFactory hcf)
+public class DownloadModOrganizerService(IHttpClientFactory hcf)
 {
-    public async Task DowngradeAsync(string version = "v2.4.4",
+    public async Task DownloadAsync(
+        string version = "v2.4.4",
         string cachePath = "",
-        string? extractPath = null, CancellationToken? cancellationToken = null)
+        string? extractPath = null,
+        CancellationToken? cancellationToken = null
+    )
     {
         cancellationToken ??= CancellationToken.None;
         extractPath ??= Path.Join(Path.GetDirectoryName(AppContext.BaseDirectory), "..");
@@ -17,11 +20,15 @@ public class DowngradeModOrganizer(IHttpClientFactory hcf)
 
         var hc = hcf.CreateClient("githubDlArchive");
         var getReleaseByTagResponse = await hc.GetAsync(
-            $"https://api.github.com/repos/ModOrganizer2/modorganizer/releases/tags/{version}", (CancellationToken)cancellationToken
+            $"https://api.github.com/repos/ModOrganizer2/modorganizer/releases/tags/{version}",
+            (CancellationToken)cancellationToken
         );
         var getReleaseByTag = await JsonSerializer.DeserializeAsync<GetReleaseByTag>(
-            await getReleaseByTagResponse.Content.ReadAsStreamAsync((CancellationToken)cancellationToken),
-            jsonTypeInfo: GetReleaseByTagCtx.Default.GetReleaseByTag, (CancellationToken)cancellationToken
+            await getReleaseByTagResponse.Content.ReadAsStreamAsync(
+                (CancellationToken)cancellationToken
+            ),
+            jsonTypeInfo: GetReleaseByTagCtx.Default.GetReleaseByTag,
+            (CancellationToken)cancellationToken
         );
         var dlUrl = getReleaseByTag
             ?.Assets?.FirstOrDefault(x =>
@@ -75,7 +82,12 @@ public class DowngradeModOrganizer(IHttpClientFactory hcf)
             }
         }
 
-        await ArchiveUtility.ExtractAsync(mo2ArchivePath, extractPath, (pct) => { }, cancellationToken: cancellationToken);
+        await ArchiveUtility.ExtractAsync(
+            mo2ArchivePath,
+            extractPath,
+            (pct) => { },
+            cancellationToken: cancellationToken
+        );
     }
 
     private readonly IReadOnlyList<string> _foldersToDelete =

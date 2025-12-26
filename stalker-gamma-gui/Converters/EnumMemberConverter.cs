@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using Avalonia.Data.Converters;
-using stalker_gamma.core.ViewModels.Tabs.MainTab.Enums;
+using stalker_gamma_gui.ViewModels.Tabs.MainTab.Enums;
 
 namespace stalker_gamma_gui.Converters;
 
@@ -27,8 +27,10 @@ public class EnumMemberConverter : IValueConverter
             };
 
     private static string? GetEnumMemberValue(Enum e) =>
+#pragma warning disable IL2075
         e.GetType()
             .GetMember(e.ToString())
+#pragma warning restore IL2075
             .First()
             .GetCustomAttribute<EnumMemberAttribute>(false)
             ?.Value;

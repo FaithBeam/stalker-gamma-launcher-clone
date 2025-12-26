@@ -1,6 +1,6 @@
 ﻿using ReactiveUI;
 
-namespace stalker_gamma.core.ViewModels.Services;
+namespace stalker_gamma_gui.ViewModels.Services;
 
 public class ModalService : ReactiveObject
 {

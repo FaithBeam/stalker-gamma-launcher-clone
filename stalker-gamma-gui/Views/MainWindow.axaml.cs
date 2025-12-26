@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 using Avalonia.ReactiveUI;
 using ReactiveUI;
 using stalker_gamma_gui.Controls.Dialogs;
-using stalker_gamma.core.ViewModels.Dialogs;
-using stalker_gamma.core.ViewModels.MainWindow;
+using stalker_gamma_gui.ViewModels.Dialogs;
+using stalker_gamma_gui.ViewModels.MainWindow;
 
 namespace stalker_gamma_gui.Views;
 

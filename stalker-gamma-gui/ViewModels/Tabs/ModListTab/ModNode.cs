@@ -2,7 +2,7 @@
 using System.Linq;
 using ReactiveUI;
 
-namespace stalker_gamma.core.ViewModels.Tabs.ModListTab;
+namespace stalker_gamma_gui.ViewModels.Tabs.ModListTab;
 
 public class ModNode : ReactiveObject
 {

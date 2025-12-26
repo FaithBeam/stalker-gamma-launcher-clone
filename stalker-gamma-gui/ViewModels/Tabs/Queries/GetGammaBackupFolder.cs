@@ -2,7 +2,7 @@
 using System.IO;
 using stalker_gamma.core.Models;
 
-namespace stalker_gamma.core.ViewModels.Tabs.Queries;
+namespace stalker_gamma_gui.ViewModels.Tabs.Queries;
 
 public static class GetGammaBackupFolder
 {

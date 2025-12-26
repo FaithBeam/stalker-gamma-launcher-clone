@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using stalker_gamma_gui.ViewModels.Tabs.GammaUpdatesTab.Models;
 using stalker_gamma.core.Utilities;
-using stalker_gamma.core.ViewModels.Tabs.GammaUpdatesTab.Models;
 
-namespace stalker_gamma.core.ViewModels.Tabs.GammaUpdatesTab.Queries;
+namespace stalker_gamma_gui.ViewModels.Tabs.GammaUpdatesTab.Queries;
 
 public static class GetGitDiff
 {

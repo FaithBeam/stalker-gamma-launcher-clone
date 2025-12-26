@@ -2,29 +2,23 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reactive.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using CliWrap;
-using CliWrap.EventStream;
-using CliWrap.Exceptions;
+using stalker_gamma_gui.ViewModels.Tabs.MainTab;
 using stalker_gamma.core.Models;
+using stalker_gamma.core.Services;
 using stalker_gamma.core.Utilities;
-using stalker_gamma.core.ViewModels.Tabs.MainTab;
 
-namespace stalker_gamma.core.Services.GammaInstaller;
+namespace stalker_gamma_gui.Services.GammaInstaller;
 
 public record LocalAndRemoteVersion(string? LocalVersion, string RemoteVersion);
 
 public partial class GammaInstaller(
     ICurlService curlService,
     GitUtility gitUtility,
-    AddonsAndSeparators.AddonsAndSeparators addonsAndSeparators,
-    ModpackSpecific.ModpackSpecific modpackSpecific,
-    Mo2.Mo2 mo2,
-    Anomaly.Anomaly anomaly,
-    Shortcut.Shortcut shortcut
+    stalker_gamma.core.Services.GammaInstaller gammaInstaller,
+    AnomalyInstaller anomalyInstaller
+// Shortcut.Shortcut shortcut
 )
 {
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
@@ -69,80 +63,23 @@ public partial class GammaInstaller(
         return (gammaVersions, modVersions);
     }
 
-    /// <summary>
-    /// Logic to run when the first install initialization button is clicked.
-    /// </summary>
-    public async Task FirstInstallInitialization()
-    {
-        var stdOutSb = new StringBuilder();
-        var stdErrSb = new StringBuilder();
-
-        try
-        {
-            await Cli.Wrap(Path.Combine(_dir, "..", "ModOrganizer.exe"))
-                .Observe()
-                .ForEachAsync(cmdEvt =>
-                {
-                    switch (cmdEvt)
-                    {
-                        case ExitedCommandEvent exit:
-                            if (exit.ExitCode != 0)
-                            {
-                                throw new ModOrganizerServiceException(
-                                    $"""
-
-                                    Exit Code: {exit.ExitCode}
-                                    StdErr:  {stdErrSb}
-                                    StdOut: {stdOutSb}
-                                    """
-                                );
-                            }
-
-                            break;
-                        case StandardErrorCommandEvent stdErr:
-                            stdErrSb.AppendLine(stdErr.Text);
-                            break;
-                        case StandardOutputCommandEvent stdOut:
-                            stdOutSb.AppendLine(stdOut.Text);
-                            break;
-                    }
-                });
-        }
-        catch (CommandExecutionException e)
-        {
-            throw new ModOrganizerServiceException(
-                $"""
-
-                StdErr:  {stdErrSb}
-                StdOut: {stdOutSb}
-                """,
-                e
-            );
-        }
-    }
-
     public async Task InstallUpdateGammaAsync(
         bool deleteReshadeDlls,
         bool preserveUserLtx,
         IReadOnlyList<ModDownloadExtractProgressVm> modDownloadExtractProgressVms,
-        object locker
+        object locker,
+        string gammaDir,
+        string anomalyDir
     )
     {
-        if (Directory.Exists(Path.Join(_dir, ".modpack_installer.log")))
-        {
-            File.Move(
-                Path.Join(_dir, ".modpack_installer.log"),
-                Path.Join(_dir, ".modpack_installer.log.bak"),
-                true
-            );
-        }
-
+        ModDownloadExtractProgressVm? anomaly;
         ModDownloadExtractProgressVm? stalkerGamma;
         ModDownloadExtractProgressVm? gammaLargeFiles;
         ModDownloadExtractProgressVm? gunslinger;
         ModDownloadExtractProgressVm? modpackAddons;
         lock (locker)
         {
+            anomaly = modDownloadExtractProgressVms.FirstOrDefault(x => x.AddonName == "Anomaly");
             stalkerGamma = modDownloadExtractProgressVms.First(x => x.AddonName == "Stalker_GAMMA");
             gammaLargeFiles = modDownloadExtractProgressVms.First(x =>
                 x.AddonName == "gamma_large_files_v2"
@@ -154,52 +91,26 @@ public partial class GammaInstaller(
                 x.AddonName == "modpack_addons"
             );
         }
-        await DownloadGammaData(stalkerGamma);
 
-        var metadata = (await File.ReadAllTextAsync(Path.Join(_dir, "modpack_maker_metadata.txt")))
-            .Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-            .Select(x => ModpackMakerRx().Match(x).Groups[1].Value)
-            .ToList();
+        var gammaDownloadsPath = Path.Combine(gammaDir, "downloads");
+        var anomalyArchivePath = Path.Combine(gammaDownloadsPath, "anomaly.7z");
+        var anomalyTask = anomaly is null
+            ? Task.CompletedTask
+            : Task.Run(async () =>
+                await anomalyInstaller.DownloadAndExtractAsync(
+                    anomalyArchivePath,
+                    anomalyDir,
+                    anomaly.ProgressInterface.Report,
+                    anomaly.ProgressInterface.Report,
+                    anomaly.ProgressInterface.Report
+                )
+            );
 
-        var modPackName = metadata[1].Trim().TrimEnd('.');
-        var modOrganizerListFile = metadata[3].Trim();
-
-        var downloadsPath = Path.GetFullPath(Path.Join(_dir, "..", "downloads"));
-
-        var modsPaths = Path.GetFullPath(Path.Join(_dir, "..", "mods"));
-        var modPackPath = Path.Join(_dir, modPackName);
-
-        // addons and separators install
-        await addonsAndSeparators.Install(
-            downloadsPath,
-            modsPaths,
-            modDownloadExtractProgressVms
-                .Where(x => x.ModListRecord is DownloadableRecord or Separator)
-                .ToList()
+        var gammaTask = Task.Run(async () =>
+            await gammaInstaller.InstallAsync(anomalyDir, anomalyTask, gammaDir, gammaDownloadsPath)
         );
 
-        // modpack specific install
-        await modpackSpecific.Install(_dir, modsPaths, gammaLargeFiles, gunslinger, modpackAddons);
-
-        // setup mo2
-        mo2.Setup(
-            dir: _dir,
-            modPackName: modPackName,
-            modPackPath: modPackPath,
-            modOrganizerListFile: modOrganizerListFile
-        );
-
-        // Patch anomaly
-        await anomaly.Patch(
-            _dir,
-            modPackPath,
-            modOrganizerListFile,
-            deleteReshadeDlls,
-            preserveUserLtx
-        );
-
-        // create shortcut
-        shortcut.Create(_dir, modPackPath);
+        await Task.WhenAll(anomalyTask, gammaTask);
 
         await _curlService.DownloadFileAsync(
             "https://stalker-gamma.com/api/list?key=",
@@ -249,7 +160,4 @@ public partial class GammaInstaller(
 
         await Task.WhenAll(t1);
     }
-
-    [GeneratedRegex("^.*= (.+)$")]
-    private static partial Regex ModpackMakerRx();
 }

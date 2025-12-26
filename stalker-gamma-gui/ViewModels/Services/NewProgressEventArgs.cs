@@ -1,7 +1,8 @@
+using System;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 
-namespace stalker_gamma.core.Services;
+namespace stalker_gamma_gui.Services;
 
 public class NewProgressEventArgs(double? progress = null)
 {

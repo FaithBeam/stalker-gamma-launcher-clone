@@ -1,4 +1,4 @@
-namespace stalker_gamma.cli.Services;
+namespace stalker_gamma.core.Services;
 
 public class ProgressService
 {

@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using stalker_gamma.core.Utilities;
 
-namespace stalker_gamma.core.ViewModels.Tabs.Queries;
+namespace stalker_gamma_gui.ViewModels.Tabs.Queries;
 
 public static class GetStalkerGammaLastCommit
 {

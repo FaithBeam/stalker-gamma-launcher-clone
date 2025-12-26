@@ -5,17 +5,12 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using stalker_gamma.core.Factories;
 using stalker_gamma.core.Models;
-using stalker_gamma.core.ViewModels.Tabs.MainTab.Factories;
 
-namespace stalker_gamma.core.ViewModels.Tabs.MainTab.Queries;
+namespace stalker_gamma_gui.ViewModels.Tabs.MainTab.Queries;
 
 public static class GetModDownloadExtractVms
 {
-    public sealed class Handler(
-        // ModDownloadExtractProgressVmFactory modDownloadExtractProgressVmFactory,
-        ModListRecordFactory modListRecordFactory,
-        IHttpClientFactory hcf
-    )
+    public sealed class Handler(ModListRecordFactory modListRecordFactory, IHttpClientFactory hcf)
     {
         public async Task<IList<ModListRecord>> ExecuteAsync()
         {

@@ -3,7 +3,7 @@ using Avalonia.Interactivity;
 using Avalonia.ReactiveUI;
 using AvaloniaEdit.TextMate;
 using ReactiveUI;
-using stalker_gamma.core.ViewModels.Dialogs;
+using stalker_gamma_gui.ViewModels.Dialogs;
 using TextMateSharp.Grammars;
 
 namespace stalker_gamma_gui.Controls.Dialogs;

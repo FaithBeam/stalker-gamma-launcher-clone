@@ -6,8 +6,8 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.ReactiveUI;
 using ReactiveUI;
-using stalker_gamma.core.ViewModels.Tabs.GammaUpdatesTab;
-using stalker_gamma.core.ViewModels.Tabs.GammaUpdatesTab.Models;
+using stalker_gamma_gui.ViewModels.Tabs.GammaUpdatesTab;
+using stalker_gamma_gui.ViewModels.Tabs.GammaUpdatesTab.Models;
 
 namespace stalker_gamma_gui.Controls.Tabs;
 

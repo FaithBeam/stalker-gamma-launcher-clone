@@ -8,9 +8,9 @@ using System.Reactive;
 using System.Reactive.Disposables;
 using DynamicData;
 using ReactiveUI;
-using stalker_gamma.core.Services;
+using stalker_gamma_gui.Services;
 
-namespace stalker_gamma.core.ViewModels.Tabs.ModListTab;
+namespace stalker_gamma_gui.ViewModels.Tabs.ModListTab;
 
 public interface IModListTabVm
 {

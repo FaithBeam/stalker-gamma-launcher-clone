@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using stalker_gamma.core.Models;
 
-namespace stalker_gamma.core.ViewModels.Tabs.BackupTab.Commands;
+namespace stalker_gamma_gui.ViewModels.Tabs.BackupTab.Commands;
 
 public static class UpdateGammaBackupPathInAppSettings
 {

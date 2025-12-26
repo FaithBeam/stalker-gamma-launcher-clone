@@ -4,7 +4,7 @@ using System.Reactive.Linq;
 using ReactiveUI;
 using stalker_gamma.core.Models;
 
-namespace stalker_gamma.core.ViewModels.Tabs.MainTab;
+namespace stalker_gamma_gui.ViewModels.Tabs.MainTab;
 
 public class ModDownloadExtractProgressVm : ReactiveObject, IActivatableViewModel, IDisposable
 {
@@ -43,21 +43,24 @@ public class ModDownloadExtractProgressVm : ReactiveObject, IActivatableViewMode
             handler => Progress.ProgressChanged -= handler
         );
 
-        this.WhenActivated(d =>
-        {
-            _setCompleteObservable = this.WhenAnyValue(
-                    x => x.Status,
-                    selector: status => status != Status.Done
-                )
-                .Subscribe(_ => ProgressInterface.Report(0))
-                .DisposeWith(d);
+        this.WhenActivated(
+            (CompositeDisposable d) =>
+            {
+                _setCompleteObservable = this.WhenAnyValue(
+                        x => x.Status,
+                        selector: status => status != Status.Done
+                    )
+                    .Subscribe(_ => ProgressInterface.Report(0))
+                    .DisposeWith(d);
 
-            _overallProgressValue = dlProgChanged
-                .Select(x => x.EventArgs)
-                .StartWith(0.0)
-                .ToProperty(this, x => x.OverallProgressValue)
-                .DisposeWith(d);
-        });
+                _overallProgressValue = dlProgChanged
+                    .Select(x => x.EventArgs)
+                    .StartWith(0.0)
+                    .Select(x => x * 100)
+                    .ToProperty(this, x => x.OverallProgressValue)
+                    .DisposeWith(d);
+            }
+        );
     }
 
     private IDisposable? _setCompleteObservable;

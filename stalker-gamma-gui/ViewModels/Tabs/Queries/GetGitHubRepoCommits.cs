@@ -6,7 +6,7 @@ using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace stalker_gamma.core.ViewModels.Tabs.Queries;
+namespace stalker_gamma_gui.ViewModels.Tabs.Queries;
 
 public static class GetGitHubRepoCommits
 {

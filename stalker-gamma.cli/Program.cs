@@ -7,9 +7,8 @@ using stalker_gamma.core.Factories;
 using stalker_gamma.core.Models;
 using stalker_gamma.core.Services;
 using stalker_gamma.core.Services.ModOrganizer;
-using stalker_gamma.core.Services.ModOrganizer.DowngradeModOrganizer;
+using stalker_gamma.core.Services.ModOrganizer.DownloadModOrganizer;
 using stalker_gamma.core.Utilities;
-using AnomalyInstaller = stalker_gamma.cli.Services.AnomalyInstaller;
 
 namespace stalker_gamma.cli;
 
@@ -25,18 +24,22 @@ public static class Program
                     .AddSingleton<ILogger>(log)
                     .AddSingleton<GlobalSettings>()
                     .AddSingleton<ProgressThrottleService>()
-                    .AddSingleton<Services.ProgressService>()
+                    .AddSingleton<ProgressService>()
+                    .AddScoped<EnrichGammaInstaller>()
+                    .AddScoped<DownloadAndExtractGitRepoService>()
+                    .AddScoped<WriteSeparatorsService>()
+                    .AddScoped<GetAddonsFromApiService>()
                     .AddScoped<EnableLongPathsOnWindowsService>()
                     .AddScoped<AddFoldersToWinDefenderExclusionService>()
-                    .AddScoped<DowngradeModOrganizer>()
+                    .AddScoped<DownloadModOrganizerService>()
                     .AddScoped<DisableNexusModHandlerLink>()
-                    .AddScoped<WriteModOrganizerIni>()
+                    .AddScoped<WriteModOrganizerIniService>()
                     .AddScoped<InstallModOrganizerGammaProfile>()
                     .AddScoped<GitUtility>()
                     .AddScoped<ModListRecordFactory>()
                     .AddScoped<ModDb>()
                     .AddScoped<AnomalyInstaller>()
-                    .AddScoped<CustomGammaInstaller>()
+                    .AddScoped<GammaInstaller>()
                     .AddScoped<IOperatingSystemService, OperatingSystemService>()
                     .AddScoped<ICurlService, CurlService>()
                     .AddScoped<MirrorService>()

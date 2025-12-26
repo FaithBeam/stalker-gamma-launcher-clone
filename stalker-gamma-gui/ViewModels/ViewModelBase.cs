@@ -1,5 +1,5 @@
 ﻿using ReactiveUI;
 
-namespace stalker_gamma.core.ViewModels;
+namespace stalker_gamma_gui.ViewModels;
 
 public class ViewModelBase : ReactiveObject { }

@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using ReactiveUI;
 using stalker_gamma.core.Models;
+using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma.core.Services;
 
@@ -33,7 +34,7 @@ public class SettingsFileService : ReactiveObject
                     )
                 );
             }
-            
+
             SettingsFile =
                 JsonSerializer.Deserialize(
                     File.ReadAllText(SettingsFilePath),
@@ -42,18 +43,21 @@ public class SettingsFileService : ReactiveObject
                 ?? throw new SettingsFileServiceException(
                     $"Failed to deserialize settings file: {SettingsFilePath}"
                 );
-            
-            this.WhenAnyValue(x => x.SettingsInitialized, selector: x => x).Subscribe(_ =>
-            {
-                EnsureFolderCreated(SettingsFile.BaseGammaDirectory!);
-                EnsureFolderCreated(SettingsFile.AnomalyDir!);
-                EnsureFolderCreated(SettingsFile.GammaDir!);
-                EnsureFolderCreated(SettingsFile.CacheDir!);
-            });
-            
-            if (
-                !string.IsNullOrWhiteSpace(SettingsFile.BaseGammaDirectory)
-            )
+
+            this.WhenAnyValue(x => x.SettingsInitialized, selector: x => x)
+                .Subscribe(_ =>
+                {
+                    EnsureFolderCreated(SettingsFile.BaseGammaDirectory!);
+                    EnsureFolderCreated(SettingsFile.AnomalyDir!);
+                    EnsureFolderCreated(SettingsFile.GammaDir!);
+                    EnsureFolderCreated(SettingsFile.CacheDir!);
+                    CreateSymbolicLinkUtility.Create(
+                        Path.Join(SettingsFile.GammaDir, "downloads"),
+                        SettingsFile.CacheDir!
+                    );
+                });
+
+            if (!string.IsNullOrWhiteSpace(SettingsFile.BaseGammaDirectory))
             {
                 SettingsInitialized = true;
             }
@@ -84,7 +88,7 @@ public class SettingsFileService : ReactiveObject
             );
         }
     }
-    
+
     private static void EnsureFolderCreated(string path)
     {
         if (!string.IsNullOrWhiteSpace(path) && !Directory.Exists(path))

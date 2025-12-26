@@ -12,24 +12,26 @@ using CliWrap;
 using DynamicData;
 using DynamicData.Binding;
 using ReactiveUI;
+using stalker_gamma_gui.Services;
+using stalker_gamma_gui.ViewModels.Services;
+using stalker_gamma_gui.ViewModels.Tabs.MainTab.Commands;
+using stalker_gamma_gui.ViewModels.Tabs.MainTab.Enums;
+using stalker_gamma_gui.ViewModels.Tabs.MainTab.Factories;
+using stalker_gamma_gui.ViewModels.Tabs.MainTab.Models;
+using stalker_gamma_gui.ViewModels.Tabs.MainTab.Queries;
+using stalker_gamma_gui.ViewModels.Tabs.Queries;
 using stalker_gamma.core.Models;
 using stalker_gamma.core.Services;
-using stalker_gamma.core.Services.GammaInstaller;
-using stalker_gamma.core.Services.ModOrganizer.DowngradeModOrganizer;
+using stalker_gamma.core.Services.ModOrganizer;
+using stalker_gamma.core.Services.ModOrganizer.DownloadModOrganizer;
 using stalker_gamma.core.Utilities;
-using stalker_gamma.core.ViewModels.Services;
-using stalker_gamma.core.ViewModels.Tabs.MainTab.Commands;
-using stalker_gamma.core.ViewModels.Tabs.MainTab.Enums;
-using stalker_gamma.core.ViewModels.Tabs.MainTab.Factories;
-using stalker_gamma.core.ViewModels.Tabs.MainTab.Models;
-using stalker_gamma.core.ViewModels.Tabs.MainTab.Queries;
-using stalker_gamma.core.ViewModels.Tabs.Queries;
+using GammaInstaller = stalker_gamma_gui.Services.GammaInstaller.GammaInstaller;
+using ProgressService = stalker_gamma_gui.Services.ProgressService;
 
-namespace stalker_gamma.core.ViewModels.Tabs.MainTab;
+namespace stalker_gamma_gui.ViewModels.Tabs.MainTab;
 
 public partial class MainTabVm : ViewModelBase, IActivatableViewModel
 {
-    private readonly FileService _fileService;
     private readonly SettingsFileService _settingsFileService;
     private static readonly string Dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
     private readonly string _modsPath = Path.GetFullPath(Path.Join(Dir, "..", "mods"));
@@ -42,6 +44,7 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
     private ObservableAsPropertyHelper<string?>? _localGammaVersion;
     private ObservableAsPropertyHelper<bool?>? _userLtxSetToFullscreenWine;
     private ObservableAsPropertyHelper<string?>? _anomalyPath;
+    private ObservableAsPropertyHelper<string?>? _gammaPath;
     private ObservableAsPropertyHelper<string?>? _userLtxPath;
     private readonly ReadOnlyObservableCollection<ModDownloadExtractProgressVm> _modDownloadExtractProgressVms;
     private readonly ReadOnlyObservableCollection<ModListRecord> _localMods;
@@ -117,7 +120,8 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
         };
 
     public MainTabVm(
-        FileService fileService,
+        FilePickerService filePickerService,
+        AnomalyInstaller anomalyInstaller,
         IUserLtxReplaceFullscreenWithBorderlessFullscreen userLtxReplaceFullscreenWithBorderlessFullscreen,
         IUserLtxSetToFullscreenWine userLtxSetToFullscreenWine,
         IGetLocalGammaVersion getLocalGammaVersion,
@@ -128,14 +132,12 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
         IIsRanWithWineService isRanWithWineService,
         EnableLongPathsOnWindows.Handler enableLongPathsOnWindows,
         AddFoldersToWinDefenderExclusion.Handler addFoldersToWinDefenderExclusion,
-        GetAnomalyPath.Handler getAnomalyPathHandler,
-        GetGammaPath.Handler getGammaPathHandler,
         GetGammaBackupFolder.Handler getGammaBackupFolderHandler,
         ICurlService curlService,
         GammaInstaller gammaInstaller,
         ProgressService progressService,
         GlobalSettings globalSettings,
-        DowngradeModOrganizer downgradeModOrganizer,
+        DownloadModOrganizerService downloadModOrganizerService,
         IVersionService versionService,
         IIsBusyService isBusyService,
         DiffMods.Handler diffMods,
@@ -145,10 +147,11 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
         ModDownloadExtractProgressVmFactory modDownloadExtractProgressVmFactory,
         GetLocalMods.Handler getLocalModsHandler,
         ModalService modalService,
-        SettingsFileService settingsFileService
+        SettingsFileService settingsFileService,
+        WriteModOrganizerIniService writeModOrganizerIniService
     )
     {
-        _fileService = fileService;
+        var fileService1 = filePickerService;
         _settingsFileService = settingsFileService;
         Activator = new ViewModelActivator();
         IsBusyService = isBusyService;
@@ -201,29 +204,25 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
 
         observableList.Connect().Bind(out _modDownloadExtractProgressVms).Subscribe();
 
-        ShowSelectFolderCmd = ReactiveCommand.CreateFromTask(
-            async () =>
+        ShowSelectFolderCmd = ReactiveCommand.CreateFromTask(async () =>
+        {
+            if (settingsFileService.SettingsInitialized)
             {
-                if (settingsFileService.SettingsInitialized)
-                {
-                    return;
-                }
-
-                while (string.IsNullOrWhiteSpace(settingsFileService.SettingsFile.BaseGammaDirectory))
-                {
-                    settingsFileService.SettingsFile.BaseGammaDirectory =
-                        await _fileService.SelectFolder("Select Your Base GAMMA Folder");
-                }
-                await settingsFileService.SaveAsync();
-
-                if (
-                    !string.IsNullOrWhiteSpace(settingsFileService.SettingsFile.BaseGammaDirectory)
-                )
-                {
-                    settingsFileService.SettingsInitialized = true;
-                }
+                return;
             }
-        );
+
+            while (string.IsNullOrWhiteSpace(settingsFileService.SettingsFile.BaseGammaDirectory))
+            {
+                settingsFileService.SettingsFile.BaseGammaDirectory =
+                    await fileService1.SelectFolder("Select Your Base GAMMA Folder");
+            }
+            await settingsFileService.SaveAsync();
+
+            if (!string.IsNullOrWhiteSpace(settingsFileService.SettingsFile.BaseGammaDirectory))
+            {
+                settingsFileService.SettingsInitialized = true;
+            }
+        });
 
         GetModDownloadExtractProgressVmsCmd = ReactiveCommand.CreateFromTask(async () =>
             await getModDownloadExtractVmsHandler.ExecuteAsync()
@@ -235,10 +234,6 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
 
         IsRanWithWineCmd = ReactiveCommand.CreateFromTask(async () =>
             await Task.Run(isRanWithWineService.IsRanWithWine)
-        );
-
-        AnomalyPathCmd = ReactiveCommand.CreateFromTask(async () =>
-            await Task.Run(getAnomalyPathHandler.Execute)
         );
 
         var userLtxSetToFullscreenWineCanExec = this.WhenAnyValue(
@@ -271,18 +266,24 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
             )
         );
 
-        IsMo2InitializedCmd = ReactiveCommand.CreateFromTask(async () =>
-            await Task.Run(() =>
-                isMo2Initialized.Execute(
-                    new IsMo2Initialized.Query(
-                        Path.Join(
-                            Path.GetDirectoryName(AppContext.BaseDirectory),
-                            "..",
-                            "ModOrganizer.ini"
+        var canIsMo2Initialized = this.WhenAnyValue(
+            x => x._settingsFileService.SettingsInitialized,
+            x => x._settingsFileService.SettingsFile.GammaDir,
+            selector: (initialized, gammaDir) => initialized && !string.IsNullOrWhiteSpace(gammaDir)
+        );
+        IsMo2InitializedCmd = ReactiveCommand.CreateFromTask(
+            async () =>
+                await Task.Run(() =>
+                    isMo2Initialized.Execute(
+                        new IsMo2Initialized.Query(
+                            Path.Join(
+                                _settingsFileService.SettingsFile.GammaDir,
+                                "ModOrganizer.ini"
+                            )
                         )
                     )
-                )
-            )
+                ),
+            canIsMo2Initialized
         );
 
         IsMo2VersionDowngradedCmd = ReactiveCommand.CreateFromTask(async () =>
@@ -330,28 +331,32 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
         var canAddFoldersToWinDefenderExclusion = this.WhenAnyValue(
             x => x.IsRanWithWine,
             x => x.IsBusyService.IsBusy,
-            selector: (ranWithWine, isBusy) =>
-                !isBusy && !ranWithWine && operatingSystemService.IsWindows()
+            x => x.AnomalyPath,
+            x => x.GammaPath,
+            selector: (ranWithWine, isBusy, anomalyPath, gammaPath) =>
+                !isBusy
+                && !ranWithWine
+                && operatingSystemService.IsWindows()
+                && !string.IsNullOrWhiteSpace(anomalyPath)
+                && !string.IsNullOrWhiteSpace(gammaPath)
         );
         AddFoldersToWinDefenderExclusionCmd = ReactiveCommand.CreateFromTask(
             async () =>
             {
-                var anomalyPath = getAnomalyPathHandler.Execute()!.Replace(@"\\", "\\");
-                var gammaPath = getGammaPathHandler.Execute();
                 var gammaBackupPath = getGammaBackupFolderHandler.Execute();
                 await Task.Run(() =>
                     addFoldersToWinDefenderExclusion.Execute(
                         new AddFoldersToWinDefenderExclusion.Command(
-                            anomalyPath,
-                            gammaPath,
+                            AnomalyPath!,
+                            GammaPath!,
                             gammaBackupPath
                         )
                     )
                 );
                 return $"""
                 Added folder exclusions to Microsoft Defender for:
-                {anomalyPath}
-                {gammaPath}
+                {AnomalyPath}
+                {GammaPath}
                 {gammaBackupPath}
                 """;
             },
@@ -360,21 +365,28 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
 
         var canFirstInstallInitialization = this.WhenAnyValue(
             x => x.IsBusyService.IsBusy,
-            x => x.IsRanWithWine,
-            x => x.IsMo2VersionDowngraded,
-            selector: (isBusy, ranWithWine, isMo2Downgraded) =>
-                !isBusy
-                && File.Exists(mo2Path)
-                && (
-                    !ranWithWine
-                    || (ranWithWine && isMo2Downgraded.HasValue && isMo2Downgraded.Value)
-                )
+            x => x.IsMo2Initialized,
+            x => x._settingsFileService.SettingsInitialized,
+            selector: (isBusy, mo2Initialized, settingsInitialized) =>
+                !isBusy && !mo2Initialized && settingsInitialized
         );
         FirstInstallInitializationCmd = ReactiveCommand.CreateFromTask(
             async () =>
             {
+                var mo2Version = OperatingSystem.IsWindows() ? "v.2.5.2" : "v2.4.4";
                 IsBusyService.IsBusy = true;
-                await gammaInstaller.FirstInstallInitialization();
+                await downloadModOrganizerService.DownloadAsync(
+                    mo2Version,
+                    _settingsFileService.SettingsFile.CacheDir!,
+                    _settingsFileService.SettingsFile.GammaDir
+                );
+                var drivePrefix = OperatingSystem.IsWindows() ? "C:" : "Z:";
+                await writeModOrganizerIniService.WriteAsync(
+                    _settingsFileService.SettingsFile.GammaDir!,
+                    _settingsFileService.SettingsFile.AnomalyDir!,
+                    mo2Version,
+                    drivePrefix
+                );
                 IsBusyService.IsBusy = false;
             },
             canFirstInstallInitialization
@@ -391,13 +403,17 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                 )
                     ?.FirstOrDefault()
                     ?[..9];
-                var localGammaVersionHash = (
-                    await getStalkerGammaLastCommit.ExecuteAsync(
-                        new GetStalkerGammaLastCommit.Query(
-                            Path.Join(Dir, "resources", "Stalker_GAMMA")
+                var stalkerGammaRepoPath = Path.Join(
+                    _settingsFileService.SettingsFile.CacheDir,
+                    "Stalker_GAMMA"
+                );
+                var localGammaVersionHash = File.Exists(stalkerGammaRepoPath)
+                    ? (
+                        await getStalkerGammaLastCommit.ExecuteAsync(
+                            new GetStalkerGammaLastCommit.Query(stalkerGammaRepoPath)
                         )
-                    )
-                )[..9];
+                    )[..9]
+                    : "";
                 GammaVersionToolTip = $"""
                 Remote Version: {needUpdates.gammaVersions.RemoteVersion} ({remoteGammaVersionHash})
                 Local Version: {needUpdates.gammaVersions.LocalVersion} ({localGammaVersionHash})
@@ -433,7 +449,7 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                 !isBusy
                 && toolsReady
                 && (
-                    !operatingSystemService.IsWindows()
+                    (!operatingSystemService.IsWindows() && mo2Initialized)
                     || (
                         operatingSystemService.IsWindows()
                         && mo2Initialized
@@ -458,7 +474,9 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                         DeleteReshadeDlls,
                         PreserveUserLtx,
                         ModDownloadExtractProgressVms ?? throw new InvalidOperationException(),
-                        locker
+                        locker,
+                        GammaPath!,
+                        AnomalyPath!
                     )
                 );
                 IsBusyService.IsBusy = false;
@@ -487,8 +505,8 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                     )
                 )
                 && !string.IsNullOrWhiteSpace(localGammaVersion)
-                && localGammaVersion != "200"
-                && localGammaVersion != "865"
+                && int.TryParse(localGammaVersion, out var parsedLocalGammaVersion)
+                && parsedLocalGammaVersion >= 920
         );
         PlayCmd = ReactiveCommand.CreateFromTask(
             async () =>
@@ -498,23 +516,6 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                 IsBusyService.IsBusy = false;
             },
             canPlay
-        );
-
-        var canDowngradeModOrganizer = this.WhenAnyValue(
-            x => x.IsBusyService.IsBusy,
-            x => x.IsMo2VersionDowngraded,
-            x => x.IsRanWithWine,
-            selector: (isBusy, isMo2Downgraded, ranWithWine) =>
-                !isBusy && isMo2Downgraded.HasValue && !isMo2Downgraded.Value && ranWithWine
-        );
-        DowngradeModOrganizerCmd = ReactiveCommand.CreateFromTask(
-            async () =>
-            {
-                IsBusyService.IsBusy = true;
-                await Task.Run(() => downgradeModOrganizer.DowngradeAsync());
-                IsBusyService.IsBusy = false;
-            },
-            canDowngradeModOrganizer
         );
 
         AppendLineInteraction = new Interaction<string, Unit>();
@@ -573,26 +574,40 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                         modProgressVms.Edit(inner =>
                         {
                             inner.Clear();
+
+                            var minCounter = x.MinBy(y => y.Counter)!.Counter;
                             inner.AddRange(
-                                [new GitRecord { AddonName = "Stalker_GAMMA", Counter = -1 }]
+                                [
+                                    new ModpackSpecific
+                                    {
+                                        AddonName = "Anomaly",
+                                        Counter = --minCounter,
+                                    },
+                                ]
                             );
                             inner.AddRange(x);
+                            var maxCounter = x.MaxBy(y => y.Counter)!.Counter;
                             inner.AddRange(
                                 [
                                     new GitRecord
                                     {
+                                        AddonName = "Stalker_GAMMA",
+                                        Counter = ++maxCounter,
+                                    },
+                                    new GitRecord
+                                    {
                                         AddonName = "gamma_large_files_v2",
-                                        Counter = 999997,
+                                        Counter = ++maxCounter,
                                     },
                                     new GitRecord
                                     {
                                         AddonName = "teivaz_anomaly_gunslinger",
-                                        Counter = 999998,
+                                        Counter = ++maxCounter,
                                     },
                                     new ModpackSpecific
                                     {
                                         AddonName = "modpack_addons",
-                                        Counter = 999999,
+                                        Counter = ++maxCounter,
                                     },
                                 ]
                             );
@@ -637,12 +652,6 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                     .DisposeWith(d);
                 _isRanWithWine = IsRanWithWineCmd
                     .ToProperty(this, x => x.IsRanWithWine)
-                    .DisposeWith(d);
-                DowngradeModOrganizerCmd
-                    .ThrownExceptions.Subscribe(x => modalService.ShowErrorDlg(x.Message))
-                    .DisposeWith(d);
-                DowngradeModOrganizerCmd
-                    .Subscribe(_ => IsMo2VersionDowngradedCmd.Execute().Subscribe().DisposeWith(d))
                     .DisposeWith(d);
                 PlayCmd
                     .ThrownExceptions.Subscribe(x =>
@@ -803,18 +812,6 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                         UserLtxSetToFullscreenWineCmd.Execute().Subscribe().DisposeWith(d)
                     )
                     .DisposeWith(d);
-                AnomalyPathCmd
-                    .ThrownExceptions.Subscribe(x =>
-                    {
-                        modalService.ShowErrorDlg(
-                            $"""
-                            ERROR FINDING ANOMALY PATH
-                            {x.Message}
-                            {x.StackTrace}
-                            """
-                        );
-                    })
-                    .DisposeWith(d);
                 IsMo2VersionDowngradedCmd
                     .ThrownExceptions.Subscribe(x =>
                     {
@@ -854,7 +851,25 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                 _userLtxSetToFullscreenWine = UserLtxSetToFullscreenWineCmd
                     .ToProperty(this, x => x.UserLtxSetToFullscreenWine)
                     .DisposeWith(d);
-                _anomalyPath = AnomalyPathCmd.ToProperty(this, x => x.AnomalyPath).DisposeWith(d);
+
+                _anomalyPath = this.WhenAnyValue(
+                        x => x._settingsFileService.SettingsInitialized,
+                        x => x._settingsFileService.SettingsFile.AnomalyDir,
+                        selector: (initialized, anomalyDir) => (initialized, anomalyDir)
+                    )
+                    .Where(x => x.initialized)
+                    .Select(x => x.anomalyDir)
+                    .ToProperty(this, x => x.AnomalyPath)
+                    .DisposeWith(d);
+                _gammaPath = this.WhenAnyValue(
+                        x => x._settingsFileService.SettingsInitialized,
+                        x => x._settingsFileService.SettingsFile.GammaDir,
+                        selector: (initialized, gammaDir) => (initialized, gammaDir)
+                    )
+                    .Where(x => x.initialized)
+                    .Select(x => x.gammaDir)
+                    .ToProperty(this, x => x.GammaPath)
+                    .DisposeWith(d);
 
                 _userLtxPath = this.WhenAnyValue(x => x.AnomalyPath)
                     .Select(x => Path.Join(x, "appdata", "user.ltx"))
@@ -864,14 +879,6 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                     .Select(x => x.CurlReady)
                     .ToProperty(this, x => x.ToolsReady)
                     .DisposeWith(d);
-
-                AnomalyPathCmd.Execute().Subscribe().DisposeWith(d);
-
-                LocalGammaVersionsCmd.Execute().Subscribe().DisposeWith(d);
-
-                IsMo2VersionDowngradedCmd.Execute().Subscribe().DisposeWith(d);
-
-                IsMo2InitializedCmd.Execute().Subscribe().DisposeWith(d);
 
                 IsRanWithWineCmd.Execute().Subscribe().DisposeWith(d);
 
@@ -885,6 +892,11 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                             .Where(x => x.CurlReady)
                             .Subscribe(_ =>
                             {
+                                IsMo2InitializedCmd.Execute().Subscribe().DisposeWith(d);
+                                IsMo2VersionDowngradedCmd.Execute().Subscribe().DisposeWith(d);
+
+                                LocalGammaVersionsCmd.Execute().Subscribe().DisposeWith(d);
+
                                 GetModDownloadExtractProgressVmsCmd
                                     .Execute()
                                     .Subscribe()
@@ -948,18 +960,6 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
         set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
-    public bool ForceGitDownload
-    {
-        get;
-        set => this.RaiseAndSetIfChanged(ref field, value);
-    } = true;
-
-    public bool ForceZipExtraction
-    {
-        get;
-        set => this.RaiseAndSetIfChanged(ref field, value);
-    } = true;
-
     public bool DeleteReshadeDlls
     {
         get;
@@ -986,6 +986,7 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
 
     public string? AnomalyPath => _anomalyPath?.Value;
     public string? UserLtxPath => _userLtxPath?.Value;
+    public string? GammaPath => _gammaPath?.Value;
 
     public ReactiveCommand<Unit, bool> IsRanWithWineCmd { get; set; }
     public ReactiveCommand<Unit, Unit> EnableLongPathsOnWindowsCmd { get; set; }
@@ -995,7 +996,6 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
     public ReactiveCommand<Unit, Unit> InstallUpdateGammaCmd { get; }
     public ReactiveCommand<Unit, Unit> PlayCmd { get; }
     public ReactiveCommand<string, Unit> OpenUrlCmd { get; }
-    public ReactiveCommand<Unit, Unit> DowngradeModOrganizerCmd { get; }
     public ReactiveCommand<Unit, Unit> BackgroundCheckUpdatesCmd { get; }
     public ReactiveCommand<Unit, bool?> LongPathsStatusCmd { get; }
     public ReactiveCommand<Unit, bool?> IsMo2VersionDowngradedCmd { get; }
@@ -1003,7 +1003,6 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
     public ReactiveCommand<Unit, string?> LocalGammaVersionsCmd { get; }
     public ReactiveCommand<Unit, bool?> UserLtxSetToFullscreenWineCmd { get; }
     public ReactiveCommand<string, Unit> UserLtxReplaceFullscreenWithBorderlessFullscreen { get; }
-    public ReactiveCommand<Unit, string?> AnomalyPathCmd { get; }
     public ReactiveCommand<Unit, IList<ModListRecord>> GetModDownloadExtractProgressVmsCmd { get; }
     private ReactiveCommand<Unit, IList<ModListRecord>> GetLocalModsCmd { get; }
     public ViewModelActivator Activator { get; }

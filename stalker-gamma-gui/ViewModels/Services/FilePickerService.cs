@@ -2,9 +2,9 @@
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 
-namespace stalker_gamma.core.Services;
+namespace stalker_gamma_gui.Services;
 
-public class FileService(Window window)
+public class FilePickerService(Window window)
 {
     public async Task<string?> SelectFolder(string title)
     {

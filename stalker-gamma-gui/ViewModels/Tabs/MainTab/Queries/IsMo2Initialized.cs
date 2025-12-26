@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace stalker_gamma.core.ViewModels.Tabs.MainTab.Queries;
+namespace stalker_gamma_gui.ViewModels.Tabs.MainTab.Queries;
 
 public interface IIsMo2Initialized
 {

@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Linq;
 using Avalonia.Data;
 using Avalonia.Data.Converters;
-using stalker_gamma.core.ViewModels.Tabs.BackupTab;
+using stalker_gamma_gui.ViewModels.Tabs.BackupTab;
 
 namespace stalker_gamma_gui.Converters;
 

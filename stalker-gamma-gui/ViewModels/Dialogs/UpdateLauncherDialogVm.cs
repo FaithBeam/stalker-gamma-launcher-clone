@@ -8,7 +8,7 @@ using ReactiveUI;
 using stalker_gamma.core.Models;
 using stalker_gamma.core.Services;
 
-namespace stalker_gamma.core.ViewModels.Dialogs;
+namespace stalker_gamma_gui.ViewModels.Dialogs;
 
 public class UpdateLauncherDialogVm : ReactiveObject, IActivatableViewModel
 {

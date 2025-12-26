@@ -1,4 +1,4 @@
-﻿namespace stalker_gamma.core.ViewModels.Tabs.GammaUpdatesTab.Models;
+﻿namespace stalker_gamma_gui.ViewModels.Tabs.GammaUpdatesTab.Models;
 
 public enum GitDiffType
 {

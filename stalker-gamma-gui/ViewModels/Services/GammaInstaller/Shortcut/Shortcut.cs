@@ -1,6 +1,7 @@
 using System.IO;
+using stalker_gamma.core.Services;
 
-namespace stalker_gamma.core.Services.GammaInstaller.Shortcut;
+namespace stalker_gamma_gui.Services.GammaInstaller.Shortcut;
 
 public class Shortcut(IOperatingSystemService operatingSystemService)
 {

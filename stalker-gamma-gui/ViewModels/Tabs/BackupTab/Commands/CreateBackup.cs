@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using stalker_gamma_gui.ViewModels.Tabs.BackupTab.Enums;
+using stalker_gamma_gui.ViewModels.Tabs.BackupTab.Services;
 using stalker_gamma.core.Utilities;
-using stalker_gamma.core.ViewModels.Tabs.BackupTab.Enums;
-using stalker_gamma.core.ViewModels.Tabs.BackupTab.Services;
 
-namespace stalker_gamma.core.ViewModels.Tabs.BackupTab.Commands;
+namespace stalker_gamma_gui.ViewModels.Tabs.BackupTab.Commands;
 
 public static class CreateBackup
 {

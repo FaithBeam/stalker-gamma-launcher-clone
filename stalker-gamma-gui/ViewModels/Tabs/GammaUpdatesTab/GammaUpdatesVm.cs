@@ -8,13 +8,13 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using DynamicData;
 using ReactiveUI;
-using stalker_gamma.core.Services;
+using stalker_gamma_gui.Services;
+using stalker_gamma_gui.ViewModels.Services;
+using stalker_gamma_gui.ViewModels.Tabs.GammaUpdatesTab.Models;
+using stalker_gamma_gui.ViewModels.Tabs.GammaUpdatesTab.Queries;
 using stalker_gamma.core.Utilities;
-using stalker_gamma.core.ViewModels.Services;
-using stalker_gamma.core.ViewModels.Tabs.GammaUpdatesTab.Models;
-using stalker_gamma.core.ViewModels.Tabs.GammaUpdatesTab.Queries;
 
-namespace stalker_gamma.core.ViewModels.Tabs.GammaUpdatesTab;
+namespace stalker_gamma_gui.ViewModels.Tabs.GammaUpdatesTab;
 
 public interface IGammaUpdatesVm
 {

@@ -3,7 +3,7 @@
   "profiles": {
     "full-install": {
       "commandName": "Project",
-      "commandLineArgs": "full-install --anomaly C:\\gamma\\anomaly --gamma C:\\gamma\\gamma --cache C:\\gamma\\cache --download-threads 4 --extract-threads 4"
+      "commandLineArgs": "full-install --anomaly anomaly --gamma gamma --cache cache --download-threads 4 --extract-threads 4"
     }
   }
 }

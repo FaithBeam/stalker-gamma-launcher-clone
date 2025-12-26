@@ -1,5 +1,5 @@
 ﻿using Avalonia.ReactiveUI;
-using stalker_gamma.core.ViewModels.Tabs.ModDbUpdatesTab;
+using stalker_gamma_gui.ViewModels.Tabs.ModDbUpdatesTab;
 
 namespace stalker_gamma_gui.Controls.Tabs;
 

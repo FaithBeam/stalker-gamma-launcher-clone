@@ -1,8 +1,8 @@
 ﻿using System.IO;
 using System.Linq;
-using stalker_gamma.core.ViewModels.Tabs.BackupTab.Models;
+using stalker_gamma_gui.ViewModels.Tabs.BackupTab.Models;
 
-namespace stalker_gamma.core.ViewModels.Tabs.BackupTab.Queries;
+namespace stalker_gamma_gui.ViewModels.Tabs.BackupTab.Queries;
 
 public static class GetDriveSpaceStats
 {

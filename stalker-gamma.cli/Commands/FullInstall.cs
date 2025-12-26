@@ -4,25 +4,26 @@ using stalker_gamma.cli.Services;
 using stalker_gamma.core.Models;
 using stalker_gamma.core.Services;
 using stalker_gamma.core.Services.ModOrganizer;
-using stalker_gamma.core.Services.ModOrganizer.DowngradeModOrganizer;
+using stalker_gamma.core.Services.ModOrganizer.DownloadModOrganizer;
 using stalker_gamma.core.Utilities;
-using AnomalyInstaller = stalker_gamma.cli.Services.AnomalyInstaller;
 
 namespace stalker_gamma.cli.Commands;
 
 [RegisterCommands]
 public class FullInstallCmd(
     GlobalSettings globalSettings,
-    AnomalyInstaller anomalyInstaller,
-    CustomGammaInstaller gammaInstaller,
+    EnrichAnomalyInstaller anomalyInstaller,
+    EnrichGammaInstaller gammaInstaller,
     InstallModOrganizerGammaProfile installModOrganizerGammaProfile,
-    DowngradeModOrganizer downgradeModOrganizer,
-    WriteModOrganizerIni writeModOrganizerIni,
+    DownloadModOrganizerService downloadModOrganizerService,
+    WriteModOrganizerIniService writeModOrganizerIniService,
     DisableNexusModHandlerLink disableNexusModHandlerLink,
     ILogger logger,
     AddFoldersToWinDefenderExclusionService addFoldersToWinDefenderExclusionService,
     EnableLongPathsOnWindowsService enableLongPathsOnWindowsService,
-    GitUtility gitUtility
+    GitUtility gitUtility,
+    GetAddonsFromApiService getAddonsFromApiService,
+    WriteSeparatorsService writeSeparatorsService
 )
 {
     private readonly ILogger _logger = logger;
@@ -48,6 +49,7 @@ public class FullInstallCmd(
     /// <param name="stalkerAnomalyModdbUrl">Escape hatch for Stalker Anomaly</param>
     /// <param name="stalkerAnomalyArchiveMd5">The hash of the archive downloaded from --stalker-anomaly-moddb-url</param>
     public async Task FullInstall(
+        // ReSharper disable once InvalidXmlDocComment
         CancellationToken cancellationToken,
         string anomaly,
         string gamma,
@@ -87,7 +89,12 @@ public class FullInstallCmd(
             mo2Version = "v2.4.4";
         }
 
+        Directory.CreateDirectory(anomaly);
+        Directory.CreateDirectory(gamma);
+        Directory.CreateDirectory(cache);
         var anomalyCacheArchivePath = Path.Join(cache, anomalyArchiveName);
+        var gammaDownloadsDir = Path.GetFullPath(Path.Join(gamma, "downloads"));
+        CreateSymbolicLinkUtility.Create(gammaDownloadsDir, Path.GetFullPath(cache));
 
         if (OperatingSystem.IsWindows())
         {
@@ -102,19 +109,49 @@ public class FullInstallCmd(
             }
         }
 
-        var anomalyTask = Task.Run(async () =>
-            await anomalyInstaller.DownloadAndExtractAsync(anomalyCacheArchivePath, anomaly, cancellationToken), cancellationToken);
+        var anomalyTask = Task.Run(
+            async () =>
+                await anomalyInstaller.DownloadAndExtractAsync(
+                    anomalyCacheArchivePath,
+                    anomaly,
+                    cancellationToken
+                ),
+            cancellationToken
+        );
 
-        var gammaTask = Task.Run(async () =>
-            await gammaInstaller.InstallAsync(anomaly, anomalyTask, gamma, cache, cancellationToken), cancellationToken);
+        var addons = await getAddonsFromApiService.GetAddonsAsync(cancellationToken);
 
-        var downgradeModOrganizerTask = Task.Run(async () =>
-            await downgradeModOrganizer.DowngradeAsync(
-                cachePath: cache,
-                extractPath: gamma,
-                version: mo2Version,
-                cancellationToken: cancellationToken
-            ), cancellationToken);
+        var gammaModsPath = Path.Join(gamma, "mods");
+        var separators = addons
+            .Where(kvp => kvp.Value is Separator)
+            .Select(kvp => kvp.Value)
+            .Cast<Separator>()
+            .Select(kvp => Path.Join(gammaModsPath, kvp.FolderName));
+        await writeSeparatorsService.WriteAsync(separators);
+
+        var gammaTask = Task.Run(
+            async () =>
+                await gammaInstaller.InstallAsync(
+                    addons,
+                    anomaly,
+                    anomalyTask,
+                    gamma,
+                    cache,
+                    cancellationToken
+                ),
+            cancellationToken
+        );
+
+        var downgradeModOrganizerTask = Task.Run(
+            async () =>
+                await downloadModOrganizerService.DownloadAsync(
+                    cachePath: cache,
+                    extractPath: gamma,
+                    version: mo2Version,
+                    cancellationToken: cancellationToken
+                ),
+            cancellationToken
+        );
 
         await Task.WhenAll(anomalyTask, gammaTask, downgradeModOrganizerTask);
 
@@ -122,7 +159,7 @@ public class FullInstallCmd(
             Path.Join(gamma, "downloads", "Stalker_GAMMA"),
             gamma
         );
-        await writeModOrganizerIni.WriteAsync(
+        await writeModOrganizerIniService.WriteAsync(
             gamma,
             anomaly,
             OperatingSystem.IsWindows() ? "C:" : "Z:"
