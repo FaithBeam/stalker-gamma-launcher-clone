@@ -20,10 +20,10 @@ public class MainWindowVm : ViewModelBase, IActivatableViewModel
 {
     public MainWindowVm(
         MainTabVm mainTabVm,
-        IGammaUpdatesVm gammaUpdatesVm,
-        IModDbUpdatesTabVm modDbUpdatesTabVm,
-        IModListTabVm modListTabVm,
-        IBackupTabVm backupTabVm,
+        GammaUpdatesVm gammaUpdatesVm,
+        ModDbUpdatesTabVm modDbUpdatesTabVm,
+        ModListTabVm modListTabVm,
+        BackupTabVm backupTabVm,
         IIsBusyService isBusyService,
         ModalService modalService,
         UpdateAvailable.Handler updateAvailableHandler,
@@ -66,10 +66,10 @@ public class MainWindowVm : ViewModelBase, IActivatableViewModel
     }
 
     public MainTabVm MainTabVm { get; }
-    public IGammaUpdatesVm GammaUpdatesVm { get; }
-    public IModDbUpdatesTabVm ModDbUpdatesTabVm { get; }
-    public IModListTabVm ModListTabVm { get; }
-    public IBackupTabVm BackupTabVm { get; }
+    public GammaUpdatesVm GammaUpdatesVm { get; }
+    public ModDbUpdatesTabVm ModDbUpdatesTabVm { get; }
+    public ModListTabVm ModListTabVm { get; }
+    public BackupTabVm BackupTabVm { get; }
     public IIsBusyService IsBusyService { get; }
     public ModalService ModalService { get; }
     public ViewModelActivator Activator { get; }

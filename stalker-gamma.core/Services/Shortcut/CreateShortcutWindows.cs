@@ -1,8 +1,6 @@
-using System;
-using System.IO;
 using WindowsShortcutFactory;
 
-namespace stalker_gamma_gui.Services.GammaInstaller.Shortcut;
+namespace stalker_gamma.core.Services.Shortcut;
 
 public static class CreateShortcutWindows
 {

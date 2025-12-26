@@ -16,24 +16,7 @@ using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma_gui.ViewModels.Tabs.GammaUpdatesTab;
 
-public interface IGammaUpdatesVm
-{
-    ViewModelActivator Activator { get; }
-    bool IsLoading { get; }
-    IInteraction<GitDiffWindowVm, Unit> OpenGitDiffFileWindowInteraction { get; }
-    ReactiveCommand<string, Unit> OpenGitDiffFileWindowCmd { get; }
-    ReadOnlyObservableCollection<GitDiff> Diffs { get; }
-    IObservable<IReactivePropertyChangedEventArgs<IReactiveObject>> Changing { get; }
-    IObservable<IReactivePropertyChangedEventArgs<IReactiveObject>> Changed { get; }
-    IObservable<Exception> ThrownExceptions { get; }
-    IDisposable SuppressChangeNotifications();
-    bool AreChangeNotificationsEnabled();
-    IDisposable DelayChangeNotifications();
-    event PropertyChangingEventHandler? PropertyChanging;
-    event PropertyChangedEventHandler? PropertyChanged;
-}
-
-public class GammaUpdatesVm : ViewModelBase, IActivatableViewModel, IGammaUpdatesVm
+public class GammaUpdatesVm : ViewModelBase, IActivatableViewModel
 {
     private readonly ProgressService _ps;
     private readonly GetGitDiffFile.Handler _getGitDiffFileHandler;
@@ -48,8 +31,7 @@ public class GammaUpdatesVm : ViewModelBase, IActivatableViewModel, IGammaUpdate
         ProgressService ps,
         GetGitDiff.Handler getGitDiffHandler,
         GetGitDiffFile.Handler getGitDiffFileHandler,
-        ModalService modalService,
-        GitUtility gitUtility
+        ModalService modalService
     )
     {
         _ps = ps;
@@ -68,7 +50,7 @@ public class GammaUpdatesVm : ViewModelBase, IActivatableViewModel, IGammaUpdate
         var getGitDiffCmd = ReactiveCommand.CreateFromTask(() =>
             Task.Run(async () =>
             {
-                await gitUtility.ExecuteGitCmdAsync(stalkerGammaRepoPath, ["fetch", "origin"]);
+                await GitUtility.ExecuteGitCmdAsync(stalkerGammaRepoPath, ["fetch", "origin"]);
                 return await getGitDiffHandler.Execute(
                     new GetGitDiff.Query(Path.Join(_dir, "resources", "Stalker_GAMMA"))
                 );

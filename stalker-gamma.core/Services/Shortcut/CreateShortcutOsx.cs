@@ -1,6 +1,4 @@
-using System;
-
-namespace stalker_gamma_gui.Services.GammaInstaller.Shortcut;
+namespace stalker_gamma.core.Services.Shortcut;
 
 public class CreateShortcutOsx
 {

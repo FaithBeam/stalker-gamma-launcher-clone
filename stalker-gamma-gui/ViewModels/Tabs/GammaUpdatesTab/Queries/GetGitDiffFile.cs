@@ -7,11 +7,14 @@ public static class GetGitDiffFile
 {
     public sealed record Query(string Dir, string PathToFile);
 
-    public sealed class Handler(GitUtility gu)
+    public sealed class Handler
     {
         public async Task<string> Execute(Query q) =>
             (
-                await gu.ExecuteGitCmdAsync(q.Dir, ["diff", "main", "origin/main", q.PathToFile])
+                await GitUtility.ExecuteGitCmdAsync(
+                    q.Dir,
+                    ["diff", "main", "origin/main", q.PathToFile]
+                )
             ).StdOut;
     }
 }

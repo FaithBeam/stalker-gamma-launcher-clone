@@ -22,6 +22,7 @@ using stalker_gamma_gui.ViewModels.Tabs.MainTab.Queries;
 using stalker_gamma_gui.ViewModels.Tabs.Queries;
 using stalker_gamma.core.Models;
 using stalker_gamma.core.Services;
+using stalker_gamma.core.Services.GammaInstallerServices;
 using stalker_gamma.core.Services.ModOrganizer;
 using stalker_gamma.core.Services.ModOrganizer.DownloadModOrganizer;
 using stalker_gamma.core.Utilities;
@@ -127,7 +128,6 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
         IGetLocalGammaVersion getLocalGammaVersion,
         IIsMo2Initialized isMo2Initialized,
         IIsMo2VersionDowngraded isMo2VersionDowngraded,
-        IOperatingSystemService operatingSystemService,
         IILongPathsStatusService longPathsStatusHandler,
         IIsRanWithWineService isRanWithWineService,
         EnableLongPathsOnWindows.Handler enableLongPathsOnWindows,
@@ -307,7 +307,7 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
             x => x.LongPathsStatus,
             selector: (ranWithWine, longPathsStatus) =>
                 !ranWithWine
-                && operatingSystemService.IsWindows()
+                && OperatingSystem.IsWindows()
                 && longPathsStatus.HasValue
                 && !longPathsStatus.Value
         );
@@ -336,7 +336,7 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
             selector: (ranWithWine, isBusy, anomalyPath, gammaPath) =>
                 !isBusy
                 && !ranWithWine
-                && operatingSystemService.IsWindows()
+                && OperatingSystem.IsWindows()
                 && !string.IsNullOrWhiteSpace(anomalyPath)
                 && !string.IsNullOrWhiteSpace(gammaPath)
         );
@@ -380,12 +380,10 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                     _settingsFileService.SettingsFile.CacheDir!,
                     _settingsFileService.SettingsFile.GammaDir
                 );
-                var drivePrefix = OperatingSystem.IsWindows() ? "C:" : "Z:";
                 await writeModOrganizerIniService.WriteAsync(
                     _settingsFileService.SettingsFile.GammaDir!,
                     _settingsFileService.SettingsFile.AnomalyDir!,
-                    mo2Version,
-                    drivePrefix
+                    mo2Version
                 );
                 IsBusyService.IsBusy = false;
             },
@@ -449,15 +447,15 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                 !isBusy
                 && toolsReady
                 && (
-                    (!operatingSystemService.IsWindows() && mo2Initialized)
+                    (!OperatingSystem.IsWindows() && mo2Initialized)
                     || (
-                        operatingSystemService.IsWindows()
+                        OperatingSystem.IsWindows()
                         && mo2Initialized
                         && !isRanWithWine
                         && longPathsStatus.HasValue
                         && longPathsStatus.Value
                     )
-                    || operatingSystemService.IsWindows()
+                    || OperatingSystem.IsWindows()
                         && mo2Initialized
                         && isRanWithWine
                         && mo2Downgraded.HasValue
@@ -499,7 +497,7 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                     ranWithWine
                     || (
                         !ranWithWine
-                        && operatingSystemService.IsWindows()
+                        && OperatingSystem.IsWindows()
                         && longPathsStatus.HasValue
                         && longPathsStatus.Value
                     )

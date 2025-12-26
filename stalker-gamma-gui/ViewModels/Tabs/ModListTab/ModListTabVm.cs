@@ -12,26 +12,7 @@ using stalker_gamma_gui.Services;
 
 namespace stalker_gamma_gui.ViewModels.Tabs.ModListTab;
 
-public interface IModListTabVm
-{
-    ReactiveCommand<Unit, Unit> GetModListCmd { get; }
-    ReactiveCommand<Unit, Unit> SaveCmd { get; }
-    ObservableCollection<ModNode> ModsList { get; set; }
-    ViewModelActivator Activator { get; }
-    int ModsActive { get; set; }
-    int TotalMods { get; set; }
-    string ModsToolTip { get; set; }
-    IObservable<IReactivePropertyChangedEventArgs<IReactiveObject>> Changing { get; }
-    IObservable<IReactivePropertyChangedEventArgs<IReactiveObject>> Changed { get; }
-    IObservable<Exception> ThrownExceptions { get; }
-    IDisposable SuppressChangeNotifications();
-    bool AreChangeNotificationsEnabled();
-    IDisposable DelayChangeNotifications();
-    event PropertyChangingEventHandler? PropertyChanging;
-    event PropertyChangedEventHandler? PropertyChanged;
-}
-
-public class ModListTabVm : ViewModelBase, IActivatableViewModel, IModListTabVm
+public class ModListTabVm : ViewModelBase, IActivatableViewModel
 {
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
 

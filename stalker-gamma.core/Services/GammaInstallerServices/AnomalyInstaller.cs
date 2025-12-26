@@ -1,7 +1,7 @@
 ﻿using stalker_gamma.core.Models;
 using stalker_gamma.core.Utilities;
 
-namespace stalker_gamma.core.Services;
+namespace stalker_gamma.core.Services.GammaInstallerServices;
 
 public class AnomalyInstaller(GlobalSettings globalSettings, ModDb modDb)
 {

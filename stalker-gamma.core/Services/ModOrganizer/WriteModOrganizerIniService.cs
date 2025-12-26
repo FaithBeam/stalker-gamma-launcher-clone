@@ -2,17 +2,14 @@ namespace stalker_gamma.core.Services.ModOrganizer;
 
 public class WriteModOrganizerIniService
 {
-    public async Task WriteAsync(
-        string gammaPath,
-        string anomalyPath,
-        string mo2Version,
-        string drivePrefix = "Z:"
-    )
+    public async Task WriteAsync(string gammaPath, string anomalyPath, string mo2Version)
     {
-        var gammaPathWithDrivePrefix =
+        var drivePrefix = OperatingSystem.IsWindows() ? "C:" : "Z:";
+        var gammaPathWithDrivePrefix = (
             OperatingSystem.IsWindows() && Path.IsPathRooted(gammaPath)
                 ? gammaPath
-                : Path.Join(drivePrefix, Path.GetFullPath(gammaPath));
+                : Path.Join(drivePrefix, Path.GetFullPath(gammaPath))
+        ).Replace(@"\", "/");
         var anomalyPathWithDrivePrefix = (
             OperatingSystem.IsWindows() && Path.IsPathRooted(anomalyPath)
                 ? anomalyPath

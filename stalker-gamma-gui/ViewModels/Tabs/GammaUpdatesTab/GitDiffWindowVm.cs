@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -9,22 +8,7 @@ using stalker_gamma_gui.ViewModels.Tabs.GammaUpdatesTab.Queries;
 
 namespace stalker_gamma_gui.ViewModels.Tabs.GammaUpdatesTab;
 
-public interface IGitDiffWindowVm
-{
-    IInteraction<string, Unit> GitDiffFileInteraction { get; }
-    string FilePath { get; init; }
-    ViewModelActivator Activator { get; }
-    IObservable<IReactivePropertyChangedEventArgs<IReactiveObject>> Changing { get; }
-    IObservable<IReactivePropertyChangedEventArgs<IReactiveObject>> Changed { get; }
-    IObservable<Exception> ThrownExceptions { get; }
-    IDisposable SuppressChangeNotifications();
-    bool AreChangeNotificationsEnabled();
-    IDisposable DelayChangeNotifications();
-    event PropertyChangingEventHandler? PropertyChanging;
-    event PropertyChangedEventHandler? PropertyChanged;
-}
-
-public class GitDiffWindowVm : ViewModelBase, IActivatableViewModel, IGitDiffWindowVm
+public class GitDiffWindowVm : ViewModelBase, IActivatableViewModel
 {
     public GitDiffWindowVm(
         GetGitDiffFile.Handler gitDiffFileHandler,

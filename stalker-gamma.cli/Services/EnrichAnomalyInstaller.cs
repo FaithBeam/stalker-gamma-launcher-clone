@@ -1,5 +1,6 @@
 using Serilog;
 using stalker_gamma.core.Services;
+using stalker_gamma.core.Services.GammaInstallerServices;
 
 namespace stalker_gamma.cli.Services;
 
@@ -10,9 +11,6 @@ public class EnrichAnomalyInstaller(
     ProgressService progressService
 )
 {
-    private const string StructuredLog =
-        "{AddonName} | {Operation} | {Percent} | {TotalProgress:P2}";
-
     public async Task DownloadAndExtractAsync(
         string archivePath,
         string extractDirectory,
@@ -56,5 +54,7 @@ public class EnrichAnomalyInstaller(
         _progressService.IncrementCompleted();
     }
 
+    private const string StructuredLog =
+        "{AddonName} | {Operation} | {Percent} | {TotalProgress:P2}";
     private readonly ProgressService _progressService = progressService;
 }

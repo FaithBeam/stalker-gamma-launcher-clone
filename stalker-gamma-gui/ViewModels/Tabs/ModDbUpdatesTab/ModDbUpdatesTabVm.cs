@@ -15,23 +15,7 @@ using stalker_gamma.core.Services;
 
 namespace stalker_gamma_gui.ViewModels.Tabs.ModDbUpdatesTab;
 
-public interface IModDbUpdatesTabVm
-{
-    bool IsLoading { get; }
-    ReactiveCommand<Unit, Unit> GetOnlineModsCmd { get; }
-    ReadOnlyObservableCollection<UpdateableModVm> UpdateableMods { get; }
-    ViewModelActivator Activator { get; }
-    IObservable<IReactivePropertyChangedEventArgs<IReactiveObject>> Changing { get; }
-    IObservable<IReactivePropertyChangedEventArgs<IReactiveObject>> Changed { get; }
-    IObservable<Exception> ThrownExceptions { get; }
-    IDisposable SuppressChangeNotifications();
-    bool AreChangeNotificationsEnabled();
-    IDisposable DelayChangeNotifications();
-    event PropertyChangingEventHandler? PropertyChanging;
-    event PropertyChangedEventHandler? PropertyChanged;
-}
-
-public partial class ModDbUpdatesTabVm : ViewModelBase, IActivatableViewModel, IModDbUpdatesTabVm
+public partial class ModDbUpdatesTabVm : ViewModelBase, IActivatableViewModel
 {
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
     private readonly ReadOnlyObservableCollection<UpdateableModVm> _updateableMods;

@@ -11,12 +11,12 @@ public static class GetGitDiff
 {
     public sealed record Query(string Dir);
 
-    public sealed class Handler(GitUtility gu)
+    public sealed class Handler
     {
         public async Task<List<GitDiff>> Execute(Query q)
         {
-            await gu.ConfigSetAsync(q.Dir, "diff.renameLimit", "999999");
-            var result = await gu.ExecuteGitCmdAsync(
+            await GitUtility.ConfigSetAsync(q.Dir, "diff.renameLimit", "999999");
+            var result = await GitUtility.ExecuteGitCmdAsync(
                 q.Dir,
                 ["diff", "main", "origin/main", "--name-status"]
             );

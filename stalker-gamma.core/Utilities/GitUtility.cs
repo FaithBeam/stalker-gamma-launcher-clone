@@ -6,12 +6,12 @@ using stalker_gamma.core.Models;
 
 namespace stalker_gamma.core.Utilities;
 
-public partial class GitUtility
+public static partial class GitUtility
 {
-    public async Task ConfigSetAsync(string repoPath, string configName, string configVal) =>
+    public static async Task ConfigSetAsync(string repoPath, string configName, string configVal) =>
         await ExecuteGitCmdAsync(repoPath, ["config", "set", configName, configVal]);
 
-    public async Task UpdateGitRepoAsync(
+    public static async Task UpdateGitRepoAsync(
         string dir,
         string repoName,
         string branch,
@@ -38,21 +38,21 @@ public partial class GitUtility
         await CheckoutBranch(repoPath, branch);
     }
 
-    public async Task<StdOutStdErrOutput> CloneGitRepo(
+    public static async Task<StdOutStdErrOutput> CloneGitRepo(
         string outputDir,
         string repoUrl,
         Action<double>? onProgress = null
     ) => await ExecuteGitCmdAsync("", ["clone", repoUrl, outputDir], onProgress: onProgress);
 
-    public async Task<StdOutStdErrOutput> PullGitRepo(
+    public static async Task<StdOutStdErrOutput> PullGitRepo(
         string pathToRepo,
         Action<double>? onProgress = null
     ) => await ExecuteGitCmdAsync(pathToRepo, ["pull"], onProgress: onProgress);
 
-    public async Task<StdOutStdErrOutput> CheckoutBranch(string pathToRepo, string branch) =>
+    public static async Task<StdOutStdErrOutput> CheckoutBranch(string pathToRepo, string branch) =>
         await ExecuteGitCmdAsync(pathToRepo, ["checkout", branch]);
 
-    public async Task<string> GetDefaultBranch(string pathToRepo)
+    public static async Task<string> GetDefaultBranch(string pathToRepo)
     {
         var gitCmdResult = await ExecuteGitCmdAsync(
             pathToRepo,
@@ -61,10 +61,10 @@ public partial class GitUtility
         return gitCmdResult.StdOut.Replace("origin/", "");
     }
 
-    public async Task EnableLongPathsAsync() =>
+    public static async Task EnableLongPathsAsync() =>
         await ExecuteGitCmdAsync("", ["config", "--system", "core.longpaths", "true"]);
 
-    public async Task<StdOutStdErrOutput> ExecuteGitCmdAsync(
+    public static async Task<StdOutStdErrOutput> ExecuteGitCmdAsync(
         string workingDir,
         string[] args,
         Action<double>? onProgress = null,

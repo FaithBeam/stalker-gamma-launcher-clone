@@ -4,6 +4,7 @@ using stalker_gamma.core.Mappers;
 using stalker_gamma.core.Models;
 using stalker_gamma.core.Services;
 using stalker_gamma.core.Services.Enums;
+using stalker_gamma.core.Services.GammaInstallerServices;
 
 namespace stalker_gamma.cli.Services;
 

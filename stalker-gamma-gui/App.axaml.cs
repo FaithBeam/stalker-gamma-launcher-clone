@@ -13,7 +13,6 @@ using ReactiveUI;
 using Splat;
 using Splat.Microsoft.Extensions.DependencyInjection;
 using stalker_gamma_gui.Services;
-using stalker_gamma_gui.Services.GammaInstaller.Shortcut;
 using stalker_gamma_gui.ViewModels.Dialogs.DownloadProgress;
 using stalker_gamma_gui.ViewModels.MainWindow;
 using stalker_gamma_gui.ViewModels.Services;
@@ -27,8 +26,10 @@ using stalker_gamma_gui.Views;
 using stalker_gamma.core.Factories;
 using stalker_gamma.core.Models;
 using stalker_gamma.core.Services;
+using stalker_gamma.core.Services.GammaInstallerServices;
 using stalker_gamma.core.Services.ModOrganizer;
 using stalker_gamma.core.Services.ModOrganizer.DownloadModOrganizer;
+using stalker_gamma.core.Services.Shortcut;
 using stalker_gamma.core.Utilities;
 using GammaInstaller = stalker_gamma_gui.Services.GammaInstaller.GammaInstaller;
 using ProgressService = stalker_gamma_gui.Services.ProgressService;
@@ -108,7 +109,6 @@ public partial class App : Application
                 s.AddSingleton<ProgressService>()
                     .AddSingleton<IVersionService, VersionService>()
                     .AddSingleton<IIsBusyService, IsBusyService>()
-                    .AddSingleton<IOperatingSystemService, OperatingSystemService>()
                     .AddSingleton<ModalService>();
 
                 s.AddScoped<DownloadModOrganizerService>()
@@ -118,7 +118,6 @@ public partial class App : Application
                     .AddScoped<IILongPathsStatusService, LongPathsStatus.Handler>()
                     .AddScoped<ICurlService, CurlService>()
                     .AddScoped<MirrorService>()
-                    .AddScoped<GitUtility>()
                     .AddScoped<ModDb>()
                     .AddScoped<ModListRecordFactory>()
                     .AddScoped<Shortcut>()
@@ -132,10 +131,10 @@ public partial class App : Application
                     .RegisterGammaUpdatesTabServices();
 
                 s.AddScoped<MainTabVm>()
-                    .AddScoped<IBackupTabVm, BackupTabVm>()
-                    .AddScoped<IGammaUpdatesVm, GammaUpdatesVm>()
-                    .AddScoped<IModListTabVm, ModListTabVm>()
-                    .AddScoped<IModDbUpdatesTabVm, ModDbUpdatesTabVm>()
+                    .AddScoped<BackupTabVm>()
+                    .AddScoped<GammaUpdatesVm>()
+                    .AddScoped<ModListTabVm>()
+                    .AddScoped<ModDbUpdatesTabVm>()
                     .AddScoped<MainWindowVm>();
 
                 var resolver = Locator.CurrentMutable;

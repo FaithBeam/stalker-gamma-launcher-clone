@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using stalker_gamma_gui.ViewModels.Tabs.MainTab;
 using stalker_gamma.core.Models;
 using stalker_gamma.core.Services;
+using stalker_gamma.core.Services.GammaInstallerServices;
 using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma_gui.Services.GammaInstaller;
@@ -15,15 +16,11 @@ public record LocalAndRemoteVersion(string? LocalVersion, string RemoteVersion);
 
 public partial class GammaInstaller(
     ICurlService curlService,
-    GitUtility gitUtility,
-    stalker_gamma.core.Services.GammaInstaller gammaInstaller,
+    stalker_gamma.core.Services.GammaInstallerServices.GammaInstaller gammaInstaller,
     AnomalyInstaller anomalyInstaller
 // Shortcut.Shortcut shortcut
 )
 {
-    private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
-    private readonly ICurlService _curlService = curlService;
-
     /// <summary>
     /// Checks for G.A.M.M.A. updates.
     /// </summary>
@@ -131,7 +128,7 @@ public partial class GammaInstaller(
         var t1 = Task.Run(async () =>
         {
             stalkerGamma.Status = Status.Checking;
-            await gitUtility.UpdateGitRepoAsync(
+            await GitUtility.UpdateGitRepoAsync(
                 _dir,
                 "Stalker_GAMMA",
                 branch,
@@ -160,4 +157,7 @@ public partial class GammaInstaller(
 
         await Task.WhenAll(t1);
     }
+
+    private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
+    private readonly ICurlService _curlService = curlService;
 }

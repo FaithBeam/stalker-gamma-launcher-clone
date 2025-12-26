@@ -10,7 +10,7 @@ public static class CreateSymbolicLinkUtility
             if (OperatingSystem.IsWindows())
             {
                 PowerShellUtility.Execute(
-                    $"New-Item -ItemType SymbolicLink -Path {pathToTarget} -Value {path}"
+                    $"New-Item -ItemType SymbolicLink -Path {path} -Value {pathToTarget}"
                 );
             }
             else

@@ -1,4 +1,4 @@
-namespace stalker_gamma.core.Services;
+namespace stalker_gamma.core.Services.GammaInstallerServices;
 
 public class WriteSeparatorsService
 {

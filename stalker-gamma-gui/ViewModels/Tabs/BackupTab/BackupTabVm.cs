@@ -24,47 +24,7 @@ using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma_gui.ViewModels.Tabs.BackupTab;
 
-public interface IBackupTabVm
-{
-    double BackupsListColWidth { get; set; }
-    string ToggleBackupsListBtnTxt { get; }
-    IIsBusyService IsBusyService { get; }
-    Interaction<string, Unit> AppendLineInteraction { get; }
-    ReactiveCommand<Unit, Unit> OpenBackupFolderCommand { get; }
-    Interaction<Unit, string?> ChangeGammaBackupDirectoryInteraction { get; }
-    ReactiveCommand<Unit, Task<string?>> BackupCmd { get; }
-    ReactiveCommand<Unit, Unit> CancelBackupCmd { get; }
-    ReactiveCommand<(string BackupModPath, string BackupName), Unit> DeleteBackupCmd { get; }
-    ReactiveCommand<Unit, double> ToggleShowBackupsListCmd { get; }
-    IReadOnlyList<Compressor> Compressors { get; }
-    ReadOnlyObservableCollection<ModBackupVm> ModBackups { get; }
-    string? TotalModsSpace { get; }
-    ModBackupVm? SelectedModBackup { get; set; }
-    Compressor SelectedCompressor { get; set; }
-    ReadOnlyObservableCollection<CompressionLevel> CompressionLevels { get; }
-    CompressionLevel SelectedCompressionLevel { get; set; }
-    string? Estimates { get; }
-    ReactiveCommand<Unit, Unit> CheckModsList { get; }
-    ReactiveCommand<Unit, string?> ChangeGammaBackupDirectoryCmd { get; }
-    string? DriveStats { get; }
-    BackupType SelectedBackup { get; }
-    string PartialBackupPath { get; }
-    bool PartialIsChecked { get; set; }
-    bool FullIsChecked { get; set; }
-    string GammaBackupFolder { get; }
-    ReactiveCommand<Unit, Unit> RestoreBackupCmd { get; }
-    ViewModelActivator Activator { get; }
-    IObservable<IReactivePropertyChangedEventArgs<IReactiveObject>> Changing { get; }
-    IObservable<IReactivePropertyChangedEventArgs<IReactiveObject>> Changed { get; }
-    IObservable<Exception> ThrownExceptions { get; }
-    IDisposable SuppressChangeNotifications();
-    bool AreChangeNotificationsEnabled();
-    IDisposable DelayChangeNotifications();
-    event PropertyChangingEventHandler? PropertyChanging;
-    event PropertyChangedEventHandler? PropertyChanged;
-}
-
-public partial class BackupTabVm : ViewModelBase, IActivatableViewModel, IBackupTabVm
+public partial class BackupTabVm : ViewModelBase, IActivatableViewModel
 {
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
 
