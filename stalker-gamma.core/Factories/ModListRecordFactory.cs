@@ -22,13 +22,24 @@ public static class ModListRecordFactory
             return new Separator { DlLink = dlLink, Counter = idx };
         }
 
+        var parsedInstructions =
+            string.IsNullOrWhiteSpace(instructions) || instructions == "0"
+                ? []
+                : instructions
+                    .Split(
+                        ':',
+                        StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries
+                    )
+                    .Select(y => y.TrimStart('\\').Replace('\\', Path.DirectorySeparatorChar))
+                    .ToList();
+
         if (dlLink.Contains("moddb"))
         {
             return new ModDbRecord
             {
                 Counter = idx,
                 DlLink = dlLink,
-                Instructions = instructions,
+                Instructions = parsedInstructions,
                 Patch = patch,
                 AddonName = addonName,
                 ModDbUrl = modDbUrl,
@@ -43,7 +54,7 @@ public static class ModListRecordFactory
             {
                 Counter = idx,
                 DlLink = dlLink,
-                Instructions = instructions,
+                Instructions = parsedInstructions,
                 Patch = patch,
                 AddonName = addonName,
                 ModDbUrl = modDbUrl,
@@ -58,7 +69,7 @@ public static class ModListRecordFactory
             {
                 Counter = idx,
                 DlLink = dlLink,
-                Instructions = instructions,
+                Instructions = parsedInstructions,
                 Patch = patch,
                 AddonName = addonName,
                 ModDbUrl = modDbUrl,

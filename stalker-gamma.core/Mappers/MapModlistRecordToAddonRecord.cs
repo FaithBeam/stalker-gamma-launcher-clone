@@ -18,14 +18,6 @@ public static partial class MapModlistRecordToAddonRecord
         Action<double> onExtractProgress
     )
     {
-        var instructions = m.Instructions is null or "0"
-            ? []
-            : m.Instructions?.Split(
-                    ':',
-                    StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries
-                )
-                .Select(x => x.Replace('\\', Path.DirectorySeparatorChar))
-                .ToArray() ?? [];
         var githubNameMatch = GithubRx().Match(m.DlLink!);
         var githubName = $"{githubNameMatch.Groups["repo"]}-{githubNameMatch.Groups["archive"]}";
         var archivePath = Path.Join(
@@ -54,7 +46,7 @@ public static partial class MapModlistRecordToAddonRecord
             archivePath,
             zipName,
             extractDir,
-            instructions.ToList(),
+            m.Instructions,
             type,
             onStatus,
             onMd5Progress,

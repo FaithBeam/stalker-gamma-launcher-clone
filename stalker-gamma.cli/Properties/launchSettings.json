@@ -3,7 +3,7 @@
   "profiles": {
     "full-install": {
       "commandName": "Project",
-      "commandLineArgs": "full-install --anomaly /Volumes/NewVolume/gamma/anomaly --gamma /Volumes/NewVolume/gamma/gamma --cache /Volumes/NewVolume/gamma/cache --download-threads 4"
+      "commandLineArgs": "full-install --anomaly anomaly --gamma gamma --cache cache --download-threads 2"
     }
   }
 }

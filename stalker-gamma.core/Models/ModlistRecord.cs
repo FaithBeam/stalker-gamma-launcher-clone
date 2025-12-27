@@ -1,6 +1,4 @@
-﻿using System.Buffers;
-using System.Text;
-using stalker_gamma.core.Services;
+﻿using System.Text;
 using stalker_gamma.core.Utilities;
 using CurlUtility = stalker_gamma.core.Utilities.CurlUtility;
 
@@ -12,7 +10,7 @@ public class ModListRecord : IModListRecord
 {
     public int Counter { get; set; }
     public string? DlLink { get; set; }
-    public string? Instructions { get; set; }
+    public List<string> Instructions { get; set; } = [];
     public string? Patch { get; set; }
     public string? AddonName { get; set; }
     public string? ModDbUrl { get; set; }
@@ -137,13 +135,12 @@ public abstract class DownloadableRecord : ModListRecord
 
     private void SolveInstructions(string extractPath)
     {
-        if (string.IsNullOrWhiteSpace(Instructions) || Instructions == "0")
-        {
-            return;
-        }
+        // if (string.IsNullOrWhiteSpace(Instructions) || Instructions == "0")
+        // {
+        // return;
+        // }
 
-        var instructionsSplit = Instructions.Split(':');
-        ProcessInstructions(extractPath, instructionsSplit);
+        // ProcessInstructions(extractPath, instructionsSplit);
 
         CleanExtractPath(extractPath);
     }
