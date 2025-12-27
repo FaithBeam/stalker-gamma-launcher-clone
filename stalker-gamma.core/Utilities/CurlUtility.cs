@@ -4,37 +4,23 @@ using CliWrap;
 using CliWrap.Builders;
 using stalker_gamma.core.Models;
 
-namespace stalker_gamma.core.Services;
+namespace stalker_gamma.core.Utilities;
 
-public interface ICurlService
-{
-    /// <summary>
-    /// Whether curl service found curl-impersonate-win.exe and can execute.
-    /// </summary>
-    bool Ready { get; }
-
-    Task<string> GetStringAsync(string url, CancellationToken? cancellationToken = null);
-
-    Task DownloadFileAsync(
-        string url,
-        string pathToDownloads,
-        string fileName,
-        Action<double>? onProgress = null,
-        string? workingDir = null,
-        CancellationToken? cancellationToken = null
-    );
-}
-
-public partial class CurlService : ICurlService
+public static partial class CurlUtility
 {
     private static readonly string Dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
+    private static readonly string PathToCurlImpersonate = Path.Join(
+        Dir,
+        "resources",
+        OperatingSystem.IsWindows() ? "curl.exe" : "curl-impersonate"
+    );
 
     /// <summary>
     /// Whether curl service found curl-impersonate-win.exe and can execute.
     /// </summary>
-    public bool Ready { get; private set; } = File.Exists(PathToCurlImpersonate);
+    public static bool Ready { get; private set; } = File.Exists(PathToCurlImpersonate);
 
-    public async Task DownloadFileAsync(
+    public static async Task<StdOutStdErrOutput> DownloadFileAsync(
         string url,
         string pathToDownloads,
         string fileName,
@@ -44,16 +30,29 @@ public partial class CurlService : ICurlService
     ) =>
         await ExecuteCurlCmdAsync(
             ["--progress-bar", "--clobber", "-Lo", Path.Join(pathToDownloads, fileName), url],
-            onProgress: onProgress, workingDir: workingDir, cancellationToken: cancellationToken);
+            onProgress: onProgress,
+            workingDir: workingDir,
+            cancellationToken: cancellationToken
+        );
 
-    public async Task<string> GetStringAsync(string url, CancellationToken? cancellationToken = null) =>
-        (await ExecuteCurlCmdAsync(["--no-progress-meter", url], cancellationToken: cancellationToken)).StdOut;
+    public static async Task<string> GetStringAsync(
+        string url,
+        CancellationToken? cancellationToken = null
+    ) =>
+        (
+            await ExecuteCurlCmdAsync(
+                ["--no-progress-meter", url],
+                cancellationToken: cancellationToken
+            )
+        ).StdOut;
 
-    private static async Task<StdOutStdErrOutput> ExecuteCurlCmdAsync(string[] args,
+    private static async Task<StdOutStdErrOutput> ExecuteCurlCmdAsync(
+        string[] args,
         Action<double>? onProgress = null,
         Action<string>? txtProgress = null,
         string? workingDir = null,
-        CancellationToken? cancellationToken = null)
+        CancellationToken? cancellationToken = null
+    )
     {
         var stdOut = new StringBuilder();
         var stdErr = new StringBuilder();
@@ -108,12 +107,6 @@ public partial class CurlService : ICurlService
 
         return new StdOutStdErrOutput(stdOut.ToString(), stdErr.ToString());
     }
-
-    private static readonly string PathToCurlImpersonate = Path.Join(
-        Dir,
-        "resources",
-        OperatingSystem.IsWindows() ? "curl.exe" : "curl-impersonate"
-    );
 
     [GeneratedRegex(@"(\d+(\.\d+)?)\s*%", RegexOptions.Compiled)]
     private static partial Regex ProgressRx();

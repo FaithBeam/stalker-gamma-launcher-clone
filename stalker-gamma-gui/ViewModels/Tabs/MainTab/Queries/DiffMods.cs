@@ -9,6 +9,7 @@ using stalker_gamma_gui.ViewModels.Tabs.ModDbUpdatesTab;
 using stalker_gamma.core.Factories;
 using stalker_gamma.core.Models;
 using stalker_gamma.core.Services;
+using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma_gui.ViewModels.Tabs.MainTab.Queries;
 
@@ -16,12 +17,8 @@ public static partial class DiffMods
 {
     public sealed record Query(LocalAndRemoteVersion ModVersions);
 
-    public sealed partial class Handler(
-        ICurlService curlService,
-        ModListRecordFactory modListRecordFactory
-    )
+    public sealed partial class Handler(ModListRecordFactory modListRecordFactory)
     {
-        private readonly ICurlService _curlService = curlService;
         private readonly ModListRecordFactory _modListRecordFactory = modListRecordFactory;
 
         public async Task<List<string>> Execute(Query q)
@@ -34,7 +31,7 @@ public static partial class DiffMods
                     .ToList() ?? [];
 
             var updatedRecords = (
-                await _curlService.GetStringAsync("https://stalker-gamma.com/api/list?key=")
+                await CurlUtility.GetStringAsync("https://stalker-gamma.com/api/list?key=")
             )
                 .Split("\n")
                 .Select((x, idx) => _modListRecordFactory.Create(x, idx))

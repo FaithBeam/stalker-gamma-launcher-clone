@@ -26,6 +26,11 @@ public static class StalkerGammaRepo
             anomaly,
             onProgress: pct
         );
+        File.Copy(
+            Path.Join(cache, Name, "G.A.M.M.A_definition_version.txt"),
+            Path.Join(gammaModsPath, "..", "version.txt"),
+            true
+        );
         return Task.CompletedTask;
     }
 }

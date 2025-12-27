@@ -9,7 +9,6 @@ using stalker_gamma.core.Services;
 using stalker_gamma.core.Services.GammaInstallerServices;
 using stalker_gamma.core.Services.ModOrganizer;
 using stalker_gamma.core.Services.ModOrganizer.DownloadModOrganizer;
-using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma.cli;
 
@@ -26,24 +25,21 @@ public static class Program
                     .AddSingleton<GlobalSettings>()
                     .AddSingleton<ProgressThrottleService>()
                     .AddSingleton<ProgressService>()
+                    .AddScoped<GetModListService>()
+                    .AddScoped<DownloadAddonUtility>()
+                    .AddScoped<DownloadAndInstallCustomModlist>()
+                    .AddScoped<DownloadGitHubArchive>()
                     .AddScoped<EnrichGammaInstaller>()
-                    .AddScoped<DownloadAddon>()
                     .AddScoped<EnrichDownloadAndExtractGitRepoFactory>()
                     .AddScoped<EnrichAnomalyInstaller>()
-                    .AddScoped<WriteSeparatorsService>()
-                    .AddScoped<GetAddonsFromApiService>()
                     .AddScoped<EnableLongPathsOnWindowsService>()
                     .AddScoped<AddFoldersToWinDefenderExclusionService>()
                     .AddScoped<DownloadModOrganizerService>()
                     .AddScoped<DisableNexusModHandlerLink>()
                     .AddScoped<WriteModOrganizerIniService>()
                     .AddScoped<InstallModOrganizerGammaProfile>()
-                    .AddScoped<ModListRecordFactory>()
-                    .AddScoped<ModDb>()
                     .AddScoped<AnomalyInstaller>()
                     .AddScoped<GammaInstaller>()
-                    .AddScoped<ICurlService, CurlService>()
-                    .AddScoped<MirrorService>()
                     .AddHttpClient()
                     .AddHttpClient(
                         "githubDlArchive",

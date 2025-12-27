@@ -7,7 +7,7 @@ using stalker_gamma.core.Models;
 
 namespace stalker_gamma.core.Utilities;
 
-public static partial class ArchiveUtility
+public static partial class SevenZipUtility
 {
     public static async Task<StdOutStdErrOutput> ExtractAsync(
         string archivePath,
@@ -23,7 +23,7 @@ public static partial class ArchiveUtility
             Directory.CreateDirectory(destinationFolder);
         }
 
-        return await ExecuteArchiverCmdAsync(
+        return await ExecuteSevenZipCmdAsync(
             ["x", "-y", "-bsp1", archivePath, $"-o{destinationFolder}"],
             onProgress,
             txtProgress,
@@ -67,7 +67,7 @@ public static partial class ArchiveUtility
             $"{(exclusions?.Length == 0 ? "" : string.Join(" ", exclusions!.Select(x => $"-xr!{x}")))}",
         };
 
-        return await ExecuteArchiverCmdAsync(
+        return await ExecuteSevenZipCmdAsync(
             args,
             workingDirectory: workDirectory,
             txtProgress: txtProgress,
@@ -75,7 +75,7 @@ public static partial class ArchiveUtility
         );
     }
 
-    private static async Task<StdOutStdErrOutput> ExecuteArchiverCmdAsync(
+    private static async Task<StdOutStdErrOutput> ExecuteSevenZipCmdAsync(
         string[] args,
         Action<double>? onProgress = null,
         Action<string>? txtProgress = null,

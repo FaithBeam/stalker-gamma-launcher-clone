@@ -116,10 +116,6 @@ public partial class App : Application
                     .AddScoped<WriteModOrganizerIniService>()
                     .AddScoped<IIsRanWithWineService, IsRanWithWineService>()
                     .AddScoped<IILongPathsStatusService, LongPathsStatus.Handler>()
-                    .AddScoped<ICurlService, CurlService>()
-                    .AddScoped<MirrorService>()
-                    .AddScoped<ModDb>()
-                    .AddScoped<ModListRecordFactory>()
                     .AddScoped<Shortcut>()
                     .AddScoped<GammaInstaller>();
 

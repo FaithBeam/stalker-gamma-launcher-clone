@@ -2,6 +2,7 @@
 using System.Text;
 using stalker_gamma.core.Services;
 using stalker_gamma.core.Utilities;
+using CurlUtility = stalker_gamma.core.Utilities.CurlUtility;
 
 namespace stalker_gamma.core.Models;
 
@@ -19,9 +20,8 @@ public class ModListRecord : IModListRecord
     public string? Md5ModDb { get; set; }
 }
 
-public abstract class DownloadableRecord(ICurlService curlService) : ModListRecord
+public abstract class DownloadableRecord : ModListRecord
 {
-    protected readonly ICurlService CurlService = curlService;
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
     public abstract string Name { get; }
     public string? DlPath { get; set; }
@@ -71,7 +71,7 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
         {
             throw new Exception($"{nameof(Dl)} is empty");
         }
-        await CurlService.DownloadFileAsync(
+        await CurlUtility.DownloadFileAsync(
             Dl,
             Path.GetDirectoryName(DlPath) ?? ".",
             Path.GetFileName(DlPath),
@@ -94,7 +94,7 @@ public abstract class DownloadableRecord(ICurlService curlService) : ModListReco
             throw new DownloadableRecordException($"{nameof(DlPath)} is empty");
         }
 
-        await ArchiveUtility.ExtractAsync(DlPath, extractPath, OnExtractProgress);
+        await SevenZipUtility.ExtractAsync(DlPath, extractPath, OnExtractProgress);
 
         SolveInstructions(extractPath);
     }
@@ -238,17 +238,12 @@ public class Separator : ModListRecord
     }
 }
 
-public class GithubRecord(ICurlService curlService, IHttpClientFactory hcf)
-    : DownloadableRecord(curlService)
+public class GithubRecord : DownloadableRecord
 {
-    private readonly HttpClient _hc = hcf.CreateClient("githubDlArchive");
     public override string Name => $"{DlLink!.Split('/')[4]}.zip";
     private const int BufferSize = 1024 * 1024;
 
-    public override async Task DownloadAsync(
-        string downloadsPath,
-        bool invalidateMirrorCache = false
-    )
+    public override Task DownloadAsync(string downloadsPath, bool invalidateMirrorCache = false)
     {
         DlPath ??= Path.Join(downloadsPath, Name);
         if (string.IsNullOrWhiteSpace(Dl))
@@ -261,55 +256,56 @@ public class GithubRecord(ICurlService curlService, IHttpClientFactory hcf)
             Directory.CreateDirectory(downloadsPath);
         }
 
-        using var response = await _hc.GetAsync(Dl, HttpCompletionOption.ResponseHeadersRead);
-        response.EnsureSuccessStatusCode();
-
-        var totalBytes = response.Content.Headers.ContentLength;
-
-        await using var fs = new FileStream(
-            DlPath,
-            FileMode.Create,
-            FileAccess.Write,
-            FileShare.None,
-            bufferSize: BufferSize
-        );
-        await using var contentStream = await response.Content.ReadAsStreamAsync();
-
-        var buffer = ArrayPool<byte>.Shared.Rent(81920);
-        try
-        {
-            long totalBytesRead = 0;
-            int bytesRead;
-
-            while (
-                (bytesRead = await contentStream.ReadAsync(buffer.AsMemory(0, buffer.Length))) > 0
-            )
-            {
-                await fs.WriteAsync(buffer.AsMemory(0, bytesRead));
-                totalBytesRead += bytesRead;
-
-                if (totalBytes.HasValue)
-                {
-                    var progressPercentage = (double)totalBytesRead / totalBytes.Value * 100.0;
-                    OnDownloadProgress(progressPercentage);
-                }
-            }
-
-            OnDownloadProgress(100);
-        }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(buffer);
-        }
+        // using var response = await _hc.GetAsync(Dl, HttpCompletionOption.ResponseHeadersRead);
+        // response.EnsureSuccessStatusCode();
+        //
+        // var totalBytes = response.Content.Headers.ContentLength;
+        //
+        // await using var fs = new FileStream(
+        //     DlPath,
+        //     FileMode.Create,
+        //     FileAccess.Write,
+        //     FileShare.None,
+        //     bufferSize: BufferSize
+        // );
+        // await using var contentStream = await response.Content.ReadAsStreamAsync();
+        //
+        // var buffer = ArrayPool<byte>.Shared.Rent(81920);
+        // try
+        // {
+        //     long totalBytesRead = 0;
+        //     int bytesRead;
+        //
+        //     while (
+        //         (bytesRead = await contentStream.ReadAsync(buffer.AsMemory(0, buffer.Length))) > 0
+        //     )
+        //     {
+        //         await fs.WriteAsync(buffer.AsMemory(0, bytesRead));
+        //         totalBytesRead += bytesRead;
+        //
+        //         if (totalBytes.HasValue)
+        //         {
+        //             var progressPercentage = (double)totalBytesRead / totalBytes.Value * 100.0;
+        //             OnDownloadProgress(progressPercentage);
+        //         }
+        //     }
+        //
+        //     OnDownloadProgress(100);
+        // }
+        // finally
+        // {
+        //     ArrayPool<byte>.Shared.Return(buffer);
+        // }
+        return Task.CompletedTask;
     }
 }
 
-public class GammaLargeFile(ICurlService curlService) : DownloadableRecord(curlService)
+public class GammaLargeFile : DownloadableRecord
 {
     public override string Name => $"{DlLink!.Split('/')[6]}.zip";
 }
 
-public class ModDbRecord(ModDb modDb, ICurlService curlService) : DownloadableRecord(curlService)
+public class ModDbRecord : DownloadableRecord
 {
     public override string Name => ZipName!;
     private readonly List<string> _visitedMirrors = [];
@@ -320,7 +316,7 @@ public class ModDbRecord(ModDb modDb, ICurlService curlService) : DownloadableRe
     )
     {
         DlPath ??= Path.Join(downloadsPath, Name);
-        var mirror = await modDb.GetModDbLinkCurl(
+        var mirror = await ModDbUtility.GetModDbLinkCurl(
             DlLink!,
             DlPath,
             OnDownloadProgress,
@@ -338,7 +334,7 @@ public class ModDbRecord(ModDb modDb, ICurlService curlService) : DownloadableRe
                 or Action.DownloadMd5Mismatch
         )
         {
-            await modDb.GetModDbLinkCurl(DlLink!, DlPath, OnDownloadProgress);
+            await ModDbUtility.GetModDbLinkCurl(DlLink!, DlPath, OnDownloadProgress);
         }
     }
 }

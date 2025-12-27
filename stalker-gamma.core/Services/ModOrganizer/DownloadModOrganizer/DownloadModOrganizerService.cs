@@ -82,7 +82,7 @@ public class DownloadModOrganizerService(IHttpClientFactory hcf)
             }
         }
 
-        await ArchiveUtility.ExtractAsync(
+        await SevenZipUtility.ExtractAsync(
             mo2ArchivePath,
             extractPath,
             (pct) => { },

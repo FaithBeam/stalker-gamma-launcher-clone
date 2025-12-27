@@ -12,7 +12,7 @@ public static class GammaSetupRepo
     public static Task ExtractAsync(
         string cache,
         string gammaModsPath,
-        string anomalyBinPath,
+        string anomaly,
         Action<double> pct
     )
     {
@@ -21,11 +21,7 @@ public static class GammaSetupRepo
             gammaModsPath,
             onProgress: pct
         );
-        DirUtils.CopyDirectory(
-            Path.Join(cache, Name, "modpack_patches"),
-            anomalyBinPath,
-            onProgress: pct
-        );
+        DirUtils.CopyDirectory(Path.Join(cache, Name, "modpack_patches"), anomaly, onProgress: pct);
         return Task.CompletedTask;
     }
 }

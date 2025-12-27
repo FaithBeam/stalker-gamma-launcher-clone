@@ -4,11 +4,16 @@ public static class DirUtils
 {
     public static void NormalizePermissions(string dir)
     {
-        var directories = new DirectoryInfo(dir)
-            .GetDirectories("*", SearchOption.AllDirectories)
-            .ToList();
-        directories.ForEach(di =>
+        var di = new DirectoryInfo(dir);
+        if (!di.Exists)
         {
+            return;
+        }
+
+        try
+        {
+            // 1. Normalize the directory itself
+            di.Attributes &= ~FileAttributes.ReadOnly;
             if (!OperatingSystem.IsWindows())
             {
                 di.UnixFileMode =
@@ -21,16 +26,40 @@ public static class DirUtils
                     | UnixFileMode.OtherRead
                     | UnixFileMode.OtherExecute;
             }
-            di.Attributes &= ~FileAttributes.ReadOnly;
-            di.GetFiles("*", SearchOption.TopDirectoryOnly)
-                .ToList()
-                .ForEach(fi => fi.IsReadOnly = false);
-        });
+
+            // 2. Normalize all files in this directory
+            foreach (var fi in di.GetFiles())
+            {
+                try
+                {
+                    fi.IsReadOnly = false;
+                    fi.Attributes &= ~FileAttributes.ReadOnly;
+                }
+                catch (UnauthorizedAccessException)
+                { /* Skip files we can't touch */
+                }
+            }
+
+            // 3. Recurse into subdirectories
+            foreach (var subDir in di.GetDirectories())
+            {
+                NormalizePermissions(subDir.FullName);
+            }
+        }
+        catch (UnauthorizedAccessException)
+        {
+            // Catching at this level allows the recursion to skip folders
+            // it doesn't have permission to list
+        }
     }
 
     public static void RecursivelyDeleteDirectory(string dir, IReadOnlyList<string> doNotMatch)
     {
         var dirInfo = new DirectoryInfo(dir);
+        foreach (var fi in dirInfo.GetFiles(".*", SearchOption.TopDirectoryOnly))
+        {
+            fi.Delete();
+        }
         foreach (
             var d in dirInfo
                 .GetDirectories()

@@ -2,7 +2,7 @@
 
 namespace stalker_gamma.core.Services.GammaInstallerServices;
 
-public class CleanExtractPath
+public static class CleanExtractPath
 {
     public static void Clean(string extractPath)
     {

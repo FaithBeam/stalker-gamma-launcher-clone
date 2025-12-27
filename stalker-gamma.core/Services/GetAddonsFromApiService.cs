@@ -4,30 +4,13 @@ using stalker_gamma.core.Models;
 
 namespace stalker_gamma.core.Services;
 
-public class GetAddonsFromApiService(
-    IHttpClientFactory hc,
-    ModListRecordFactory modListRecordFactory,
-    GlobalSettings globalSettings
-)
+public static class GetAddonsFromApiService
 {
-    public async Task<FrozenDictionary<int, ModListRecord>> GetAddonsAsync(
-        CancellationToken? cancellationToken = null
-    )
-    {
-        cancellationToken ??= CancellationToken.None;
-        return (
-            await _hc.GetStringAsync(
-                globalSettings.StalkerAddonApiUrl,
-                cancellationToken: (CancellationToken)cancellationToken
-            )
-        )
+    public static FrozenDictionary<int, ModListRecord> GetAddons(string modList) =>
+        modList
             .Split("\n", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Select((x, idx) => _modListRecordFactory.Create(x, idx))
+            .Select(ModListRecordFactory.Create)
             .Cast<ModListRecord>()
             .Select((x, i) => (x, i))
             .ToFrozenDictionary(x => x.i + 1, x => x.x);
-    }
-
-    private readonly HttpClient _hc = hc.CreateClient();
-    private readonly ModListRecordFactory _modListRecordFactory = modListRecordFactory;
 }

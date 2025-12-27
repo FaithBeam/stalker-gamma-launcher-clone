@@ -9,12 +9,11 @@ public interface IILongPathsStatusService
 
 public static class LongPathsStatus
 {
-    public sealed class Handler(IIsRanWithWineService isRanWithWineService)
-        : IILongPathsStatusService
+    public sealed class Handler : IILongPathsStatusService
     {
         public bool? Execute()
         {
-            if (!OperatingSystem.IsWindows() || isRanWithWineService.IsRanWithWine())
+            if (!OperatingSystem.IsWindows())
             {
                 return null;
             }

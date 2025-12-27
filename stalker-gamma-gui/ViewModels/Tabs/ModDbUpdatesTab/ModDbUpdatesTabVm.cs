@@ -12,6 +12,7 @@ using ReactiveUI;
 using stalker_gamma.core.Factories;
 using stalker_gamma.core.Models;
 using stalker_gamma.core.Services;
+using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma_gui.ViewModels.Tabs.ModDbUpdatesTab;
 
@@ -21,7 +22,7 @@ public partial class ModDbUpdatesTabVm : ViewModelBase, IActivatableViewModel
     private readonly ReadOnlyObservableCollection<UpdateableModVm> _updateableMods;
     private readonly ObservableAsPropertyHelper<bool> _isLoading;
 
-    public ModDbUpdatesTabVm(ICurlService curlService, ModListRecordFactory modListRecordFactory)
+    public ModDbUpdatesTabVm(ModListRecordFactory modListRecordFactory)
     {
         Activator = new ViewModelActivator();
         var modListFile = Path.Join(_dir, "mods.txt");
@@ -43,7 +44,7 @@ public partial class ModDbUpdatesTabVm : ViewModelBase, IActivatableViewModel
                 .ToList();
 
             var updatedRecords = (
-                await curlService.GetStringAsync("https://stalker-gamma.com/api/list?key=")
+                await CurlUtility.GetStringAsync("https://stalker-gamma.com/api/list?key=")
             )
                 .Split("\n")
                 .Select(modListRecordFactory.Create)

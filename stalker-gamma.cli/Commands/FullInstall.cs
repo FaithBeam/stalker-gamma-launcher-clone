@@ -25,10 +25,10 @@ public partial class FullInstallCmd(
     ILogger logger,
     AddFoldersToWinDefenderExclusionService addFoldersToWinDefenderExclusionService,
     EnableLongPathsOnWindowsService enableLongPathsOnWindowsService,
-    GetAddonsFromApiService getAddonsFromApiService,
-    WriteSeparatorsService writeSeparatorsService,
-    DownloadAddon downloadAddon,
-    ProgressService progress
+    GetModListService getModListService,
+    ProgressService progress,
+    DownloadAddonUtility downloadAddonUtility,
+    DownloadAndInstallCustomModlist downloadAndInstallCustomModlist
 )
 {
     private readonly ILogger _logger = logger;
@@ -46,6 +46,7 @@ public partial class FullInstallCmd(
     /// <param name="mo2Version">The version of Mod Organizer 2 to download</param>
     /// <param name="progressUpdateIntervalMs">How frequently to write progress to the console in milliseconds</param>
     /// <param name="stalkerAddonApiUrl">Escape hatch for stalker gamma api</param>
+    /// <param name="customModListUrl">Download a custom MO2 GAMMA profile modlist.txt. Use in conjunction with --stalker-addon-api-url "".</param>
     /// <param name="gammaSetupRepoUrl">Escape hatch for git repo gamma_setup</param>
     /// <param name="stalkerGammaRepoUrl">Escape hatch for git repo Stalker_GAMMA</param>
     /// <param name="gammaLargeFilesRepoUrl">Escape hatch for git repo gamma_large_files_v2</param>
@@ -65,6 +66,7 @@ public partial class FullInstallCmd(
         [Hidden] long progressUpdateIntervalMs = 1000,
         [Hidden] string anomalyArchiveName = "anomaly.7z",
         [Hidden] string stalkerAddonApiUrl = "https://stalker-gamma.com/api/list",
+        [Hidden] string? customModListUrl = null,
         [Hidden] string gammaSetupRepoUrl = "https://github.com/Grokitach/gamma_setup",
         [Hidden] string stalkerGammaRepoUrl = "https://github.com/Grokitach/Stalker_GAMMA",
         [Hidden]
@@ -120,15 +122,17 @@ public partial class FullInstallCmd(
             cancellationToken
         );
 
-        var addons = await getAddonsFromApiService.GetAddonsAsync(cancellationToken);
+        var modList = await getModListService.ExecuteAsync(stalkerAddonApiUrl, cancellationToken);
+        var addons = GetAddonsFromApiService.GetAddons(modList);
 
         var gammaModsPath = Path.Join(gamma, "mods");
         var separators = addons
             .Where(kvp => kvp.Value is Separator)
             .Select(kvp => kvp.Value)
             .Cast<Separator>()
-            .Select(kvp => Path.Join(gammaModsPath, kvp.FolderName));
-        await writeSeparatorsService.WriteAsync(separators);
+            .Select(kvp => Path.Join(gammaModsPath, kvp.FolderName))
+            .ToList();
+        await WriteSeparatorsUtility.WriteAsync(separators);
 
         var anomalyBinPath = Path.Join(anomaly, "bin");
 
@@ -146,99 +150,63 @@ public partial class FullInstallCmd(
                         "",
                         "",
                         dlFunc: (checkMd5Pct, dlPct, _) =>
-                            downloadAddon.DownloadAsync(
+                            downloadAddonUtility.DownloadAsync(
                                 first,
                                 Path.Join(cache, first.ZipName),
                                 checkMd5Pct,
                                 dlPct
                             ),
                         extractFunc: pct =>
-                            ExtractAddonGroup.Extract(
+                            ExtractAddonGroup.ExtractAsync(
                                 first.ZipName!,
                                 cache,
                                 gammaModsPath,
                                 group,
-                                pct
+                                pct,
+                                cancellationToken
                             )
                     );
                 })
         );
-        progress.TotalAddons += modDbAddons.Count;
 
-        ConcurrentBag<DownloadAndExtractRecordService> brokenAddons = [];
-        var gitRepos = new List<DownloadAndExtractRecordService> { };
-        gitRepos.AddRange(
+        var githubArchives = new List<DownloadAndExtractRecordService> { };
+        githubArchives.AddRange(
             addons
                 .Values.Where(x => x is GithubRecord)
-                .GroupBy(x =>
-                {
-                    var githubNameMatch = GithubRx().Match(x.DlLink!);
-                    return $"{githubNameMatch.Groups["repo"]}-{githubNameMatch.Groups["archive"]}";
-                })
+                .GroupBy(x => Path.Join(cache, x.ZipName))
                 .Select(group =>
                 {
                     var first = group.First();
-                    var githubNameMatch = GithubRx().Match(first.DlLink!);
-                    var repoName =
-                        $"{githubNameMatch.Groups["repo"]}-{githubNameMatch.Groups["archive"]}";
-                    var repoPath = Path.Join(cache, repoName);
+
+                    var archivePath = Path.Join(cache, first.ZipName);
 
                     return downloadAndExtractGitRepoFactory.Create(
                         first.AddonName![..Math.Min(first.AddonName!.Length, 35)].PadRight(40),
-                        repoPath,
+                        archivePath,
                         "",
                         "",
                         dlFunc: (_, pct, _) =>
-                            downloadAddon.DownloadAsync(first, repoPath, _ => { }, pct),
+                            downloadAddonUtility.DownloadAsync(first, archivePath, _ => { }, pct),
                         extractFunc: pct =>
-                            ExtractAddonGroup.Extract(repoName, repoPath, gammaModsPath, group, pct)
+                            ExtractAddonGroup.ExtractAsync(
+                                first.ZipName!,
+                                cache,
+                                gammaModsPath,
+                                group,
+                                pct,
+                                cancellationToken
+                            )
                     );
                 })
         );
-        progress.TotalAddons += gitRepos.Count;
-        modDbAddons.AddRange(gitRepos);
-        await Parallel.ForEachAsync(
-            modDbAddons,
-            new ParallelOptions { MaxDegreeOfParallelism = downloadThreads },
-            async (grs, _) =>
-            {
-                try
-                {
-                    await grs.DownloadAndExtractAsync();
-                }
-                catch (Exception e)
-                {
-                    _logger.Warning(
-                        """
-                        Error processing addon: {Addon}
-                        {Exception}
-                        """,
-                        grs.RepoUrl,
-                        e
-                    );
-                    brokenAddons.Add(grs);
-                }
-            }
-        );
+        modDbAddons.AddRange(githubArchives);
+        progress.TotalAddons += modDbAddons.Count;
 
-        foreach (var brokenAddon in brokenAddons)
-        {
-            try
-            {
-                await brokenAddon.DownloadAndExtractAsync(invalidateMirror: true);
-            }
-            catch (Exception e)
-            {
-                _logger.Error(
-                    """
-                    Error processing addon: {Addon}
-                    {Exception}
-                    """,
-                    brokenAddon.RepoUrl,
-                    e
-                );
-            }
-        }
+        ConcurrentBag<DownloadAndExtractRecordService> brokenAddons = [];
+
+        await ProcessAddonsAsync(downloadThreads, modDbAddons, brokenAddons);
+
+        await ProcessBrokenAddonsAsync(brokenAddons);
 
         brokenAddons.Clear();
 
@@ -250,19 +218,7 @@ public partial class FullInstallCmd(
                 gammaModsPath,
                 gammaSetupRepoUrl,
                 dlFunc: (_, pct, _) => GammaSetupRepo.DownloadAsync(cache, gammaSetupRepoUrl, pct),
-                extractFunc: pct =>
-                    GammaSetupRepo.ExtractAsync(cache, gammaModsPath, anomalyBinPath, pct),
-                extractPrereqTask: anomalyTask,
-                cancellationToken: cancellationToken
-            ),
-            downloadAndExtractGitRepoFactory.Create(
-                StalkerGammaRepo.Name,
-                Path.Join(cache, StalkerGammaRepo.Name),
-                gammaModsPath,
-                stalkerGammaRepoUrl,
-                dlFunc: (_, pct, _) =>
-                    StalkerGammaRepo.DownloadAsync(cache, stalkerGammaRepoUrl, pct),
-                extractFunc: pct => StalkerGammaRepo.Extract(cache, gammaModsPath, anomaly, pct),
+                extractFunc: pct => GammaSetupRepo.ExtractAsync(cache, gammaModsPath, anomaly, pct),
                 extractPrereqTask: anomalyTask,
                 cancellationToken: cancellationToken
             ),
@@ -293,8 +249,70 @@ public partial class FullInstallCmd(
         };
         progress.TotalAddons += specialGitRepos.Count;
 
+        await ProcessAddonsAsync(downloadThreads, specialGitRepos, brokenAddons);
+
+        await ProcessBrokenAddonsAsync(brokenAddons);
+
+        await ProcessAddonsAsync(
+            downloadThreads,
+            [
+                downloadAndExtractGitRepoFactory.Create(
+                    StalkerGammaRepo.Name,
+                    Path.Join(cache, StalkerGammaRepo.Name),
+                    gammaModsPath,
+                    stalkerGammaRepoUrl,
+                    dlFunc: (_, pct, _) =>
+                        StalkerGammaRepo.DownloadAsync(cache, stalkerGammaRepoUrl, pct),
+                    extractFunc: pct =>
+                        StalkerGammaRepo.Extract(cache, gammaModsPath, anomaly, pct),
+                    extractPrereqTask: anomalyTask,
+                    cancellationToken: cancellationToken
+                ),
+            ],
+            brokenAddons
+        );
+
+        DeleteReshadeDlls.Delete(anomalyBinPath);
+
+        DeleteShaderCache.Delete(anomaly);
+
+        await downloadModOrganizerService.DownloadAsync(
+            cachePath: cache,
+            extractPath: gamma,
+            version: mo2Version,
+            cancellationToken: cancellationToken
+        );
+
+        await installModOrganizerGammaProfile.InstallAsync(
+            Path.Join(gamma, "downloads", StalkerGammaRepo.Name),
+            gamma
+        );
+
+        await writeModOrganizerIniService.WriteAsync(gamma, anomaly, mo2Version, separators);
+
+        await disableNexusModHandlerLink.DisableAsync(gamma);
+
+        await WriteModsListToCacheDir.WriteAsync(cache, modList, cancellationToken);
+
+        if (!string.IsNullOrWhiteSpace(customModListUrl))
+        {
+            await downloadAndInstallCustomModlist.ExecuteAsync(
+                customModListUrl,
+                Path.Join(gamma, "profiles", "G.A.M.M.A", "modlist.txt"),
+                cancellationToken
+            );
+        }
+
+        _logger.Information("Install finished");
+    }
+
+    private async Task ProcessAddonsAsync(
+        int downloadThreads,
+        List<DownloadAndExtractRecordService> addons,
+        ConcurrentBag<DownloadAndExtractRecordService> brokenAddons
+    ) =>
         await Parallel.ForEachAsync(
-            specialGitRepos,
+            addons,
             new ParallelOptions { MaxDegreeOfParallelism = downloadThreads },
             async (grs, _) =>
             {
@@ -317,11 +335,15 @@ public partial class FullInstallCmd(
             }
         );
 
+    private async Task ProcessBrokenAddonsAsync(
+        ConcurrentBag<DownloadAndExtractRecordService> brokenAddons
+    )
+    {
         foreach (var brokenAddon in brokenAddons)
         {
             try
             {
-                await brokenAddon.DownloadAndExtractAsync();
+                await brokenAddon.DownloadAndExtractAsync(invalidateMirror: true);
             }
             catch (Exception e)
             {
@@ -335,24 +357,6 @@ public partial class FullInstallCmd(
                 );
             }
         }
-
-        await downloadModOrganizerService.DownloadAsync(
-            cachePath: cache,
-            extractPath: gamma,
-            version: mo2Version,
-            cancellationToken: cancellationToken
-        );
-
-        await installModOrganizerGammaProfile.InstallAsync(
-            Path.Join(gamma, "downloads", StalkerGammaRepo.Name),
-            gamma
-        );
-
-        await writeModOrganizerIniService.WriteAsync(gamma, anomaly, mo2Version);
-
-        await disableNexusModHandlerLink.DisableAsync(gamma);
-
-        _logger.Information("Install finished");
     }
 
     [GeneratedRegex(

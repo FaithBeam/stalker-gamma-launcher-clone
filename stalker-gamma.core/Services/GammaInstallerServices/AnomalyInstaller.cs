@@ -3,7 +3,7 @@ using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma.core.Services.GammaInstallerServices;
 
-public class AnomalyInstaller(GlobalSettings globalSettings, ModDb modDb)
+public class AnomalyInstaller(GlobalSettings globalSettings)
 {
     public async Task DownloadAndExtractAsync(
         string archivePath,
@@ -24,7 +24,7 @@ public class AnomalyInstaller(GlobalSettings globalSettings, ModDb modDb)
             )
         )
         {
-            await modDb.GetModDbLinkCurl(
+            await ModDbUtility.GetModDbLinkCurl(
                 globalSettings.StalkerAnomalyModDbUrl,
                 archivePath,
                 dlProgress,
@@ -33,7 +33,7 @@ public class AnomalyInstaller(GlobalSettings globalSettings, ModDb modDb)
         }
 
         // extract anomaly
-        await ArchiveUtility.ExtractAsync(
+        await SevenZipUtility.ExtractAsync(
             archivePath,
             extractDirectory,
             extractProgress,

@@ -10,12 +10,16 @@ public static class GammaLargeFiles
         await DownloadSpecialGitRepo.DownloadAsync(Path.Join(cache, Name), repoUrl, pct);
 
     public static Task Extract(
-        string repoPath,
+        string cache,
         string destinationDir,
         Action<double> onExtractProgress
     )
     {
-        DirUtils.CopyDirectory(repoPath, destinationDir, onProgress: onExtractProgress);
+        DirUtils.CopyDirectory(
+            Path.Join(cache, Name),
+            destinationDir,
+            onProgress: onExtractProgress
+        );
         return Task.CompletedTask;
     }
 }

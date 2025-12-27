@@ -2,10 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using stalker_gamma_gui.ViewModels.Tabs.MainTab;
-using stalker_gamma.core.Models;
 using stalker_gamma.core.Services;
 using stalker_gamma.core.Services.GammaInstallerServices;
 using stalker_gamma.core.Utilities;
@@ -15,7 +13,6 @@ namespace stalker_gamma_gui.Services.GammaInstaller;
 public record LocalAndRemoteVersion(string? LocalVersion, string RemoteVersion);
 
 public partial class GammaInstaller(
-    ICurlService curlService,
     stalker_gamma.core.Services.GammaInstallerServices.GammaInstaller gammaInstaller,
     AnomalyInstaller anomalyInstaller
 // Shortcut.Shortcut shortcut
@@ -30,7 +27,7 @@ public partial class GammaInstaller(
     )> CheckGammaData()
     {
         var onlineGammaVersion = (
-            await _curlService.GetStringAsync(
+            await CurlUtility.GetStringAsync(
                 "https://raw.githubusercontent.com/Grokitach/Stalker_GAMMA/main/G.A.M.M.A_definition_version.txt"
             )
         ).Trim();
@@ -46,7 +43,7 @@ public partial class GammaInstaller(
         string? localMods = null;
         var modsFile = Path.Combine(_dir, "mods.txt");
         var remoteMods = (
-            await _curlService.GetStringAsync("https://stalker-gamma.com/api/list?key=")
+            await CurlUtility.GetStringAsync("https://stalker-gamma.com/api/list?key=")
         )
             .Trim()
             .ReplaceLineEndings();
@@ -109,7 +106,7 @@ public partial class GammaInstaller(
 
         await Task.WhenAll(anomalyTask, gammaTask);
 
-        await _curlService.DownloadFileAsync(
+        await CurlUtility.DownloadFileAsync(
             "https://stalker-gamma.com/api/list?key=",
             _dir,
             "mods.txt",
@@ -159,5 +156,4 @@ public partial class GammaInstaller(
     }
 
     private readonly string _dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
-    private readonly ICurlService _curlService = curlService;
 }

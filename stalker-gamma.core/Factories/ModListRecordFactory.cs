@@ -1,16 +1,10 @@
 ﻿using stalker_gamma.core.Models;
-using stalker_gamma.core.Services;
-using stalker_gamma.core.Utilities;
 
 namespace stalker_gamma.core.Factories;
 
-public class ModListRecordFactory(ModDb modDb, ICurlService curlService, IHttpClientFactory hcf)
+public static class ModListRecordFactory
 {
-    private readonly ModDb _modDb = modDb;
-    private readonly ICurlService _curlService = curlService;
-    private readonly IHttpClientFactory _hcf = hcf;
-
-    public IModListRecord Create(string line, int idx)
+    public static IModListRecord Create(string line, int idx)
     {
         idx++;
         var lineSplit = line.Split('\t');
@@ -30,7 +24,7 @@ public class ModListRecordFactory(ModDb modDb, ICurlService curlService, IHttpCl
 
         if (dlLink.Contains("moddb"))
         {
-            return new ModDbRecord(_modDb, _curlService)
+            return new ModDbRecord
             {
                 Counter = idx,
                 DlLink = dlLink,
@@ -45,7 +39,7 @@ public class ModListRecordFactory(ModDb modDb, ICurlService curlService, IHttpCl
 
         if (dlLink.Contains("github"))
         {
-            return new GithubRecord(_curlService, _hcf)
+            return new GithubRecord
             {
                 Counter = idx,
                 DlLink = dlLink,
@@ -53,14 +47,14 @@ public class ModListRecordFactory(ModDb modDb, ICurlService curlService, IHttpCl
                 Patch = patch,
                 AddonName = addonName,
                 ModDbUrl = modDbUrl,
-                ZipName = zipName,
+                ZipName = $"{dlLink.Split('/')[4]}.zip",
                 Md5ModDb = md5ModDb,
             };
         }
 
         if (dlLink.Contains("gamma_large_files"))
         {
-            return new GammaLargeFile(_curlService)
+            return new GammaLargeFile
             {
                 Counter = idx,
                 DlLink = dlLink,

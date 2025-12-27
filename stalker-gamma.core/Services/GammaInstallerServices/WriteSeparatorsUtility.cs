@@ -1,8 +1,8 @@
 namespace stalker_gamma.core.Services.GammaInstallerServices;
 
-public class WriteSeparatorsService
+public static class WriteSeparatorsUtility
 {
-    public async Task WriteAsync(IEnumerable<string> separators)
+    public static async Task WriteAsync(IEnumerable<string> separators)
     {
         foreach (var separator in separators)
         {

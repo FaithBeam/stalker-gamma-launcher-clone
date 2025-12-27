@@ -22,7 +22,7 @@ public static class CreateBackup
     {
         public async Task ExecuteAsync(Command c)
         {
-            await ArchiveUtility.Archive(
+            await SevenZipUtility.Archive(
                 c.BackupPaths,
                 c.Destination,
                 c.Compressor.ToString().ToLower(),

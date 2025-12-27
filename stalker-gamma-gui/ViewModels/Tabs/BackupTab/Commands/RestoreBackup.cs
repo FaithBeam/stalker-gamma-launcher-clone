@@ -52,7 +52,7 @@ public static class RestoreBackup
                 Directory.Delete(dir, true);
             }
 
-            await ArchiveUtility.ExtractAsync(
+            await SevenZipUtility.ExtractAsync(
                 c.PathToArchive,
                 c.DirectoryToExtractTo,
                 workingDirectory: c.WorkingDirectory,

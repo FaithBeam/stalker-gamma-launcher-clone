@@ -15,8 +15,6 @@ namespace stalker_gamma.core.Services.GammaInstallerServices;
 public partial class GammaInstaller(
     GlobalSettings globalSettings,
     IHttpClientFactory hcf,
-    ModDb modDb,
-    ModListRecordFactory modListRecordFactory,
     ILogger logger,
     ProgressThrottleService progressThrottle,
     ProgressService progressService
@@ -154,7 +152,7 @@ public partial class GammaInstaller(
 
             if (addonRecord.AddonType == AddonType.ModDb)
             {
-                await ArchiveUtility.ExtractAsync(
+                await SevenZipUtility.ExtractAsync(
                     addonRecord.ArchiveDlPath,
                     addonRecord.ExtractDirectory,
                     addonRecord.OnExtractProgress
@@ -230,7 +228,7 @@ public partial class GammaInstaller(
             {
                 case AddonType.ModDb:
                 {
-                    var usedMirror = await _modDb.GetModDbLinkCurl(
+                    var usedMirror = await ModDbUtility.GetModDbLinkCurl(
                         first.MirrorUrl!.Replace("/all", ""),
                         first.ArchiveDlPath,
                         first.OnDlProgress,
@@ -328,8 +326,6 @@ public partial class GammaInstaller(
     private const string GammaLargeFilesRepo = "gamma_large_files_v2";
     private const string TeivazAnomalyGunslingerRepo = "teivaz_anomaly_gunslinger";
 
-    private readonly ModDb _modDb = modDb;
-    private readonly ModListRecordFactory _modListRecordFactory = modListRecordFactory;
     private readonly HttpClient _hc = hcf.CreateClient();
     private readonly ILogger _logger = logger;
     private readonly ProgressThrottleService _progressThrottle = progressThrottle;

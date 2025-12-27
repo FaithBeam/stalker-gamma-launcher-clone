@@ -2,7 +2,12 @@ namespace stalker_gamma.core.Services.ModOrganizer;
 
 public class WriteModOrganizerIniService
 {
-    public async Task WriteAsync(string gammaPath, string anomalyPath, string mo2Version)
+    public async Task WriteAsync(
+        string gammaPath,
+        string anomalyPath,
+        string mo2Version,
+        IList<string> separators
+    )
     {
         var drivePrefix = OperatingSystem.IsWindows() ? "C:" : "Z:";
         var gammaPathWithDrivePrefix = (
@@ -144,7 +149,10 @@ public class WriteModOrganizerIniService
             MainWindow_dataTabShowOnlyConflicts_checked=false
             MainWindow_dataTabShowFromArchives_checked=false
             MainWindow_groupCombo_index=0
-            MainWindow_modList_index=1- Audio, 21- Visual, 38- Animations, 43- Gameplay, 57- Stashes, 64- Gunplay, 107- QoL, 138- Craft and Repair, 150- Progression, 162- UI, 180- High Priority, 187- Shaders, 191- Icons, 194- DLTX, 199- Minimap (pick one), 202- Optional, 215- Good addons with issues and bugs, "221- Warfare (Optional, Warfare mode is unstable)", 224- Newly added addons, G.A.M.M.A. Economy and Craft, G.A.M.M.A. HUD, G.A.M.M.A. Combat and Balance, G.A.M.M.A. Audio, G.A.M.M.A. Fixes, Realistic Magazines, Alternative Addons & Patches, G.A.M.M.A. Disabled (DO NOT ACTIVATE), G.A.M.M.A. End of List, Overwrite
+            MainWindow_modList_index={string.Join(
+                ", ",
+                separators
+            )}
             MainWindow_filters_index=0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
             MainWindow_filtersAnd_checked=true
             MainWindow_filtersOr_checked=false

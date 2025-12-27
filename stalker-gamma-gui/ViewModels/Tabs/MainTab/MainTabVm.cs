@@ -133,7 +133,6 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
         EnableLongPathsOnWindows.Handler enableLongPathsOnWindows,
         AddFoldersToWinDefenderExclusion.Handler addFoldersToWinDefenderExclusion,
         GetGammaBackupFolder.Handler getGammaBackupFolderHandler,
-        ICurlService curlService,
         GammaInstaller gammaInstaller,
         ProgressService progressService,
         GlobalSettings globalSettings,
@@ -297,7 +296,7 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
         );
 
         ToolsReadyCommand = ReactiveCommand.CreateFromTask(async () =>
-            await Task.Run(() => new ToolsReadyRecord(curlService.Ready))
+            await Task.Run(() => new ToolsReadyRecord(CurlUtility.Ready))
         );
 
         OpenUrlCmd = ReactiveCommand.Create<string>(OpenUrlUtility.OpenUrl);

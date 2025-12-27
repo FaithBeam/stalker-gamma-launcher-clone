@@ -4,13 +4,12 @@ using stalker_gamma.core.Services;
 
 namespace stalker_gamma.core.Utilities;
 
-public partial class MirrorService(ICurlService cs)
+public static partial class MirrorUtility
 {
-    private readonly ICurlService _cs = cs;
-    private FrozenSet<string>? _mirrors;
+    private static FrozenSet<string>? _mirrors;
     private static readonly SemaphoreSlim Lock = new(1);
 
-    public async Task<string> GetMirrorAsync(
+    public static async Task<string> GetMirrorAsync(
         string mirrorUrl,
         bool invalidateCache = false,
         params string[] excludeMirrors
@@ -34,9 +33,9 @@ public partial class MirrorService(ICurlService cs)
             .First();
     }
 
-    private async Task<FrozenSet<string>> GetMirrorsAsync(string mirrorUrl)
+    private static async Task<FrozenSet<string>> GetMirrorsAsync(string mirrorUrl)
     {
-        var mirrorsHtml = await _cs.GetStringAsync(mirrorUrl);
+        var mirrorsHtml = await CurlUtility.GetStringAsync(mirrorUrl);
         var matches = HrefRx().Matches(mirrorsHtml);
         return matches
             .Select(m =>
