@@ -22,10 +22,11 @@ public class GammaInstaller(
         string anomaly,
         string gamma,
         string cache,
-        string mo2Version,
+        string? mo2Version = null,
         CancellationToken cancellationToken = default
     )
     {
+        mo2Version ??= OperatingSystem.IsWindows() ? "v2.5.2" : "v2.4.4";
         cache = Path.IsPathRooted(cache) ? cache : Path.GetFullPath(cache);
         gamma = Path.IsPathRooted(gamma) ? gamma : Path.GetFullPath(gamma);
         anomaly = Path.IsPathRooted(anomaly) ? anomaly : Path.GetFullPath(anomaly);

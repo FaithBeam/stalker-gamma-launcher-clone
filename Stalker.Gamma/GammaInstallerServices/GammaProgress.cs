@@ -9,11 +9,11 @@ public class GammaProgress : IGammaProgress
 {
     private int _completedMods;
 
-    public int TotalMods { get; set; }
+    internal int TotalMods { get; set; }
 
-    public void IncrementCompletedMods() => Interlocked.Increment(ref _completedMods);
+    internal void IncrementCompletedMods() => Interlocked.Increment(ref _completedMods);
 
-    public void Reset()
+    internal void Reset()
     {
         _completedMods = 0;
         TotalMods = 0;

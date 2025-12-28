@@ -11,22 +11,20 @@ public class SeparatorsFactory : ISeparatorsFactory
 {
     public List<ISeparator> Create(IList<ModListRecord> records) =>
         records
+            .Select((r, idx) => new { r, idx })
             .Where(r =>
-                string.IsNullOrWhiteSpace(r.AddonName)
-                && string.IsNullOrWhiteSpace(r.Instructions)
-                && string.IsNullOrWhiteSpace(r.Md5ModDb)
-                && string.IsNullOrWhiteSpace(r.ZipName)
-                && string.IsNullOrWhiteSpace(r.ModDbUrl)
-                && string.IsNullOrWhiteSpace(r.Patch)
+                string.IsNullOrWhiteSpace(r.r.AddonName)
+                && string.IsNullOrWhiteSpace(r.r.Instructions)
+                && string.IsNullOrWhiteSpace(r.r.Md5ModDb)
+                && string.IsNullOrWhiteSpace(r.r.ZipName)
+                && string.IsNullOrWhiteSpace(r.r.ModDbUrl)
+                && string.IsNullOrWhiteSpace(r.r.Patch)
             )
-            .Select(
-                (r, idx) =>
-                    new Separator
-                    {
-                        Name = $"{r.DlLink} Separator",
-                        FolderName = $"{++idx}- {r.DlLink}_separator",
-                    }
-            )
+            .Select(r => new Separator
+            {
+                Name = $"{r.r.DlLink} Separator",
+                FolderName = $"{r.idx + 1}- {r.r.DlLink}_separator",
+            })
             .Cast<ISeparator>()
             .ToList();
 }

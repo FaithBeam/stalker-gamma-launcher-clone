@@ -42,11 +42,11 @@ public class FullInstallCmd(
         CancellationToken cancellationToken,
         string anomaly,
         string gamma,
+        [Hidden] string? mo2Version,
         string cache = "cache",
         int downloadThreads = 1,
         bool addFoldersToWinDefenderExclusion = false,
         bool enableLongPaths = false,
-        [Hidden] string mo2Version = "v2.5.2",
         [Hidden] long progressUpdateIntervalMs = 1000,
         [Hidden] string anomalyArchiveName = "anomaly.7z",
         [Hidden] string stalkerAddonApiUrl = "https://stalker-gamma.com/api/list",
@@ -96,9 +96,15 @@ public class FullInstallCmd(
     }
 
     private void OnProgressChanged(GammaProgress.GammaInstallProgressEventArgs e) =>
-        _logger.Information(StructuredLog, e.Name, e.ProgressType, e.Progress, e.TotalProgress);
+        _logger.Information(
+            StructuredLog,
+            e.Name[..Math.Min(e.Name.Length, 35)].PadRight(40),
+            e.ProgressType.PadRight(10),
+            $"{e.Progress:P2}".PadRight(8),
+            e.TotalProgress
+        );
 
     private readonly ILogger _logger = logger;
     private const string StructuredLog =
-        "{AddonName} | {Operation} | {Percent:P2} | {TotalProgress:P2}";
+        "{AddonName} | {Operation} | {Percent} | {TotalProgress:P2}";
 }
