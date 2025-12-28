@@ -2,12 +2,13 @@ using System.Text;
 using System.Text.RegularExpressions;
 using CliWrap;
 using CliWrap.Builders;
+using Stalker.Gamma.Models;
 
 namespace Stalker.Gamma.Utilities;
 
-public static partial class SevenZipUtility
+public partial class SevenZipUtility(StalkerGammaSettings settings)
 {
-    public static async Task<StdOutStdErrOutput> ExtractAsync(
+    public async Task<StdOutStdErrOutput> ExtractAsync(
         string archivePath,
         string destinationFolder,
         Action<double>? onProgress = null,
@@ -42,7 +43,7 @@ public static partial class SevenZipUtility
     /// <param name="txtProgress"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public static async Task<StdOutStdErrOutput> Archive(
+    public async Task<StdOutStdErrOutput> Archive(
         string[] paths,
         string destination,
         string compressor,
@@ -73,7 +74,7 @@ public static partial class SevenZipUtility
         );
     }
 
-    private static async Task<StdOutStdErrOutput> ExecuteSevenZipCmdAsync(
+    private async Task<StdOutStdErrOutput> ExecuteSevenZipCmdAsync(
         string[] args,
         Action<double>? onProgress = null,
         Action<string>? txtProgress = null,
@@ -158,7 +159,7 @@ public static partial class SevenZipUtility
         return new StdOutStdErrOutput(stdOut.ToString(), stdErr.ToString());
     }
 
-    private static void AppendArgument(string[] args, ArgumentsBuilder argBuilder)
+    private void AppendArgument(string[] args, ArgumentsBuilder argBuilder)
     {
         foreach (var arg in args)
         {
@@ -166,16 +167,10 @@ public static partial class SevenZipUtility
         }
     }
 
-    private static readonly string Dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
-
-    private static readonly string PathTo7Z = Path.Join(
-        Dir,
-        "resources",
-        OperatingSystem.IsWindows() ? "7zz.exe" : "7zz"
-    );
+    private string PathTo7Z => settings.PathTo7Z;
 
     [GeneratedRegex(@"(\d+(\.\d+)?)\s*%", RegexOptions.Compiled)]
-    private static partial Regex ProgressRx();
+    private partial Regex ProgressRx();
 }
 
 public class SevenZipUtilityException(string msg, Exception innerException)

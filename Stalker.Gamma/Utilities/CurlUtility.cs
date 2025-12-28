@@ -2,24 +2,13 @@ using System.Text;
 using System.Text.RegularExpressions;
 using CliWrap;
 using CliWrap.Builders;
+using Stalker.Gamma.Models;
 
 namespace Stalker.Gamma.Utilities;
 
-public static partial class CurlUtility
+public partial class CurlUtility(StalkerGammaSettings settings)
 {
-    private static readonly string Dir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
-    private static readonly string PathToCurlImpersonate = Path.Join(
-        Dir,
-        "resources",
-        OperatingSystem.IsWindows() ? "curl.exe" : "curl-impersonate"
-    );
-
-    /// <summary>
-    /// Whether curl service found curl-impersonate-win.exe and can execute.
-    /// </summary>
-    public static bool Ready { get; private set; } = File.Exists(PathToCurlImpersonate);
-
-    public static async Task<StdOutStdErrOutput> DownloadFileAsync(
+    public async Task<StdOutStdErrOutput> DownloadFileAsync(
         string url,
         string pathToDownloads,
         string fileName,
@@ -34,7 +23,7 @@ public static partial class CurlUtility
             cancellationToken: cancellationToken
         );
 
-    public static async Task<string> GetStringAsync(
+    public async Task<string> GetStringAsync(
         string url,
         CancellationToken? cancellationToken = null
     ) =>
@@ -45,7 +34,7 @@ public static partial class CurlUtility
             )
         ).StdOut;
 
-    private static async Task<StdOutStdErrOutput> ExecuteCurlCmdAsync(
+    private async Task<StdOutStdErrOutput> ExecuteCurlCmdAsync(
         string[] args,
         Action<double>? onProgress = null,
         Action<string>? txtProgress = null,
@@ -107,8 +96,15 @@ public static partial class CurlUtility
         return new StdOutStdErrOutput(stdOut.ToString(), stdErr.ToString());
     }
 
+    private string PathToCurlImpersonate => settings.PathToCurl;
+
+    /// <summary>
+    /// Whether curl service found curl-impersonate-win.exe and can execute.
+    /// </summary>
+    public bool Ready => File.Exists(PathToCurlImpersonate);
+
     [GeneratedRegex(@"(\d+(\.\d+)?)\s*%", RegexOptions.Compiled)]
-    private static partial Regex ProgressRx();
+    private partial Regex ProgressRx();
 }
 
 public class CurlServiceException(string message, Exception innerException)

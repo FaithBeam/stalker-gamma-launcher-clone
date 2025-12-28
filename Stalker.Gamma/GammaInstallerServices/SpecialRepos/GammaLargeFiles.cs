@@ -5,8 +5,12 @@ namespace Stalker.Gamma.GammaInstallerServices.SpecialRepos;
 
 public interface IGammaLargeFilesRepo : IDownloadableRecord;
 
-public class GammaLargeFilesRepo(GammaProgress gammaProgress, string gammaDir, string url)
-    : IGammaLargeFilesRepo
+public class GammaLargeFilesRepo(
+    GammaProgress gammaProgress,
+    string gammaDir,
+    string url,
+    GitUtility gitUtility
+) : IGammaLargeFilesRepo
 {
     public string Name { get; } = "gamma_large_files_v2";
     public string ArchiveName { get; } = "";
@@ -18,7 +22,7 @@ public class GammaLargeFilesRepo(GammaProgress gammaProgress, string gammaDir, s
     {
         if (Directory.Exists(RepoPath))
         {
-            await GitUtility.PullGitRepo(
+            await gitUtility.PullGitRepo(
                 RepoPath,
                 onProgress: pct =>
                     gammaProgress.OnProgressChanged(
@@ -29,7 +33,7 @@ public class GammaLargeFilesRepo(GammaProgress gammaProgress, string gammaDir, s
         }
         else
         {
-            await GitUtility.CloneGitRepo(
+            await gitUtility.CloneGitRepo(
                 RepoPath,
                 Url,
                 onProgress: pct =>

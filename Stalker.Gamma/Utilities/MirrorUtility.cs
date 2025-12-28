@@ -1,14 +1,15 @@
 using System.Collections.Frozen;
 using System.Text.RegularExpressions;
+using Stalker.Gamma.Models;
 
 namespace Stalker.Gamma.Utilities;
 
-public static partial class MirrorUtility
+public partial class MirrorUtility(CurlUtility curlUtility)
 {
     private static FrozenSet<string>? _mirrors;
     private static readonly SemaphoreSlim Lock = new(1);
 
-    public static async Task<string> GetMirrorAsync(
+    public async Task<string> GetMirrorAsync(
         string mirrorUrl,
         bool invalidateCache = false,
         params string[] excludeMirrors
@@ -32,9 +33,9 @@ public static partial class MirrorUtility
             .First();
     }
 
-    private static async Task<FrozenSet<string>> GetMirrorsAsync(string mirrorUrl)
+    private async Task<FrozenSet<string>> GetMirrorsAsync(string mirrorUrl)
     {
-        var mirrorsHtml = await CurlUtility.GetStringAsync(mirrorUrl);
+        var mirrorsHtml = await curlUtility.GetStringAsync(mirrorUrl);
         var matches = HrefRx().Matches(mirrorsHtml);
         return matches
             .Select(m =>

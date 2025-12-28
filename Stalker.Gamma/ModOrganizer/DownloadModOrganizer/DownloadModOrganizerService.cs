@@ -14,7 +14,8 @@ public interface IDownloadModOrganizerService
     );
 }
 
-public class DownloadModOrganizerService(IHttpClientFactory hcf) : IDownloadModOrganizerService
+public class DownloadModOrganizerService(IHttpClientFactory hcf, SevenZipUtility sevenZipUtility)
+    : IDownloadModOrganizerService
 {
     public async Task DownloadAsync(
         string version = "v2.4.4",
@@ -92,7 +93,7 @@ public class DownloadModOrganizerService(IHttpClientFactory hcf) : IDownloadModO
             }
         }
 
-        await SevenZipUtility.ExtractAsync(
+        await sevenZipUtility.ExtractAsync(
             mo2ArchivePath,
             extractPath,
             (pct) => { },

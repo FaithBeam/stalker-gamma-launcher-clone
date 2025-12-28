@@ -11,7 +11,9 @@ public class ModDbRecord(
     string? md5,
     string gammaDir,
     string outputDirName,
-    IList<string> instructions
+    IList<string> instructions,
+    ArchiveUtility archiveUtility,
+    ModDbUtility modDbUtility
 ) : IDownloadableRecord
 {
     public string Name { get; } = name;
@@ -37,7 +39,7 @@ public class ModDbRecord(
             || !Path.Exists(DownloadPath)
         )
         {
-            await ModDbUtility.GetModDbLinkCurl(
+            await modDbUtility.GetModDbLinkCurl(
                 Url,
                 DownloadPath,
                 pct =>
@@ -53,7 +55,7 @@ public class ModDbRecord(
     {
         Directory.CreateDirectory(ExtractPath);
 
-        await ArchiveUtility.ExtractAsync(
+        await archiveUtility.ExtractAsync(
             DownloadPath,
             ExtractPath,
             pct =>

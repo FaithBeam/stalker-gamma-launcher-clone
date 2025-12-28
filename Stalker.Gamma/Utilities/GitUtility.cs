@@ -2,19 +2,20 @@ using System.Text;
 using System.Text.RegularExpressions;
 using CliWrap;
 using CliWrap.Builders;
+using Stalker.Gamma.Models;
 
 namespace Stalker.Gamma.Utilities;
 
-public static partial class GitUtility
+public partial class GitUtility(StalkerGammaSettings settings)
 {
-    public static async Task ConfigSetAsync(
+    public async Task ConfigSetAsync(
         string repoPath,
         string configName,
         string configVal,
         CancellationToken ct = default
     ) => await ExecuteGitCmdAsync(repoPath, ["config", "set", configName, configVal], ct: ct);
 
-    public static async Task UpdateGitRepoAsync(
+    public async Task UpdateGitRepoAsync(
         string dir,
         string repoName,
         string branch,
@@ -41,7 +42,7 @@ public static partial class GitUtility
         await CheckoutBranch(repoPath, branch);
     }
 
-    public static async Task<StdOutStdErrOutput> CloneGitRepo(
+    public async Task<StdOutStdErrOutput> CloneGitRepo(
         string outputDir,
         string repoUrl,
         Action<double>? onProgress = null,
@@ -49,22 +50,19 @@ public static partial class GitUtility
     ) =>
         await ExecuteGitCmdAsync("", ["clone", repoUrl, outputDir], onProgress: onProgress, ct: ct);
 
-    public static async Task<StdOutStdErrOutput> PullGitRepo(
+    public async Task<StdOutStdErrOutput> PullGitRepo(
         string pathToRepo,
         Action<double>? onProgress = null,
         CancellationToken ct = default
     ) => await ExecuteGitCmdAsync(pathToRepo, ["pull"], onProgress: onProgress, ct: ct);
 
-    public static async Task<StdOutStdErrOutput> CheckoutBranch(
+    public async Task<StdOutStdErrOutput> CheckoutBranch(
         string pathToRepo,
         string branch,
         CancellationToken ct = default
     ) => await ExecuteGitCmdAsync(pathToRepo, ["checkout", branch], ct: ct);
 
-    public static async Task<string> GetDefaultBranch(
-        string pathToRepo,
-        CancellationToken ct = default
-    )
+    public async Task<string> GetDefaultBranch(string pathToRepo, CancellationToken ct = default)
     {
         var gitCmdResult = await ExecuteGitCmdAsync(
             pathToRepo,
@@ -74,10 +72,10 @@ public static partial class GitUtility
         return gitCmdResult.StdOut.Replace("origin/", "");
     }
 
-    public static async Task EnableLongPathsAsync(CancellationToken ct = default) =>
+    public async Task EnableLongPathsAsync(CancellationToken ct = default) =>
         await ExecuteGitCmdAsync("", ["config", "--system", "core.longpaths", "true"], ct: ct);
 
-    public static async Task<StdOutStdErrOutput> ExecuteGitCmdAsync(
+    public async Task<StdOutStdErrOutput> ExecuteGitCmdAsync(
         string workingDir,
         string[] args,
         Action<double>? onProgress = null,
@@ -96,7 +94,7 @@ public static partial class GitUtility
 
         try
         {
-            await Cli.Wrap(PathToGit)
+            await Cli.Wrap(_pathToGit)
                 .WithArguments(argBuilder => AppendArgument([.. finalArgs], argBuilder))
                 .WithStandardOutputPipe(
                     PipeTarget.Merge(
@@ -145,7 +143,7 @@ public static partial class GitUtility
         return new StdOutStdErrOutput(stdOut.ToString().Trim(), stdErr.ToString().Trim());
     }
 
-    private static void AppendArgument(string[] args, ArgumentsBuilder argBuilder)
+    private void AppendArgument(string[] args, ArgumentsBuilder argBuilder)
     {
         foreach (var arg in args)
         {
@@ -153,12 +151,10 @@ public static partial class GitUtility
         }
     }
 
-    private static readonly string PathToGit = OperatingSystem.IsWindows()
-        ? Path.Join("resources", "git", "cmd", "git.exe")
-        : "git";
+    private string _pathToGit => settings.PathToGit;
 
     [GeneratedRegex(@"Receiving objects:\s*(\d+)%")]
-    private static partial Regex ProgressRegex();
+    private partial Regex ProgressRegex();
 }
 
 public class GitUtilityException(string msg, Exception innerException)

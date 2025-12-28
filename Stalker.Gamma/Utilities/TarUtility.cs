@@ -1,12 +1,13 @@
 using System.Text;
 using CliWrap;
 using CliWrap.Builders;
+using Stalker.Gamma.Models;
 
 namespace Stalker.Gamma.Utilities;
 
-public static class TarUtility
+public class TarUtility(StalkerGammaSettings settings)
 {
-    public static async Task ExtractAsync(
+    public async Task ExtractAsync(
         string archivePath,
         string extractDirectory,
         Action<double>? onProgress,
@@ -21,7 +22,7 @@ public static class TarUtility
         );
     }
 
-    private static async Task<StdOutStdErrOutput> ExecuteTarCmdAsync(
+    private async Task<StdOutStdErrOutput> ExecuteTarCmdAsync(
         string[] args,
         string? workingDirectory = null,
         CancellationToken? cancellationToken = null,
@@ -33,7 +34,7 @@ public static class TarUtility
 
         try
         {
-            await Cli.Wrap("tar")
+            await Cli.Wrap(settings.PathToTar)
                 .WithArguments(argBuilder => AppendArgument(args, argBuilder))
                 .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErr))
                 .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOut))
@@ -62,7 +63,7 @@ public static class TarUtility
         return new StdOutStdErrOutput(stdOut.ToString(), stdErr.ToString());
     }
 
-    private static void AppendArgument(string[] args, ArgumentsBuilder argBuilder)
+    private void AppendArgument(string[] args, ArgumentsBuilder argBuilder)
     {
         foreach (var arg in args)
         {

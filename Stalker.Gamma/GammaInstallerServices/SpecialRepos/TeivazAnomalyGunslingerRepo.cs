@@ -5,8 +5,12 @@ namespace Stalker.Gamma.GammaInstallerServices.SpecialRepos;
 
 public interface ITeivazAnomalyGunslingerRepo : IDownloadableRecord;
 
-public class TeivazAnomalyGunslingerRepo(GammaProgress gammaProgress, string gammaDir, string url)
-    : ITeivazAnomalyGunslingerRepo
+public class TeivazAnomalyGunslingerRepo(
+    GammaProgress gammaProgress,
+    string gammaDir,
+    string url,
+    GitUtility gitUtility
+) : ITeivazAnomalyGunslingerRepo
 {
     public string Name { get; } = "teivaz_anomaly_gunslinger";
     public string ArchiveName { get; } = "";
@@ -18,7 +22,7 @@ public class TeivazAnomalyGunslingerRepo(GammaProgress gammaProgress, string gam
     {
         if (Directory.Exists(RepoPath))
         {
-            await GitUtility.PullGitRepo(
+            await gitUtility.PullGitRepo(
                 RepoPath,
                 onProgress: pct =>
                     gammaProgress.OnProgressChanged(
@@ -29,7 +33,7 @@ public class TeivazAnomalyGunslingerRepo(GammaProgress gammaProgress, string gam
         }
         else
         {
-            await GitUtility.CloneGitRepo(
+            await gitUtility.CloneGitRepo(
                 RepoPath,
                 Url,
                 onProgress: pct =>

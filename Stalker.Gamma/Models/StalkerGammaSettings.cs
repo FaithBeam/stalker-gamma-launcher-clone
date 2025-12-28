@@ -10,4 +10,9 @@ public class StalkerGammaSettings
     public string TeivazAnomalyGunslingerRepo { get; set; } =
         "https://github.com/Grokitach/teivaz_anomaly_gunslinger";
     public int DownloadThreads { get; set; } = 1;
+    public string PathToUnzip = "unzip";
+    public string PathTo7Z = OperatingSystem.IsWindows() ? "7zz.exe" : "7zz";
+    public string PathToCurl = OperatingSystem.IsWindows() ? "curl.exe" : "curl-impersonate";
+    public string PathToTar = "tar";
+    public string PathToGit = OperatingSystem.IsWindows() ? "git.exe" : "git";
 }

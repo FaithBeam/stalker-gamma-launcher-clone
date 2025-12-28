@@ -13,7 +13,8 @@ public class GithubRecord(
     string gammaDir,
     string outputDirName,
     IList<string> instructions,
-    IHttpClientFactory hcf
+    IHttpClientFactory hcf,
+    ArchiveUtility archiveUtility
 ) : IDownloadableRecord
 {
     public string Name { get; } = name;
@@ -94,7 +95,7 @@ public class GithubRecord(
     {
         Directory.CreateDirectory(ExtractPath);
 
-        await ArchiveUtility.ExtractAsync(
+        await archiveUtility.ExtractAsync(
             DownloadPath,
             ExtractPath,
             pct =>

@@ -2,12 +2,12 @@ using System.Text.RegularExpressions;
 
 namespace Stalker.Gamma.Utilities;
 
-public static partial class ModDbUtility
+public partial class ModDbUtility(MirrorUtility mirrorUtility, CurlUtility curlUtility)
 {
     /// <summary>
     /// Downloads from ModDB using curl.
     /// </summary>
-    public static async Task<string?> GetModDbLinkCurl(
+    public async Task<string?> GetModDbLinkCurl(
         string url,
         string output,
         Action<double> onProgress,
@@ -33,7 +33,7 @@ public static partial class ModDbUtility
         {
             var mirrorTask = Task.Run(
                 () =>
-                    MirrorUtility.GetMirrorAsync(
+                    mirrorUtility.GetMirrorAsync(
                         $"{url}/all",
                         invalidateMirrorCache,
                         excludeMirrors: excludeMirrors ?? []
@@ -41,7 +41,7 @@ public static partial class ModDbUtility
                 (CancellationToken)cancellationToken
             );
             var getContentTask = Task.Run(
-                () => CurlUtility.GetStringAsync(url, cancellationToken),
+                () => curlUtility.GetStringAsync(url, cancellationToken),
                 (CancellationToken)cancellationToken
             );
             var results = await Task.WhenAll(mirrorTask, getContentTask);
@@ -59,7 +59,7 @@ public static partial class ModDbUtility
                 parentPath.Create();
             }
 
-            await CurlUtility.DownloadFileAsync(
+            await curlUtility.DownloadFileAsync(
                 downloadLink,
                 parentPath?.FullName ?? "./",
                 Path.GetFileName(output),

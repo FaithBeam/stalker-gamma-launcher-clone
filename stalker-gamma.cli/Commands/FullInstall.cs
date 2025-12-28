@@ -42,12 +42,12 @@ public class FullInstallCmd(
         CancellationToken cancellationToken,
         string anomaly,
         string gamma,
-        [Hidden] string? mo2Version,
         string cache = "cache",
         int downloadThreads = 1,
         bool addFoldersToWinDefenderExclusion = false,
         bool enableLongPaths = false,
-        [Hidden] long progressUpdateIntervalMs = 1000,
+        [Hidden] string? mo2Version = null,
+        [Hidden] long progressUpdateIntervalMs = 250,
         [Hidden] string anomalyArchiveName = "anomaly.7z",
         [Hidden] string stalkerAddonApiUrl = "https://stalker-gamma.com/api/list",
         [Hidden] string? customModListUrl = null,
@@ -68,7 +68,18 @@ public class FullInstallCmd(
         stalkerGammaSettings.StalkerGammaRepo = stalkerGammaRepoUrl;
         stalkerGammaSettings.GammaLargeFilesRepo = gammaLargeFilesRepoUrl;
         stalkerGammaSettings.TeivazAnomalyGunslingerRepo = teivazAnomalyGunslingerRepoUrl;
-
+        var resourcesPath = Path.GetFullPath("resources");
+        stalkerGammaSettings.PathToCurl = Path.Join(
+            resourcesPath,
+            OperatingSystem.IsWindows() ? "curl.exe" : "curl-impersonate"
+        );
+        stalkerGammaSettings.PathTo7Z = Path.Join(
+            resourcesPath,
+            OperatingSystem.IsWindows() ? "7zz.exe" : "7zz"
+        );
+        stalkerGammaSettings.PathToGit = OperatingSystem.IsWindows()
+            ? Path.Join(resourcesPath, "git", "bin", "git.exe")
+            : "git";
         var gammaProgressObservable = Observable
             .FromEventPattern<GammaProgress.GammaInstallProgressEventArgs>(
                 handler => gammaInstaller.Progress.ProgressChanged += handler,
@@ -76,7 +87,7 @@ public class FullInstallCmd(
             )
             .Select(x => x.EventArgs);
         var gammaProgressDisposable = gammaProgressObservable
-            .Sample(TimeSpan.FromMilliseconds(500))
+            .Sample(TimeSpan.FromMilliseconds(progressUpdateIntervalMs))
             .Subscribe(OnProgressChanged);
         try
         {

@@ -2,9 +2,13 @@ using System.Collections.Frozen;
 
 namespace Stalker.Gamma.Utilities;
 
-public static class ArchiveUtility
+public class ArchiveUtility(
+    SevenZipUtility sevenZipUtility,
+    TarUtility tarUtility,
+    UnzipUtility unzipUtility
+)
 {
-    public static async Task ExtractAsync(
+    public async Task ExtractAsync(
         string archivePath,
         string destinationDir,
         Action<double> pct,
@@ -13,7 +17,7 @@ public static class ArchiveUtility
     {
         if (OperatingSystem.IsWindows())
         {
-            await SevenZipUtility.ExtractAsync(
+            await sevenZipUtility.ExtractAsync(
                 archivePath,
                 destinationDir,
                 pct,
@@ -24,7 +28,7 @@ public static class ArchiveUtility
         {
             await using var fs = File.OpenRead(archivePath);
             fs.Seek(0, SeekOrigin.Begin);
-            if (ArchiveMappings.TryGetValue(fs.ReadByte(), out var extractFunc))
+            if (_archiveMappings.TryGetValue(fs.ReadByte(), out var extractFunc))
             {
                 try
                 {
@@ -48,10 +52,10 @@ public static class ArchiveUtility
         }
     }
 
-    private static readonly FrozenDictionary<
+    private readonly FrozenDictionary<
         int,
         Func<string, string, Action<double>, CancellationToken, Task>
-    > ArchiveMappings = new Dictionary<
+    > _archiveMappings = new Dictionary<
         int,
         Func<string, string, Action<double>, CancellationToken, Task>
     >
@@ -59,7 +63,7 @@ public static class ArchiveUtility
         {
             0x37,
             async (archivePath, destinationDir, pct, ct) =>
-                await SevenZipUtility.ExtractAsync(
+                await sevenZipUtility.ExtractAsync(
                     archivePath,
                     destinationDir,
                     pct,
@@ -72,18 +76,18 @@ public static class ArchiveUtility
             {
                 if (OperatingSystem.IsLinux())
                 {
-                    await UnzipUtility.ExtractAsync(archivePath, destinationDir, pct, ct);
+                    await unzipUtility.ExtractAsync(archivePath, destinationDir, pct, ct);
                 }
                 else
                 {
-                    await TarUtility.ExtractAsync(archivePath, destinationDir, pct, ct);
+                    await tarUtility.ExtractAsync(archivePath, destinationDir, pct, ct);
                 }
             }
         },
         {
             0x52,
             async (archivePath, destinationDir, pct, ct) =>
-                await SevenZipUtility.ExtractAsync(
+                await sevenZipUtility.ExtractAsync(
                     archivePath,
                     destinationDir,
                     pct,

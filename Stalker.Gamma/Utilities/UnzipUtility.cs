@@ -1,12 +1,13 @@
 using System.Text;
 using CliWrap;
 using CliWrap.Builders;
+using Stalker.Gamma.Models;
 
 namespace Stalker.Gamma.Utilities;
 
-public static class UnzipUtility
+public class UnzipUtility(StalkerGammaSettings settings)
 {
-    public static async Task ExtractAsync(
+    public async Task ExtractAsync(
         string archivePath,
         string extractDirectory,
         Action<double>? onProgress,
@@ -18,7 +19,7 @@ public static class UnzipUtility
             cancellationToken: ct
         );
 
-    private static async Task<StdOutStdErrOutput> ExecuteSevenZipCmdAsync(
+    private async Task<StdOutStdErrOutput> ExecuteSevenZipCmdAsync(
         string[] args,
         string? workingDirectory = null,
         CancellationToken? cancellationToken = null,
@@ -30,7 +31,7 @@ public static class UnzipUtility
 
         try
         {
-            await Cli.Wrap("unzip")
+            await Cli.Wrap(settings.PathToUnzip)
                 .WithArguments(argBuilder => AppendArgument(args, argBuilder))
                 .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErr))
                 .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOut))
@@ -59,7 +60,7 @@ public static class UnzipUtility
         return new StdOutStdErrOutput(stdOut.ToString(), stdErr.ToString());
     }
 
-    private static void AppendArgument(string[] args, ArgumentsBuilder argBuilder)
+    private void AppendArgument(string[] args, ArgumentsBuilder argBuilder)
     {
         foreach (var arg in args)
         {

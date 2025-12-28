@@ -1,6 +1,7 @@
 using Stalker.Gamma.GammaInstallerServices;
 using Stalker.Gamma.GammaInstallerServices.SpecialRepos;
 using Stalker.Gamma.Models;
+using Stalker.Gamma.Utilities;
 
 namespace Stalker.Gamma.Factories;
 
@@ -25,36 +26,47 @@ public interface IDownloadableRecordFactory
 public class DownloadableRecordFactory(
     StalkerGammaSettings stalkerGammaSettings,
     IHttpClientFactory httpClientFactory,
-    GammaProgress gammaProgress
+    GammaProgress gammaProgress,
+    ModDbUtility modDbUtility,
+    ArchiveUtility archiveUtility,
+    GitUtility gitUtility
 ) : IDownloadableRecordFactory
 {
     public IDownloadableRecord CreateAnomalyRecord(string gammaDir, string anomalyDir) =>
-        new AnomalyInstaller(gammaProgress, gammaDir, anomalyDir);
+        new AnomalyInstaller(gammaProgress, gammaDir, anomalyDir, modDbUtility, archiveUtility);
 
     public IDownloadableRecord CreateGammaSetupRecord(string gammaDir, string anomalyDir) =>
         new GammaSetupRepo(
             gammaProgress,
             gammaDir,
             anomalyDir,
-            stalkerGammaSettings.GammaSetupRepo
+            stalkerGammaSettings.GammaSetupRepo,
+            gitUtility
         );
 
     public IDownloadableRecord CreateGammaLargeFilesRecord(string gammaDir) =>
-        new GammaLargeFilesRepo(gammaProgress, gammaDir, stalkerGammaSettings.GammaLargeFilesRepo);
+        new GammaLargeFilesRepo(
+            gammaProgress,
+            gammaDir,
+            stalkerGammaSettings.GammaLargeFilesRepo,
+            gitUtility
+        );
 
     public IDownloadableRecord CreateStalkerGammaRecord(string gammaDir, string anomalyDir) =>
         new StalkerGammaRepo(
             gammaProgress,
             gammaDir,
             anomalyDir,
-            stalkerGammaSettings.StalkerGammaRepo
+            stalkerGammaSettings.StalkerGammaRepo,
+            gitUtility
         );
 
     public IDownloadableRecord CreateTeivazAnomalyGunslingerRecord(string gammaDir) =>
         new TeivazAnomalyGunslingerRepo(
             gammaProgress,
             gammaDir,
-            stalkerGammaSettings.TeivazAnomalyGunslingerRepo
+            stalkerGammaSettings.TeivazAnomalyGunslingerRepo,
+            gitUtility
         );
 
     public List<IDownloadableRecord> CreateGroupedDownloadableRecords(
@@ -130,7 +142,8 @@ public class DownloadableRecordFactory(
                 gammaDir,
                 outputDirName,
                 instructions,
-                httpClientFactory
+                httpClientFactory,
+                archiveUtility
             );
             return true;
         }
@@ -166,7 +179,9 @@ public class DownloadableRecordFactory(
                 record.Md5ModDb,
                 gammaDir,
                 outputDirName,
-                instructions
+                instructions,
+                archiveUtility,
+                modDbUtility
             );
             return true;
         }

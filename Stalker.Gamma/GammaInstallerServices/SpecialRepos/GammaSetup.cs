@@ -9,7 +9,8 @@ public class GammaSetupRepo(
     GammaProgress gammaProgress,
     string gammaDir,
     string anomalyDir,
-    string url
+    string url,
+    GitUtility gitUtility
 ) : IGammaSetupRepo
 {
     public string Name { get; } = "gamma_setup";
@@ -23,7 +24,7 @@ public class GammaSetupRepo(
     {
         if (Directory.Exists(RepoPath))
         {
-            await GitUtility.PullGitRepo(
+            await gitUtility.PullGitRepo(
                 RepoPath,
                 onProgress: pct =>
                     gammaProgress.OnProgressChanged(
@@ -34,7 +35,7 @@ public class GammaSetupRepo(
         }
         else
         {
-            await GitUtility.CloneGitRepo(
+            await gitUtility.CloneGitRepo(
                 RepoPath,
                 Url,
                 onProgress: pct =>

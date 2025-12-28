@@ -5,6 +5,7 @@ using Stalker.Gamma.GammaInstallerServices;
 using Stalker.Gamma.GammaInstallerServices.SpecialRepos;
 using Stalker.Gamma.Models;
 using Stalker.Gamma.ModOrganizer.DownloadModOrganizer;
+using Stalker.Gamma.Utilities;
 
 namespace Stalker.Gamma.Extensions;
 
@@ -29,6 +30,14 @@ public static class ServiceCollectionExtensions
             );
         s.AddSingleton<StalkerGammaSettings>().AddSingleton<GammaProgress, GammaProgress>();
         return s.AddScoped<IDownloadModOrganizerService, DownloadModOrganizerService>()
+            .AddScoped<ArchiveUtility>()
+            .AddScoped<SevenZipUtility>()
+            .AddScoped<TarUtility>()
+            .AddScoped<UnzipUtility>()
+            .AddScoped<GitUtility>()
+            .AddScoped<ModDbUtility>()
+            .AddScoped<MirrorUtility>()
+            .AddScoped<CurlUtility>()
             .AddScoped<ISeparatorsFactory, SeparatorsFactory>()
             .AddScoped<IGetStalkerModsFromApi, GetStalkerModsFromApi>()
             .AddScoped<IModListRecordFactory, ModListRecordFactory>()

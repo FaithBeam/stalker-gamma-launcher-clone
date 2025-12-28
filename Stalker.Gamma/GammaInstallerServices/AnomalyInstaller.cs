@@ -5,8 +5,13 @@ namespace Stalker.Gamma.GammaInstallerServices;
 
 public interface IAnomalyInstaller : IDownloadableRecord;
 
-public class AnomalyInstaller(GammaProgress gammaProgress, string gammaDir, string anomalyDir)
-    : IAnomalyInstaller
+public class AnomalyInstaller(
+    GammaProgress gammaProgress,
+    string gammaDir,
+    string anomalyDir,
+    ModDbUtility modDbUtility,
+    ArchiveUtility archiveUtility
+) : IAnomalyInstaller
 {
     public string Name { get; } = "Stalker Anomaly";
     public string ArchiveName { get; } = "Stalker_Anomaly.7z";
@@ -31,7 +36,7 @@ public class AnomalyInstaller(GammaProgress gammaProgress, string gammaDir, stri
             )
         )
         {
-            await ModDbUtility.GetModDbLinkCurl(
+            await modDbUtility.GetModDbLinkCurl(
                 StalkerAnomalyUrl,
                 DownloadPath,
                 pct =>
@@ -45,14 +50,14 @@ public class AnomalyInstaller(GammaProgress gammaProgress, string gammaDir, stri
 
     public virtual async Task ExtractAsync(CancellationToken cancellationToken = default)
     {
-        await SevenZipUtility.ExtractAsync(
+        await archiveUtility.ExtractAsync(
             DownloadPath,
             ExtractPath,
             pct =>
                 gammaProgress.OnProgressChanged(
                     new GammaProgress.GammaInstallProgressEventArgs(Name, "Extract", pct)
                 ),
-            cancellationToken: cancellationToken
+            ct: cancellationToken
         );
         gammaProgress.IncrementCompletedMods();
     }
