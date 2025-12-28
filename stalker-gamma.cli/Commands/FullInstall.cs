@@ -125,7 +125,7 @@ public class FullInstallCmd(
             e.Name[..Math.Min(e.Name.Length, 35)].PadRight(40),
             e.ProgressType.PadRight(10),
             $"{e.Progress:P2}".PadRight(8),
-            e.TotalProgress
+            $"[{e.Complete}/{e.Total}]"
         );
 
     private readonly ILogger _logger = logger;
