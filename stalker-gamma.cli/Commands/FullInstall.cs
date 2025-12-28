@@ -76,7 +76,7 @@ public class FullInstallCmd(
             OperatingSystem.IsWindows() ? "7zz.exe" : "7zz"
         );
         stalkerGammaSettings.PathToGit = OperatingSystem.IsWindows()
-            ? Path.Join(resourcesPath, "git", "bin", "git.exe")
+            ? Path.Join(resourcesPath, "git", "cmd", "git.exe")
             : "git";
         var gammaProgressObservable = Observable
             .FromEventPattern<GammaProgress.GammaInstallProgressEventArgs>(
