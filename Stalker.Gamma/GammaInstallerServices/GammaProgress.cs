@@ -23,8 +23,7 @@ public class GammaProgress : IGammaProgress
 
     internal void OnProgressChanged(GammaInstallProgressEventArgs e)
     {
-        var pct = (double)_completedMods / TotalMods;
-        e.TotalProgress = pct;
+        e.TotalProgress = $"[{_completedMods}/{TotalMods}]";
         ProgressChanged?.Invoke(this, e);
     }
 
@@ -34,6 +33,6 @@ public class GammaProgress : IGammaProgress
         public string Name { get; } = name;
         public string ProgressType { get; } = progressType;
         public double Progress { get; } = progress;
-        public double TotalProgress { get; set; }
+        public string? TotalProgress { get; set; }
     }
 }

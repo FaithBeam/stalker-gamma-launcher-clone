@@ -2,6 +2,7 @@
 using System.Reactive.Linq;
 using ConsoleAppFramework;
 using Serilog;
+using stalker_gamma.core.Services;
 using Stalker.Gamma.GammaInstallerServices;
 using Stalker.Gamma.Models;
 
@@ -11,10 +12,9 @@ namespace stalker_gamma.cli.Commands;
 public class FullInstallCmd(
     ILogger logger,
     StalkerGammaSettings stalkerGammaSettings,
-    GammaInstaller gammaInstaller
-// AddFoldersToWinDefenderExclusionService addFoldersToWinDefenderExclusionService,
-// EnableLongPathsOnWindowsService enableLongPathsOnWindowsService,
-// ProgressService progress
+    GammaInstaller gammaInstaller,
+    AddFoldersToWinDefenderExclusionService addFoldersToWinDefenderExclusionService,
+    EnableLongPathsOnWindowsService enableLongPathsOnWindowsService
 )
 {
     /// <summary>
@@ -66,6 +66,8 @@ public class FullInstallCmd(
         stalkerGammaSettings.StalkerGammaRepo = stalkerGammaRepoUrl;
         stalkerGammaSettings.GammaLargeFilesRepo = gammaLargeFilesRepoUrl;
         stalkerGammaSettings.TeivazAnomalyGunslingerRepo = teivazAnomalyGunslingerRepoUrl;
+        stalkerGammaSettings.StalkerAnomalyModdbUrl = stalkerAnomalyModdbUrl;
+        stalkerGammaSettings.StalkerAnomalyArchiveMd5 = stalkerAnomalyArchiveMd5;
         var resourcesPath = Path.GetFullPath("resources");
         stalkerGammaSettings.PathToCurl = Path.Join(
             resourcesPath,
@@ -78,6 +80,19 @@ public class FullInstallCmd(
         stalkerGammaSettings.PathToGit = OperatingSystem.IsWindows()
             ? Path.Join(resourcesPath, "git", "cmd", "git.exe")
             : "git";
+
+        if (OperatingSystem.IsWindows())
+        {
+            if (addFoldersToWinDefenderExclusion)
+            {
+                addFoldersToWinDefenderExclusionService.Execute(gamma, anomaly, cache);
+            }
+            if (enableLongPaths)
+            {
+                enableLongPathsOnWindowsService.Execute();
+            }
+        }
+
         var gammaProgressObservable = Observable
             .FromEventPattern<GammaProgress.GammaInstallProgressEventArgs>(
                 handler => gammaInstaller.Progress.ProgressChanged += handler,
@@ -114,6 +129,5 @@ public class FullInstallCmd(
         );
 
     private readonly ILogger _logger = logger;
-    private const string StructuredLog =
-        "{AddonName} | {Operation} | {Percent} | {TotalProgress:P2}";
+    private const string StructuredLog = "{AddonName} | {Operation} | {Percent} | {CompleteTotal}";
 }

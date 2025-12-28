@@ -9,6 +9,9 @@ public class StalkerGammaSettings
     public string StalkerGammaRepo { get; set; } = "https://github.com/Grokitach/Stalker_GAMMA";
     public string TeivazAnomalyGunslingerRepo { get; set; } =
         "https://github.com/Grokitach/teivaz_anomaly_gunslinger";
+
+    public string StalkerAnomalyModdbUrl = "https://www.moddb.com/downloads/start/277404";
+    public string StalkerAnomalyArchiveMd5 = "d6bce51a4e6d98f9610ef0aa967ba964";
     public int DownloadThreads { get; set; } = 1;
     public string PathToUnzip = "unzip";
     public string PathTo7Z = OperatingSystem.IsWindows() ? "7zz.exe" : "7zz";
