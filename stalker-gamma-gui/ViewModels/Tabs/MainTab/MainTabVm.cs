@@ -147,7 +147,7 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
         GetLocalMods.Handler getLocalModsHandler,
         ModalService modalService,
         SettingsFileService settingsFileService,
-        WriteModOrganizerIniService writeModOrganizerIniService
+        WriteModOrganizerIni writeModOrganizerIni
     )
     {
         var fileService1 = filePickerService;
@@ -379,7 +379,7 @@ public partial class MainTabVm : ViewModelBase, IActivatableViewModel
                     _settingsFileService.SettingsFile.CacheDir!,
                     _settingsFileService.SettingsFile.GammaDir
                 );
-                await writeModOrganizerIniService.WriteAsync(
+                await writeModOrganizerIni.WriteAsync(
                     _settingsFileService.SettingsFile.GammaDir!,
                     _settingsFileService.SettingsFile.AnomalyDir!,
                     mo2Version

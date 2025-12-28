@@ -1,0 +1,113 @@
+using System.Buffers;
+using Stalker.Gamma.GammaInstallerServices;
+using Stalker.Gamma.Utilities;
+
+namespace Stalker.Gamma.Models;
+
+public class GithubRecord(
+    GammaProgress gammaProgress,
+    string name,
+    string url,
+    string archiveName,
+    string? md5,
+    string gammaDir,
+    string outputDirName,
+    IList<string> instructions,
+    IHttpClientFactory hcf
+) : IDownloadableRecord
+{
+    public string Name { get; } = name;
+    private string Url { get; } = url;
+    public string ArchiveName { get; } = archiveName;
+    private string? Md5 { get; } = md5;
+    private string DownloadPath => Path.Join(gammaDir, "downloads", ArchiveName);
+    private string ExtractPath => Path.Join(gammaDir, "mods", outputDirName);
+    private IList<string> Instructions { get; } = instructions;
+    private readonly HttpClient _hc = hcf.CreateClient("githubDlArchive");
+
+    public async Task DownloadAsync(CancellationToken cancellationToken)
+    {
+        const int bufferSize = 1024 * 1024;
+
+        var buffer = ArrayPool<byte>.Shared.Rent(81920);
+        try
+        {
+            using var response = await _hc.GetAsync(
+                Url,
+                HttpCompletionOption.ResponseHeadersRead,
+                cancellationToken
+            );
+            response.EnsureSuccessStatusCode();
+
+            var totalBytes = response.Content.Headers.ContentLength;
+
+            await using var fs = new FileStream(
+                DownloadPath,
+                FileMode.Create,
+                FileAccess.Write,
+                FileShare.None,
+                bufferSize: bufferSize
+            );
+            await using var contentStream = await response.Content.ReadAsStreamAsync(
+                cancellationToken
+            );
+
+            long totalBytesRead = 0;
+            int bytesRead;
+
+            while (
+                (
+                    bytesRead = await contentStream.ReadAsync(
+                        buffer.AsMemory(0, buffer.Length),
+                        cancellationToken
+                    )
+                ) > 0
+            )
+            {
+                await fs.WriteAsync(buffer.AsMemory(0, bytesRead), cancellationToken);
+                totalBytesRead += bytesRead;
+
+                if (totalBytes.HasValue)
+                {
+                    var progressPercentage = (double)totalBytesRead / totalBytes.Value;
+                    gammaProgress.OnProgressChanged(
+                        new GammaProgress.GammaInstallProgressEventArgs(
+                            Name,
+                            "Download",
+                            progressPercentage
+                        )
+                    );
+                }
+            }
+
+            gammaProgress.OnProgressChanged(
+                new GammaProgress.GammaInstallProgressEventArgs(Name, "Download", 1)
+            );
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(buffer);
+        }
+    }
+
+    public async Task ExtractAsync(CancellationToken cancellationToken)
+    {
+        Directory.CreateDirectory(ExtractPath);
+
+        await ArchiveUtility.ExtractAsync(
+            DownloadPath,
+            ExtractPath,
+            pct =>
+                gammaProgress.OnProgressChanged(
+                    new GammaProgress.GammaInstallProgressEventArgs(Name, "Extract", pct)
+                ),
+            ct: cancellationToken
+        );
+
+        ProcessInstructions.Process(ExtractPath, Instructions);
+
+        CleanExtractPath.Clean(ExtractPath);
+
+        WriteAddonMetaIni.Write(ExtractPath, ArchiveName, Url);
+    }
+}

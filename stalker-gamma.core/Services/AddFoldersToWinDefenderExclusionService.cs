@@ -1,4 +1,4 @@
-﻿using stalker_gamma.core.Utilities;
+﻿using Stalker.Gamma.Utilities;
 
 namespace stalker_gamma.core.Services;
 

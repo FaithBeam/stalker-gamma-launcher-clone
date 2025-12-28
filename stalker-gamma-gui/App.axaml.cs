@@ -113,7 +113,7 @@ public partial class App : Application
 
                 s.AddScoped<DownloadModOrganizerService>()
                     .AddScoped<AnomalyInstaller>()
-                    .AddScoped<WriteModOrganizerIniService>()
+                    .AddScoped<WriteModOrganizerIni>()
                     .AddScoped<IIsRanWithWineService, IsRanWithWineService>()
                     .AddScoped<IILongPathsStatusService, LongPathsStatus.Handler>()
                     .AddScoped<Shortcut>()

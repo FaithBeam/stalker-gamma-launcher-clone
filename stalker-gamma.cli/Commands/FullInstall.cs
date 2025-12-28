@@ -1,38 +1,22 @@
-﻿using System.Collections.Concurrent;
-using System.Text.RegularExpressions;
+﻿using System.Reactive;
+using System.Reactive.Linq;
 using ConsoleAppFramework;
 using Serilog;
-using stalker_gamma.cli.Services;
-using stalker_gamma.core.Models;
-using stalker_gamma.core.Services;
-using stalker_gamma.core.Services.GammaInstallerServices;
-using stalker_gamma.core.Services.GammaInstallerServices.SpecialRepos;
-using stalker_gamma.core.Services.ModOrganizer;
-using stalker_gamma.core.Services.ModOrganizer.DownloadModOrganizer;
-using stalker_gamma.core.Utilities;
+using Stalker.Gamma.GammaInstallerServices;
+using Stalker.Gamma.Models;
 
 namespace stalker_gamma.cli.Commands;
 
 [RegisterCommands]
-public partial class FullInstallCmd(
-    GlobalSettings globalSettings,
-    EnrichAnomalyInstaller anomalyInstaller,
-    EnrichDownloadAndExtractGitRepoFactory downloadAndExtractGitRepoFactory,
-    InstallModOrganizerGammaProfile installModOrganizerGammaProfile,
-    DownloadModOrganizerService downloadModOrganizerService,
-    WriteModOrganizerIniService writeModOrganizerIniService,
-    DisableNexusModHandlerLink disableNexusModHandlerLink,
+public class FullInstallCmd(
     ILogger logger,
-    AddFoldersToWinDefenderExclusionService addFoldersToWinDefenderExclusionService,
-    EnableLongPathsOnWindowsService enableLongPathsOnWindowsService,
-    GetModListService getModListService,
-    ProgressService progress,
-    DownloadAddonUtility downloadAddonUtility,
-    DownloadAndInstallCustomModlist downloadAndInstallCustomModlist
+    StalkerGammaSettings stalkerGammaSettings,
+    GammaInstaller gammaInstaller
+// AddFoldersToWinDefenderExclusionService addFoldersToWinDefenderExclusionService,
+// EnableLongPathsOnWindowsService enableLongPathsOnWindowsService,
+// ProgressService progress
 )
 {
-    private readonly ILogger _logger = logger;
-
     /// <summary>
     /// This will install/update Anomaly and all GAMMA addons.
     /// </summary>
@@ -78,289 +62,43 @@ public partial class FullInstallCmd(
         [Hidden] string stalkerAnomalyArchiveMd5 = "d6bce51a4e6d98f9610ef0aa967ba964"
     )
     {
-        globalSettings.DownloadThreads = downloadThreads;
-        globalSettings.StalkerAddonApiUrl = stalkerAddonApiUrl;
-        globalSettings.GammaSetupRepo = gammaSetupRepoUrl;
-        globalSettings.StalkerGammaRepo = stalkerGammaRepoUrl;
-        globalSettings.GammaLargeFilesRepo = gammaLargeFilesRepoUrl;
-        globalSettings.TeivazAnomalyGunslingerRepo = teivazAnomalyGunslingerRepoUrl;
-        globalSettings.StalkerAnomalyModDbUrl = stalkerAnomalyModdbUrl;
-        globalSettings.StalkerAnomalyArchiveMd5 = stalkerAnomalyArchiveMd5;
-        globalSettings.ProgressUpdateIntervalMs = progressUpdateIntervalMs;
+        stalkerGammaSettings.DownloadThreads = downloadThreads;
+        stalkerGammaSettings.ListStalkerModsUrl = stalkerAddonApiUrl;
+        stalkerGammaSettings.GammaSetupRepo = gammaSetupRepoUrl;
+        stalkerGammaSettings.StalkerGammaRepo = stalkerGammaRepoUrl;
+        stalkerGammaSettings.GammaLargeFilesRepo = gammaLargeFilesRepoUrl;
+        stalkerGammaSettings.TeivazAnomalyGunslingerRepo = teivazAnomalyGunslingerRepoUrl;
 
-        Directory.CreateDirectory(anomaly);
-        Directory.CreateDirectory(gamma);
-        Directory.CreateDirectory(cache);
-        var anomalyCacheArchivePath = Path.Join(cache, anomalyArchiveName);
-        var gammaDownloadsDir = Path.GetFullPath(Path.Join(gamma, "downloads"));
-        CreateSymbolicLinkUtility.Create(gammaDownloadsDir, Path.GetFullPath(cache));
-
-        if (OperatingSystem.IsWindows())
+        var gammaProgressObservable = Observable
+            .FromEventPattern<GammaProgress.GammaInstallProgressEventArgs>(
+                handler => gammaInstaller.Progress.ProgressChanged += handler,
+                handler => gammaInstaller.Progress.ProgressChanged -= handler
+            )
+            .Select(x => x.EventArgs);
+        var gammaProgressDisposable = gammaProgressObservable
+            .Sample(TimeSpan.FromMilliseconds(500))
+            .Subscribe(OnProgressChanged);
+        try
         {
-            await GitUtility.EnableLongPathsAsync();
-            if (enableLongPaths)
-            {
-                enableLongPathsOnWindowsService.Execute();
-            }
-            if (addFoldersToWinDefenderExclusion)
-            {
-                addFoldersToWinDefenderExclusionService.Execute(anomaly, gamma, cache);
-            }
-        }
-        else
-        {
-            mo2Version = "v2.4.4";
-        }
-
-        var anomalyTask = Task.Run(
-            async () =>
-                await anomalyInstaller.DownloadAndExtractAsync(
-                    anomalyCacheArchivePath,
-                    anomaly,
-                    cancellationToken
-                ),
-            cancellationToken
-        );
-
-        var modList = await getModListService.ExecuteAsync(stalkerAddonApiUrl, cancellationToken);
-        var addons = GetAddonsFromApiService.GetAddons(modList);
-
-        var gammaModsPath = Path.Join(gamma, "mods");
-        var separators = addons
-            .Where(kvp => kvp.Value is Separator)
-            .Select(kvp => kvp.Value)
-            .Cast<Separator>()
-            .Select(kvp => Path.Join(gammaModsPath, kvp.FolderName))
-            .ToList();
-        await WriteSeparatorsUtility.WriteAsync(separators);
-
-        var anomalyBinPath = Path.Join(anomaly, "bin");
-
-        var modDbAddons = new List<DownloadAndExtractRecordService> { };
-        modDbAddons.AddRange(
-            addons
-                .Values.Where(x => x is ModDbRecord)
-                .GroupBy(x => Path.Join(cache, x.ZipName))
-                .Select(group =>
-                {
-                    var first = group.First();
-                    return downloadAndExtractGitRepoFactory.Create(
-                        first.AddonName![..Math.Min(first.AddonName!.Length, 35)].PadRight(40),
-                        Path.Join(cache, first.ZipName),
-                        "",
-                        "",
-                        dlFunc: (checkMd5Pct, dlPct, _) =>
-                            downloadAddonUtility.DownloadAsync(
-                                first,
-                                Path.Join(cache, first.ZipName),
-                                checkMd5Pct,
-                                dlPct
-                            ),
-                        extractFunc: pct =>
-                            ExtractAddonGroup.ExtractAsync(
-                                first.ZipName!,
-                                cache,
-                                gammaModsPath,
-                                group,
-                                pct,
-                                cancellationToken
-                            )
-                    );
-                })
-        );
-
-        var githubArchives = new List<DownloadAndExtractRecordService> { };
-        githubArchives.AddRange(
-            addons
-                .Values.Where(x => x is GithubRecord)
-                .GroupBy(x => Path.Join(cache, x.ZipName))
-                .Select(group =>
-                {
-                    var first = group.First();
-
-                    var archivePath = Path.Join(cache, first.ZipName);
-
-                    return downloadAndExtractGitRepoFactory.Create(
-                        first.AddonName![..Math.Min(first.AddonName!.Length, 35)].PadRight(40),
-                        archivePath,
-                        "",
-                        "",
-                        dlFunc: (_, pct, _) =>
-                            downloadAddonUtility.DownloadAsync(first, archivePath, _ => { }, pct),
-                        extractFunc: pct =>
-                            ExtractAddonGroup.ExtractAsync(
-                                first.ZipName!,
-                                cache,
-                                gammaModsPath,
-                                group,
-                                pct,
-                                cancellationToken
-                            )
-                    );
-                })
-        );
-        modDbAddons.AddRange(githubArchives);
-        progress.TotalAddons += modDbAddons.Count;
-
-        ConcurrentBag<DownloadAndExtractRecordService> brokenAddons = [];
-
-        await ProcessAddonsAsync(downloadThreads, modDbAddons, brokenAddons);
-
-        await ProcessBrokenAddonsAsync(brokenAddons);
-
-        brokenAddons.Clear();
-
-        var specialGitRepos = new List<DownloadAndExtractRecordService>
-        {
-            downloadAndExtractGitRepoFactory.Create(
-                GammaSetupRepo.Name,
-                Path.Join(cache, GammaSetupRepo.Name),
-                gammaModsPath,
-                gammaSetupRepoUrl,
-                dlFunc: (_, pct, _) => GammaSetupRepo.DownloadAsync(cache, gammaSetupRepoUrl, pct),
-                extractFunc: pct => GammaSetupRepo.ExtractAsync(cache, gammaModsPath, anomaly, pct),
-                extractPrereqTask: anomalyTask,
-                cancellationToken: cancellationToken
-            ),
-            downloadAndExtractGitRepoFactory.Create(
-                GammaLargeFiles.Name,
-                Path.Join(cache, GammaLargeFiles.Name),
-                gammaModsPath,
-                gammaLargeFilesRepoUrl,
-                dlFunc: (_, pct, _) =>
-                    GammaLargeFiles.DownloadAsync(cache, gammaLargeFilesRepoUrl, pct),
-                extractFunc: pct => GammaLargeFiles.Extract(cache, gammaModsPath, pct),
-                cancellationToken: cancellationToken
-            ),
-            downloadAndExtractGitRepoFactory.Create(
-                TeivazAnomalyGunslingerRepo.Name,
-                Path.Join(cache, TeivazAnomalyGunslingerRepo.Name),
-                gammaModsPath,
-                teivazAnomalyGunslingerRepoUrl,
-                dlFunc: (_, pct, _) =>
-                    TeivazAnomalyGunslingerRepo.DownloadAsync(
-                        cache,
-                        teivazAnomalyGunslingerRepoUrl,
-                        pct
-                    ),
-                extractFunc: pct => TeivazAnomalyGunslingerRepo.Extract(cache, gammaModsPath, pct),
-                cancellationToken: cancellationToken
-            ),
-        };
-        progress.TotalAddons += specialGitRepos.Count;
-
-        await ProcessAddonsAsync(downloadThreads, specialGitRepos, brokenAddons);
-
-        await ProcessBrokenAddonsAsync(brokenAddons);
-
-        await ProcessAddonsAsync(
-            downloadThreads,
-            [
-                downloadAndExtractGitRepoFactory.Create(
-                    StalkerGammaRepo.Name,
-                    Path.Join(cache, StalkerGammaRepo.Name),
-                    gammaModsPath,
-                    stalkerGammaRepoUrl,
-                    dlFunc: (_, pct, _) =>
-                        StalkerGammaRepo.DownloadAsync(cache, stalkerGammaRepoUrl, pct),
-                    extractFunc: pct =>
-                        StalkerGammaRepo.Extract(cache, gammaModsPath, anomaly, pct),
-                    extractPrereqTask: anomalyTask,
-                    cancellationToken: cancellationToken
-                ),
-            ],
-            brokenAddons
-        );
-
-        DeleteReshadeDlls.Delete(anomalyBinPath);
-
-        DeleteShaderCache.Delete(anomaly);
-
-        await downloadModOrganizerService.DownloadAsync(
-            cachePath: cache,
-            extractPath: gamma,
-            version: mo2Version,
-            cancellationToken: cancellationToken
-        );
-
-        await installModOrganizerGammaProfile.InstallAsync(
-            Path.Join(gamma, "downloads", StalkerGammaRepo.Name),
-            gamma
-        );
-
-        await writeModOrganizerIniService.WriteAsync(gamma, anomaly, mo2Version, separators);
-
-        await disableNexusModHandlerLink.DisableAsync(gamma);
-
-        await WriteModsListToCacheDir.WriteAsync(cache, modList, cancellationToken);
-
-        if (!string.IsNullOrWhiteSpace(customModListUrl))
-        {
-            await downloadAndInstallCustomModlist.ExecuteAsync(
-                customModListUrl,
-                Path.Join(gamma, "profiles", "G.A.M.M.A", "modlist.txt"),
+            await gammaInstaller.FullInstallAsync(
+                anomaly,
+                gamma,
+                cache,
+                mo2Version,
                 cancellationToken
             );
+            _logger.Information("Install finished");
         }
-
-        _logger.Information("Install finished");
-    }
-
-    private async Task ProcessAddonsAsync(
-        int downloadThreads,
-        List<DownloadAndExtractRecordService> addons,
-        ConcurrentBag<DownloadAndExtractRecordService> brokenAddons
-    ) =>
-        await Parallel.ForEachAsync(
-            addons,
-            new ParallelOptions { MaxDegreeOfParallelism = downloadThreads },
-            async (grs, _) =>
-            {
-                try
-                {
-                    await grs.DownloadAndExtractAsync();
-                }
-                catch (Exception e)
-                {
-                    _logger.Warning(
-                        """
-                        Error processing addon: {Addon}
-                        {Exception}
-                        """,
-                        grs.RepoUrl,
-                        e
-                    );
-                    brokenAddons.Add(grs);
-                }
-            }
-        );
-
-    private async Task ProcessBrokenAddonsAsync(
-        ConcurrentBag<DownloadAndExtractRecordService> brokenAddons
-    )
-    {
-        foreach (var brokenAddon in brokenAddons)
+        finally
         {
-            try
-            {
-                await brokenAddon.DownloadAndExtractAsync(invalidateMirror: true);
-            }
-            catch (Exception e)
-            {
-                _logger.Error(
-                    """
-                    Error processing addon: {Addon}
-                    {Exception}
-                    """,
-                    brokenAddon.RepoUrl,
-                    e
-                );
-            }
+            gammaProgressDisposable.Dispose();
         }
     }
 
-    [GeneratedRegex(
-        @"https://github.com/(?<profile>[\w\-_]*)/+?(?<repo>[\w\-_\.]*).*/(?<archive>.*)\.+?"
-    )]
-    private static partial Regex GithubRx();
+    private void OnProgressChanged(GammaProgress.GammaInstallProgressEventArgs e) =>
+        _logger.Information(StructuredLog, e.Name, e.ProgressType, e.Progress, e.TotalProgress);
+
+    private readonly ILogger _logger = logger;
+    private const string StructuredLog =
+        "{AddonName} | {Operation} | {Percent:P2} | {TotalProgress:P2}";
 }

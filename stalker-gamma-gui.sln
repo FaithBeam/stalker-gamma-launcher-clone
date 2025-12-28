@@ -8,6 +8,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "stalker-gamma.cli", "stalke
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "stalker-gamma.updater", "stalker-gamma.updater\stalker-gamma.updater.csproj", "{6BF07DA9-207D-4CC7-B15A-0A72C935FAB6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stalker.Gamma", "Stalker.Gamma\Stalker.Gamma.csproj", "{F08E77E8-65A1-48AC-8BAE-C055400B2B2C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stalker.Gamma.Tests", "Stalker.Gamma.Tests\Stalker.Gamma.Tests.csproj", "{A9F013E7-7D4C-4C6D-9B4F-677AE4085C36}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +34,13 @@ Global
 		{6BF07DA9-207D-4CC7-B15A-0A72C935FAB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6BF07DA9-207D-4CC7-B15A-0A72C935FAB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6BF07DA9-207D-4CC7-B15A-0A72C935FAB6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F08E77E8-65A1-48AC-8BAE-C055400B2B2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F08E77E8-65A1-48AC-8BAE-C055400B2B2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F08E77E8-65A1-48AC-8BAE-C055400B2B2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F08E77E8-65A1-48AC-8BAE-C055400B2B2C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A9F013E7-7D4C-4C6D-9B4F-677AE4085C36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9F013E7-7D4C-4C6D-9B4F-677AE4085C36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9F013E7-7D4C-4C6D-9B4F-677AE4085C36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9F013E7-7D4C-4C6D-9B4F-677AE4085C36}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
