@@ -23,7 +23,6 @@ public class FullInstallCmd(
     /// <param name="anomaly">Directory to extract Anomaly to</param>
     /// <param name="gamma">Directory to extract GAMMA to</param>
     /// <param name="cache">Cache directory</param>
-    /// <param name="anomalyArchiveName">Optionally change the name of the downloaded anomaly archive</param>
     /// <param name="downloadThreads">Number of parallel downloads that can occur</param>
     /// <param name="addFoldersToWinDefenderExclusion">(Windows) Add the anomaly, gamma, and cache folders to the Windows Defender Exclusion list</param>
     /// <param name="enableLongPaths">(Windows) Enable long paths</param>
@@ -48,7 +47,6 @@ public class FullInstallCmd(
         bool enableLongPaths = false,
         [Hidden] string? mo2Version = null,
         [Hidden] long progressUpdateIntervalMs = 250,
-        [Hidden] string anomalyArchiveName = "anomaly.7z",
         [Hidden] string stalkerAddonApiUrl = "https://stalker-gamma.com/api/list",
         [Hidden] string? customModListUrl = null,
         [Hidden] string gammaSetupRepoUrl = "https://github.com/Grokitach/gamma_setup",

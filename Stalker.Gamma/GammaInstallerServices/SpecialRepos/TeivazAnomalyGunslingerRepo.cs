@@ -40,7 +40,8 @@ public class TeivazAnomalyGunslingerRepo(
                     gammaProgress.OnProgressChanged(
                         new GammaProgress.GammaInstallProgressEventArgs(Name, "Download", pct)
                     ),
-                ct: cancellationToken
+                ct: cancellationToken,
+                extraArgs: new List<string> { "--depth", "1" }
             );
         }
     }

@@ -46,9 +46,15 @@ public partial class GitUtility(StalkerGammaSettings settings)
         string outputDir,
         string repoUrl,
         Action<double>? onProgress = null,
-        CancellationToken ct = default
+        CancellationToken ct = default,
+        IList<string>? extraArgs = null
     ) =>
-        await ExecuteGitCmdAsync("", ["clone", repoUrl, outputDir], onProgress: onProgress, ct: ct);
+        await ExecuteGitCmdAsync(
+            "",
+            ["clone", repoUrl, outputDir, .. extraArgs ?? []],
+            onProgress: onProgress,
+            ct: ct
+        );
 
     public async Task<StdOutStdErrOutput> PullGitRepo(
         string pathToRepo,

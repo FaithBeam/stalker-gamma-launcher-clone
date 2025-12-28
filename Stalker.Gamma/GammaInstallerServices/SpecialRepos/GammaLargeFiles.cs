@@ -40,7 +40,8 @@ public class GammaLargeFilesRepo(
                     gammaProgress.OnProgressChanged(
                         new GammaProgress.GammaInstallProgressEventArgs(Name, "Download", pct)
                     ),
-                ct: ct
+                ct: ct,
+                extraArgs: new List<string> { "--depth", "1" }
             );
         }
     }
