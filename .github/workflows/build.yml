@@ -8,7 +8,7 @@ on:
 
 jobs:
   cli:
-    name: cli
+    name: cli-ubuntu
     runs-on: ubuntu-latest
     
     env:
@@ -45,6 +45,7 @@ jobs:
         with:
           name: stalker-gamma-cli+linux.x64
           path: build/linux/build/stalker-gamma-cli
+          compression-level: 9
 
   cli-macos:
     name: cli-macos
@@ -63,7 +64,7 @@ jobs:
 
       - name: Install macOS dependencies
         run: |
-          brew install make cmake ninja automake libtool go zstd libidn2
+          brew install make automake libtool go
 
       - name: Install .NET Core
         uses: actions/setup-dotnet@v4
@@ -78,6 +79,7 @@ jobs:
         with:
           name: stalker-gamma-cli+mac.arm64
           path: build/mac/build/stalker-gamma-cli
+          compression-level: 9
 
   cli-windows:
     name: cli-windows
@@ -101,6 +103,7 @@ jobs:
         with:
           name: stalker-gamma-cli+win.x64
           path: build/win/build/stalker-gamma-cli
+          compression-level: 9
 
   gui:
     name: gui
