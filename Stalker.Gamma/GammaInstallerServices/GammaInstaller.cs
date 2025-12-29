@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Stalker.Gamma.Factories;
 using Stalker.Gamma.Models;
 using Stalker.Gamma.ModOrganizer;
@@ -79,11 +80,14 @@ public class GammaInstaller(
             await separator.WriteAsync(gamma);
         }
 
+        var brokenAddons = new ConcurrentBag<IDownloadableRecord>();
+
         // Batch #1
         var mainBatch = Task.Run(
             async () =>
                 await ProcessAddonsAsync(
                     [anomalyRecord, .. groupedAddonRecords],
+                    brokenAddons,
                     cancellationToken
                 ),
             cancellationToken
@@ -112,6 +116,12 @@ public class GammaInstaller(
             gammaSetupDownloadTask,
             stalkerGammaDownloadTask
         );
+
+        foreach (var brokenAddon in brokenAddons)
+        {
+            await brokenAddon.DownloadAsync(cancellationToken);
+            await brokenAddon.ExtractAsync(cancellationToken);
+        }
 
         await gammaSetupRecord.ExtractAsync(cancellationToken);
         await stalkerGammaRecord.ExtractAsync(cancellationToken);
@@ -147,6 +157,7 @@ public class GammaInstaller(
 
     private async Task ProcessAddonsAsync(
         IList<IDownloadableRecord> addons,
+        ConcurrentBag<IDownloadableRecord> brokenAddons,
         CancellationToken cancellationToken = default
     ) =>
         await Parallel.ForEachAsync(
@@ -154,8 +165,15 @@ public class GammaInstaller(
             new ParallelOptions { MaxDegreeOfParallelism = settings.DownloadThreads },
             async (grs, _) =>
             {
-                await grs.DownloadAsync(cancellationToken);
-                await grs.ExtractAsync(cancellationToken);
+                try
+                {
+                    await grs.DownloadAsync(cancellationToken);
+                    await grs.ExtractAsync(cancellationToken);
+                }
+                catch (Exception)
+                {
+                    brokenAddons.Add(grs);
+                }
             }
         );
 }
