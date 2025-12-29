@@ -100,7 +100,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-latest-build
-          path: build/windows/stalker-gamma-cli.7z
+          path: stalker-gamma-cli.7z
 
   gui:
     name: gui
