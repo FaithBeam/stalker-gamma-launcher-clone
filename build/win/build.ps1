@@ -1,7 +1,9 @@
 ﻿$ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 
-$repoRoot = Resolve-Path ..\..
+$scriptDir = $PSScriptRoot
+
+$repoRoot = Resolve-Path $scriptDir\..\..
 $buildDir = "build"
 
 if (Test-Path $buildDir) {
