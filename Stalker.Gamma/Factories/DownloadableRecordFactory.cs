@@ -39,7 +39,6 @@ public class DownloadableRecordFactory(
         new GammaSetupRepo(
             gammaProgress,
             gammaDir,
-            anomalyDir,
             stalkerGammaSettings.GammaSetupRepo,
             gitUtility
         );

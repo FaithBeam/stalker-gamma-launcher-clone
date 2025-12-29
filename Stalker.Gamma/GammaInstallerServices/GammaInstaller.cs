@@ -80,27 +80,43 @@ public class GammaInstaller(
         }
 
         // Batch #1
-        await Task.Run(
+        var mainBatch = Task.Run(
             async () =>
                 await ProcessAddonsAsync(
-                    [
-                        anomalyRecord,
-                        .. groupedAddonRecords,
-                        gammaLargeFilesRecord,
-                        teivazAnomalyGunslingerRecord,
-                    ],
+                    [anomalyRecord, .. groupedAddonRecords],
                     cancellationToken
                 ),
             cancellationToken
         );
+        var teivazDlTask = Task.Run(
+            async () => await teivazAnomalyGunslingerRecord.DownloadAsync(cancellationToken),
+            cancellationToken
+        );
+        var gammaLargeFilesDlTask = Task.Run(
+            async () => await gammaLargeFilesRecord.DownloadAsync(cancellationToken),
+            cancellationToken
+        );
+        var gammaSetupDownloadTask = Task.Run(
+            async () => await gammaSetupRecord.DownloadAsync(cancellationToken),
+            cancellationToken
+        );
+        var stalkerGammaDownloadTask = Task.Run(
+            async () => await stalkerGammaRecord.DownloadAsync(cancellationToken),
+            cancellationToken
+        );
 
-        // Batch #2
-        // gamma_setup repo must extract after the anomaly extract completes
-        await ProcessAddonsAsync([gammaSetupRecord], cancellationToken);
+        await Task.WhenAll(
+            mainBatch,
+            teivazDlTask,
+            gammaLargeFilesDlTask,
+            gammaSetupDownloadTask,
+            stalkerGammaDownloadTask
+        );
 
-        // Batch #3
-        // stalker_gamma repo must extract after the gamma_setup extract completes
-        await ProcessAddonsAsync([stalkerGammaRecord], cancellationToken);
+        await gammaSetupRecord.ExtractAsync(cancellationToken);
+        await stalkerGammaRecord.ExtractAsync(cancellationToken);
+        await gammaLargeFilesRecord.ExtractAsync(cancellationToken);
+        await teivazAnomalyGunslingerRecord.ExtractAsync(cancellationToken);
 
         DeleteReshadeDlls.Delete(anomalyBinPath);
         DeleteShaderCache.Delete(anomaly);

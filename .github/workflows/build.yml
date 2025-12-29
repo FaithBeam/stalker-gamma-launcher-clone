@@ -7,8 +7,55 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    name: build
+  cli:
+    name: cli
+    runs-on: ubuntu-latest
+    
+    env:
+      APP_NAME: stalker-gamma-gui
+      PROJECT_FOLDER: stalker-gamma.cli
+      PROJECT_NAME: stalker-gamma.cli.csproj
+      CONFIGURATION: Release
+      
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          
+      - name: Install Ubuntu dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install build-essential pkg-config cmake ninja-build curl autoconf automake libtool
+          sudo apt-get install gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf gcc-riscv64-linux-gnu
+          sudo apt-get install golang-go
+          sudo apt-get install libcurl4-openssl-dev
+
+      - name: Install .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+          
+      - name: Make Build
+        run: make build -C build/linux && make archive -C build/linux
+          
+#      - name: Install GitVersion
+#        uses: gittools/actions/gitversion/setup@v0
+#        with:
+#          versionSpec: "5.x"
+#
+#      - name: Determine Version
+#        id: gitversion
+#        uses: gittools/actions/gitversion/execute@v0
+#        
+#      - name: Restore the application
+#        run: dotnet restore -r linux-x64
+        
+      
+    
+  gui:
+    name: gui
     runs-on: windows-latest
 
     env:
@@ -71,3 +118,6 @@ jobs:
           path: |
             bin/**
             !bin/**/*.pdb
+
+  
+    
