@@ -45,16 +45,16 @@ public partial class CurlUtility(StalkerGammaSettings settings)
         var stdOut = new StringBuilder();
         var stdErr = new StringBuilder();
 
-        List<string> finalArgs = [.. args];
-        if (OperatingSystem.IsWindows())
-        {
-            finalArgs.AddRange("--cacert", Path.Join("resources", "cacert.pem"));
-        }
-
         try
         {
             await Cli.Wrap(PathToCurlImpersonate)
-                .WithArguments(argBuilder => argBuilder.Add(finalArgs).AddImpersonation())
+                .WithArguments(argBuilder =>
+                    argBuilder
+                        .Add(args)
+                        .Add("--cacert")
+                        .Add(Path.Join("resources", "cacert.pem"))
+                        .AddImpersonation()
+                )
                 .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOut))
                 .WithStandardErrorPipe(
                     PipeTarget.Merge(

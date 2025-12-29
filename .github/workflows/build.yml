@@ -38,7 +38,7 @@ jobs:
           dotnet-version: 10.0.x
           
       - name: Make Build
-        run: make patch-makefile -C build/linux && make build -C build/linux && make archive -C build/linux
+        run: make patch-makefile -C build/linux && make build -C build/linux
         
       - name: Upload
         uses: actions/upload-artifact@v4
@@ -71,7 +71,7 @@ jobs:
           dotnet-version: 10.0.x
 
       - name: Make Build
-        run: make build -C build/mac && make archive -C build/mac
+        run: make build -C build/mac
 
       - name: Upload
         uses: actions/upload-artifact@v4
