@@ -39,21 +39,69 @@ jobs:
           
       - name: Make Build
         run: make patch-makefile -C build/linux && make build -C build/linux && make archive -C build/linux
-          
-#      - name: Install GitVersion
-#        uses: gittools/actions/gitversion/setup@v0
-#        with:
-#          versionSpec: "5.x"
-#
-#      - name: Determine Version
-#        id: gitversion
-#        uses: gittools/actions/gitversion/execute@v0
-#        
-#      - name: Restore the application
-#        run: dotnet restore -r linux-x64
         
-      
-    
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: ubuntu-latest-build
+          path: build/linux/stalker-gamma-cli.tar.xz
+
+  cli-macos:
+    name: cli-macos
+    runs-on: macos-latest
+    env:
+      APP_NAME: stalker-gamma-gui
+      PROJECT_FOLDER: stalker-gamma.cli
+      PROJECT_NAME: stalker-gamma.cli.csproj
+      CONFIGURATION: Release
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Install macOS dependencies
+        run: |
+          brew install make cmake ninja automake libtool go
+
+      - name: Install .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Make Build
+        run: make build -C build/mac && make archive -C build/mac
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-latest-build
+          path: build/mac/stalker-gamma-cli.tar.xz
+
+  cli-windows:
+    name: cli-windows
+    runs-on: windows-latest
+    env:
+      APP_NAME: stalker-gamma-gui
+      PROJECT_FOLDER: stalker-gamma.cli
+      PROJECT_NAME: stalker-gamma.cli.csproj
+      CONFIGURATION: Release
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build CLI
+        run: build/win/build.bat
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-latest-build
+          path: build/windows/stalker-gamma-cli.7z
+
   gui:
     name: gui
     runs-on: windows-latest
