@@ -43,8 +43,8 @@ jobs:
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: stalker-gamma-cli+linux.x64.tar.xz
-          path: build/linux/stalker-gamma-cli.tar.xz
+          name: stalker-gamma-cli+linux.x64
+          path: build/linux/build/stalker-gamma-cli
 
   cli-macos:
     name: cli-macos
@@ -76,8 +76,8 @@ jobs:
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: stalker-gamma-cli+mac.arm64.tar.xz
-          path: build/mac/stalker-gamma-cli.tar.xz
+          name: stalker-gamma-cli+mac.arm64
+          path: build/mac/build/stalker-gamma-cli
 
   cli-windows:
     name: cli-windows
@@ -99,8 +99,8 @@ jobs:
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: stalker-gamma-cli+win.x64.7z
-          path: stalker-gamma-cli.7z
+          name: stalker-gamma-cli+win.x64
+          path: build/win/build/stalker-gamma-cli
 
   gui:
     name: gui
