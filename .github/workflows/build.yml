@@ -63,7 +63,7 @@ jobs:
 
       - name: Install macOS dependencies
         run: |
-          brew install make cmake ninja automake libtool go
+          brew install make cmake ninja automake libtool go zstd libidn2
 
       - name: Install .NET Core
         uses: actions/setup-dotnet@v4
