@@ -10,10 +10,12 @@ if (Test-Path $buildDir) {
     Remove-Item -Path $buildDir -Force -Recurse
 }
 
+New-Item -Path $buildDir -ItemType Directory -Force
+
 #region 7z
 $7zDir = Join-Path $buildDir "7z"
 $7zDlPath = Join-Path $7zDir "7z25.01-zstd-x64.exe"
-New-Item -Name $7zDir -ItemType Directory -Force
+New-Item -Path $7zDir -ItemType Directory -Force
 $7zDlSplat = @{
     Uri = "https://github.com/mcmilk/7-Zip-zstd/releases/download/v25.01-v1.5.7-R3/7z25.01-zstd-x64.exe"
     OutFile = $7zDlPath
@@ -25,7 +27,7 @@ tar -xzf $7zDlPath -C $7zDir
 #region curl-impersonate
 $curlDir = Join-Path $buildDir "curl-impersonate"
 $curlArchivePath = Join-Path $curlDir "libcurl-impersonate-v1.2.5.x86_64-win32.tar.gz"
-New-Item -Name $curlDir -Type Directory -Force
+New-Item -Path "$curlDir" -Type Directory -Force
 $curlImpersonateSplat = @{
     Uri = "https://github.com/lexiforest/curl-impersonate/releases/download/v1.2.5/libcurl-impersonate-v1.2.5.x86_64-win32.tar.gz"
     OutFile = $curlArchivePath
@@ -83,6 +85,3 @@ Copy-Item -Path (Join-Path $curlDir "cacert.pem") -Destination (Join-Path $stalk
 Remove-Item -Path (Join-Path $stalkerCliDir "*.pdb")
 
 & (Join-Path $7zDir "7z.exe") a -r stalker-gamma-cli.7z (Join-Path (Join-Path "." $stalkerCliDir) "*")
-ls 
-ls $buildDir
-Write-Host "FINISHED"
