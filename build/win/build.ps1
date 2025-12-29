@@ -4,7 +4,7 @@ $ProgressPreference = 'SilentlyContinue'
 $scriptDir = $PSScriptRoot
 
 $repoRoot = Resolve-Path $scriptDir\..\..
-$buildDir = "build"
+$buildDir = Join-Path $scriptDir "build"
 
 if (Test-Path $buildDir) {
     Remove-Item -Path $buildDir -Force -Recurse
@@ -83,3 +83,6 @@ Copy-Item -Path (Join-Path $curlDir "cacert.pem") -Destination (Join-Path $stalk
 Remove-Item -Path (Join-Path $stalkerCliDir "*.pdb")
 
 & (Join-Path $7zDir "7z.exe") a -r stalker-gamma-cli.7z (Join-Path (Join-Path "." $stalkerCliDir) "*")
+ls 
+ls $buildDir
+Write-Host "FINISHED"
