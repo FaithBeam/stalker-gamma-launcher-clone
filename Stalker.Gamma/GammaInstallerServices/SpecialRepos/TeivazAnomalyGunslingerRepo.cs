@@ -48,6 +48,9 @@ public class TeivazAnomalyGunslingerRepo(
 
     public virtual Task ExtractAsync(CancellationToken cancellationToken = default)
     {
+        gammaProgress.OnDebugProgressChanged(
+            new GammaProgress.GammaInstallDebugProgressEventArgs { Text = "START COPY TEIVAZ" }
+        );
         foreach (
             var gameDataDir in new DirectoryInfo(RepoPath).EnumerateDirectories(
                 "gamedata",
@@ -55,6 +58,9 @@ public class TeivazAnomalyGunslingerRepo(
             )
         )
         {
+            gammaProgress.OnDebugProgressChanged(
+                new GammaProgress.GammaInstallDebugProgressEventArgs { Text = gameDataDir.FullName }
+            );
             DirUtils.CopyDirectory(
                 gameDataDir.FullName,
                 Path.Join(
@@ -66,9 +72,16 @@ public class TeivazAnomalyGunslingerRepo(
                 onProgress: pct =>
                     gammaProgress.OnProgressChanged(
                         new GammaProgress.GammaInstallProgressEventArgs(Name, "Extract", pct)
+                    ),
+                txtProgress: txt =>
+                    gammaProgress.OnDebugProgressChanged(
+                        new GammaProgress.GammaInstallDebugProgressEventArgs { Text = txt }
                     )
             );
         }
+        gammaProgress.OnDebugProgressChanged(
+            new GammaProgress.GammaInstallDebugProgressEventArgs { Text = "END COPY TEIVAZ" }
+        );
 
         gammaProgress.IncrementCompletedMods();
         return Task.CompletedTask;

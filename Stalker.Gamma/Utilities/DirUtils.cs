@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+
 namespace Stalker.Gamma.Utilities;
 
 public static class DirUtils
@@ -75,7 +77,8 @@ public static class DirUtils
         string destDir,
         bool overwrite = true,
         string? fileFilter = null,
-        Action<double>? onProgress = null
+        Action<double>? onProgress = null,
+        Action<string>? txtProgress = null
     )
     {
         if (sourceDir.Contains(".git"))
@@ -99,7 +102,8 @@ public static class DirUtils
             fileFilter,
             onProgress,
             ref copiedFiles,
-            totalFiles
+            totalFiles,
+            txtProgress
         );
     }
 
@@ -140,27 +144,52 @@ public static class DirUtils
         string? fileFilter,
         Action<double>? onProgress,
         ref int copiedFiles,
-        int totalFiles
+        int totalFiles,
+        Action<string>? txtProgress = null
     )
     {
+        txtProgress?.Invoke(
+            $"""
+            sourceDir = {sourceDir}
+            destDir = {destDir}
+            overwrite = {overwrite}
+            fileFilter = {fileFilter}
+            copiedFiles = {copiedFiles}
+            totalFiles = {totalFiles}
+            """
+        );
+        txtProgress?.Invoke($"Copying {sourceDir} to {destDir}");
         if (sourceDir.Contains(".git"))
         {
+            txtProgress?.Invoke($"Skipping {sourceDir}, .git folder found");
             return;
         }
 
         Directory.CreateDirectory(destDir);
+        txtProgress?.Invoke($"Created {destDir}");
         var sourceDirInfo = new DirectoryInfo(sourceDir);
         foreach (var file in sourceDirInfo.GetFiles())
         {
+            if (txtProgress is not null)
+            {
+                using var sha = SHA256.Create();
+                using var stream = File.OpenRead(file.FullName);
+                var hashBytes = SHA256.HashData(stream);
+                var hash = Convert.ToHexString(hashBytes);
+                txtProgress?.Invoke($"Copying {file.FullName}, SHA256 = {hash}");
+            }
             if (!string.IsNullOrWhiteSpace(fileFilter) && file.Name == fileFilter)
             {
+                txtProgress?.Invoke($"Skipping {file.FullName}");
                 continue;
             }
 
             if (File.Exists(Path.Combine(destDir, file.Name)))
             {
+                txtProgress?.Invoke($"File {Path.Combine(destDir, file.Name)} already exists");
                 if (overwrite)
                 {
+                    txtProgress?.Invoke($"Overwriting {Path.Combine(destDir, file.Name)}");
                     file.CopyTo(Path.Combine(destDir, file.Name), overwrite);
                     copiedFiles++;
                     onProgress?.Invoke((double)copiedFiles / totalFiles);
@@ -168,6 +197,9 @@ public static class DirUtils
             }
             else
             {
+                txtProgress?.Invoke(
+                    $"Copying {file.FullName} to {Path.Combine(destDir, file.Name)}"
+                );
                 file.CopyTo(Path.Combine(destDir, file.Name), overwrite);
                 copiedFiles++;
                 onProgress?.Invoke((double)copiedFiles / totalFiles);
@@ -176,6 +208,7 @@ public static class DirUtils
 
         foreach (var subDir in sourceDirInfo.GetDirectories())
         {
+            txtProgress?.Invoke($"Copying {subDir.FullName}");
             // only copy directories if they're not empty
             if (subDir.EnumerateFiles("*.*", SearchOption.AllDirectories).Any())
             {
@@ -186,7 +219,8 @@ public static class DirUtils
                     fileFilter,
                     onProgress,
                     ref copiedFiles,
-                    totalFiles
+                    totalFiles,
+                    txtProgress
                 );
             }
         }

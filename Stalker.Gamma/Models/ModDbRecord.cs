@@ -7,6 +7,7 @@ public class ModDbRecord(
     GammaProgress gammaProgress,
     string name,
     string url,
+    string niceUrl,
     string archiveName,
     string? md5,
     string gammaDir,
@@ -18,6 +19,7 @@ public class ModDbRecord(
 {
     public string Name { get; } = name;
     private string Url { get; } = url;
+    private string NiceUrl { get; } = niceUrl;
     public string ArchiveName { get; } = archiveName;
     private string? Md5 { get; } = md5;
     private string DownloadPath => Path.Join(gammaDir, "downloads", ArchiveName);
@@ -69,6 +71,6 @@ public class ModDbRecord(
 
         CleanExtractPath.Clean(ExtractPath);
 
-        WriteAddonMetaIni.Write(ExtractPath, ArchiveName, Url);
+        WriteAddonMetaIni.Write(ExtractPath, ArchiveName, NiceUrl);
     }
 }

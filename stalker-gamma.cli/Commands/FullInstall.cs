@@ -45,6 +45,7 @@ public class FullInstallCmd(
         int downloadThreads = 1,
         bool addFoldersToWinDefenderExclusion = false,
         bool enableLongPaths = false,
+        [Hidden] bool debug = false,
         [Hidden] string? mo2Version = null,
         [Hidden] long progressUpdateIntervalMs = 250,
         [Hidden] string stalkerAddonApiUrl = "https://stalker-gamma.com/api/list",
@@ -93,6 +94,18 @@ public class FullInstallCmd(
             }
         }
 
+        IDisposable? gammaDbgDispo = null;
+        if (debug)
+        {
+            var gammaDbgObs = Observable
+                .FromEventPattern<GammaProgress.GammaInstallDebugProgressEventArgs>(
+                    handler => gammaInstaller.Progress.DebugProgressChanged += handler,
+                    handler => gammaInstaller.Progress.DebugProgressChanged -= handler
+                )
+                .Select(x => x.EventArgs);
+            gammaDbgDispo = gammaDbgObs.Subscribe(OnDebugProgressChanged);
+        }
+
         var gammaProgressObservable = Observable
             .FromEventPattern<GammaProgress.GammaInstallProgressEventArgs>(
                 handler => gammaInstaller.Progress.ProgressChanged += handler,
@@ -115,8 +128,15 @@ public class FullInstallCmd(
         }
         finally
         {
+            gammaDbgDispo?.Dispose();
             gammaProgressDisposable.Dispose();
         }
+    }
+
+    private void OnDebugProgressChanged(GammaProgress.GammaInstallDebugProgressEventArgs e)
+    {
+        File.AppendAllText("stalker-gamma-cli.log", $"{e.Text}{Environment.NewLine}");
+        // _logger.Debug("{Text}", e.Text);
     }
 
     private void OnProgressChanged(GammaProgress.GammaInstallProgressEventArgs e) =>
