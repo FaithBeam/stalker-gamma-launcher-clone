@@ -51,12 +51,30 @@ public class TeivazAnomalyGunslingerRepo(
         gammaProgress.OnDebugProgressChanged(
             new GammaProgress.GammaInstallDebugProgressEventArgs { Text = "START COPY TEIVAZ" }
         );
-        foreach (
-            var gameDataDir in new DirectoryInfo(RepoPath).EnumerateDirectories(
-                "gamedata",
-                SearchOption.AllDirectories
-            )
-        )
+        var dirs = new DirectoryInfo(RepoPath)
+            .EnumerateDirectories("gamedata", SearchOption.AllDirectories)
+            .ToList();
+        var ordered = dirs.OrderBy(d => d.Name).ToList();
+        gammaProgress.OnDebugProgressChanged(
+            new GammaProgress.GammaInstallDebugProgressEventArgs
+            {
+                Text = $"""
+                UNORDERED:
+                {string.Join(Environment.NewLine, dirs)}
+                """,
+            }
+        );
+        gammaProgress.OnDebugProgressChanged(
+            new GammaProgress.GammaInstallDebugProgressEventArgs
+            {
+                Text = $"""
+                ORDERED:
+                {string.Join(Environment.NewLine, ordered)}
+                """,
+            }
+        );
+
+        foreach (var gameDataDir in ordered)
         {
             gammaProgress.OnDebugProgressChanged(
                 new GammaProgress.GammaInstallDebugProgressEventArgs { Text = gameDataDir.FullName }
