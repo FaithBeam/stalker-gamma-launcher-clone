@@ -69,7 +69,7 @@ public class FullInstallCmd(
         stalkerGammaSettings.TeivazAnomalyGunslingerRepo = teivazAnomalyGunslingerRepoUrl;
         stalkerGammaSettings.StalkerAnomalyModdbUrl = stalkerAnomalyModdbUrl;
         stalkerGammaSettings.StalkerAnomalyArchiveMd5 = stalkerAnomalyArchiveMd5;
-        var resourcesPath = Path.GetFullPath("resources");
+        var resourcesPath = Path.Join(Path.GetDirectoryName(AppContext.BaseDirectory), "resources");
         stalkerGammaSettings.PathToCurl = Path.Join(
             resourcesPath,
             OperatingSystem.IsWindows() ? "curl.exe" : "curl-impersonate"
