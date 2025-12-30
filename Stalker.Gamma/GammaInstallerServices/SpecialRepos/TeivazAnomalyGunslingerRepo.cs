@@ -51,10 +51,8 @@ public class TeivazAnomalyGunslingerRepo(
         gammaProgress.OnDebugProgressChanged(
             new GammaProgress.GammaInstallDebugProgressEventArgs { Text = "START COPY TEIVAZ" }
         );
-        var dirs = new DirectoryInfo(RepoPath)
-            .EnumerateDirectories("gamedata", SearchOption.AllDirectories)
-            .ToList();
-        var ordered = dirs.OrderBy(d => d.Name).ToList();
+        var dirs = Directory.GetDirectories(RepoPath, "gamedata", SearchOption.AllDirectories);
+        var ordered = dirs.Order().ToList();
         gammaProgress.OnDebugProgressChanged(
             new GammaProgress.GammaInstallDebugProgressEventArgs
             {
@@ -77,10 +75,10 @@ public class TeivazAnomalyGunslingerRepo(
         foreach (var gameDataDir in ordered)
         {
             gammaProgress.OnDebugProgressChanged(
-                new GammaProgress.GammaInstallDebugProgressEventArgs { Text = gameDataDir.FullName }
+                new GammaProgress.GammaInstallDebugProgressEventArgs { Text = gameDataDir }
             );
             DirUtils.CopyDirectory(
-                gameDataDir.FullName,
+                gameDataDir,
                 Path.Join(
                     GammaModsDir,
                     "312- Gunslinger Guns for Anomaly - Teivazcz & Gunslinger Team",
