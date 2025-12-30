@@ -130,6 +130,7 @@ public class GammaInstaller(
 
         DeleteReshadeDlls.Delete(anomalyBinPath);
         DeleteShaderCache.Delete(anomaly);
+        await UserLtxForceBorderless.ForceBorderless(anomaly);
 
         await downloadModOrganizerService.DownloadAsync(
             cachePath: cache,
