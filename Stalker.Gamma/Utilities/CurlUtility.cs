@@ -52,7 +52,7 @@ public partial class CurlUtility(StalkerGammaSettings settings)
                     argBuilder
                         .Add(args)
                         .Add("--cacert")
-                        .Add(Path.Join("resources", "cacert.pem"))
+                        .Add(Path.Join(AppContext.BaseDirectory, "resources", "cacert.pem"))
                         .AddImpersonation()
                 )
                 .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOut))
