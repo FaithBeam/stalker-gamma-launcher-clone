@@ -21,7 +21,7 @@ public class AnomalyInstaller(
 
     public IGammaProgress Progress => progress;
     protected string StalkerAnomalyMd5 = "d6bce51a4e6d98f9610ef0aa967ba964";
-    public string DownloadPath => Path.Join(downloadDirectory, "downloads", ArchiveName);
+    public string DownloadPath => Path.Join(downloadDirectory, ArchiveName);
     private string ExtractPath => anomalyDir;
 
     public virtual async Task DownloadAsync(CancellationToken cancellationToken = default)
