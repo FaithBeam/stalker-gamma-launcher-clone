@@ -9,7 +9,8 @@ namespace stalker_gamma.cli.Utilities;
 public enum HashType
 {
     Blake3,
-    Sha256
+    Sha256,
+    Md5
 }
 
 public static class HashUtility
@@ -51,7 +52,7 @@ public static class HashUtility
             })
         .Where(x => string.IsNullOrWhiteSpace(x.LinkTarget) && !x.Attributes.HasFlag(FileAttributes.Directory));
 
-    private static IAsyncEnumerable<Task<KeyValuePair<string, string>>> GenerateFileHashesAsync(
+    public static IAsyncEnumerable<Task<KeyValuePair<string, string>>> GenerateFileHashesAsync(
         IEnumerable<FileSystemInfo> paths,
         HashType hashType,
         CancellationToken cancellationToken
@@ -65,12 +66,13 @@ public static class HashUtility
                 {
                     HashType.Blake3 => await Blake3HashFile(x, cancellationToken),
                     HashType.Sha256 => await Sha256HashFile(x, cancellationToken),
+                    HashType.Md5 => await Md5HashFile(x, cancellationToken),
                     _ => throw new ArgumentOutOfRangeException(nameof(hashType), hashType, null)
                 },
                 x
             ));
 
-    private static async Task<string> Sha256HashFile(string path, CancellationToken cancellationToken = default)
+    public static async Task<string> Sha256HashFile(string path, CancellationToken cancellationToken = default)
     {
         using var sha256 = SHA256.Create();
         await using var stream = File.OpenRead(path);
@@ -92,7 +94,29 @@ public static class HashUtility
         }
     }
 
-    private static async Task<string> Blake3HashFile(
+    public static async Task<string> Md5HashFile(string path, CancellationToken cancellationToken = default)
+    {
+        using var md5 = MD5.Create();
+        await using var stream = File.OpenRead(path);
+        var buffer = ArrayPool<byte>.Shared.Rent(BufferLen);
+        try
+        {
+            int bytesRead;
+            while ((bytesRead = await stream.ReadAsync(buffer, cancellationToken)) > 0)
+            {
+                md5.TransformBlock(buffer, 0, bytesRead, null, 0);
+            }
+
+            md5.TransformFinalBlock([], 0, 0);
+            return Convert.ToHexStringLower(md5.Hash!);
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(buffer);
+        }
+    }
+
+    public static async Task<string> Blake3HashFile(
         string path,
         CancellationToken cancellationToken = default
     )

@@ -5,6 +5,10 @@
       "commandName": "Project",
       "commandLineArgs": "anomaly-install --anomaly gamma/anomaly --cache gamma/cache --verbose"
     },
+    "check-anomaly": {
+      "commandName": "Project",
+      "commandLineArgs": "check-anomaly --anomaly /Volumes/NewVolume/gamma/anomaly"
+    },
     "full-install": {
       "commandName": "Project",
       "commandLineArgs": "full-install --anomaly  /Volumes/NewVolume/gamma/anomaly --gamma /Volumes/NewVolume/gamma/gamma --cache /Volumes/NewVolume/gamma/cache --download-threads 4 --verbose --disable-download-github-addons"
