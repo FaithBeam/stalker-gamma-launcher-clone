@@ -43,7 +43,7 @@ public class FullInstallCmd(
         string anomaly,
         string gamma,
         string cache = "cache",
-        [Range(1, 6)] int downloadThreads = 1,
+        [Range(1, 6)] int downloadThreads = 2,
         bool addFoldersToWinDefenderExclusion = false,
         bool enableLongPaths = false,
         [Hidden] bool debug = false,
