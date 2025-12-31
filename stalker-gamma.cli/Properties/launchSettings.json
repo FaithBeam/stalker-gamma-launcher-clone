@@ -1,9 +1,13 @@
 {
   "$schema": "http://json.schemastore.org/launchsettings.json",
   "profiles": {
+    "anomaly-install": {
+      "commandName": "Project",
+      "commandLineArgs": "anomaly-install --anomaly gamma/anomaly --cache gamma/cache --verbose"
+    },
     "full-install": {
       "commandName": "Project",
-      "commandLineArgs": "full-install --anomaly  gamma/anomaly --gamma gamma/gamma --cache gamma/cache --download-threads 4 --debug-hash-install"
+      "commandLineArgs": "full-install --anomaly  /Volumes/NewVolume/gamma/anomaly --gamma /Volumes/NewVolume/gamma/gamma --cache /Volumes/NewVolume/gamma/cache --download-threads 4 --verbose --disable-download-github-addons"
     },
     "debug-hash-install-blake3": {
       "commandName": "Project",

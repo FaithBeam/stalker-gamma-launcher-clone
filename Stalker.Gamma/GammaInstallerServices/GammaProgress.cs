@@ -2,6 +2,7 @@ namespace Stalker.Gamma.GammaInstallerServices;
 
 public interface IGammaProgress
 {
+    int TotalMods { get; set; }
     event EventHandler<GammaProgress.GammaInstallProgressEventArgs>? ProgressChanged;
     event EventHandler<GammaProgress.GammaInstallDebugProgressEventArgs>? DebugProgressChanged;
 }
@@ -10,7 +11,7 @@ public class GammaProgress : IGammaProgress
 {
     private int _completedMods;
 
-    internal int TotalMods { get; set; }
+    public int TotalMods { get; set; }
 
     internal void IncrementCompletedMods() => Interlocked.Increment(ref _completedMods);
 

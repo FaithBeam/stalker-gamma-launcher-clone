@@ -51,7 +51,10 @@ public class GammaInstaller(
         var modListTxt = await getStalkerModsFromApi.GetModsAsync();
         var modListRecords = modListRecordFactory.Create(modListTxt);
         var separators = separatorsFactory.Create(modListRecords);
-        var anomalyRecord = downloadableRecordFactory.CreateAnomalyRecord(args.Gamma, args.Anomaly);
+        var anomalyRecord = downloadableRecordFactory.CreateAnomalyRecord(
+            Path.Join(args.Gamma, "downloads"),
+            args.Anomaly
+        );
         var addonRecords = modListRecords
             .Select(
                 (rec, idx) =>

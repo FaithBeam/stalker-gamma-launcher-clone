@@ -7,7 +7,7 @@ namespace Stalker.Gamma.Factories;
 
 public interface IDownloadableRecordFactory
 {
-    IDownloadableRecord CreateAnomalyRecord(string gammaDir, string anomalyDir);
+    IDownloadableRecord CreateAnomalyRecord(string downloadDirectory, string anomalyDir);
     IDownloadableRecord CreateGammaSetupRecord(string gammaDir, string anomalyDir);
     IDownloadableRecord CreateGammaLargeFilesRecord(string gammaDir);
     IDownloadableRecord CreateStalkerGammaRecord(string gammaDir, string anomalyDir);
@@ -32,8 +32,14 @@ public class DownloadableRecordFactory(
     GitUtility gitUtility
 ) : IDownloadableRecordFactory
 {
-    public IDownloadableRecord CreateAnomalyRecord(string gammaDir, string anomalyDir) =>
-        new AnomalyInstaller(gammaProgress, gammaDir, anomalyDir, modDbUtility, archiveUtility);
+    public IDownloadableRecord CreateAnomalyRecord(string downloadDirectory, string anomalyDir) =>
+        new AnomalyInstaller(
+            gammaProgress,
+            downloadDirectory,
+            anomalyDir,
+            modDbUtility,
+            archiveUtility
+        );
 
     public IDownloadableRecord CreateGammaSetupRecord(string gammaDir, string anomalyDir) =>
         new GammaSetupRepo(
