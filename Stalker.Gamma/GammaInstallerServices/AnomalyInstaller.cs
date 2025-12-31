@@ -14,10 +14,10 @@ public class AnomalyInstaller(
 ) : IAnomalyInstaller
 {
     public string Name { get; } = "Stalker Anomaly";
-    public string ArchiveName { get; } = "Stalker_Anomaly.7z";
+    public string ArchiveName { get; } = "Anomaly-1.5.3-Full.2.7z";
     protected string StalkerAnomalyUrl = "https://www.moddb.com/downloads/start/277404";
     protected string StalkerAnomalyMd5 = "d6bce51a4e6d98f9610ef0aa967ba964";
-    private string DownloadPath => Path.Join(gammaDir, "downloads", "Stalker_Anomaly.7z");
+    private string DownloadPath => Path.Join(gammaDir, "downloads", ArchiveName);
     private string ExtractPath => anomalyDir;
 
     public virtual async Task DownloadAsync(CancellationToken cancellationToken = default)
