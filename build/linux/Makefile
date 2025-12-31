@@ -49,4 +49,3 @@ archive:
 
 clean:
 	rm -rf $(BUILD_DIR)
-	rm -rf $(7Z_BUILD_DIR)/_o
