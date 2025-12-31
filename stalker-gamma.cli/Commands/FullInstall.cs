@@ -1,4 +1,5 @@
-﻿using System.Reactive.Linq;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Reactive.Linq;
 using ConsoleAppFramework;
 using Serilog;
 using stalker_gamma.core.Services;
@@ -42,7 +43,7 @@ public class FullInstallCmd(
         string anomaly,
         string gamma,
         string cache = "cache",
-        int downloadThreads = 1,
+        [Range(1, 6)] int downloadThreads = 1,
         bool addFoldersToWinDefenderExclusion = false,
         bool enableLongPaths = false,
         [Hidden] bool debug = false,

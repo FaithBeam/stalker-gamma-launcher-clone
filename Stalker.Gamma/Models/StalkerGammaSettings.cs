@@ -12,6 +12,8 @@ public class StalkerGammaSettings
 
     public string StalkerAnomalyModdbUrl = "https://www.moddb.com/downloads/start/277404";
     public string StalkerAnomalyArchiveMd5 = "d6bce51a4e6d98f9610ef0aa967ba964";
+    public string ModOrganizer244Md5 { get; set; } = "e2bb7233cdab78f56912ebf4a0091768";
+    public string ModOrganizer252Md5 { get; set; } = "";
     public int DownloadThreads { get; set; } = 1;
     public string PathToUnzip = "unzip";
     public string PathTo7Z = OperatingSystem.IsWindows() ? "7zz.exe" : "7zz";

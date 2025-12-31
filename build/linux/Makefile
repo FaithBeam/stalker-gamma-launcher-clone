@@ -43,6 +43,7 @@ build:
 	curl -Lo $(STALKER_RESOURCES_DIR)/cacert.pem "https://curl.se/ca/cacert.pem"
 	cp $(CURL_BUILD_DIR)/curl-impersonate $(STALKER_RESOURCES_DIR)/
 	cp $(7Z_BUILD_DIR)/7zz $(STALKER_RESOURCES_DIR)/
+	cp $(CUR_DIR)/README.md $(STALKER_GAMMA_BUILD_DIR)/
 
 archive:
 	tar -cvJf stalker-gamma-cli.tar.xz --directory=$(STALKER_GAMMA_BUILD_DIR) .

@@ -1,4 +1,6 @@
 using System.Text.Json;
+using Stalker.Gamma.GammaInstallerServices;
+using Stalker.Gamma.Models;
 using Stalker.Gamma.ModOrganizer.DownloadModOrganizer.Models.Github;
 using Stalker.Gamma.Utilities;
 
@@ -10,21 +12,24 @@ public interface IDownloadModOrganizerService
         string version = "v2.4.4",
         string cachePath = "",
         string? extractPath = null,
-        CancellationToken? cancellationToken = null
+        CancellationToken cancellationToken = default
     );
 }
 
-public class DownloadModOrganizerService(IHttpClientFactory hcf, SevenZipUtility sevenZipUtility)
-    : IDownloadModOrganizerService
+public class DownloadModOrganizerService(
+    IHttpClientFactory hcf,
+    ArchiveUtility archiveUtility,
+    GammaProgress gammaProgress,
+    StalkerGammaSettings settings
+) : IDownloadModOrganizerService
 {
     public async Task DownloadAsync(
         string version = "v2.4.4",
         string cachePath = "",
         string? extractPath = null,
-        CancellationToken? cancellationToken = null
+        CancellationToken cancellationToken = default
     )
     {
-        cancellationToken ??= CancellationToken.None;
         extractPath ??= Path.Join(Path.GetDirectoryName(AppContext.BaseDirectory), "..");
         Directory.CreateDirectory(cachePath);
         Directory.CreateDirectory(extractPath);
@@ -32,14 +37,12 @@ public class DownloadModOrganizerService(IHttpClientFactory hcf, SevenZipUtility
         var hc = hcf.CreateClient("githubDlArchive");
         var getReleaseByTagResponse = await hc.GetAsync(
             $"https://api.github.com/repos/ModOrganizer2/modorganizer/releases/tags/{version}",
-            (CancellationToken)cancellationToken
+            cancellationToken
         );
         var getReleaseByTag = await JsonSerializer.DeserializeAsync<GetReleaseByTag>(
-            await getReleaseByTagResponse.Content.ReadAsStreamAsync(
-                (CancellationToken)cancellationToken
-            ),
+            await getReleaseByTagResponse.Content.ReadAsStreamAsync(cancellationToken),
             jsonTypeInfo: GetReleaseByTagCtx.Default.GetReleaseByTag,
-            (CancellationToken)cancellationToken
+            cancellationToken
         );
         var dlUrl = getReleaseByTag
             ?.Assets?.FirstOrDefault(x =>
@@ -55,13 +58,89 @@ public class DownloadModOrganizerService(IHttpClientFactory hcf, SevenZipUtility
 
         if (File.Exists(mo2ArchivePath))
         {
-            File.Delete(mo2ArchivePath);
-        }
+            switch (version)
+            {
+                case "v2.4.4":
+                    if (
+                        await Md5Utility.CalculateFileMd5Async(
+                            mo2ArchivePath,
+                            pct =>
+                                gammaProgress.OnProgressChanged(
+                                    new GammaProgress.GammaInstallProgressEventArgs(
+                                        "ModOrganizer",
+                                        "Check MD5",
+                                        pct
+                                    )
+                                )
+                        ) != settings.ModOrganizer244Md5
+                    )
+                    {
+                        await DownloadFileQuickUtility.DownloadAsync(
+                            hc,
+                            dlUrl,
+                            mo2ArchivePath,
+                            onProgress: pct =>
+                                gammaProgress.OnProgressChanged(
+                                    new GammaProgress.GammaInstallProgressEventArgs(
+                                        "ModOrganizer",
+                                        "Download",
+                                        pct
+                                    )
+                                ),
+                            cancellationToken
+                        );
+                    }
 
-        await using (var fs = File.Create(mo2ArchivePath))
+                    break;
+                case "v2.5.2":
+                    if (
+                        await Md5Utility.CalculateFileMd5Async(
+                            mo2ArchivePath,
+                            pct =>
+                                gammaProgress.OnProgressChanged(
+                                    new GammaProgress.GammaInstallProgressEventArgs(
+                                        "ModOrganizer",
+                                        "Check MD5",
+                                        pct
+                                    )
+                                )
+                        ) != settings.ModOrganizer252Md5
+                    )
+                    {
+                        await DownloadFileQuickUtility.DownloadAsync(
+                            hc,
+                            dlUrl,
+                            mo2ArchivePath,
+                            onProgress: pct =>
+                                gammaProgress.OnProgressChanged(
+                                    new GammaProgress.GammaInstallProgressEventArgs(
+                                        "ModOrganizer",
+                                        "Download",
+                                        pct
+                                    )
+                                ),
+                            cancellationToken
+                        );
+                    }
+                    break;
+            }
+        }
+        else
         {
-            using var response = await hc.GetAsync(dlUrl, (CancellationToken)cancellationToken);
-            await response.Content.CopyToAsync(fs, (CancellationToken)cancellationToken);
+            await DownloadFileQuickUtility.DownloadAsync(
+                hc,
+                dlUrl,
+                mo2ArchivePath,
+                onProgress: pct =>
+                    gammaProgress.OnProgressChanged(
+                        new GammaProgress.GammaInstallProgressEventArgs(
+                            "ModOrganizer",
+                            "Download",
+                            pct
+                        )
+                    ),
+                cancellationToken
+            );
         }
 
         foreach (var folder in _foldersToDelete)
@@ -84,6 +163,7 @@ public class DownloadModOrganizerService(IHttpClientFactory hcf, SevenZipUtility
                 });
             Directory.Delete(path, true);
         }
+
         foreach (var file in _filesToDelete)
         {
             var path = Path.Join(extractPath, file);
@@ -93,11 +173,14 @@ public class DownloadModOrganizerService(IHttpClientFactory hcf, SevenZipUtility
             }
         }
 
-        await sevenZipUtility.ExtractAsync(
+        await archiveUtility.ExtractAsync(
             mo2ArchivePath,
             extractPath,
-            (pct) => { },
-            cancellationToken: cancellationToken
+            pct =>
+                gammaProgress.OnProgressChanged(
+                    new GammaProgress.GammaInstallProgressEventArgs("ModOrganizer", "Extract", pct)
+                ),
+            ct: cancellationToken
         );
     }
 
