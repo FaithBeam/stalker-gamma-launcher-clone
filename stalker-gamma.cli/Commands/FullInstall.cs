@@ -1,5 +1,4 @@
-﻿using System.Reactive;
-using System.Reactive.Linq;
+﻿using System.Reactive.Linq;
 using ConsoleAppFramework;
 using Serilog;
 using stalker_gamma.core.Services;
@@ -26,6 +25,7 @@ public class FullInstallCmd(
     /// <param name="downloadThreads">Number of parallel downloads that can occur</param>
     /// <param name="addFoldersToWinDefenderExclusion">(Windows) Add the anomaly, gamma, and cache folders to the Windows Defender Exclusion list</param>
     /// <param name="enableLongPaths">(Windows) Enable long paths</param>
+    /// <param name="debug"></param>
     /// <param name="mo2Version">The version of Mod Organizer 2 to download</param>
     /// <param name="progressUpdateIntervalMs">How frequently to write progress to the console in milliseconds</param>
     /// <param name="stalkerAddonApiUrl">Escape hatch for stalker gamma api</param>
@@ -136,7 +136,6 @@ public class FullInstallCmd(
     private void OnDebugProgressChanged(GammaProgress.GammaInstallDebugProgressEventArgs e)
     {
         File.AppendAllText("stalker-gamma-cli.log", $"{e.Text}{Environment.NewLine}");
-        // _logger.Debug("{Text}", e.Text);
     }
 
     private void OnProgressChanged(GammaProgress.GammaInstallProgressEventArgs e) =>

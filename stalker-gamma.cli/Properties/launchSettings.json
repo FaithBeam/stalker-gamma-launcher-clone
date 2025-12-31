@@ -3,7 +3,15 @@
   "profiles": {
     "full-install": {
       "commandName": "Project",
-      "commandLineArgs": "full-install --anomaly  gamma/anomaly --gamma gamma/gamma --cache gamma/cache --download-threads 2"
+      "commandLineArgs": "full-install --anomaly  gamma/anomaly --gamma gamma/gamma --cache gamma/cache --download-threads 4 --debug-hash-install"
+    },
+    "debug-hash-install-blake3": {
+      "commandName": "Project",
+      "commandLineArgs": "debug hash-install --anomaly  gamma/anomaly --gamma gamma/gamma --cache gamma/cache --hash-type blake3"
+    },
+    "debug-hash-install-sha256": {
+      "commandName": "Project",
+      "commandLineArgs": "debug hash-install --anomaly  gamma/anomaly --gamma gamma/gamma --cache gamma/cache --hash-type sha256"
     }
   }
 }
