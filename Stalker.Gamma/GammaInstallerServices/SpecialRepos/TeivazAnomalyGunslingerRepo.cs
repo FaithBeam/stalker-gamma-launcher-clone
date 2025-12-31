@@ -15,18 +15,18 @@ public class TeivazAnomalyGunslingerRepo(
     public string Name { get; } = "teivaz_anomaly_gunslinger";
     public string ArchiveName { get; } = "";
     protected string Url = url;
-    private string RepoPath => Path.Join(gammaDir, "downloads", Name);
+    public string DownloadPath => Path.Join(gammaDir, "downloads", Name);
     private string GammaModsDir => Path.Join(gammaDir, "mods");
 
     public virtual async Task DownloadAsync(CancellationToken cancellationToken = default)
     {
-        if (Directory.Exists(RepoPath))
+        if (Directory.Exists(DownloadPath))
         {
             await gitUtility.PullGitRepo(
-                RepoPath,
+                DownloadPath,
                 onProgress: pct =>
                     gammaProgress.OnProgressChanged(
-                        new GammaProgress.GammaInstallProgressEventArgs(Name, "Download", pct)
+                        new GammaProgress.GammaInstallProgressEventArgs(Name, "Download", pct, Url)
                     ),
                 ct: cancellationToken
             );
@@ -34,11 +34,11 @@ public class TeivazAnomalyGunslingerRepo(
         else
         {
             await gitUtility.CloneGitRepo(
-                RepoPath,
+                DownloadPath,
                 Url,
                 onProgress: pct =>
                     gammaProgress.OnProgressChanged(
-                        new GammaProgress.GammaInstallProgressEventArgs(Name, "Download", pct)
+                        new GammaProgress.GammaInstallProgressEventArgs(Name, "Download", pct, Url)
                     ),
                 ct: cancellationToken,
                 extraArgs: new List<string> { "--depth", "1" }
@@ -51,7 +51,7 @@ public class TeivazAnomalyGunslingerRepo(
         gammaProgress.OnDebugProgressChanged(
             new GammaProgress.GammaInstallDebugProgressEventArgs { Text = "START COPY TEIVAZ" }
         );
-        var dirs = Directory.GetDirectories(RepoPath, "gamedata", SearchOption.AllDirectories);
+        var dirs = Directory.GetDirectories(DownloadPath, "gamedata", SearchOption.AllDirectories);
         var ordered = dirs.Order().ToList();
         gammaProgress.OnDebugProgressChanged(
             new GammaProgress.GammaInstallDebugProgressEventArgs
@@ -87,7 +87,7 @@ public class TeivazAnomalyGunslingerRepo(
                 overwrite: true,
                 onProgress: pct =>
                     gammaProgress.OnProgressChanged(
-                        new GammaProgress.GammaInstallProgressEventArgs(Name, "Extract", pct)
+                        new GammaProgress.GammaInstallProgressEventArgs(Name, "Extract", pct, Url)
                     ),
                 txtProgress: txt =>
                     gammaProgress.OnDebugProgressChanged(

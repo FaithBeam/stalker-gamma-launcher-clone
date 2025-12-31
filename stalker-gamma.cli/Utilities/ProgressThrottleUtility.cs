@@ -2,11 +2,11 @@
 
 public static class ProgressThrottleUtility
 {
-    private static readonly TimeSpan _interval = TimeSpan.FromSeconds(1);
+    private static readonly TimeSpan Interval = TimeSpan.FromSeconds(1);
 
     public static Action<T> Throttle<T>(Action<T> action, TimeSpan? interval = null)
     {
-        interval ??= _interval;
+        interval ??= Interval;
         var lastTrigger = DateTime.MinValue;
         return val =>
         {

@@ -38,12 +38,17 @@ public class GammaProgress : IGammaProgress
         public string? Text { get; set; }
     }
 
-    public class GammaInstallProgressEventArgs(string name, string progressType, double progress)
-        : EventArgs
+    public class GammaInstallProgressEventArgs(
+        string name,
+        string progressType,
+        double progress,
+        string url
+    ) : EventArgs
     {
         public string Name { get; } = name;
         public string ProgressType { get; } = progressType;
         public double Progress { get; } = progress;
+        public string Url { get; } = url;
         public int Complete { get; set; }
         public int Total { get; set; }
     }

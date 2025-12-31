@@ -23,14 +23,20 @@ public class GithubRecord(
     private string NiceUrl { get; } = niceUrl;
     public string ArchiveName { get; } = archiveName;
     private string? Md5 { get; } = md5;
-    private string DownloadPath => Path.Join(gammaDir, "downloads", ArchiveName);
+    public string DownloadPath => Path.Join(gammaDir, "downloads", ArchiveName);
     private string ExtractPath => Path.Join(gammaDir, "mods", outputDirName);
     private IList<string> Instructions { get; } = instructions;
     private readonly HttpClient _hc = hcf.CreateClient("githubDlArchive");
+    public bool Download = true;
 
     public async Task DownloadAsync(CancellationToken cancellationToken)
     {
         const int bufferSize = 1024 * 1024;
+
+        if (!Download && File.Exists(DownloadPath))
+        {
+            return;
+        }
 
         var buffer = ArrayPool<byte>.Shared.Rent(81920);
         try
@@ -77,14 +83,15 @@ public class GithubRecord(
                         new GammaProgress.GammaInstallProgressEventArgs(
                             Name,
                             "Download",
-                            progressPercentage
+                            progressPercentage,
+                            Url
                         )
                     );
                 }
             }
 
             gammaProgress.OnProgressChanged(
-                new GammaProgress.GammaInstallProgressEventArgs(Name, "Download", 1)
+                new GammaProgress.GammaInstallProgressEventArgs(Name, "Download", 1, Url)
             );
         }
         finally
@@ -102,7 +109,7 @@ public class GithubRecord(
             ExtractPath,
             pct =>
                 gammaProgress.OnProgressChanged(
-                    new GammaProgress.GammaInstallProgressEventArgs(Name, "Extract", pct)
+                    new GammaProgress.GammaInstallProgressEventArgs(Name, "Extract", pct, Url)
                 ),
             ct: cancellationToken
         );

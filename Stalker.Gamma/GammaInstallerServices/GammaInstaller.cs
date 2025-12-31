@@ -7,6 +7,16 @@ using Stalker.Gamma.Utilities;
 
 namespace Stalker.Gamma.GammaInstallerServices;
 
+public class GammaInstallerArgs
+{
+    public required string Anomaly { get; set; }
+    public required string Gamma { get; set; }
+    public required string Cache { get; set; }
+    public string? Mo2Version { get; set; }
+    public bool DownloadGithubArchives { get; set; } = true;
+    public CancellationToken CancellationToken { get; set; } = CancellationToken.None;
+}
+
 public class GammaInstaller(
     StalkerGammaSettings settings,
     GammaProgress gammaProgress,
@@ -19,39 +29,45 @@ public class GammaInstaller(
 {
     public IGammaProgress Progress { get; } = gammaProgress;
 
-    public virtual async Task FullInstallAsync(
-        string anomaly,
-        string gamma,
-        string cache,
-        string? mo2Version = null,
-        CancellationToken cancellationToken = default
-    )
+    public virtual async Task FullInstallAsync(GammaInstallerArgs args)
     {
-        mo2Version ??= OperatingSystem.IsWindows() ? "v2.5.2" : "v2.4.4";
-        cache = Path.IsPathRooted(cache) ? cache : Path.GetFullPath(cache);
-        gamma = Path.IsPathRooted(gamma) ? gamma : Path.GetFullPath(gamma);
-        anomaly = Path.IsPathRooted(anomaly) ? anomaly : Path.GetFullPath(anomaly);
+        args.Mo2Version ??= OperatingSystem.IsWindows() ? "v2.5.2" : "v2.4.4";
+        args.Cache = Path.IsPathRooted(args.Cache) ? args.Cache : Path.GetFullPath(args.Cache);
+        args.Gamma = Path.IsPathRooted(args.Gamma) ? args.Gamma : Path.GetFullPath(args.Gamma);
+        args.Anomaly = Path.IsPathRooted(args.Anomaly)
+            ? args.Anomaly
+            : Path.GetFullPath(args.Anomaly);
 
-        var anomalyBinPath = Path.Join(anomaly, "bin");
-        var gammaModsPath = Path.Join(gamma, "mods");
-        var gammaDownloadsPath = Path.Join(gamma, "downloads");
+        var anomalyBinPath = Path.Join(args.Anomaly, "bin");
+        var gammaModsPath = Path.Join(args.Gamma, "mods");
+        var gammaDownloadsPath = Path.Join(args.Gamma, "downloads");
 
-        Directory.CreateDirectory(anomaly);
-        Directory.CreateDirectory(gamma);
-        Directory.CreateDirectory(cache);
+        Directory.CreateDirectory(args.Anomaly);
+        Directory.CreateDirectory(args.Gamma);
+        Directory.CreateDirectory(args.Cache);
         Directory.CreateDirectory(gammaModsPath);
-        CreateSymbolicLinkUtility.Create(gammaDownloadsPath, cache);
+        CreateSymbolicLinkUtility.Create(gammaDownloadsPath, args.Cache);
 
         var modListTxt = await getStalkerModsFromApi.GetModsAsync();
         var modListRecords = modListRecordFactory.Create(modListTxt);
         var separators = separatorsFactory.Create(modListRecords);
-        var anomalyRecord = downloadableRecordFactory.CreateAnomalyRecord(gamma, anomaly);
+        var anomalyRecord = downloadableRecordFactory.CreateAnomalyRecord(args.Gamma, args.Anomaly);
         var addonRecords = modListRecords
             .Select(
                 (rec, idx) =>
-                    downloadableRecordFactory.TryCreate(idx, gamma, rec, out var dlRec)
-                        ? dlRec
-                        : null
+                {
+                    if (!downloadableRecordFactory.TryCreate(idx, args.Gamma, rec, out var dlRec))
+                    {
+                        return null;
+                    }
+
+                    if (dlRec is GithubRecord ghr)
+                    {
+                        ghr.Download = args.DownloadGithubArchives;
+                        return ghr;
+                    }
+                    return dlRec;
+                }
             )
             .Where(x => x is not null)
             .Select(x => x!)
@@ -59,11 +75,19 @@ public class GammaInstaller(
         var groupedAddonRecords = downloadableRecordFactory.CreateGroupedDownloadableRecords(
             addonRecords
         );
-        var gammaLargeFilesRecord = downloadableRecordFactory.CreateGammaLargeFilesRecord(gamma);
+        var gammaLargeFilesRecord = downloadableRecordFactory.CreateGammaLargeFilesRecord(
+            args.Gamma
+        );
         var teivazAnomalyGunslingerRecord =
-            downloadableRecordFactory.CreateTeivazAnomalyGunslingerRecord(gamma);
-        var gammaSetupRecord = downloadableRecordFactory.CreateGammaSetupRecord(gamma, anomaly);
-        var stalkerGammaRecord = downloadableRecordFactory.CreateStalkerGammaRecord(gamma, anomaly);
+            downloadableRecordFactory.CreateTeivazAnomalyGunslingerRecord(args.Gamma);
+        var gammaSetupRecord = downloadableRecordFactory.CreateGammaSetupRecord(
+            args.Gamma,
+            args.Anomaly
+        );
+        var stalkerGammaRecord = downloadableRecordFactory.CreateStalkerGammaRecord(
+            args.Gamma,
+            args.Anomaly
+        );
 
         var internalProgress = Progress as GammaProgress;
         internalProgress!.TotalMods = new List<IDownloadableRecord>(groupedAddonRecords)
@@ -77,7 +101,7 @@ public class GammaInstaller(
 
         foreach (var separator in separators)
         {
-            await separator.WriteAsync(gamma);
+            await separator.WriteAsync(args.Gamma);
         }
 
         var brokenAddons = new ConcurrentBag<IDownloadableRecord>();
@@ -88,25 +112,25 @@ public class GammaInstaller(
                 await ProcessAddonsAsync(
                     [anomalyRecord, .. groupedAddonRecords],
                     brokenAddons,
-                    cancellationToken
+                    args.CancellationToken
                 ),
-            cancellationToken
+            args.CancellationToken
         );
         var teivazDlTask = Task.Run(
-            async () => await teivazAnomalyGunslingerRecord.DownloadAsync(cancellationToken),
-            cancellationToken
+            async () => await teivazAnomalyGunslingerRecord.DownloadAsync(args.CancellationToken),
+            args.CancellationToken
         );
         var gammaLargeFilesDlTask = Task.Run(
-            async () => await gammaLargeFilesRecord.DownloadAsync(cancellationToken),
-            cancellationToken
+            async () => await gammaLargeFilesRecord.DownloadAsync(args.CancellationToken),
+            args.CancellationToken
         );
         var gammaSetupDownloadTask = Task.Run(
-            async () => await gammaSetupRecord.DownloadAsync(cancellationToken),
-            cancellationToken
+            async () => await gammaSetupRecord.DownloadAsync(args.CancellationToken),
+            args.CancellationToken
         );
         var stalkerGammaDownloadTask = Task.Run(
-            async () => await stalkerGammaRecord.DownloadAsync(cancellationToken),
-            cancellationToken
+            async () => await stalkerGammaRecord.DownloadAsync(args.CancellationToken),
+            args.CancellationToken
         );
 
         await Task.WhenAll(
@@ -119,39 +143,39 @@ public class GammaInstaller(
 
         foreach (var brokenAddon in brokenAddons)
         {
-            await brokenAddon.DownloadAsync(cancellationToken);
-            await brokenAddon.ExtractAsync(cancellationToken);
+            await brokenAddon.DownloadAsync(args.CancellationToken);
+            await brokenAddon.ExtractAsync(args.CancellationToken);
         }
 
-        await gammaSetupRecord.ExtractAsync(cancellationToken);
-        await stalkerGammaRecord.ExtractAsync(cancellationToken);
-        await gammaLargeFilesRecord.ExtractAsync(cancellationToken);
-        await teivazAnomalyGunslingerRecord.ExtractAsync(cancellationToken);
+        await gammaSetupRecord.ExtractAsync(args.CancellationToken);
+        await stalkerGammaRecord.ExtractAsync(args.CancellationToken);
+        await gammaLargeFilesRecord.ExtractAsync(args.CancellationToken);
+        await teivazAnomalyGunslingerRecord.ExtractAsync(args.CancellationToken);
 
         DeleteReshadeDlls.Delete(anomalyBinPath);
-        DeleteShaderCache.Delete(anomaly);
-        await UserLtxForceBorderless.ForceBorderless(anomaly);
+        DeleteShaderCache.Delete(args.Anomaly);
+        await UserLtxForceBorderless.ForceBorderless(args.Anomaly);
 
         await downloadModOrganizerService.DownloadAsync(
-            cachePath: cache,
-            extractPath: gamma,
-            version: mo2Version,
-            cancellationToken: cancellationToken
+            cachePath: args.Cache,
+            extractPath: args.Gamma,
+            version: args.Mo2Version,
+            cancellationToken: args.CancellationToken
         );
 
         await InstallModOrganizerGammaProfile.InstallAsync(
             Path.Join(gammaDownloadsPath, stalkerGammaRecord.Name),
-            gamma
+            args.Gamma
         );
 
         await WriteModOrganizerIni.WriteAsync(
-            gamma,
-            anomaly,
-            mo2Version,
+            args.Gamma,
+            args.Anomaly,
+            args.Mo2Version,
             separators.Select(x => x.FolderName).ToList()
         );
 
-        await DisableNexusModHandlerLink.DisableAsync(gamma);
+        await DisableNexusModHandlerLink.DisableAsync(args.Gamma);
 
         internalProgress.Reset();
     }

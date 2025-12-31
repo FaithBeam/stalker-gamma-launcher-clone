@@ -22,7 +22,7 @@ public class ModDbRecord(
     private string NiceUrl { get; } = niceUrl;
     public string ArchiveName { get; } = archiveName;
     private string? Md5 { get; } = md5;
-    private string DownloadPath => Path.Join(gammaDir, "downloads", ArchiveName);
+    public string DownloadPath => Path.Join(gammaDir, "downloads", ArchiveName);
     private string ExtractPath => Path.Join(gammaDir, "mods", outputDirName);
     private IList<string> Instructions { get; } = instructions;
 
@@ -35,7 +35,12 @@ public class ModDbRecord(
                     DownloadPath,
                     pct =>
                         gammaProgress.OnProgressChanged(
-                            new GammaProgress.GammaInstallProgressEventArgs(Name, "Check MD5", pct)
+                            new GammaProgress.GammaInstallProgressEventArgs(
+                                Name,
+                                "Check MD5",
+                                pct,
+                                NiceUrl
+                            )
                         )
                 ) != Md5
             || !Path.Exists(DownloadPath)
@@ -46,7 +51,12 @@ public class ModDbRecord(
                 DownloadPath,
                 pct =>
                     gammaProgress.OnProgressChanged(
-                        new GammaProgress.GammaInstallProgressEventArgs(Name, "Download", pct)
+                        new GammaProgress.GammaInstallProgressEventArgs(
+                            Name,
+                            "Download",
+                            pct,
+                            NiceUrl
+                        )
                     ),
                 cancellationToken
             );
@@ -62,7 +72,7 @@ public class ModDbRecord(
             ExtractPath,
             pct =>
                 gammaProgress.OnProgressChanged(
-                    new GammaProgress.GammaInstallProgressEventArgs(Name, "Extract", pct)
+                    new GammaProgress.GammaInstallProgressEventArgs(Name, "Extract", pct, NiceUrl)
                 ),
             ct: cancellationToken
         );

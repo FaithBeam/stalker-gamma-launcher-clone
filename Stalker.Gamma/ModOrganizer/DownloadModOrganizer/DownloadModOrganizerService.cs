@@ -69,7 +69,8 @@ public class DownloadModOrganizerService(
                                     new GammaProgress.GammaInstallProgressEventArgs(
                                         "ModOrganizer",
                                         "Check MD5",
-                                        pct
+                                        pct,
+                                        dlUrl
                                     )
                                 )
                         ) != settings.ModOrganizer244Md5
@@ -84,7 +85,8 @@ public class DownloadModOrganizerService(
                                     new GammaProgress.GammaInstallProgressEventArgs(
                                         "ModOrganizer",
                                         "Download",
-                                        pct
+                                        pct,
+                                        dlUrl
                                     )
                                 ),
                             cancellationToken
@@ -101,7 +103,8 @@ public class DownloadModOrganizerService(
                                     new GammaProgress.GammaInstallProgressEventArgs(
                                         "ModOrganizer",
                                         "Check MD5",
-                                        pct
+                                        pct,
+                                        dlUrl
                                     )
                                 )
                         ) != settings.ModOrganizer252Md5
@@ -116,7 +119,8 @@ public class DownloadModOrganizerService(
                                     new GammaProgress.GammaInstallProgressEventArgs(
                                         "ModOrganizer",
                                         "Download",
-                                        pct
+                                        pct,
+                                        dlUrl
                                     )
                                 ),
                             cancellationToken
@@ -136,7 +140,8 @@ public class DownloadModOrganizerService(
                         new GammaProgress.GammaInstallProgressEventArgs(
                             "ModOrganizer",
                             "Download",
-                            pct
+                            pct,
+                            dlUrl
                         )
                     ),
                 cancellationToken
@@ -178,7 +183,12 @@ public class DownloadModOrganizerService(
             extractPath,
             pct =>
                 gammaProgress.OnProgressChanged(
-                    new GammaProgress.GammaInstallProgressEventArgs("ModOrganizer", "Extract", pct)
+                    new GammaProgress.GammaInstallProgressEventArgs(
+                        "ModOrganizer",
+                        "Extract",
+                        pct,
+                        dlUrl
+                    )
                 ),
             ct: cancellationToken
         );

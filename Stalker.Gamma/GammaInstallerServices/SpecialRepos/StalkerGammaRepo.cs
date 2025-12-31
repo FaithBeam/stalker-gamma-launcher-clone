@@ -16,19 +16,19 @@ public class StalkerGammaRepo(
     public string Name { get; } = "Stalker_GAMMA";
     protected string Url = url;
     public string ArchiveName { get; } = "";
-    private string RepoPath => Path.Join(gammaDir, "downloads", Name);
+    public string DownloadPath => Path.Join(gammaDir, "downloads", Name);
     private string GammaModsDir => Path.Join(gammaDir, "mods");
     private string AnomalyDir => anomalyDir;
 
     public virtual async Task DownloadAsync(CancellationToken cancellationToken = default)
     {
-        if (Directory.Exists(RepoPath))
+        if (Directory.Exists(DownloadPath))
         {
             await gitUtility.PullGitRepo(
-                RepoPath,
+                DownloadPath,
                 onProgress: pct =>
                     gammaProgress.OnProgressChanged(
-                        new GammaProgress.GammaInstallProgressEventArgs(Name, "Download", pct)
+                        new GammaProgress.GammaInstallProgressEventArgs(Name, "Download", pct, Url)
                     ),
                 ct: cancellationToken
             );
@@ -36,11 +36,11 @@ public class StalkerGammaRepo(
         else
         {
             await gitUtility.CloneGitRepo(
-                RepoPath,
+                DownloadPath,
                 Url,
                 onProgress: pct =>
                     gammaProgress.OnProgressChanged(
-                        new GammaProgress.GammaInstallProgressEventArgs(Name, "Download", pct)
+                        new GammaProgress.GammaInstallProgressEventArgs(Name, "Download", pct, Url)
                     ),
                 ct: cancellationToken,
                 extraArgs: new List<string> { "--depth", "1" }
@@ -51,23 +51,23 @@ public class StalkerGammaRepo(
     public virtual Task ExtractAsync(CancellationToken cancellationToken = default)
     {
         DirUtils.CopyDirectory(
-            Path.Join(RepoPath, "G.A.M.M.A", "modpack_addons"),
+            Path.Join(DownloadPath, "G.A.M.M.A", "modpack_addons"),
             GammaModsDir,
             onProgress: pct =>
                 gammaProgress.OnProgressChanged(
-                    new GammaProgress.GammaInstallProgressEventArgs(Name, "Extract", pct)
+                    new GammaProgress.GammaInstallProgressEventArgs(Name, "Extract", pct, Url)
                 )
         );
         DirUtils.CopyDirectory(
-            Path.Join(RepoPath, "G.A.M.M.A", "modpack_patches"),
+            Path.Join(DownloadPath, "G.A.M.M.A", "modpack_patches"),
             AnomalyDir,
             onProgress: pct =>
                 gammaProgress.OnProgressChanged(
-                    new GammaProgress.GammaInstallProgressEventArgs(Name, "Extract", pct)
+                    new GammaProgress.GammaInstallProgressEventArgs(Name, "Extract", pct, Url)
                 )
         );
         File.Copy(
-            Path.Join(RepoPath, "G.A.M.M.A_definition_version.txt"),
+            Path.Join(DownloadPath, "G.A.M.M.A_definition_version.txt"),
             Path.Join(GammaModsDir, "..", "version.txt"),
             true
         );

@@ -24,8 +24,10 @@ public class FullInstallCmd(
     /// <param name="gamma">Directory to extract GAMMA to</param>
     /// <param name="cache">Cache directory</param>
     /// <param name="downloadThreads">Number of parallel downloads that can occur</param>
+    /// <param name="disableDownloadGithubAddons">Optionally disable downloading github addons. They will download if these archives do not exist.</param>
     /// <param name="addFoldersToWinDefenderExclusion">(Windows) Add the anomaly, gamma, and cache folders to the Windows Defender Exclusion list</param>
     /// <param name="enableLongPaths">(Windows) Enable long paths</param>
+    /// <param name="verbose">More verbose logging</param>
     /// <param name="debug"></param>
     /// <param name="mo2Version">The version of Mod Organizer 2 to download</param>
     /// <param name="progressUpdateIntervalMs">How frequently to write progress to the console in milliseconds</param>
@@ -44,8 +46,10 @@ public class FullInstallCmd(
         string gamma,
         string cache = "cache",
         [Range(1, 6)] int downloadThreads = 2,
+        bool disableDownloadGithubAddons = false,
         bool addFoldersToWinDefenderExclusion = false,
         bool enableLongPaths = false,
+        bool verbose = false,
         [Hidden] bool debug = false,
         [Hidden] string? mo2Version = null,
         [Hidden] long progressUpdateIntervalMs = 250,
@@ -115,15 +119,19 @@ public class FullInstallCmd(
             .Select(x => x.EventArgs);
         var gammaProgressDisposable = gammaProgressObservable
             .Sample(TimeSpan.FromMilliseconds(progressUpdateIntervalMs))
-            .Subscribe(OnProgressChanged);
+            .Subscribe(verbose ? OnProgressChangedVerbose : OnProgressChangedInformational);
         try
         {
             await gammaInstaller.FullInstallAsync(
-                anomaly,
-                gamma,
-                cache,
-                mo2Version,
-                cancellationToken
+                new GammaInstallerArgs
+                {
+                    Anomaly = anomaly,
+                    Gamma = gamma,
+                    Cache = cache,
+                    Mo2Version = mo2Version,
+                    CancellationToken = cancellationToken,
+                    DownloadGithubArchives = !disableDownloadGithubAddons,
+                }
             );
             _logger.Information("Install finished");
         }
@@ -139,15 +147,27 @@ public class FullInstallCmd(
         File.AppendAllText("stalker-gamma-cli.log", $"{e.Text}{Environment.NewLine}");
     }
 
-    private void OnProgressChanged(GammaProgress.GammaInstallProgressEventArgs e) =>
+    private void OnProgressChangedInformational(GammaProgress.GammaInstallProgressEventArgs e) =>
         _logger.Information(
-            StructuredLog,
+            Informational,
             e.Name[..Math.Min(e.Name.Length, 35)].PadRight(40),
             e.ProgressType.PadRight(10),
             $"{e.Progress:P2}".PadRight(8),
             $"[{e.Complete}/{e.Total}]"
         );
 
+    private void OnProgressChangedVerbose(GammaProgress.GammaInstallProgressEventArgs e) =>
+        _logger.Information(
+            Verbose,
+            e.Name[..Math.Min(e.Name.Length, 35)].PadRight(40),
+            e.ProgressType.PadRight(10),
+            $"{e.Progress:P2}".PadRight(8),
+            $"[{e.Complete}/{e.Total}]",
+            e.Url
+        );
+
     private readonly ILogger _logger = logger;
-    private const string StructuredLog = "{AddonName} | {Operation} | {Percent} | {CompleteTotal}";
+    private const string Informational = "{AddonName} | {Operation} | {Percent} | {CompleteTotal}";
+    private const string Verbose =
+        "{AddonName} | {Operation} | {Percent} | {CompleteTotal} | {Url}";
 }

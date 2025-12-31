@@ -15,18 +15,18 @@ public class GammaSetupRepo(
     public string Name { get; } = "gamma_setup";
     public string ArchiveName { get; } = "";
     protected string Url = url;
-    private string RepoPath => Path.Join(gammaDir, "downloads", Name);
+    public string DownloadPath => Path.Join(gammaDir, "downloads", Name);
     private string GammaModsDir => Path.Join(gammaDir, "mods");
 
     public virtual async Task DownloadAsync(CancellationToken cancellationToken = default)
     {
-        if (Directory.Exists(RepoPath))
+        if (Directory.Exists(DownloadPath))
         {
             await gitUtility.PullGitRepo(
-                RepoPath,
+                DownloadPath,
                 onProgress: pct =>
                     gammaProgress.OnProgressChanged(
-                        new GammaProgress.GammaInstallProgressEventArgs(Name, "Download", pct)
+                        new GammaProgress.GammaInstallProgressEventArgs(Name, "Download", pct, Url)
                     ),
                 ct: cancellationToken
             );
@@ -34,11 +34,11 @@ public class GammaSetupRepo(
         else
         {
             await gitUtility.CloneGitRepo(
-                RepoPath,
+                DownloadPath,
                 Url,
                 onProgress: pct =>
                     gammaProgress.OnProgressChanged(
-                        new GammaProgress.GammaInstallProgressEventArgs(Name, "Download", pct)
+                        new GammaProgress.GammaInstallProgressEventArgs(Name, "Download", pct, Url)
                     ),
                 ct: cancellationToken,
                 extraArgs: new List<string> { "--depth", "1" }
@@ -49,11 +49,11 @@ public class GammaSetupRepo(
     public virtual Task ExtractAsync(CancellationToken cancellationToken = default)
     {
         DirUtils.CopyDirectory(
-            Path.Join(RepoPath, "modpack_addons"),
+            Path.Join(DownloadPath, "modpack_addons"),
             GammaModsDir,
             onProgress: pct =>
                 gammaProgress.OnProgressChanged(
-                    new GammaProgress.GammaInstallProgressEventArgs(Name, "Extract", pct)
+                    new GammaProgress.GammaInstallProgressEventArgs(Name, "Extract", pct, Url)
                 )
         );
         gammaProgress.IncrementCompletedMods();
