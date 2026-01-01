@@ -14,6 +14,8 @@ public class GammaInstallerArgs
     public required string Cache { get; set; }
     public string? Mo2Version { get; set; }
     public bool DownloadGithubArchives { get; set; } = true;
+    public bool DownloadAndExtractAnomaly { get; set; } = true;
+    public bool SkipExtractOnHashMatch { get; set; } = false;
     public CancellationToken CancellationToken { get; set; } = CancellationToken.None;
 }
 
@@ -56,6 +58,12 @@ public class GammaInstaller(
             Path.Join(args.Gamma, "downloads"),
             args.Anomaly
         );
+        if (args.SkipExtractOnHashMatch)
+        {
+            anomalyRecord = downloadableRecordFactory.CreateSkipExtractWhenNotDownloadedRecord(
+                anomalyRecord
+            );
+        }
         var addonRecords = modpackMakerRecords
             .Select(
                 (rec, idx) =>
@@ -76,9 +84,19 @@ public class GammaInstaller(
             .Where(x => x is not null)
             .Select(x => x!)
             .ToList();
-        var groupedAddonRecords = downloadableRecordFactory.CreateGroupedDownloadableRecords(
-            addonRecords
-        );
+        var groupedAddonRecords = downloadableRecordFactory
+            .CreateGroupedDownloadableRecords(addonRecords)
+            .Select(dlRec =>
+            {
+                if (args.SkipExtractOnHashMatch)
+                {
+                    return downloadableRecordFactory.CreateSkipExtractWhenNotDownloadedRecord(
+                        dlRec
+                    );
+                }
+                return dlRec;
+            })
+            .ToList();
         var gammaLargeFilesRecord = downloadableRecordFactory.CreateGammaLargeFilesRecord(
             args.Gamma
         );

@@ -41,7 +41,8 @@ public class ModDbRecord(
                                 pct,
                                 NiceUrl
                             )
-                        )
+                        ),
+                    cancellationToken
                 ) != Md5
             || !Path.Exists(DownloadPath)
         )
@@ -60,6 +61,7 @@ public class ModDbRecord(
                     ),
                 cancellationToken
             );
+            Downloaded = true;
         }
     }
 
@@ -83,4 +85,6 @@ public class ModDbRecord(
 
         WriteAddonMetaIni.Write(ExtractPath, ArchiveName, NiceUrl);
     }
+
+    public bool Downloaded { get; set; }
 }

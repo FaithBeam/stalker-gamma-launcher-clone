@@ -21,4 +21,6 @@ public class ModDbRecordGroup(GammaProgress gammaProgress, IList<ModDbRecord> mo
         }
         gammaProgress.IncrementCompletedMods();
     }
+
+    public bool Downloaded => ModDbRecords.Any(x => x.Downloaded);
 }

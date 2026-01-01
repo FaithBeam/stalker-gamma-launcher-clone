@@ -29,7 +29,7 @@ public static class HashUtility
         await using var za = await ZipArchive.CreateAsync(zaS, ZipArchiveMode.Create,
             cancellationToken: cancellationToken,
             leaveOpen: false, entryNameEncoding: null);
-        var entry = za.CreateEntry($"hashes-{hashType}.txt", CompressionLevel.SmallestSize);
+        var entry = za.CreateEntry($"hashes-{hashType}-{Environment.UserName}.txt", CompressionLevel.SmallestSize);
         await using var entryStream = await entry.OpenAsync(cancellationToken);
         await using var fs = new StreamWriter(entryStream);
         var files = GetFiles(anomaly).Concat(GetFiles(cache)).Concat(GetFiles(gamma)).ToList();

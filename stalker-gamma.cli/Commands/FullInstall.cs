@@ -24,15 +24,17 @@ public class FullInstallCmd(
     /// <param name="gamma">Directory to extract GAMMA to</param>
     /// <param name="cache">Cache directory</param>
     /// <param name="downloadThreads">Number of parallel downloads that can occur</param>
-    /// <param name="disableDownloadGithubAddons">Optionally disable downloading github addons. They will download if these archives do not exist.</param>
+    /// <param name="skipAnomaly">Skip the Stalker Anomaly download and extract</param>
+    /// <param name="skipGithubDownloads">Disable downloading github addons. They will still download if these archives do not exist.</param>
+    /// <param name="skipExtractOnHashMatch">Skip extracting archives when their MD5 hashes match</param>
     /// <param name="addFoldersToWinDefenderExclusion">(Windows) Add the anomaly, gamma, and cache folders to the Windows Defender Exclusion list</param>
     /// <param name="enableLongPaths">(Windows) Enable long paths</param>
     /// <param name="verbose">More verbose logging</param>
     /// <param name="debug"></param>
     /// <param name="mo2Version">The version of Mod Organizer 2 to download</param>
     /// <param name="progressUpdateIntervalMs">How frequently to write progress to the console in milliseconds</param>
-    /// <param name="modpackMakerList">Escape hatch for stalker gamma api</param>
-    /// <param name="customModListUrl">Download a custom MO2 GAMMA profile modlist.txt. Use in conjunction with --stalker-addon-api-url "".</param>
+    /// <param name="modpackMakerUrl">Provides the list of addons to download and extract. modpack_maker_list.txt</param>
+    /// <param name="modListUrl">Download a custom MO2 GAMMA profile modlist.txt. Use in conjunction with --modpack-maker-list-url</param>
     /// <param name="gammaSetupRepoUrl">Escape hatch for git repo gamma_setup</param>
     /// <param name="stalkerGammaRepoUrl">Escape hatch for git repo Stalker_GAMMA</param>
     /// <param name="gammaLargeFilesRepoUrl">Escape hatch for git repo gamma_large_files_v2</param>
@@ -46,15 +48,17 @@ public class FullInstallCmd(
         string gamma,
         string cache = "cache",
         [Range(1, 6)] int downloadThreads = 2,
-        bool disableDownloadGithubAddons = false,
+        bool skipAnomaly = false,
+        bool skipGithubDownloads = false,
+        bool skipExtractOnHashMatch = false,
         bool addFoldersToWinDefenderExclusion = false,
         bool enableLongPaths = false,
         bool verbose = false,
+        string modpackMakerUrl = "https://stalker-gamma.com/api/list",
+        string? modListUrl = null,
         [Hidden] bool debug = false,
         [Hidden] string? mo2Version = null,
         [Hidden] long progressUpdateIntervalMs = 250,
-        [Hidden] string modpackMakerList = "https://stalker-gamma.com/api/list",
-        [Hidden] string? customModListUrl = null,
         [Hidden] string gammaSetupRepoUrl = "https://github.com/Grokitach/gamma_setup",
         [Hidden] string stalkerGammaRepoUrl = "https://github.com/Grokitach/Stalker_GAMMA",
         [Hidden]
@@ -67,8 +71,8 @@ public class FullInstallCmd(
     )
     {
         stalkerGammaSettings.DownloadThreads = downloadThreads;
-        stalkerGammaSettings.ModpackMakerList = modpackMakerList;
-        stalkerGammaSettings.ModListUrl = customModListUrl;
+        stalkerGammaSettings.ModpackMakerList = modpackMakerUrl;
+        stalkerGammaSettings.ModListUrl = modListUrl;
         stalkerGammaSettings.GammaSetupRepo = gammaSetupRepoUrl;
         stalkerGammaSettings.StalkerGammaRepo = stalkerGammaRepoUrl;
         stalkerGammaSettings.GammaLargeFilesRepo = gammaLargeFilesRepoUrl;
@@ -131,7 +135,9 @@ public class FullInstallCmd(
                     Cache = cache,
                     Mo2Version = mo2Version,
                     CancellationToken = cancellationToken,
-                    DownloadGithubArchives = !disableDownloadGithubAddons,
+                    DownloadGithubArchives = !skipGithubDownloads,
+                    DownloadAndExtractAnomaly = !skipAnomaly,
+                    SkipExtractOnHashMatch = skipExtractOnHashMatch,
                 }
             );
             _logger.Information("Install finished");

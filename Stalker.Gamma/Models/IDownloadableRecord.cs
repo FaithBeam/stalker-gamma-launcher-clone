@@ -7,4 +7,5 @@ public interface IDownloadableRecord
     string DownloadPath { get; }
     public Task DownloadAsync(CancellationToken cancellationToken);
     public Task ExtractAsync(CancellationToken cancellationToken);
+    public bool Downloaded { get; }
 }

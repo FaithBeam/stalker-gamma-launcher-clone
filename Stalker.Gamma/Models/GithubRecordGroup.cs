@@ -21,4 +21,6 @@ public class GithubRecordGroup(GammaProgress gammaProgress, IList<GithubRecord> 
         }
         gammaProgress.IncrementCompletedMods();
     }
+
+    public bool Downloaded => GithubRecords.Any(x => x.Downloaded);
 }

@@ -44,6 +44,8 @@ public class TeivazAnomalyGunslingerRepo(
                 extraArgs: new List<string> { "--depth", "1" }
             );
         }
+
+        Downloaded = true;
     }
 
     public virtual Task ExtractAsync(CancellationToken cancellationToken = default)
@@ -102,4 +104,6 @@ public class TeivazAnomalyGunslingerRepo(
         gammaProgress.IncrementCompletedMods();
         return Task.CompletedTask;
     }
+
+    public bool Downloaded { get; set; }
 }

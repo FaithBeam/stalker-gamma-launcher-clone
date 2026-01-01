@@ -44,6 +44,8 @@ public class GammaLargeFilesRepo(
                 extraArgs: new List<string> { "--depth", "1" }
             );
         }
+
+        Downloaded = true;
     }
 
     public virtual Task ExtractAsync(CancellationToken cancellationToken = default)
@@ -59,4 +61,6 @@ public class GammaLargeFilesRepo(
         gammaProgress.IncrementCompletedMods();
         return Task.CompletedTask;
     }
+
+    public bool Downloaded { get; set; }
 }

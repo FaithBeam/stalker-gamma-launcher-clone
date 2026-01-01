@@ -21,6 +21,10 @@ public interface IDownloadableRecordFactory
     );
 
     List<IDownloadableRecord> CreateGroupedDownloadableRecords(IList<IDownloadableRecord> records);
+
+    IDownloadableRecord CreateSkippedRecord(IDownloadableRecord record);
+
+    IDownloadableRecord CreateSkipExtractWhenNotDownloadedRecord(IDownloadableRecord record);
 }
 
 public class DownloadableRecordFactory(
@@ -32,6 +36,13 @@ public class DownloadableRecordFactory(
     GitUtility gitUtility
 ) : IDownloadableRecordFactory
 {
+    public IDownloadableRecord CreateSkippedRecord(IDownloadableRecord record) =>
+        new SkippedRecord(gammaProgress, record);
+
+    public IDownloadableRecord CreateSkipExtractWhenNotDownloadedRecord(
+        IDownloadableRecord record
+    ) => new SkipExtractWhenNotDownloadedRecord(gammaProgress, record);
+
     public IDownloadableRecord CreateAnomalyRecord(string downloadDirectory, string anomalyDir) =>
         new AnomalyInstaller(
             gammaProgress,

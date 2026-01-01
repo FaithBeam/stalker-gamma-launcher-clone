@@ -40,7 +40,8 @@ public class AnomalyInstaller(
                                 pct,
                                 NiceUrl
                             )
-                        )
+                        ),
+                    cancellationToken
                 ) != StalkerAnomalyMd5
             )
         )
@@ -59,6 +60,7 @@ public class AnomalyInstaller(
                     ),
                 cancellationToken
             );
+            Downloaded = true;
         }
     }
 
@@ -75,6 +77,8 @@ public class AnomalyInstaller(
         );
         progress.IncrementCompletedMods();
     }
+
+    public bool Downloaded { get; set; }
 }
 
 public class AnomalyInstallerException(string message, Exception innerException)

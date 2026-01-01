@@ -72,7 +72,8 @@ public class DownloadModOrganizerService(
                                         pct,
                                         dlUrl
                                     )
-                                )
+                                ),
+                            cancellationToken
                         ) != settings.ModOrganizer244Md5
                     )
                     {
@@ -106,7 +107,8 @@ public class DownloadModOrganizerService(
                                         pct,
                                         dlUrl
                                     )
-                                )
+                                ),
+                            cancellationToken
                         ) != settings.ModOrganizer252Md5
                     )
                     {

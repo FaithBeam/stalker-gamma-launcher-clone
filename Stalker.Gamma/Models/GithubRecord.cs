@@ -27,7 +27,7 @@ public class GithubRecord(
     private string ExtractPath => Path.Join(gammaDir, "mods", outputDirName);
     private IList<string> Instructions { get; } = instructions;
     private readonly HttpClient _hc = hcf.CreateClient("githubDlArchive");
-    public bool Download = true;
+    public bool Download { get; set; } = true;
 
     public async Task DownloadAsync(CancellationToken cancellationToken)
     {
@@ -93,6 +93,7 @@ public class GithubRecord(
             gammaProgress.OnProgressChanged(
                 new GammaProgress.GammaInstallProgressEventArgs(Name, "Download", 1, Url)
             );
+            Downloaded = true;
         }
         finally
         {
@@ -120,4 +121,6 @@ public class GithubRecord(
 
         WriteAddonMetaIni.Write(ExtractPath, ArchiveName, NiceUrl);
     }
+
+    public bool Downloaded { get; set; }
 }

@@ -24,7 +24,7 @@ public class Debug(ILogger logger)
         HashType hashType = HashType.Blake3
     )
     {
-        const string destinationArchive = "stalker-gamma-cli-hashes.zip";
+        var destinationArchive = $"stalker-gamma-cli-hashes-{Environment.UserName}.zip";
         _logger.Information("Hashing install folders, this will take a while...");
         _logger.Information("Hash Type: {HashType}", hashType);
         await HashUtility.Hash(
