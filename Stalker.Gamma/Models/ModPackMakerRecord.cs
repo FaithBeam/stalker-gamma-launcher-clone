@@ -1,6 +1,6 @@
 ﻿namespace Stalker.Gamma.Models;
 
-public class ModListRecord
+public class ModPackMakerRecord
 {
     public required string DlLink { get; init; }
     public string? Instructions { get; init; }

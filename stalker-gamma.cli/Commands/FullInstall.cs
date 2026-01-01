@@ -31,7 +31,7 @@ public class FullInstallCmd(
     /// <param name="debug"></param>
     /// <param name="mo2Version">The version of Mod Organizer 2 to download</param>
     /// <param name="progressUpdateIntervalMs">How frequently to write progress to the console in milliseconds</param>
-    /// <param name="stalkerAddonApiUrl">Escape hatch for stalker gamma api</param>
+    /// <param name="modpackMakerList">Escape hatch for stalker gamma api</param>
     /// <param name="customModListUrl">Download a custom MO2 GAMMA profile modlist.txt. Use in conjunction with --stalker-addon-api-url "".</param>
     /// <param name="gammaSetupRepoUrl">Escape hatch for git repo gamma_setup</param>
     /// <param name="stalkerGammaRepoUrl">Escape hatch for git repo Stalker_GAMMA</param>
@@ -53,7 +53,7 @@ public class FullInstallCmd(
         [Hidden] bool debug = false,
         [Hidden] string? mo2Version = null,
         [Hidden] long progressUpdateIntervalMs = 250,
-        [Hidden] string stalkerAddonApiUrl = "https://stalker-gamma.com/api/list",
+        [Hidden] string modpackMakerList = "https://stalker-gamma.com/api/list",
         [Hidden] string? customModListUrl = null,
         [Hidden] string gammaSetupRepoUrl = "https://github.com/Grokitach/gamma_setup",
         [Hidden] string stalkerGammaRepoUrl = "https://github.com/Grokitach/Stalker_GAMMA",
@@ -67,7 +67,8 @@ public class FullInstallCmd(
     )
     {
         stalkerGammaSettings.DownloadThreads = downloadThreads;
-        stalkerGammaSettings.ListStalkerModsUrl = stalkerAddonApiUrl;
+        stalkerGammaSettings.ModpackMakerList = modpackMakerList;
+        stalkerGammaSettings.ModListUrl = customModListUrl;
         stalkerGammaSettings.GammaSetupRepo = gammaSetupRepoUrl;
         stalkerGammaSettings.StalkerGammaRepo = stalkerGammaRepoUrl;
         stalkerGammaSettings.GammaLargeFilesRepo = gammaLargeFilesRepoUrl;

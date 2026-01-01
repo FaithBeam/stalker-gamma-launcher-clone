@@ -24,7 +24,8 @@ public class GammaInstaller(
     IGetStalkerModsFromApi getStalkerModsFromApi,
     IDownloadableRecordFactory downloadableRecordFactory,
     IModListRecordFactory modListRecordFactory,
-    ISeparatorsFactory separatorsFactory
+    ISeparatorsFactory separatorsFactory,
+    IHttpClientFactory hcf
 )
 {
     public IGammaProgress Progress { get; } = gammaProgress;
@@ -48,14 +49,14 @@ public class GammaInstaller(
         Directory.CreateDirectory(gammaModsPath);
         CreateSymbolicLinkUtility.Create(gammaDownloadsPath, args.Cache);
 
-        var modListTxt = await getStalkerModsFromApi.GetModsAsync();
-        var modListRecords = modListRecordFactory.Create(modListTxt);
-        var separators = separatorsFactory.Create(modListRecords);
+        var modpackMakerTxt = await getStalkerModsFromApi.GetModsAsync();
+        var modpackMakerRecords = modListRecordFactory.Create(modpackMakerTxt);
+        var separators = separatorsFactory.Create(modpackMakerRecords);
         var anomalyRecord = downloadableRecordFactory.CreateAnomalyRecord(
             Path.Join(args.Gamma, "downloads"),
             args.Anomaly
         );
-        var addonRecords = modListRecords
+        var addonRecords = modpackMakerRecords
             .Select(
                 (rec, idx) =>
                 {
@@ -180,6 +181,15 @@ public class GammaInstaller(
 
         await DisableNexusModHandlerLink.DisableAsync(args.Gamma);
 
+        if (!string.IsNullOrWhiteSpace(settings.ModListUrl))
+        {
+            var modlist = await _hc.GetStringAsync(settings.ModListUrl);
+            await File.WriteAllTextAsync(
+                Path.Join(args.Gamma, "profiles", "G.A.M.M.A", "modlist.txt"),
+                modlist
+            );
+        }
+
         internalProgress.Reset();
     }
 
@@ -204,4 +214,6 @@ public class GammaInstaller(
                 }
             }
         );
+
+    private readonly HttpClient _hc = hcf.CreateClient();
 }

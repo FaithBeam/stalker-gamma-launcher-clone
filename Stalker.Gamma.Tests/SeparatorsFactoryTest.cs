@@ -9,7 +9,7 @@ public class SeparatorsFactoryTest
     [Test]
     public void TestCreateSeparators()
     {
-        var modListRecordFactory = new ModListRecordFactory();
+        var modListRecordFactory = new ModPackMakerRecordFactory();
         var records = modListRecordFactory.Create(ModsData);
         var sut = new SeparatorsFactory();
 

@@ -6,7 +6,8 @@ public static class Md5Utility
 {
     public static async Task<string> CalculateFileMd5Async(
         string filePath,
-        Action<double> onProgress
+        Action<double> onProgress,
+        CancellationToken cancellationToken = default
     )
     {
         using var md5 = MD5.Create();
@@ -17,7 +18,7 @@ public static class Md5Utility
         long totalBytesRead = 0;
         int bytesRead;
 
-        while ((bytesRead = await stream.ReadAsync(buffer)) > 0)
+        while ((bytesRead = await stream.ReadAsync(buffer, cancellationToken)) > 0)
         {
             md5.TransformBlock(buffer, 0, bytesRead, null, 0);
             totalBytesRead += bytesRead;

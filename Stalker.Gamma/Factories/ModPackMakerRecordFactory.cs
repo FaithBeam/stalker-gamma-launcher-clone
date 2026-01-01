@@ -4,18 +4,18 @@ namespace Stalker.Gamma.Factories;
 
 public interface IModListRecordFactory
 {
-    List<ModListRecord> Create(string modListTxt);
+    List<ModPackMakerRecord> Create(string modpackMakerTxt);
 }
 
-public class ModListRecordFactory : IModListRecordFactory
+public class ModPackMakerRecordFactory : IModListRecordFactory
 {
-    public List<ModListRecord> Create(string modListTxt) =>
-        modListTxt
+    public List<ModPackMakerRecord> Create(string modpackMakerTxt) =>
+        modpackMakerTxt
             .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Select(line =>
             {
                 var lineSplit = line.Split('\t');
-                return new ModListRecord
+                return new ModPackMakerRecord
                 {
                     DlLink = lineSplit[0].Trim(),
                     Instructions = lineSplit.ElementAtOrDefault(1)?.Trim(),

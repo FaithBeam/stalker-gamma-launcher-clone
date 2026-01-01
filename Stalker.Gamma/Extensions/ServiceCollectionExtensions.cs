@@ -40,7 +40,7 @@ public static class ServiceCollectionExtensions
             .AddScoped<CurlUtility>()
             .AddScoped<ISeparatorsFactory, SeparatorsFactory>()
             .AddScoped<IGetStalkerModsFromApi, GetStalkerModsFromApi>()
-            .AddScoped<IModListRecordFactory, ModListRecordFactory>()
+            .AddScoped<IModListRecordFactory, ModPackMakerRecordFactory>()
             .AddScoped<IDownloadableRecordFactory, DownloadableRecordFactory>()
             .AddScoped<IGammaLargeFilesRepo, GammaLargeFilesRepo>()
             .AddScoped<IGammaSetupRepo, GammaSetupRepo>()

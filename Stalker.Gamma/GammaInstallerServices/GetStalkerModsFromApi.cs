@@ -10,9 +10,9 @@ public interface IGetStalkerModsFromApi
 public class GetStalkerModsFromApi(StalkerGammaSettings settings, IHttpClientFactory hcf)
     : IGetStalkerModsFromApi
 {
-    private readonly string _apiUrl = settings.ListStalkerModsUrl;
+    private string ApiUrl => settings.ModpackMakerList;
 
-    public async Task<string> GetModsAsync() => await _hc.GetStringAsync(_apiUrl);
+    public async Task<string> GetModsAsync() => await _hc.GetStringAsync(ApiUrl);
 
     private readonly HttpClient _hc = hcf.CreateClient("stalkerApi");
 }

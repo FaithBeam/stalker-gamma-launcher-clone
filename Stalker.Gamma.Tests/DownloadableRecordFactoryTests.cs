@@ -13,7 +13,7 @@ public class DownloadableRecordFactoryTests
     [Test]
     public void TestParseModsData()
     {
-        var modListRecordFactory = new ModListRecordFactory();
+        var modListRecordFactory = new ModPackMakerRecordFactory();
         var records = modListRecordFactory.Create(ModsData);
         var hcf = Substitute.For<IHttpClientFactory>();
         hcf.CreateClient(Arg.Any<string>()).Returns(new HttpClient());
@@ -50,7 +50,7 @@ public class DownloadableRecordFactoryTests
     [Test]
     public void TestCreateGroupedDownloadableRecords()
     {
-        var modListRecordFactory = new ModListRecordFactory();
+        var modListRecordFactory = new ModPackMakerRecordFactory();
         var records = modListRecordFactory.Create(ModsData);
         var hcf = Substitute.For<IHttpClientFactory>();
         hcf.CreateClient(Arg.Any<string>()).Returns(new HttpClient());

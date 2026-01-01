@@ -13,6 +13,10 @@
       "commandName": "Project",
       "commandLineArgs": "full-install --anomaly  /Volumes/NewVolume/gamma/anomaly --gamma /Volumes/NewVolume/gamma/gamma --cache /Volumes/NewVolume/gamma/cache --download-threads 4 --verbose --disable-download-github-addons"
     },
+    "full-install-custom-modlist": {
+      "commandName": "Project",
+      "commandLineArgs": "full-install --anomaly  /Volumes/NewVolume/gamma/anomaly --gamma /Volumes/NewVolume/gamma/gamma --cache /Volumes/NewVolume/gamma/cache --download-threads 4 --verbose --disable-download-github-addons --custom-mod-list-url https://raw.githubusercontent.com/FaithBeam/stalker-gamma-ccon-modlist/refs/heads/master/modlist.txt --modpack-maker-list https://raw.githubusercontent.com/FaithBeam/stalker-gamma-ccon-modlist/refs/heads/master/modpack_maker_list.txt"
+    },
     "debug-hash-install-blake3": {
       "commandName": "Project",
       "commandLineArgs": "debug hash-install --anomaly  gamma/anomaly --gamma gamma/gamma --cache gamma/cache --hash-type blake3"

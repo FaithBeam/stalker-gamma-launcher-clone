@@ -16,7 +16,7 @@ public interface IDownloadableRecordFactory
     bool TryCreate(
         int idx,
         string gammaDir,
-        ModListRecord record,
+        ModPackMakerRecord record,
         out IDownloadableRecord? downloadableRecord
     );
 
@@ -93,7 +93,7 @@ public class DownloadableRecordFactory(
     public bool TryCreate(
         int idx,
         string gammaDir,
-        ModListRecord record,
+        ModPackMakerRecord record,
         out IDownloadableRecord? downloadableRecord
     )
     {
@@ -118,7 +118,7 @@ public class DownloadableRecordFactory(
     private bool TryParseGithubRecord(
         int idx,
         string gammaDir,
-        ModListRecord record,
+        ModPackMakerRecord record,
         out GithubRecord? downloadableRecord
     )
     {
@@ -160,7 +160,7 @@ public class DownloadableRecordFactory(
     private bool TryParseModDbRecord(
         int idx,
         string gammaDir,
-        ModListRecord record,
+        ModPackMakerRecord record,
         out ModDbRecord? downloadableRecord
     )
     {

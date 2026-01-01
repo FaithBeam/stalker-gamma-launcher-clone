@@ -4,12 +4,12 @@ namespace Stalker.Gamma.Factories;
 
 public interface ISeparatorsFactory
 {
-    List<ISeparator> Create(IList<ModListRecord> records);
+    List<ISeparator> Create(IList<ModPackMakerRecord> records);
 }
 
 public class SeparatorsFactory : ISeparatorsFactory
 {
-    public List<ISeparator> Create(IList<ModListRecord> records) =>
+    public List<ISeparator> Create(IList<ModPackMakerRecord> records) =>
         records
             .Select((r, idx) => new { r, idx })
             .Where(r =>
