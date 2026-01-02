@@ -12,7 +12,7 @@ public static class ValidateActiveProfile
             return;
         }
         logger.Error(
-            "No active profile, create one with config create or select one with config use"
+            "No active profile, create one with 'config create' or select one with 'config use'"
         );
         Environment.Exit(1);
     }

@@ -24,6 +24,16 @@ public partial class CliProfile
         if (File.Exists(modOrganizerIniPath))
         {
             var profilePath = ProfileUtility.ValidateProfileExists(Gamma);
+            var mo2ProfilePath = Path.Join(profilePath, Mo2Profile);
+            if (!Directory.Exists(mo2ProfilePath))
+            {
+                Directory.CreateDirectory(mo2ProfilePath);
+                var mo2ProfileModListPath = Path.Join(mo2ProfilePath, "modlist.txt");
+                await File.WriteAllTextAsync(
+                    mo2ProfileModListPath,
+                    await new HttpClient().GetStringAsync(ModListUrl)
+                );
+            }
             var profiles = new DirectoryInfo(profilePath)
                 .GetDirectories()
                 .Select(x => x.Name)
