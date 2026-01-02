@@ -15,13 +15,10 @@ public class CheckAnomalyCmd(ILogger logger, CliSettings cliSettings)
     /// <param name="cancellationToken">
     /// A cancellation token that can be used to abort the operation.
     /// </param>
-    /// <param name="anomaly">
-    /// Directory to anomaly
-    /// </param>
-    public async Task CheckAnomaly(CancellationToken cancellationToken, string? anomaly = null)
+    public async Task CheckAnomaly(CancellationToken cancellationToken)
     {
         ValidateActiveProfile.Validate(_logger, cliSettings.ActiveProfile);
-        anomaly ??= cliSettings.ActiveProfile!.Anomaly;
+        var anomaly = cliSettings.ActiveProfile!.Anomaly;
         if (!Directory.Exists(anomaly))
         {
             throw new DirectoryNotFoundException($"Directory {anomaly} doesn't exist");

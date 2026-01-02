@@ -23,11 +23,6 @@ public class FullInstallCmd(
     /// <summary>
     /// This will install/update Anomaly and all GAMMA addons.
     /// </summary>
-    /// <param name="anomaly">Directory to extract Anomaly to</param>
-    /// <param name="gamma">Directory to extract GAMMA to</param>
-    /// <param name="cache">Cache directory</param>
-    /// <param name="downloadThreads">Number of parallel downloads that can occur</param>
-    /// <param name="skipAnomaly">Skip the Stalker Anomaly download and extract</param>
     /// <param name="skipGithubDownloads">Disable downloading github addons. They will still download if these archives do not exist.</param>
     /// <param name="skipExtractOnHashMatch">Skip extracting archives when their MD5 hashes match</param>
     /// <param name="addFoldersToWinDefenderExclusion">(Windows) Add the anomaly, gamma, and cache folders to the Windows Defender Exclusion list</param>
@@ -48,11 +43,6 @@ public class FullInstallCmd(
     public async Task FullInstall(
         // ReSharper disable once InvalidXmlDocComment
         CancellationToken cancellationToken,
-        string? anomaly = null,
-        string? gamma = null,
-        string? cache = null,
-        [Range(1, 6)] int? downloadThreads = null,
-        bool skipAnomaly = false,
         bool skipGithubDownloads = false,
         bool skipExtractOnHashMatch = false,
         bool addFoldersToWinDefenderExclusion = false,
@@ -76,14 +66,13 @@ public class FullInstallCmd(
     )
     {
         ValidateActiveProfile.Validate(_logger, cliSettings.ActiveProfile);
-        anomaly ??= cliSettings.ActiveProfile!.Anomaly;
-        gamma ??= cliSettings.ActiveProfile!.Gamma;
-        cache ??= cliSettings.ActiveProfile!.Cache;
+        var anomaly = cliSettings.ActiveProfile!.Anomaly;
+        var gamma = cliSettings.ActiveProfile!.Gamma;
+        var cache = cliSettings.ActiveProfile!.Cache;
         mo2Profile ??= cliSettings.ActiveProfile!.Mo2Profile;
         modpackMakerUrl ??= cliSettings.ActiveProfile!.ModPackMakerUrl;
         modListUrl ??= cliSettings.ActiveProfile!.ModListUrl;
-        stalkerGammaSettings.DownloadThreads =
-            downloadThreads ?? cliSettings.ActiveProfile!.DownloadThreads;
+        stalkerGammaSettings.DownloadThreads = cliSettings.ActiveProfile!.DownloadThreads;
         stalkerGammaSettings.ModpackMakerList = modpackMakerUrl;
         stalkerGammaSettings.ModListUrl = modListUrl;
         stalkerGammaSettings.GammaSetupRepo = gammaSetupRepoUrl;
@@ -149,7 +138,6 @@ public class FullInstallCmd(
                     Mo2Version = mo2Version,
                     CancellationToken = cancellationToken,
                     DownloadGithubArchives = !skipGithubDownloads,
-                    DownloadAndExtractAnomaly = !skipAnomaly,
                     SkipExtractOnHashMatch = skipExtractOnHashMatch,
                     Mo2Profile = mo2Profile,
                 }

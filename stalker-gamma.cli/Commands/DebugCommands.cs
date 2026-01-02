@@ -12,23 +12,17 @@ public class Debug(ILogger logger, CliSettings cliSettings)
     /// For debugging broken installations only. Hashes installation folders and creates a compressed archive containing the computed hashes.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the task to complete.</param>
-    /// <param name="anomaly">The path to the anomaly directory to hash.</param>
-    /// <param name="gamma">The path to the gamma directory to hash.</param>
-    /// <param name="cache">The path to the cache directory to hash.</param>
     /// <param name="hashType">The type of hash algorithm to use. [Blake3|Sha256]</param>
     /// <returns></returns>
     public async Task HashInstall(
         CancellationToken cancellationToken,
-        string? anomaly = null,
-        string? gamma = null,
-        string? cache = null,
         HashType hashType = HashType.Blake3
     )
     {
         ValidateActiveProfile.Validate(_logger, cliSettings.ActiveProfile);
-        anomaly ??= cliSettings.ActiveProfile!.Anomaly;
-        gamma ??= cliSettings.ActiveProfile!.Gamma;
-        cache ??= cliSettings.ActiveProfile!.Cache;
+        var anomaly = cliSettings.ActiveProfile!.Anomaly;
+        var gamma = cliSettings.ActiveProfile!.Gamma;
+        var cache = cliSettings.ActiveProfile!.Cache;
 
         var destinationArchive = $"stalker-gamma-cli-hashes-{Environment.UserName}.zip";
         _logger.Information("Hashing install folders, this will take a while...");

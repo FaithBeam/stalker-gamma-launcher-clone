@@ -14,8 +14,7 @@ public class GammaInstallerArgs
     public required string Cache { get; set; }
     public string? Mo2Version { get; set; }
     public bool DownloadGithubArchives { get; set; } = true;
-    public bool DownloadAndExtractAnomaly { get; set; } = true;
-    public bool SkipExtractOnHashMatch { get; set; } = false;
+    public bool SkipExtractOnHashMatch { get; set; }
     public CancellationToken CancellationToken { get; set; } = CancellationToken.None;
     public string Mo2Profile { get; set; } = "G.A.M.M.A";
 }

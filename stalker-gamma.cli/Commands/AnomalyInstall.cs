@@ -24,12 +24,6 @@ public class AnomalyInstallCmd(
     /// <param name="cancellationToken">
     /// A token to monitor for cancellation requests.
     /// </param>
-    /// <param name="anomaly">
-    /// The path to install Stalker Anomaly
-    /// </param>
-    /// <param name="cache">
-    /// The directory path to store downloaded files.
-    /// </param>
     /// <param name="verbose">
     /// Indicates whether progress updates should be logged in verbose mode.
     /// </param>
@@ -40,15 +34,13 @@ public class AnomalyInstallCmd(
     /// </returns>
     public async Task AnomalyInstall(
         CancellationToken cancellationToken,
-        string? anomaly = null,
-        string? cache = null,
         bool verbose = false,
         [Hidden] long progressUpdateIntervalMs = 250
     )
     {
         ValidateActiveProfile.Validate(_logger, _cliSettings.ActiveProfile);
-        anomaly ??= _cliSettings.ActiveProfile!.Anomaly;
-        cache ??= _cliSettings.ActiveProfile!.Cache;
+        var anomaly = _cliSettings.ActiveProfile!.Anomaly;
+        var cache = _cliSettings.ActiveProfile!.Cache;
         var resourcesPath = Path.Join(Path.GetDirectoryName(AppContext.BaseDirectory), "resources");
         stalkerGammaSettings.PathToCurl = Path.Join(
             resourcesPath,
