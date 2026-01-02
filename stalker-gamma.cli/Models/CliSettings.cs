@@ -6,17 +6,17 @@ namespace stalker_gamma.cli.Models;
 public class CliSettings
 {
     [JsonIgnore]
-    public CliProfile ActiveProfile => Profiles.FirstOrDefault(x => x.Active) ?? new CliProfile();
+    public CliProfile? ActiveProfile => Profiles.FirstOrDefault(x => x.Active);
 
     public List<CliProfile> Profiles { get; set; } = [];
 
-    public async Task<string> SaveAsync()
+    public async Task<string?> SaveAsync()
     {
         await File.WriteAllTextAsync(
             _settingsPath,
             JsonSerializer.Serialize(this, jsonTypeInfo: CliSettingsCtx.Default.CliSettings)
         );
-        return ActiveProfile.ProfileName;
+        return ActiveProfile?.ProfileName;
     }
 
     private readonly string _settingsPath = Path.Join(

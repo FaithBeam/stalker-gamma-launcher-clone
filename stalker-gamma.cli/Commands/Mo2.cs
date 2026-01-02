@@ -17,7 +17,9 @@ public partial class Mo2Cmds(ILogger logger, CliSettings cliSettings)
     [Command("config get selected-profile")]
     public async Task<int> GetProfile(string? gamma = null)
     {
-        gamma ??= _cliSettings.ActiveProfile.Gamma;
+        ValidateActiveProfile.Validate(_logger, _cliSettings.ActiveProfile);
+
+        gamma ??= _cliSettings.ActiveProfile!.Gamma;
         var modOrganizerIniPath = Path.Join(gamma, "ModOrganizer.ini");
         if (!File.Exists(modOrganizerIniPath))
         {
@@ -45,7 +47,8 @@ public partial class Mo2Cmds(ILogger logger, CliSettings cliSettings)
     [Command("config set selected-profile")]
     public async Task<int> SetProfile([Argument] string profile, string? gamma = null)
     {
-        gamma ??= _cliSettings.ActiveProfile.Gamma;
+        ValidateActiveProfile.Validate(_logger, _cliSettings.ActiveProfile);
+        gamma ??= _cliSettings.ActiveProfile!.Gamma;
         var modOrganizerIniPath = Path.Join(gamma, "ModOrganizer.ini");
         if (!File.Exists(modOrganizerIniPath))
         {
@@ -76,7 +79,8 @@ public partial class Mo2Cmds(ILogger logger, CliSettings cliSettings)
     [Command("profiles list")]
     public void ListProfiles(string? gamma = null)
     {
-        gamma ??= _cliSettings.ActiveProfile.Gamma;
+        ValidateActiveProfile.Validate(_logger, _cliSettings.ActiveProfile);
+        gamma ??= _cliSettings.ActiveProfile!.Gamma;
         var gammaProfilesPath = ProfileUtility.ValidateProfileExists(gamma);
         var profiles = new DirectoryInfo(gammaProfilesPath).GetDirectories();
         foreach (var profile in profiles)
@@ -93,7 +97,8 @@ public partial class Mo2Cmds(ILogger logger, CliSettings cliSettings)
     [Command("profile list mods")]
     public async Task ListMods([Argument] string profile, string? gamma = null)
     {
-        gamma ??= _cliSettings.ActiveProfile.Gamma;
+        ValidateActiveProfile.Validate(_logger, _cliSettings.ActiveProfile);
+        gamma ??= _cliSettings.ActiveProfile!.Gamma;
         var gammaProfilesPath = ProfileUtility.ValidateProfileExists(gamma);
         var modListPath = Path.Join(gammaProfilesPath, profile, "modlist.txt");
         var modList = await ModListUtility.GetModListAsync(modListPath);
@@ -111,7 +116,8 @@ public partial class Mo2Cmds(ILogger logger, CliSettings cliSettings)
     [Command("profile delete")]
     public void DeleteProfile([Argument] string profile, string? gamma = null)
     {
-        gamma ??= _cliSettings.ActiveProfile.Gamma;
+        ValidateActiveProfile.Validate(_logger, _cliSettings.ActiveProfile);
+        gamma ??= _cliSettings.ActiveProfile!.Gamma;
         var gammaProfilesPath = Path.Join(gamma, "profiles");
         if (!Directory.Exists(gammaProfilesPath))
         {
@@ -136,8 +142,9 @@ public partial class Mo2Cmds(ILogger logger, CliSettings cliSettings)
     [Command("mod status")]
     public async Task Status([Argument] string mod, string? profile = null, string? gamma = null)
     {
-        gamma ??= _cliSettings.ActiveProfile.Gamma;
-        profile ??= _cliSettings.ActiveProfile.Mo2Profile;
+        ValidateActiveProfile.Validate(_logger, _cliSettings.ActiveProfile);
+        gamma ??= _cliSettings.ActiveProfile!.Gamma;
+        profile ??= _cliSettings.ActiveProfile!.Mo2Profile;
         var gammaProfilesPath = ProfileUtility.ValidateProfileExists(gamma);
         var modListPath = Path.Join(gammaProfilesPath, profile, "modlist.txt");
         var modList = await ModListUtility.GetModListAsync(modListPath);
@@ -162,8 +169,9 @@ public partial class Mo2Cmds(ILogger logger, CliSettings cliSettings)
     [Command("mod enable")]
     public async Task Enable([Argument] string mod, string? profile = null, string? gamma = null)
     {
-        gamma ??= _cliSettings.ActiveProfile.Gamma;
-        profile ??= _cliSettings.ActiveProfile.Mo2Profile;
+        ValidateActiveProfile.Validate(_logger, _cliSettings.ActiveProfile);
+        gamma ??= _cliSettings.ActiveProfile!.Gamma;
+        profile ??= _cliSettings.ActiveProfile!.Mo2Profile;
         var gammaProfilesPath = ProfileUtility.ValidateProfileExists(gamma);
         var modListPath = Path.Join(gammaProfilesPath, profile, "modlist.txt");
         var modList = await ModListUtility.GetModListAsync(modListPath);
@@ -191,8 +199,9 @@ public partial class Mo2Cmds(ILogger logger, CliSettings cliSettings)
     [Command("mod disable")]
     public async Task Disable([Argument] string mod, string? profile = null, string? gamma = null)
     {
-        gamma ??= _cliSettings.ActiveProfile.Gamma;
-        profile ??= _cliSettings.ActiveProfile.Mo2Profile;
+        ValidateActiveProfile.Validate(_logger, _cliSettings.ActiveProfile);
+        gamma ??= _cliSettings.ActiveProfile!.Gamma;
+        profile ??= _cliSettings.ActiveProfile!.Mo2Profile;
         var gammaProfilesPath = ProfileUtility.ValidateProfileExists(gamma);
         var modListPath = Path.Join(gammaProfilesPath, profile, "modlist.txt");
         var modList = await ModListUtility.GetModListAsync(modListPath);
@@ -220,8 +229,9 @@ public partial class Mo2Cmds(ILogger logger, CliSettings cliSettings)
     [Command("mod delete")]
     public async Task Delete([Argument] string mod, string? profile = null, string? gamma = null)
     {
-        gamma ??= _cliSettings.ActiveProfile.Gamma;
-        profile ??= _cliSettings.ActiveProfile.Mo2Profile;
+        ValidateActiveProfile.Validate(_logger, _cliSettings.ActiveProfile);
+        gamma ??= _cliSettings.ActiveProfile!.Gamma;
+        profile ??= _cliSettings.ActiveProfile!.Mo2Profile;
         var gammaProfilesPath = ProfileUtility.ValidateProfileExists(gamma);
         var modListPath = Path.Join(gammaProfilesPath, profile, "modlist.txt");
         var modList = await ModListUtility.GetModListAsync(modListPath);

@@ -2,6 +2,7 @@ using System.Reactive.Linq;
 using ConsoleAppFramework;
 using Serilog;
 using stalker_gamma.cli.Models;
+using stalker_gamma.cli.Utilities;
 using Stalker.Gamma.Factories;
 using Stalker.Gamma.GammaInstallerServices;
 using Stalker.Gamma.Models;
@@ -45,8 +46,9 @@ public class AnomalyInstallCmd(
         [Hidden] long progressUpdateIntervalMs = 250
     )
     {
-        anomaly ??= _cliSettings.ActiveProfile.Anomaly;
-        cache ??= _cliSettings.ActiveProfile.Cache;
+        ValidateActiveProfile.Validate(_logger, _cliSettings.ActiveProfile);
+        anomaly ??= _cliSettings.ActiveProfile!.Anomaly;
+        cache ??= _cliSettings.ActiveProfile!.Cache;
         var resourcesPath = Path.Join(Path.GetDirectoryName(AppContext.BaseDirectory), "resources");
         stalkerGammaSettings.PathToCurl = Path.Join(
             resourcesPath,

@@ -3,6 +3,7 @@ using System.Reactive.Linq;
 using ConsoleAppFramework;
 using Serilog;
 using stalker_gamma.cli.Models;
+using stalker_gamma.cli.Utilities;
 using stalker_gamma.core.Services;
 using Stalker.Gamma.GammaInstallerServices;
 using Stalker.Gamma.Models;
@@ -74,14 +75,15 @@ public class FullInstallCmd(
         [Hidden] string stalkerAnomalyArchiveMd5 = "d6bce51a4e6d98f9610ef0aa967ba964"
     )
     {
-        anomaly ??= cliSettings.ActiveProfile.Anomaly;
-        gamma ??= cliSettings.ActiveProfile.Gamma;
-        cache ??= cliSettings.ActiveProfile.Cache;
-        mo2Profile ??= cliSettings.ActiveProfile.Mo2Profile;
-        modpackMakerUrl ??= cliSettings.ActiveProfile.ModPackMakerUrl;
-        modListUrl ??= cliSettings.ActiveProfile.ModListUrl;
+        ValidateActiveProfile.Validate(_logger, cliSettings.ActiveProfile);
+        anomaly ??= cliSettings.ActiveProfile!.Anomaly;
+        gamma ??= cliSettings.ActiveProfile!.Gamma;
+        cache ??= cliSettings.ActiveProfile!.Cache;
+        mo2Profile ??= cliSettings.ActiveProfile!.Mo2Profile;
+        modpackMakerUrl ??= cliSettings.ActiveProfile!.ModPackMakerUrl;
+        modListUrl ??= cliSettings.ActiveProfile!.ModListUrl;
         stalkerGammaSettings.DownloadThreads =
-            downloadThreads ?? cliSettings.ActiveProfile.DownloadThreads;
+            downloadThreads ?? cliSettings.ActiveProfile!.DownloadThreads;
         stalkerGammaSettings.ModpackMakerList = modpackMakerUrl;
         stalkerGammaSettings.ModListUrl = modListUrl;
         stalkerGammaSettings.GammaSetupRepo = gammaSetupRepoUrl;

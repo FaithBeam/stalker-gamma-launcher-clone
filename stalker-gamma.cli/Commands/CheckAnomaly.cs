@@ -20,7 +20,8 @@ public class CheckAnomalyCmd(ILogger logger, CliSettings cliSettings)
     /// </param>
     public async Task CheckAnomaly(CancellationToken cancellationToken, string? anomaly = null)
     {
-        anomaly ??= cliSettings.ActiveProfile.Anomaly;
+        ValidateActiveProfile.Validate(_logger, cliSettings.ActiveProfile);
+        anomaly ??= cliSettings.ActiveProfile!.Anomaly;
         if (!Directory.Exists(anomaly))
         {
             throw new DirectoryNotFoundException($"Directory {anomaly} doesn't exist");

@@ -25,9 +25,10 @@ public class Debug(ILogger logger, CliSettings cliSettings)
         HashType hashType = HashType.Blake3
     )
     {
-        anomaly ??= cliSettings.ActiveProfile.Anomaly;
-        gamma ??= cliSettings.ActiveProfile.Gamma;
-        cache ??= cliSettings.ActiveProfile.Cache;
+        ValidateActiveProfile.Validate(_logger, cliSettings.ActiveProfile);
+        anomaly ??= cliSettings.ActiveProfile!.Anomaly;
+        gamma ??= cliSettings.ActiveProfile!.Gamma;
+        cache ??= cliSettings.ActiveProfile!.Cache;
 
         var destinationArchive = $"stalker-gamma-cli-hashes-{Environment.UserName}.zip";
         _logger.Information("Hashing install folders, this will take a while...");

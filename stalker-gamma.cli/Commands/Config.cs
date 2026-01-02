@@ -73,10 +73,14 @@ public class Config(ILogger logger, CliSettings cliSettings)
     /// </summary>
     public void List()
     {
-        _logger.Information(
-            "{Profiles}",
-            string.Join('\n', cliSettings.Profiles.Select(x => x.ProfileName))
-        );
+        foreach (var profile in cliSettings.Profiles)
+        {
+            _logger.Information(
+                "{Active}{Profile}",
+                $"{(profile.Active ? "-> " : "")}",
+                profile.ProfileName
+            );
+        }
     }
 
     /// <summary>
@@ -111,7 +115,14 @@ public class Config(ILogger logger, CliSettings cliSettings)
         {
             cliSettings.Profiles.Remove(foundProfile);
             await cliSettings.SaveAsync();
-            _logger.Information("{Profile} deleted", name);
+            foreach (var profile in cliSettings.Profiles)
+            {
+                _logger.Information(
+                    "{Active}{Profile}",
+                    $"{(profile.Active ? "-> " : "")}",
+                    profile.ProfileName
+                );
+            }
         }
     }
 
@@ -136,6 +147,15 @@ public class Config(ILogger logger, CliSettings cliSettings)
             await foundProfile.SetActiveAsync();
 
             await cliSettings.SaveAsync();
+
+            foreach (var profile in cliSettings.Profiles)
+            {
+                _logger.Information(
+                    "{Active}{Profile}",
+                    $"{(profile.Active ? "-> " : "")}",
+                    profile.ProfileName
+                );
+            }
         }
     }
 
