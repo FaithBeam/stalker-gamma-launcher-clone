@@ -2,6 +2,7 @@
 using System.Reactive.Linq;
 using ConsoleAppFramework;
 using Serilog;
+using stalker_gamma.cli.Models;
 using stalker_gamma.core.Services;
 using Stalker.Gamma.GammaInstallerServices;
 using Stalker.Gamma.Models;
@@ -11,6 +12,7 @@ namespace stalker_gamma.cli.Commands;
 [RegisterCommands]
 public class FullInstallCmd(
     ILogger logger,
+    CliSettings cliSettings,
     StalkerGammaSettings stalkerGammaSettings,
     GammaInstaller gammaInstaller,
     AddFoldersToWinDefenderExclusionService addFoldersToWinDefenderExclusionService,
@@ -45,19 +47,19 @@ public class FullInstallCmd(
     public async Task FullInstall(
         // ReSharper disable once InvalidXmlDocComment
         CancellationToken cancellationToken,
-        string anomaly,
-        string gamma,
-        string cache = "cache",
-        [Range(1, 6)] int downloadThreads = 2,
+        string? anomaly = null,
+        string? gamma = null,
+        string? cache = null,
+        [Range(1, 6)] int? downloadThreads = null,
         bool skipAnomaly = false,
         bool skipGithubDownloads = false,
         bool skipExtractOnHashMatch = false,
         bool addFoldersToWinDefenderExclusion = false,
         bool enableLongPaths = false,
         bool verbose = false,
-        string modpackMakerUrl = "https://stalker-gamma.com/api/list",
+        string? modpackMakerUrl = null,
         string? modListUrl = null,
-        string mo2Profile = "G.A.M.M.A",
+        string? mo2Profile = null,
         [Hidden] bool debug = false,
         [Hidden] string? mo2Version = null,
         [Hidden] long progressUpdateIntervalMs = 250,
@@ -72,7 +74,14 @@ public class FullInstallCmd(
         [Hidden] string stalkerAnomalyArchiveMd5 = "d6bce51a4e6d98f9610ef0aa967ba964"
     )
     {
-        stalkerGammaSettings.DownloadThreads = downloadThreads;
+        anomaly ??= cliSettings.ActiveProfile.Anomaly;
+        gamma ??= cliSettings.ActiveProfile.Gamma;
+        cache ??= cliSettings.ActiveProfile.Cache;
+        mo2Profile ??= cliSettings.ActiveProfile.Mo2Profile;
+        modpackMakerUrl ??= cliSettings.ActiveProfile.ModPackMakerUrl;
+        modListUrl ??= cliSettings.ActiveProfile.ModListUrl;
+        stalkerGammaSettings.DownloadThreads =
+            downloadThreads ?? cliSettings.ActiveProfile.DownloadThreads;
         stalkerGammaSettings.ModpackMakerList = modpackMakerUrl;
         stalkerGammaSettings.ModListUrl = modListUrl;
         stalkerGammaSettings.GammaSetupRepo = gammaSetupRepoUrl;

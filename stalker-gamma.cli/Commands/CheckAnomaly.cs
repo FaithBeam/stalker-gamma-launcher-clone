@@ -1,12 +1,13 @@
 using System.IO.Enumeration;
 using ConsoleAppFramework;
 using Serilog;
+using stalker_gamma.cli.Models;
 using stalker_gamma.cli.Utilities;
 
 namespace stalker_gamma.cli.Commands;
 
 [RegisterCommands]
-public class CheckAnomalyCmd(ILogger logger)
+public class CheckAnomalyCmd(ILogger logger, CliSettings cliSettings)
 {
     /// <summary>
     /// Verifies the integrity of Stalker Anomaly
@@ -17,8 +18,9 @@ public class CheckAnomalyCmd(ILogger logger)
     /// <param name="anomaly">
     /// Directory to anomaly
     /// </param>
-    public async Task CheckAnomaly(CancellationToken cancellationToken, string anomaly)
+    public async Task CheckAnomaly(CancellationToken cancellationToken, string? anomaly = null)
     {
+        anomaly ??= cliSettings.ActiveProfile.Anomaly;
         if (!Directory.Exists(anomaly))
         {
             throw new DirectoryNotFoundException($"Directory {anomaly} doesn't exist");

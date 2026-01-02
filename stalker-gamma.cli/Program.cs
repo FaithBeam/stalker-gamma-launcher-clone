@@ -1,6 +1,8 @@
-﻿using ConsoleAppFramework;
+﻿using System.Text.Json;
+using ConsoleAppFramework;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using stalker_gamma.cli.Models;
 using stalker_gamma.core.Services;
 using Stalker.Gamma.Extensions;
 
@@ -14,12 +16,26 @@ public static class Program
         var app = ConsoleApp
             .Create()
             .ConfigureServices(services =>
+            {
+                var settingsPath = Path.Join(
+                    Path.Join(Path.GetDirectoryName(AppContext.BaseDirectory)!, "settings.json")
+                );
+                var settings = File.Exists(settingsPath)
+                    ? JsonSerializer.Deserialize<CliSettings>(
+                        File.ReadAllText(settingsPath),
+                        jsonTypeInfo: CliSettingsCtx.Default.CliSettings
+                    )
+                        ?? throw new InvalidOperationException(
+                            $"Unable to deserialize settings file {settingsPath}"
+                        )
+                    : new CliSettings();
+                services.AddSingleton(settings);
                 services
                     .AddSingleton<ILogger>(log)
                     .AddScoped<EnableLongPathsOnWindowsService>()
                     .AddScoped<AddFoldersToWinDefenderExclusionService>()
-                    .RegisterCoreGammaServices()
-            );
+                    .RegisterCoreGammaServices();
+            });
 
         await app.RunAsync(args);
     }

@@ -1,11 +1,12 @@
 ﻿using ConsoleAppFramework;
 using Serilog;
+using stalker_gamma.cli.Models;
 using stalker_gamma.cli.Utilities;
 
 namespace stalker_gamma.cli.Commands;
 
 [RegisterCommands("debug")]
-public class Debug(ILogger logger)
+public class Debug(ILogger logger, CliSettings cliSettings)
 {
     /// <summary>
     /// For debugging broken installations only. Hashes installation folders and creates a compressed archive containing the computed hashes.
@@ -18,12 +19,16 @@ public class Debug(ILogger logger)
     /// <returns></returns>
     public async Task HashInstall(
         CancellationToken cancellationToken,
-        string anomaly,
-        string gamma,
-        string cache = "cache",
+        string? anomaly = null,
+        string? gamma = null,
+        string? cache = null,
         HashType hashType = HashType.Blake3
     )
     {
+        anomaly ??= cliSettings.ActiveProfile.Anomaly;
+        gamma ??= cliSettings.ActiveProfile.Gamma;
+        cache ??= cliSettings.ActiveProfile.Cache;
+
         var destinationArchive = $"stalker-gamma-cli-hashes-{Environment.UserName}.zip";
         _logger.Information("Hashing install folders, this will take a while...");
         _logger.Information("Hash Type: {HashType}", hashType);

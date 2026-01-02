@@ -1,6 +1,7 @@
 using System.Reactive.Linq;
 using ConsoleAppFramework;
 using Serilog;
+using stalker_gamma.cli.Models;
 using Stalker.Gamma.Factories;
 using Stalker.Gamma.GammaInstallerServices;
 using Stalker.Gamma.Models;
@@ -10,6 +11,7 @@ namespace stalker_gamma.cli.Commands;
 [RegisterCommands]
 public class AnomalyInstallCmd(
     ILogger logger,
+    CliSettings cliSettings,
     StalkerGammaSettings stalkerGammaSettings,
     GammaProgress gammaProgress,
     IDownloadableRecordFactory downloadableRecordFactory
@@ -37,12 +39,14 @@ public class AnomalyInstallCmd(
     /// </returns>
     public async Task AnomalyInstall(
         CancellationToken cancellationToken,
-        string anomaly,
-        string cache,
+        string? anomaly = null,
+        string? cache = null,
         bool verbose = false,
         [Hidden] long progressUpdateIntervalMs = 250
     )
     {
+        anomaly ??= _cliSettings.ActiveProfile.Anomaly;
+        cache ??= _cliSettings.ActiveProfile.Cache;
         var resourcesPath = Path.Join(Path.GetDirectoryName(AppContext.BaseDirectory), "resources");
         stalkerGammaSettings.PathToCurl = Path.Join(
             resourcesPath,
@@ -100,6 +104,7 @@ public class AnomalyInstallCmd(
         );
 
     private readonly ILogger _logger = logger;
+    private readonly CliSettings _cliSettings = cliSettings;
     private const string Informational = "{AddonName} | {Operation} | {Percent} | {CompleteTotal}";
     private const string Verbose =
         "{AddonName} | {Operation} | {Percent} | {CompleteTotal} | {Url}";

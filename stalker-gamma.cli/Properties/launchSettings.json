@@ -36,6 +36,14 @@
     "profiles-list": {
       "commandName": "Project",
       "commandLineArgs": "profiles list --gamma C:\\gamma\\gamma"
+    },
+    "config-create": {
+      "commandName": "Project",
+      "commandLineArgs": "config create --name gamma-with-ccon --anomaly ~/gamma/anomaly --gamma ~/gamma/gamma --cache ~/gamma/cache --download-threads 4 --mo2-profile gamma-with-ccon --mod-pack-maker-url https://raw.githubusercontent.com/FaithBeam/stalker-gamma-ccon-modlist/refs/heads/master/autumn/modpack_maker_list.txt --mod-list-url https://raw.githubusercontent.com/FaithBeam/stalker-gamma-ccon-modlist/refs/heads/master/autumn/modlist.txt"
+    },
+    "config-list": {
+      "commandName": "Project",
+      "commandLineArgs": "config list"
     }
   }
 }
