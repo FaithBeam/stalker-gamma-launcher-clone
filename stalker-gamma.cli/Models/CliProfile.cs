@@ -1,8 +1,10 @@
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
+using stalker_gamma.cli.Utilities;
 
 namespace stalker_gamma.cli.Models;
 
-public class CliProfile
+public partial class CliProfile
 {
     public bool Active { get; set; }
     public string ProfileName { get; set; } = "Gamma";
@@ -14,6 +16,30 @@ public class CliProfile
     public string ModPackMakerUrl { get; set; } = "https://stalker-gamma.com/api/list";
     public string ModListUrl { get; set; } =
         "https://raw.githubusercontent.com/Grokitach/Stalker_GAMMA/refs/heads/main/G.A.M.M.A/modpack_data/modlist.txt";
+
+    public async Task SetActiveAsync()
+    {
+        Active = true;
+        var modOrganizerIniPath = Path.Join(Gamma, "ModOrganizer.ini");
+        if (File.Exists(modOrganizerIniPath))
+        {
+            var profilePath = ProfileUtility.ValidateProfileExists(Gamma);
+            var profiles = new DirectoryInfo(profilePath)
+                .GetDirectories()
+                .Select(x => x.Name)
+                .ToList();
+            if (profiles.Contains(Mo2Profile))
+            {
+                var mo2Ini = await File.ReadAllTextAsync(modOrganizerIniPath);
+                mo2Ini = SelectedProfileRx()
+                    .Replace(mo2Ini, $"selected_profile=@ByteArray({Mo2Profile})");
+                await File.WriteAllTextAsync(modOrganizerIniPath, mo2Ini);
+            }
+        }
+    }
+
+    [GeneratedRegex(@"selected_profile=@ByteArray\((?<profile>.+)\)")]
+    private partial Regex SelectedProfileRx();
 }
 
 [JsonSerializable(typeof(CliProfile))]

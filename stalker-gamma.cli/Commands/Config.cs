@@ -39,20 +39,19 @@ public class Config(ILogger logger, CliSettings cliSettings)
         var foundProfile = cliSettings.Profiles.FirstOrDefault(x => x.ProfileName == name);
         if (foundProfile is null)
         {
-            cliSettings.Profiles.Add(
-                new CliProfile
-                {
-                    ProfileName = name,
-                    DownloadThreads = downloadThreads,
-                    ModPackMakerUrl = modPackMakerUrl,
-                    ModListUrl = modListUrl,
-                    Active = true,
-                    Cache = cache,
-                    Anomaly = anomaly,
-                    Gamma = gamma,
-                    Mo2Profile = mo2Profile,
-                }
-            );
+            var newProfile = new CliProfile
+            {
+                ProfileName = name,
+                DownloadThreads = downloadThreads,
+                ModPackMakerUrl = modPackMakerUrl,
+                ModListUrl = modListUrl,
+                Cache = cache,
+                Anomaly = anomaly,
+                Gamma = gamma,
+                Mo2Profile = mo2Profile,
+            };
+            await newProfile.SetActiveAsync();
+            cliSettings.Profiles.Add(newProfile);
         }
         else
         {
@@ -134,7 +133,7 @@ public class Config(ILogger logger, CliSettings cliSettings)
                 profile.Active = false;
             }
 
-            foundProfile.Active = true;
+            await foundProfile.SetActiveAsync();
 
             await cliSettings.SaveAsync();
         }
