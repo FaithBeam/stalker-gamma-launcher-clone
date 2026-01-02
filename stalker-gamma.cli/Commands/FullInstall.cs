@@ -28,12 +28,9 @@ public class FullInstallCmd(
     /// <param name="addFoldersToWinDefenderExclusion">(Windows) Add the anomaly, gamma, and cache folders to the Windows Defender Exclusion list</param>
     /// <param name="enableLongPaths">(Windows) Enable long paths</param>
     /// <param name="verbose">More verbose logging</param>
-    /// <param name="mo2Profile">The name of the MO2 profile to operate on. If it doesn't exist, it will be created.</param>
     /// <param name="debug"></param>
     /// <param name="mo2Version">The version of Mod Organizer 2 to download</param>
     /// <param name="progressUpdateIntervalMs">How frequently to write progress to the console in milliseconds</param>
-    /// <param name="modpackMakerUrl">Provides the list of addons to download and extract. modpack_maker_list.txt</param>
-    /// <param name="modListUrl">Download a custom MO2 GAMMA profile modlist.txt. Use in conjunction with --modpack-maker-list-url</param>
     /// <param name="gammaSetupRepoUrl">Escape hatch for git repo gamma_setup</param>
     /// <param name="stalkerGammaRepoUrl">Escape hatch for git repo Stalker_GAMMA</param>
     /// <param name="gammaLargeFilesRepoUrl">Escape hatch for git repo gamma_large_files_v2</param>
@@ -48,9 +45,6 @@ public class FullInstallCmd(
         bool addFoldersToWinDefenderExclusion = false,
         bool enableLongPaths = false,
         bool verbose = false,
-        string? modpackMakerUrl = null,
-        string? modListUrl = null,
-        string? mo2Profile = null,
         [Hidden] bool debug = false,
         [Hidden] string? mo2Version = null,
         [Hidden] long progressUpdateIntervalMs = 250,
@@ -69,9 +63,9 @@ public class FullInstallCmd(
         var anomaly = cliSettings.ActiveProfile!.Anomaly;
         var gamma = cliSettings.ActiveProfile!.Gamma;
         var cache = cliSettings.ActiveProfile!.Cache;
-        mo2Profile ??= cliSettings.ActiveProfile!.Mo2Profile;
-        modpackMakerUrl ??= cliSettings.ActiveProfile!.ModPackMakerUrl;
-        modListUrl ??= cliSettings.ActiveProfile!.ModListUrl;
+        var mo2Profile = cliSettings.ActiveProfile!.Mo2Profile;
+        var modpackMakerUrl = cliSettings.ActiveProfile!.ModPackMakerUrl;
+        var modListUrl = cliSettings.ActiveProfile!.ModListUrl;
         stalkerGammaSettings.DownloadThreads = cliSettings.ActiveProfile!.DownloadThreads;
         stalkerGammaSettings.ModpackMakerList = modpackMakerUrl;
         stalkerGammaSettings.ModListUrl = modListUrl;
