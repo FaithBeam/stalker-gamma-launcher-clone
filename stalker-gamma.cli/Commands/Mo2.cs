@@ -1,0 +1,228 @@
+﻿using System.Text.RegularExpressions;
+using ConsoleAppFramework;
+using Serilog;
+using stalker_gamma.cli.Utilities;
+using Stalker.Gamma.Utilities;
+
+namespace stalker_gamma.cli.Commands;
+
+[RegisterCommands("mo2")]
+public partial class Mo2Cmds(ILogger logger)
+{
+    /// <summary>
+    /// Retrieves the selected profile information from the ModOrganizer.ini file within the specified directory.
+    /// </summary>
+    /// <param name="gamma">The directory path where the ModOrganizer.ini file is located.</param>
+    [Command("config get selected-profile")]
+    public async Task<int> GetProfile(string gamma)
+    {
+        var modOrganizerIniPath = Path.Join(gamma, "ModOrganizer.ini");
+        if (!File.Exists(modOrganizerIniPath))
+        {
+            _logger.Error("ModOrganizer.ini not found");
+            return 1;
+        }
+
+        var mo2Ini = await File.ReadAllTextAsync(modOrganizerIniPath);
+        var match = SelectedProfileRx().Match(mo2Ini);
+        if (!match.Success)
+        {
+            _logger.Error("Unable to find selected profile");
+            return 1;
+        }
+        _logger.Information("{Profile}", match.Groups["profile"].Value);
+
+        return 0;
+    }
+
+    /// <summary>
+    /// Updates the selected profile in the ModOrganizer.ini file for the specified directory.
+    /// </summary>
+    /// <param name="profile">The name of the profile to be set as the selected profile.</param>
+    /// <param name="gamma">The directory path where the ModOrganizer.ini file is located.</param>
+    [Command("config set selected-profile")]
+    public async Task<int> SetProfile([Argument] string profile, string gamma)
+    {
+        var modOrganizerIniPath = Path.Join(gamma, "ModOrganizer.ini");
+        if (!File.Exists(modOrganizerIniPath))
+        {
+            _logger.Error("ModOrganizer.ini not found");
+            return 1;
+        }
+
+        var profilePath = ProfileUtility.ValidateProfileExists(gamma);
+        var profiles = new DirectoryInfo(profilePath).GetDirectories().Select(x => x.Name).ToList();
+        if (!profiles.Contains(profile))
+        {
+            _logger.Error("Profile {Profile} not found", profile);
+            _logger.Information("Available profiles:\n{Profiles}", string.Join("\n", profiles));
+            return 1;
+        }
+
+        var mo2Ini = await File.ReadAllTextAsync(modOrganizerIniPath);
+        mo2Ini = SelectedProfileRx().Replace(mo2Ini, $"selected_profile=@ByteArray({profile})");
+        await File.WriteAllTextAsync(modOrganizerIniPath, mo2Ini);
+        _logger.Information("Selected profile set to {Profile}", profile);
+        return 0;
+    }
+
+    /// <summary>
+    /// Lists all profiles in a gamma installation.
+    /// </summary>
+    /// <param name="gamma">Gamma install path</param>
+    [Command("profiles list")]
+    public void ListProfiles(string gamma)
+    {
+        var gammaProfilesPath = ProfileUtility.ValidateProfileExists(gamma);
+        var profiles = new DirectoryInfo(gammaProfilesPath).GetDirectories();
+        foreach (var profile in profiles)
+        {
+            _logger.Information("{Profile}", profile.Name);
+        }
+    }
+
+    /// <summary>
+    /// Lists all mods in a profile.
+    /// </summary>
+    /// <param name="profile">Profile name</param>
+    /// <param name="gamma">Gamma install path</param>
+    [Command("profile list mods")]
+    public async Task ListMods([Argument] string profile, string gamma)
+    {
+        var gammaProfilesPath = ProfileUtility.ValidateProfileExists(gamma);
+        var modListPath = Path.Join(gammaProfilesPath, profile, "modlist.txt");
+        var modList = await ModListUtility.GetModListAsync(modListPath);
+        foreach (var mod in modList)
+        {
+            _logger.Information("{Active} | {Mod}", mod.Status.ToString().PadRight(13), mod.Name);
+        }
+    }
+
+    /// <summary>
+    /// Deletes a specified profile from a Gamma installation.
+    /// </summary>
+    /// <param name="profile">Name of the profile to be deleted.</param>
+    /// <param name="gamma">Gamma install path.</param>
+    [Command("profile delete")]
+    public void DeleteProfile([Argument] string profile, string gamma)
+    {
+        var gammaProfilesPath = Path.Join(gamma, "profiles");
+        if (!Directory.Exists(gammaProfilesPath))
+        {
+            throw new DirectoryNotFoundException($"Directory {gammaProfilesPath} doesn't exist");
+        }
+        var profilePath = Path.Join(gammaProfilesPath, profile);
+        if (!Directory.Exists(profilePath))
+        {
+            throw new DirectoryNotFoundException($"Directory {profilePath} doesn't exist");
+        }
+        DirUtils.NormalizePermissions(profilePath);
+        Directory.Delete(profilePath, true);
+        _logger.Information("Profile {Profile} deleted", profile);
+    }
+
+    /// <summary>
+    /// Show mod status info
+    /// </summary>
+    /// <param name="mod">Mod name</param>
+    /// <param name="profile">Profile name</param>
+    /// <param name="gamma">The gamma directory</param>
+    [Command("mod status")]
+    public async Task Status([Argument] string mod, string profile, string gamma)
+    {
+        var gammaProfilesPath = ProfileUtility.ValidateProfileExists(gamma);
+        var modListPath = Path.Join(gammaProfilesPath, profile, "modlist.txt");
+        var modList = await ModListUtility.GetModListAsync(modListPath);
+        var foundMod = modList.FirstOrDefault(x => x.Name == mod);
+        if (foundMod is null)
+        {
+            throw new FileNotFoundException($"Mod {mod} not found in profile {profile}");
+        }
+        _logger.Information(
+            "{Status} | {Name}",
+            foundMod.Status.ToString().PadRight(13),
+            foundMod.Name
+        );
+    }
+
+    /// <summary>
+    /// Enables a specified mod within a given profile.
+    /// </summary>
+    /// <param name="profile">The profile name where the mod exists.</param>
+    /// <param name="mod">The name of the mod to enable.</param>
+    /// <param name="gamma">The gamma directory</param>
+    [Command("mod enable")]
+    public async Task Enable([Argument] string mod, string profile, string gamma)
+    {
+        var gammaProfilesPath = ProfileUtility.ValidateProfileExists(gamma);
+        var modListPath = Path.Join(gammaProfilesPath, profile, "modlist.txt");
+        var modList = await ModListUtility.GetModListAsync(modListPath);
+        var foundMod = modList.FirstOrDefault(x => x.Name == mod);
+        if (foundMod is null)
+        {
+            throw new FileNotFoundException($"Mod {mod} not found in profile {profile}");
+        }
+
+        foundMod.Status = ModStatus.Enabled;
+        await ModListUtility.SaveModListAsync(modListPath, modList);
+        _logger.Information(
+            "{Status} | {Name}",
+            foundMod.Status.ToString().PadRight(13),
+            foundMod.Name
+        );
+    }
+
+    /// <summary>
+    /// Disables a specified mod in the given profile
+    /// </summary>
+    /// <param name="mod">The name of the mod to be disabled.</param>
+    /// <param name="profile">The name of the profile in which the mod exists.</param>
+    /// <param name="gamma">The gamma directory.</param>
+    [Command("mod disable")]
+    public async Task Disable([Argument] string mod, string profile, string gamma)
+    {
+        var gammaProfilesPath = ProfileUtility.ValidateProfileExists(gamma);
+        var modListPath = Path.Join(gammaProfilesPath, profile, "modlist.txt");
+        var modList = await ModListUtility.GetModListAsync(modListPath);
+        var foundMod = modList.FirstOrDefault(x => x.Name == mod);
+        if (foundMod is null)
+        {
+            throw new FileNotFoundException($"Mod {mod} not found in profile {profile}");
+        }
+
+        foundMod.Status = ModStatus.Disabled;
+        await ModListUtility.SaveModListAsync(modListPath, modList);
+        _logger.Information(
+            "{Status} | {Name}",
+            foundMod.Status.ToString().PadRight(13),
+            foundMod.Name
+        );
+    }
+
+    /// <summary>
+    /// Deletes a specified mod in the provided profile.
+    /// </summary>
+    /// <param name="mod">The name of the mod to delete.</param>
+    /// <param name="profile">The name of the profile from which the mod will be deleted.</param>
+    /// <param name="gamma">The gamma directory.</param>
+    [Command("mod delete")]
+    public async Task Delete([Argument] string mod, string profile, string gamma)
+    {
+        var gammaProfilesPath = ProfileUtility.ValidateProfileExists(gamma);
+        var modListPath = Path.Join(gammaProfilesPath, profile, "modlist.txt");
+        var modList = await ModListUtility.GetModListAsync(modListPath);
+        var foundMod = modList.FirstOrDefault(x => x.Name == mod);
+        if (foundMod is null)
+        {
+            throw new FileNotFoundException($"Mod {mod} not found in profile {profile}");
+        }
+        modList.Remove(foundMod);
+        await ModListUtility.SaveModListAsync(modListPath, modList);
+        _logger.Information("Mod {Mod} deleted from profile {Profile}", mod, profile);
+    }
+
+    private readonly ILogger _logger = logger;
+
+    [GeneratedRegex(@"selected_profile=@ByteArray\((?<profile>.+)\)")]
+    private partial Regex SelectedProfileRx();
+}
