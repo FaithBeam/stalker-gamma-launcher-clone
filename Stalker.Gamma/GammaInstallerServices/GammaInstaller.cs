@@ -195,7 +195,8 @@ public class GammaInstaller(
             args.Gamma,
             args.Anomaly,
             args.Mo2Version,
-            separators.Select(x => x.FolderName).ToList()
+            separators.Select(x => x.FolderName).ToList(),
+            args.Mo2Profile
         );
 
         await DisableNexusModHandlerLink.DisableAsync(args.Gamma);
