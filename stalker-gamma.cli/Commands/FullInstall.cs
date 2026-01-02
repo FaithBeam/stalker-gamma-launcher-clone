@@ -30,6 +30,7 @@ public class FullInstallCmd(
     /// <param name="addFoldersToWinDefenderExclusion">(Windows) Add the anomaly, gamma, and cache folders to the Windows Defender Exclusion list</param>
     /// <param name="enableLongPaths">(Windows) Enable long paths</param>
     /// <param name="verbose">More verbose logging</param>
+    /// <param name="mo2Profile">The name of the MO2 profile to operate on. If it doesn't exist, it will be created.</param>
     /// <param name="debug"></param>
     /// <param name="mo2Version">The version of Mod Organizer 2 to download</param>
     /// <param name="progressUpdateIntervalMs">How frequently to write progress to the console in milliseconds</param>
@@ -56,6 +57,7 @@ public class FullInstallCmd(
         bool verbose = false,
         string modpackMakerUrl = "https://stalker-gamma.com/api/list",
         string? modListUrl = null,
+        string mo2Profile = "G.A.M.M.A",
         [Hidden] bool debug = false,
         [Hidden] string? mo2Version = null,
         [Hidden] long progressUpdateIntervalMs = 250,
@@ -138,6 +140,7 @@ public class FullInstallCmd(
                     DownloadGithubArchives = !skipGithubDownloads,
                     DownloadAndExtractAnomaly = !skipAnomaly,
                     SkipExtractOnHashMatch = skipExtractOnHashMatch,
+                    Mo2Profile = mo2Profile,
                 }
             );
             _logger.Information("Install finished");

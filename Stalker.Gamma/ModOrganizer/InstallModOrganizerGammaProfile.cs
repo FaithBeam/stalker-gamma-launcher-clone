@@ -2,9 +2,13 @@ namespace Stalker.Gamma.ModOrganizer;
 
 public static class InstallModOrganizerGammaProfile
 {
-    public static async Task InstallAsync(string stalkerGammaRepoPath, string gammaPath)
+    public static async Task InstallAsync(
+        string stalkerGammaRepoPath,
+        string gammaPath,
+        string? profileName = "G.A.M.M.A"
+    )
     {
-        var gammaProfilesPath = Path.Join(gammaPath, "profiles", "G.A.M.M.A");
+        var gammaProfilesPath = Path.Join(gammaPath, "profiles", profileName);
         var settingsPath = Path.Join(gammaProfilesPath, "settings.txt");
         Directory.CreateDirectory(gammaProfilesPath);
         File.Copy(

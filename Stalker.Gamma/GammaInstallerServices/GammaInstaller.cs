@@ -17,6 +17,7 @@ public class GammaInstallerArgs
     public bool DownloadAndExtractAnomaly { get; set; } = true;
     public bool SkipExtractOnHashMatch { get; set; } = false;
     public CancellationToken CancellationToken { get; set; } = CancellationToken.None;
+    public string Mo2Profile { get; set; } = "G.A.M.M.A";
 }
 
 public class GammaInstaller(
@@ -187,7 +188,8 @@ public class GammaInstaller(
 
         await InstallModOrganizerGammaProfile.InstallAsync(
             Path.Join(gammaDownloadsPath, stalkerGammaRecord.Name),
-            args.Gamma
+            args.Gamma,
+            args.Mo2Profile
         );
 
         await WriteModOrganizerIni.WriteAsync(
@@ -202,10 +204,9 @@ public class GammaInstaller(
         if (!string.IsNullOrWhiteSpace(settings.ModListUrl))
         {
             var modlist = await _hc.GetStringAsync(settings.ModListUrl);
-            await File.WriteAllTextAsync(
-                Path.Join(args.Gamma, "profiles", "G.A.M.M.A", "modlist.txt"),
-                modlist
-            );
+            var pathToProfile = Path.Join(args.Gamma, "profiles", args.Mo2Profile);
+            Directory.CreateDirectory(pathToProfile);
+            await File.WriteAllTextAsync(Path.Join(pathToProfile, "modlist.txt"), modlist);
         }
 
         internalProgress.Reset();

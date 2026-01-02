@@ -11,11 +11,19 @@
     },
     "full-install": {
       "commandName": "Project",
-      "commandLineArgs": "full-install --anomaly  C:\\gamma\\anomaly --gamma C:\\gamma\\gamma --cache C:\\gamma\\cache --download-threads 4 --verbose --skip-github-downloads --skip-extract-on-hash-match --mod-list-url https://raw.githubusercontent.com/FaithBeam/stalker-gamma-ccon-modlist/refs/heads/master/autumn/modlist.txt --modpack-maker-url https://raw.githubusercontent.com/FaithBeam/stalker-gamma-ccon-modlist/refs/heads/master/autumn/modpack_maker_list.txt"
+      "commandLineArgs": "full-install --anomaly  C:\\gamma\\anomaly --gamma C:\\gamma\\gamma --cache C:\\gamma\\cache --download-threads 4 --verbose"
     },
-    "full-install-custom-modlist": {
+    "full-install-update": {
       "commandName": "Project",
-      "commandLineArgs": "full-install --anomaly  /Volumes/NewVolume/gamma/anomaly --gamma /Volumes/NewVolume/gamma/gamma --cache /Volumes/NewVolume/gamma/cache --download-threads 4 --verbose --skip-github-downloads --custom-mod-list-url https://raw.githubusercontent.com/FaithBeam/stalker-gamma-ccon-modlist/refs/heads/master/modlist.txt --modpack-maker-list https://raw.githubusercontent.com/FaithBeam/stalker-gamma-ccon-modlist/refs/heads/master/modpack_maker_list.txt"
+      "commandLineArgs": "full-install --anomaly  C:\\gamma\\anomaly --gamma C:\\gamma\\gamma --cache C:\\gamma\\cache --download-threads 4 --verbose --skip-extract-on-hash-match --skip-github-downloads"
+    },
+    "full-install-gamma-with-ccon": {
+      "commandName": "Project",
+      "commandLineArgs": "full-install --anomaly C:\\gamma\\anomaly --gamma C:\\gamma\\gamma --cache C:\\gamma\\cache --download-threads 4 --verbose --mod-list-url https://raw.githubusercontent.com/FaithBeam/stalker-gamma-ccon-modlist/refs/heads/master/autumn/modlist.txt --modpack-maker-url https://raw.githubusercontent.com/FaithBeam/stalker-gamma-ccon-modlist/refs/heads/master/autumn/modpack_maker_list.txt --mo2-profile G.A.M.M.A-With-CCon"
+    },
+    "full-install-gamma-with-ccon-update": {
+      "commandName": "Project",
+      "commandLineArgs": "full-install --anomaly C:\\gamma\\anomaly --gamma C:\\gamma\\gamma --cache C:\\gamma\\cache --download-threads 4 --verbose --skip-github-downloads --mod-list-url https://raw.githubusercontent.com/FaithBeam/stalker-gamma-ccon-modlist/refs/heads/master/autumn/modlist.txt --modpack-maker-url https://raw.githubusercontent.com/FaithBeam/stalker-gamma-ccon-modlist/refs/heads/master/autumn/modpack_maker_list.txt --mo2-profile G.A.M.M.A-With-CCon"
     },
     "debug-hash-install-blake3": {
       "commandName": "Project",
@@ -24,6 +32,10 @@
     "debug-hash-install-sha256": {
       "commandName": "Project",
       "commandLineArgs": "debug hash-install --anomaly  gamma/anomaly --gamma gamma/gamma --cache gamma/cache --hash-type sha256"
+    },
+    "profiles-list": {
+      "commandName": "Project",
+      "commandLineArgs": "profiles list --gamma C:\\gamma\\gamma"
     }
   }
 }
