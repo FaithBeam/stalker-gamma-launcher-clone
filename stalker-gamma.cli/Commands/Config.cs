@@ -73,7 +73,6 @@ public class Config(ILogger logger, CliSettings cliSettings)
                 profile.ProfileName
             );
         }
-        _logger.Information("{Profile}", profileName);
     }
 
     /// <summary>
