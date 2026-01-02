@@ -6,7 +6,8 @@ public static class WriteModOrganizerIni
         string gammaPath,
         string anomalyPath,
         string mo2Version,
-        IList<string> separators
+        IList<string> separators,
+        string selectedProfile = "G.A.M.M.A"
     )
     {
         var drivePrefix = OperatingSystem.IsWindows() ? "C:" : "Z:";
@@ -20,7 +21,6 @@ public static class WriteModOrganizerIni
                 ? anomalyPath
                 : Path.Join(drivePrefix, Path.GetFullPath(anomalyPath))
         ).Replace(@"\", "/");
-        const string selectedProfile = "G.A.M.M.A";
         var escapedWinAnomalyPath = OperatingSystem.IsWindows()
             ? anomalyPathWithDrivePrefix.Replace(@"\", @"\\")
             : anomalyPathWithDrivePrefix.TrimEnd('/').Replace("/", @"\\");
