@@ -64,6 +64,7 @@ public class Config(ILogger logger, CliSettings cliSettings)
             foundProfile.ModPackMakerUrl = modPackMakerUrl;
             foundProfile.ModListUrl = modListUrl;
         }
+        await cliSettings.SaveAsync();
         foreach (var profile in cliSettings.Profiles)
         {
             _logger.Information(
