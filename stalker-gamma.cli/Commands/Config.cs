@@ -65,6 +65,14 @@ public class Config(ILogger logger, CliSettings cliSettings)
             foundProfile.ModListUrl = modListUrl;
         }
         var profileName = await cliSettings.SaveAsync();
+        foreach (var profile in cliSettings.Profiles)
+        {
+            _logger.Information(
+                "{Active}{Profile}",
+                $"{(profile.Active ? "-> " : "")}",
+                profile.ProfileName
+            );
+        }
         _logger.Information("{Profile}", profileName);
     }
 
