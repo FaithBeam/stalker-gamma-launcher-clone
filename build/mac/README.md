@@ -13,19 +13,31 @@ You should install them with homebrew:
 # Usage
 
 1. Remove the quarantine attribute from the binaries: `xattr -dr com.apple.quarantine .`
-2. Install Anomaly and GAMMA in the current directory:
+2. Create a config:
 
-    `./stalker-gamma-cli full-install --anomaly anomaly --gamma gamma --cache cache --download-threads 2`
-    
-    After install your folder will look like this:
-    
-    ```
-    .
-    ├── anomaly
-    ├── cache
-    └── gamma
-    ```
+   ```bash
+   ./stalker-gamma-cli config create \
+   --anomaly gamma/anomaly \
+   --gamma gamma/gamma \
+   --cache gamma/cache \
+   --download-threads 4
+   ```
+3. Install Anomaly and GAMMA:
 
-3. Set your WINE prefix to run gamma/ModOrganizer.exe
-4. Install these dependencies with winetricks into your prefix:
+    ```bash
+   ./stalker-gamma-cli full-install
+   ```
+    
+After install your folder will look like this:
+    
+```bash
+.
+├── gamma
+│   ├── anomaly
+│   ├── cache
+│   └── gamma
+```
+
+4. Set your WINE prefix to run gamma/ModOrganizer.exe
+5. Install these dependencies with winetricks into your prefix:
    - `winetricks d3dcompiler_43 d3dcompiler_47 d3dx10 d3dx11_43 d3dx9 vcrun2022` 
