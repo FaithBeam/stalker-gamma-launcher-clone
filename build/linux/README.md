@@ -1,6 +1,6 @@
 # Requirements
 
-You need these applications installed to run stalker-gamma-cli:
+You need these applications installed to run stalker-gamma:
 
 1. git
 2. unzip
@@ -12,7 +12,7 @@ Refer to your distro how to install them if they're not installed.
 1. Create a config:
 
    ```bash
-   ./stalker-gamma-cli config create \
+   ./stalker-gamma config create \
    --anomaly gamma/anomaly \
    --gamma gamma/gamma \
    --cache gamma/cache \
@@ -21,7 +21,7 @@ Refer to your distro how to install them if they're not installed.
 2. Install Anomaly and GAMMA:
 
     ```bash
-   ./stalker-gamma-cli full-install
+   ./stalker-gamma full-install
    ```
    
 Your directory structure should look like this:

@@ -1,6 +1,6 @@
 # Requirements
 
-You need these applications installed to run stalker-gamma-cli:
+You need these applications installed to run stalker-gamma:
 
 1. git
 2. libidn2
@@ -16,7 +16,7 @@ You should install them with homebrew:
 2. Create a config:
 
    ```bash
-   ./stalker-gamma-cli config create \
+   ./stalker-gamma config create \
    --anomaly gamma/anomaly \
    --gamma gamma/gamma \
    --cache gamma/cache \
@@ -25,7 +25,7 @@ You should install them with homebrew:
 3. Install Anomaly and GAMMA:
 
     ```bash
-   ./stalker-gamma-cli full-install
+   ./stalker-gamma full-install
    ```
     
 After install your folder will look like this:

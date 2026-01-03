@@ -7,4 +7,4 @@
 
 1. Run build.bat
 
-stalker-gamma-cli.7z will have been created if it succeeds
+stalker-gamma.7z will have been created if it succeeds
