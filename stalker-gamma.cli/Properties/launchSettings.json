@@ -3,51 +3,55 @@
   "profiles": {
     "anomaly-install": {
       "commandName": "Project",
-      "commandLineArgs": "anomaly-install --anomaly gamma/anomaly --cache gamma/cache --verbose"
+      "commandLineArgs": "anomaly-install --verbose"
     },
     "check-anomaly": {
       "commandName": "Project",
-      "commandLineArgs": "check-anomaly --anomaly /Volumes/NewVolume/gamma/anomaly"
+      "commandLineArgs": "check-anomaly"
     },
     "full-install": {
       "commandName": "Project",
-      "commandLineArgs": "full-install --anomaly  C:\\gamma\\anomaly --gamma C:\\gamma\\gamma --cache C:\\gamma\\cache --download-threads 4 --verbose"
+      "commandLineArgs": "full-install --verbose"
     },
     "full-install-update": {
       "commandName": "Project",
-      "commandLineArgs": "full-install --anomaly  C:\\gamma\\anomaly --gamma C:\\gamma\\gamma --cache C:\\gamma\\cache --download-threads 4 --verbose --skip-extract-on-hash-match --skip-github-downloads"
-    },
-    "full-install-gamma-with-ccon": {
-      "commandName": "Project",
-      "commandLineArgs": "full-install --anomaly C:\\gamma\\anomaly --gamma C:\\gamma\\gamma --cache C:\\gamma\\cache --download-threads 4 --verbose --mod-list-url https://raw.githubusercontent.com/FaithBeam/stalker-gamma-ccon-modlist/refs/heads/master/autumn/modlist.txt --modpack-maker-url https://raw.githubusercontent.com/FaithBeam/stalker-gamma-ccon-modlist/refs/heads/master/autumn/modpack_maker_list.txt --mo2-profile G.A.M.M.A-With-CCon"
-    },
-    "full-install-gamma-with-ccon-update": {
-      "commandName": "Project",
-      "commandLineArgs": "full-install --anomaly C:\\gamma\\anomaly --gamma C:\\gamma\\gamma --cache C:\\gamma\\cache --download-threads 4 --verbose --skip-github-downloads --mod-list-url https://raw.githubusercontent.com/FaithBeam/stalker-gamma-ccon-modlist/refs/heads/master/autumn/modlist.txt --modpack-maker-url https://raw.githubusercontent.com/FaithBeam/stalker-gamma-ccon-modlist/refs/heads/master/autumn/modpack_maker_list.txt --mo2-profile G.A.M.M.A-With-CCon"
+      "commandLineArgs": "full-install --verbose --skip-extract-on-hash-match --skip-github-downloads"
     },
     "debug-hash-install-blake3": {
       "commandName": "Project",
-      "commandLineArgs": "debug hash-install --anomaly  gamma/anomaly --gamma gamma/gamma --cache gamma/cache --hash-type blake3"
+      "commandLineArgs": "debug hash-install --hash-type blake3"
     },
     "debug-hash-install-sha256": {
       "commandName": "Project",
-      "commandLineArgs": "debug hash-install --anomaly  gamma/anomaly --gamma gamma/gamma --cache gamma/cache --hash-type sha256"
+      "commandLineArgs": "debug hash-install --hash-type sha256"
     },
     "profiles-list": {
       "commandName": "Project",
-      "commandLineArgs": "profiles list --gamma C:\\gamma\\gamma"
+      "commandLineArgs": "profiles list"
     },
     "config-create": {
       "commandName": "Project",
-      "commandLineArgs": "config create --name gamma-with-ccon --anomaly ~/gamma/anomaly --gamma ~/gamma/gamma --cache ~/gamma/cache --download-threads 4 --mo2-profile gamma-with-ccon --mod-pack-maker-url https://raw.githubusercontent.com/FaithBeam/stalker-gamma-ccon-modlist/refs/heads/master/autumn/modpack_maker_list.txt --mod-list-url https://raw.githubusercontent.com/FaithBeam/stalker-gamma-ccon-modlist/refs/heads/master/autumn/modlist.txt"
+      "commandLineArgs": "config create --anomaly gamma/anomaly --gamma gamma/gamma --cache gamma/cache --download-threads 4"
     },
-    "config-use": {
+    "config-create-ccon": {
+      "commandName": "Project",
+      "commandLineArgs": "config create --name gamma-with-ccon --anomaly gamma/anomaly --gamma gamma/gamma --cache gamma/cache --download-threads 4 --mo2-profile gamma-with-ccon --mod-pack-maker-url https://raw.githubusercontent.com/FaithBeam/stalker-gamma-ccon-modlist/refs/heads/master/autumn/modpack_maker_list.txt --mod-list-url https://raw.githubusercontent.com/FaithBeam/stalker-gamma-ccon-modlist/refs/heads/master/autumn/modlist.txt"
+    },
+    "config-use-gamma": {
+      "commandName": "Project",
+      "commandLineArgs": "config use gamma"
+    },
+    "config-use-ccon": {
       "commandName": "Project",
       "commandLineArgs": "config use gamma"
     },
     "config-list": {
       "commandName": "Project",
       "commandLineArgs": "config list"
+    },
+    "update-list": {
+      "commandName": "Project",
+      "commandLineArgs": "update list"
     }
   }
 }

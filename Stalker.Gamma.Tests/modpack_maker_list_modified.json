@@ -1,0 +1,5072 @@
+[
+  {
+    "dlLink": "Audio",
+    "instructions": null,
+    "patch": null,
+    "addonName": null,
+    "modDbUrl": null,
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/222467",
+    "instructions": [],
+    "patch": "Grokitach",
+    "addonName": "Main Menu Theme - Deathcard Cabin",
+    "modDbUrl": "https://www.moddb.com/addons/groks-main-menu-theme-deathcard-cabin",
+    "zipName": "Groks_main_menu_theme.zip",
+    "md5ModDb": "0f4256c9545fbbeda475f82796274d98"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/183466",
+    "instructions": [
+      "SCO3 Addon - Anomaly Sounds",
+      "SCO3 P.1 Real Mutant Sounds",
+      "SCO3 P.2 New Outdoor Sounds",
+      "SCO3 P.3 New Underground Sounds"
+    ],
+    "patch": "Solarint",
+    "addonName": "Soundscape Overhaul",
+    "modDbUrl": "https://www.moddb.com/addons/soundscape-overhaul-2",
+    "zipName": "Soundscape_Overhaul_3.0.zip",
+    "md5ModDb": "0fd082a51a59f4d35a18a2431cd7f344"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/187906",
+    "instructions": [
+      "Sound Mod - Injury Audio Extended"
+    ],
+    "patch": "DesmanMetzger",
+    "addonName": "Injury Audio Extended",
+    "modDbUrl": "https://www.moddb.com/addons/injury-audio-extended",
+    "zipName": "Sound_Mod_-_Injury_Audio_Extended.7z",
+    "md5ModDb": "52b4ae615ae55824dc8d7a39b6d4e5c7"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/208786",
+    "instructions": [
+      "Anomaly Radios Extended - 1.5.1"
+    ],
+    "patch": "DesmanMetzger",
+    "addonName": "Anomaly Radio Extended",
+    "modDbUrl": "https://www.moddb.com/addons/anomaly-radio-extended-151-full-version",
+    "zipName": "Anomaly_Radios_Extended_-_1.5.1.7z",
+    "md5ModDb": "9384d2e3c6b7dafabb2f1f8e8db80aaf"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/209799",
+    "instructions": [],
+    "patch": "Qudix",
+    "addonName": "EFT Aim Rattle",
+    "modDbUrl": "https://www.moddb.com/addons/eft-aim-rattle",
+    "zipName": "EFT_Aim_Rattle_1.2.zip",
+    "md5ModDb": "f9e609e3aa2137010937257e0094f7b9"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/212035",
+    "instructions": [
+      "EFT Jump and Land SFX - HarukaSai"
+    ],
+    "patch": "HarukaSai",
+    "addonName": "EFT Jump and Land SFX",
+    "modDbUrl": "https://www.moddb.com/addons/eft-jumpland-sfx",
+    "zipName": "EFT_Jump_and_Land_SFX_-_HarukaSai.1.7z",
+    "md5ModDb": "4093cf4ef0701e12d0b60f5f4cee4050"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/228370",
+    "instructions": [],
+    "patch": "YankeeGolf",
+    "addonName": "Better Merc voicelines",
+    "modDbUrl": "https://www.moddb.com/addons/shadow-company-ft-usec-voices-for-mercs",
+    "zipName": "SC_BattleChatter.rar",
+    "md5ModDb": "084094f6784ef6b27f5743ec5f9f3fb4"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/210999",
+    "instructions": [],
+    "patch": "HarukaSai",
+    "addonName": "Exo Servomotor Sounds",
+    "modDbUrl": "https://www.moddb.com/addons/exo-servomotor-sounds",
+    "zipName": "ExoServoSounds-v.2.0.7z",
+    "md5ModDb": "5d23e0f0069da40126ac493084f334a7"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/208267",
+    "instructions": [
+      "[1.1.0] Grok\u0027s Better Sound for Anomaly 1.5.1\\bin"
+    ],
+    "patch": "Grokitach",
+    "addonName": "Better sound",
+    "modDbUrl": "https://www.moddb.com/addons/10-groks-better-sound-for-anomaly-151",
+    "zipName": "1.1.1_Groks_Better_Sound_for_Anomaly_1.5.1.zip",
+    "md5ModDb": "9a7c3a2e3eacd80f29b29cdc29858a2a"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/210902",
+    "instructions": [],
+    "patch": "Ethylia",
+    "addonName": "Preblowout Murder",
+    "modDbUrl": "https://www.moddb.com/addons/pre-blowout-murder",
+    "zipName": "PreBlowoutMurder.3.zip",
+    "md5ModDb": "af4891d0300d0f217a4fe29cf973102d"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/210158",
+    "instructions": [
+      "PDAradioExtended"
+    ],
+    "patch": "Starcry_",
+    "addonName": "PDA Radio Extended",
+    "modDbUrl": "https://www.moddb.com/addons/pda-radio-extended",
+    "zipName": "PDAradioExtendedV1.3.7z",
+    "md5ModDb": "e31d1938e03d88eb7e806cf429cdeda4"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/216176",
+    "instructions": [
+      "Quieter Wood Breaking (might also want to make the collision (physics) sounds quieter as well)"
+    ],
+    "patch": "cringeybabey",
+    "addonName": "Quieter Wood Boxes Breaking",
+    "modDbUrl": "https://www.moddb.com/addons/quieter-wooden-box-breaking",
+    "zipName": "Quieter_Wood_Breaking.1.zip",
+    "md5ModDb": "e517380da712f1dfe7ab72ccea7214cc"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/217262",
+    "instructions": [],
+    "patch": "Tweaki_Breeki",
+    "addonName": "Angry Chimera growl",
+    "modDbUrl": "https://www.moddb.com/addons/tbs-angry-chimera-growls-v10",
+    "zipName": "TBs_Angry_Chimera_Growls_v1.1.zip",
+    "md5ModDb": "d75bfd0186c82fcdd3e407a3b737be89"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/182621",
+    "instructions": [
+      "Sound Mod - Voiced Actor 1.5.1 2021.12.03"
+    ],
+    "patch": "DesmanMetzger",
+    "addonName": "Voiced Actor",
+    "modDbUrl": "https://www.moddb.com/addons/voiced-actor-30-russian-voice",
+    "zipName": "Voiced_Actor_1.5.1_2021.12.03.7z",
+    "md5ModDb": "042651cdfa84fa8f9ac688b06e523aea"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/175329",
+    "instructions": [
+      "Wepl Hit Effects"
+    ],
+    "patch": "Wepl",
+    "addonName": "Hit Effects",
+    "modDbUrl": "https://www.moddb.com/addons/wepls-hit-effects",
+    "zipName": "wepl_Hit_Effects.rar",
+    "md5ModDb": "92a0183608de0af6be6c8b41063fc93e"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/220405",
+    "instructions": [
+      "Inventory open and close"
+    ],
+    "patch": "HollidayW",
+    "addonName": "Inventory open close sound",
+    "modDbUrl": "https://www.moddb.com/addons/inventory-open-and-close-sound",
+    "zipName": "Inventory_open_and_close.1.rar",
+    "md5ModDb": "10b9022e33d6a8da79a5ba41f514191d"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/183808",
+    "instructions": [
+      "00 MAIN FILES"
+    ],
+    "patch": "Wojach",
+    "addonName": "Ambient Music Pack",
+    "modDbUrl": "https://www.moddb.com/addons/ambient-music-pack",
+    "zipName": "ambientmusicpack2.9.zip",
+    "md5ModDb": "4171155f45239bdbd690b4d288c0c8bf"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/216185",
+    "instructions": [
+      "Desman\u0027s Horror Overhaul v1.3"
+    ],
+    "patch": "DesmanMetzger",
+    "addonName": "Horror Overhaul",
+    "modDbUrl": "https://www.moddb.com/addons/desmans-horror-overhaul",
+    "zipName": "Desmans_Horror_Overhaul_v1.3.7z",
+    "md5ModDb": "1c01b236674627d143325cb193a58106"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/183359",
+    "instructions": [
+      "EFTfootstep1.1"
+    ],
+    "patch": "Souvlakii",
+    "addonName": "EFT footsteps and tinnitus 1.1",
+    "modDbUrl": "https://www.moddb.com/addons/escape-from-tarkov-footsteps-and-tinnitus-replacers",
+    "zipName": "EFTfootstep1.1.zip",
+    "md5ModDb": "794231d9db555ed94560076502106507"
+  },
+  {
+    "dlLink": "Visual",
+    "instructions": null,
+    "patch": null,
+    "addonName": null,
+    "modDbUrl": null,
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/213337",
+    "instructions": [],
+    "patch": "Awene",
+    "addonName": "Agressor Reshade",
+    "modDbUrl": "https://www.moddb.com/addons/100-grok-gotta-go-fast",
+    "zipName": "1.0.1_Grok_Gotta_Go_Fast.zip",
+    "md5ModDb": "9e34815545faae72082106fa193f9752"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/217507",
+    "instructions": [
+      "T.H.A.P. Rework 2.3"
+    ],
+    "patch": "IENCE",
+    "addonName": "THAP Rework",
+    "modDbUrl": "https://www.moddb.com/addons/thap-rework",
+    "zipName": "T.H.A.P._Rework_2.3.zip",
+    "md5ModDb": "5bfd754467eb8d5dcd4c43f105c8706f"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/211828",
+    "instructions": [
+      "00 Skies Redux - 1K Option"
+    ],
+    "patch": "d_nan",
+    "addonName": "Skies Redux",
+    "modDbUrl": "https://www.moddb.com/addons/anomaly-skyboxes",
+    "zipName": "freedom_mutants_videos.rar",
+    "md5ModDb": "264d00c6e6a4439b8997a1328dab3f9c"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/184325",
+    "instructions": [],
+    "patch": "Bazingarrey",
+    "addonName": "High Res Loading Screens",
+    "modDbUrl": "https://www.moddb.com/addons/high-resolution-loading-screen",
+    "zipName": "HighResLoadingScreenV1.1.7z",
+    "md5ModDb": "7cf08ef602627f007e02616c97ef071c"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/184227",
+    "instructions": [
+      "High Res PDA Maps"
+    ],
+    "patch": "Bazingarrey",
+    "addonName": "High Res PDA Maps",
+    "modDbUrl": "https://www.moddb.com/addons/high-resolution-maps",
+    "zipName": "High_Resolution_PDA_Maps.3.zip",
+    "md5ModDb": "2bceca43d2a5287189610706fd7bb4f1"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/216034",
+    "instructions": [],
+    "patch": "Tweaki_Breeki",
+    "addonName": "Fairer Thermal Anomalies",
+    "modDbUrl": "https://www.moddb.com/addons/tbs-fairer-thermal-anomalies-v1-0",
+    "zipName": "TBs_Fairer_Thermal_Anomalies_v1.5.zip",
+    "md5ModDb": "39914ba79e8d6451aec511ade793ca73"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/219214",
+    "instructions": [
+      "21 game\\CORE"
+    ],
+    "patch": "Feel_Fried",
+    "addonName": "Black Jack",
+    "modDbUrl": "https://www.moddb.com/addons/blackjack-21-engrus-151",
+    "zipName": "21_game_v1.1.4.1.7z",
+    "md5ModDb": "bd69814aafdc2598d512afd6bb35b8f2"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/208861",
+    "instructions": [
+      "Dux\u0027s Innumerable Character Kit"
+    ],
+    "patch": "DuxFortis",
+    "addonName": "Dux\u0027s Innemurable Characters Kit",
+    "modDbUrl": "https://www.moddb.com/addons/dick",
+    "zipName": "Duxs_Innumerable_Character_Kit.8.7z",
+    "md5ModDb": "a8b8d5613a42d4326e1db6c79070ac03"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/208861",
+    "instructions": [
+      "Dux\u0027s Innumerable Character Kit\\Dux\u0027s Innumerable Character Kit - Blackjack Patch"
+    ],
+    "patch": "DuxFortis",
+    "addonName": "Dux\u0027s Innemurable Characters Kit Blackjack patch",
+    "modDbUrl": "https://www.moddb.com/addons/dick",
+    "zipName": "Duxs_Innumerable_Character_Kit.8.7z",
+    "md5ModDb": "a8b8d5613a42d4326e1db6c79070ac03"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/222685",
+    "instructions": [
+      "addons\\UNISG Overhaul",
+      "addons\\SEVA Glass Variety"
+    ],
+    "patch": "Blackgrowl",
+    "addonName": "Fixed Vanilla Models and Textures",
+    "modDbUrl": "https://www.moddb.com/addons/fvm",
+    "zipName": "Fixed_Vanilla_ModelsTextures.8.7z",
+    "md5ModDb": "bedf964178a8b735b49cf01956bfd404"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/227255",
+    "instructions": [
+      "01 MAIN"
+    ],
+    "patch": "Blackgrowl",
+    "addonName": "FVM Nosorogs models",
+    "modDbUrl": "https://www.moddb.com/addons/fvm-nosorogoverhaul",
+    "zipName": "FVM_Nosorog_Overhaul.3.7z",
+    "md5ModDb": "5ea13d8ee99939fbf87626f063a6f6e7"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/227529",
+    "instructions": [
+      "HDMutants"
+    ],
+    "patch": "Umbrellord",
+    "addonName": "HD mutant models and textures",
+    "modDbUrl": "https://www.moddb.com/addons/umbrellords-hd-mutant-models-wip",
+    "zipName": "HDMutants.3.zip",
+    "md5ModDb": "617f9e6d47e18780396344c578a0698a"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/214966",
+    "instructions": [
+      "Nicer Flashlights Addon v2.0\\IMPERFECT VARIANTS\\Nicer Flashlights Addon Imperfect 9"
+    ],
+    "patch": "shortnamesalex",
+    "addonName": "Nicer Flashlights",
+    "modDbUrl": "https://www.moddb.com/addons/nicer-flashlights-and-headlamps-addon",
+    "zipName": "Nicer_Flashlights_Addon_v2.0.7z",
+    "md5ModDb": "700602214227613710a9d2b8188b9222"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/229145",
+    "instructions": [],
+    "patch": "CryoManne",
+    "addonName": "Wet Surfaces Fix",
+    "modDbUrl": "https://www.moddb.com/addons/wet-surfaces-fix1",
+    "zipName": "Wet_Surfaces_Fix.zip",
+    "md5ModDb": "39832aa3d7a2cd0199884f1e6ab719dd"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/230032",
+    "instructions": [
+      "Better Rain"
+    ],
+    "patch": "Detron",
+    "addonName": "Better Rain texture",
+    "modDbUrl": "https://www.moddb.com/addons/better-rain-fx",
+    "zipName": "Better_Rainfx.1.zip",
+    "md5ModDb": "0a5d49f9e7cbede6b9aa0527d0161fa3"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/219673",
+    "instructions": [
+      "Dynamic Tonemap Extended"
+    ],
+    "patch": "TheMrDemonized",
+    "addonName": "Dynamic Tonemap Extended",
+    "modDbUrl": "https://www.moddb.com/addons/dynamic-time-based-tonemap-extended",
+    "zipName": "Dynamic_Tonemap_Extended.8.zip",
+    "md5ModDb": "5aff9952e15b1d58466cf9d34482a633"
+  },
+  {
+    "dlLink": "Animations",
+    "instructions": null,
+    "patch": null,
+    "addonName": null,
+    "modDbUrl": null,
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/242286",
+    "instructions": [],
+    "patch": "ChadSTALKEREnjoyer",
+    "addonName": "RemadeAnimations",
+    "modDbUrl": "https://www.moddb.com/addons/new-walk-run-animation",
+    "zipName": "Re-animation.zip",
+    "md5ModDb": "3b8f22614b484542d9233dabcc811065"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/209819",
+    "instructions": [],
+    "patch": "Feel_Fried",
+    "addonName": "Food Drugs and Drinks Animations FDDA",
+    "modDbUrl": "https://www.moddb.com/addons/food-drug-and-drinks-animations-reuploaded",
+    "zipName": "Food_drug_and_drinks_animations_v0.9b.7z",
+    "md5ModDb": "11a421b3f6496aacb6f2d367a058c61f"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/211277",
+    "instructions": [
+      "Lower_Weapon_Sprint_v1.2.0.3"
+    ],
+    "patch": "Skieppy",
+    "addonName": "LowerSprintAnimaiton",
+    "modDbUrl": "https://www.moddb.com/addons/lowered-weapon-sprint-animation",
+    "zipName": "Lower_Weapon_Sprint_v1.2.0.3.zip",
+    "md5ModDb": "99f9b882cc0ccd7d9c51ea7979793db6"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/217738",
+    "instructions": [
+      "Camera Reanimation Project - I.N.E.R.T.I.A. V1.2"
+    ],
+    "patch": "IENCE",
+    "addonName": "Camera Reanimation INERTIA",
+    "modDbUrl": "https://www.moddb.com/addons/camera-reanimation-project-inertia",
+    "zipName": "Camera_Reanimation_Project_-_I.N.E.R.T.I.A._V1.2.zip",
+    "md5ModDb": "dc14856c66ef2a728c0f5cb2305b3512"
+  },
+  {
+    "dlLink": "Gameplay",
+    "instructions": null,
+    "patch": null,
+    "addonName": null,
+    "modDbUrl": null,
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/213337",
+    "instructions": [],
+    "patch": "Vintar0",
+    "addonName": "Bounty Squads Extended",
+    "modDbUrl": "https://www.moddb.com/addons/100-grok-gotta-go-fast",
+    "zipName": "1.0.1_Grok_Gotta_Go_Fast.zip",
+    "md5ModDb": "9e34815545faae72082106fa193f9752"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/207498",
+    "instructions": [
+      "Stealth_2.0"
+    ],
+    "patch": "xcvb",
+    "addonName": "Stealth Overhaul",
+    "modDbUrl": "https://www.moddb.com/addons/stealth1",
+    "zipName": "Stealth_2.31.zip",
+    "md5ModDb": "0dbbf2cce881cd40341fa75d22ec22aa"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/201679",
+    "instructions": [],
+    "patch": "arti",
+    "addonName": "Outfits Affects Movespeed",
+    "modDbUrl": "https://www.moddb.com/addons/outfits-affect-movespeed-update-5",
+    "zipName": "anomaly-speed.2021.10.17.zip",
+    "md5ModDb": "02498c9c78c5b471f3e6dbdddffc3469"
+  },
+  {
+    "dlLink": "https://github.com/ahuyn/anomaly-exo/archive/refs/tags/latest.zip",
+    "instructions": [
+      "anomaly-exo-latest"
+    ],
+    "patch": "arti",
+    "addonName": "Powered Exos",
+    "modDbUrl": null,
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://github.com/ahuyn/anomaly-exo/archive/refs/tags/latest.zip",
+    "instructions": [
+      "anomaly-exo-latest\\exo servo patch"
+    ],
+    "patch": "arti",
+    "addonName": "Powered Exos ExoServomotorSounds patch",
+    "modDbUrl": null,
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/223861",
+    "instructions": [],
+    "patch": "Haruka",
+    "addonName": "Skill System",
+    "modDbUrl": "https://www.moddb.com/addons/anomaly-skill-system",
+    "zipName": "HarukaSkillSystem-v1.5.0.zip",
+    "md5ModDb": "356b69cd5edc2f7e3ef10ca02c1c4df9"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/207876",
+    "instructions": [],
+    "patch": "_STYX_",
+    "addonName": "Disable Burnt Fuzz",
+    "modDbUrl": "https://www.moddb.com/addons/toasted-fuzz-v01-0",
+    "zipName": "210130_Toasted_Fuzz_v01.0.zip",
+    "md5ModDb": "067482712ed495fa0279dae9b90bafc1"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/211466",
+    "instructions": [
+      "main"
+    ],
+    "patch": "hexef",
+    "addonName": "Tougher important NPCs and companions",
+    "modDbUrl": "https://www.moddb.com/addons/tough-important-npcs-and-companions",
+    "zipName": "Tough_Important_NPCs_and_Companions_1_0_3.zip",
+    "md5ModDb": "fc11aaee42ebb4341f9b4386a30f3a51"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/224069",
+    "instructions": [
+      "Perk_Based_Artefacts_FULL"
+    ],
+    "patch": "Demonized",
+    "addonName": "Perk-Based Artefacts",
+    "modDbUrl": "https://www.moddb.com/addons/perk-based-artefacts",
+    "zipName": "Perk_Based_Artefacts.27.zip",
+    "md5ModDb": "d9477444a1d0d2d9585d863cd6e306ad"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/225217",
+    "instructions": [],
+    "patch": "sneaky",
+    "addonName": "Companions carry weight tweak",
+    "modDbUrl": "https://www.moddb.com/addons/companion-carryweight-and-looting-rework",
+    "zipName": "companion_tweaks.1.zip",
+    "md5ModDb": "047d353151896ab2a10b7366444b3370"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/213337",
+    "instructions": [],
+    "patch": "IgorNitch",
+    "addonName": "Lsz AI tweak",
+    "modDbUrl": "https://www.moddb.com/addons/100-grok-gotta-go-fast",
+    "zipName": "1.0.1_Grok_Gotta_Go_Fast.zip",
+    "md5ModDb": "9e34815545faae72082106fa193f9752"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/194204",
+    "instructions": [],
+    "patch": "Arszi",
+    "addonName": "Mutants Bleeding",
+    "modDbUrl": "https://www.moddb.com/addons/arszis-mutant-bleeding",
+    "zipName": "ArszisMutantBleeding2_0_1.zip",
+    "md5ModDb": "901719be674c136993ecf9dc2994c70a"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/228933",
+    "instructions": [],
+    "patch": "xcvb",
+    "addonName": "Phantoms at low psy health",
+    "modDbUrl": "https://www.moddb.com/addons/phantoms-01",
+    "zipName": "Phantoms_0.1.zip",
+    "md5ModDb": "81f92bc6d274f79733deb63697b2636f"
+  },
+  {
+    "dlLink": "Stashes",
+    "instructions": null,
+    "patch": null,
+    "addonName": null,
+    "modDbUrl": null,
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/214163",
+    "instructions": [],
+    "patch": "Tweaki_Breeki",
+    "addonName": "New Stashes Location",
+    "modDbUrl": "https://www.moddb.com/addons/tbs-475-new-stash-locations",
+    "zipName": "TBs_475_New_Stashes_Locations_v1.4.zip",
+    "md5ModDb": "90ea7bf7e11854b03155c30f97e498e7"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/213728",
+    "instructions": [],
+    "patch": "Tweaki_Breeki",
+    "addonName": "Fixes bugged stashes",
+    "modDbUrl": "https://www.moddb.com/addons/tbs-bugged-stashes-fix",
+    "zipName": "TBs_Bugged_Stashes_Fix_v1.4.zip",
+    "md5ModDb": "c14415ed003c419aa810bc1279f5ccba"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/200140",
+    "instructions": [
+      "00. Grok\u0027s Stash Overhaul"
+    ],
+    "patch": "Grokitach",
+    "addonName": "Stash Overhaul",
+    "modDbUrl": "https://www.moddb.com/addons/groks-stash-overhaul-redux",
+    "zipName": "2.2.0_Groks_Stash_Overhaul.1.zip",
+    "md5ModDb": "02ce6eb0546093445d88b4248d93df91"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/200140",
+    "instructions": [
+      "01. TB Fix Bugged Stashes Patch"
+    ],
+    "patch": "Grokitach",
+    "addonName": "Stash Overhaul TBFix",
+    "modDbUrl": "https://www.moddb.com/addons/groks-stash-overhaul-redux",
+    "zipName": "2.2.0_Groks_Stash_Overhaul.1.zip",
+    "md5ModDb": "02ce6eb0546093445d88b4248d93df91"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/200140",
+    "instructions": [
+      "OPT. No loot in unmarked stashes"
+    ],
+    "patch": "Grokitach",
+    "addonName": "Stash Overhaul No Loot",
+    "modDbUrl": "https://www.moddb.com/addons/groks-stash-overhaul-redux",
+    "zipName": "2.2.0_Groks_Stash_Overhaul.1.zip",
+    "md5ModDb": "02ce6eb0546093445d88b4248d93df91"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/200140",
+    "instructions": [
+      "OPT. No loot in unmarked stashes - BaS Patch"
+    ],
+    "patch": "Grokitach",
+    "addonName": "Stash Overhaul BAS",
+    "modDbUrl": "https://www.moddb.com/addons/groks-stash-overhaul-redux",
+    "zipName": "2.2.0_Groks_Stash_Overhaul.1.zip",
+    "md5ModDb": "02ce6eb0546093445d88b4248d93df91"
+  },
+  {
+    "dlLink": "Gunplay",
+    "instructions": null,
+    "patch": null,
+    "addonName": null,
+    "modDbUrl": null,
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/213437",
+    "instructions": [
+      "Fluid_Aim_v1.2.3"
+    ],
+    "patch": "Skieppy",
+    "addonName": "Fluid Aim",
+    "modDbUrl": "https://www.moddb.com/addons/fluid-aim-for-anomaly-151",
+    "zipName": "Fluid_Aim_v1.2.3.zip",
+    "md5ModDb": "00c81afb12dd87a0944a87c9bc3f443a"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/217186",
+    "instructions": [
+      "00. Main EFT reposition"
+    ],
+    "patch": "sneaky",
+    "addonName": "EFT Reposition Main",
+    "modDbUrl": "https://www.moddb.com/addons/alternate-aim-sights-for-eft-reposition",
+    "zipName": "EFT-weapon_reposition.10.zip",
+    "md5ModDb": "ea77618f735ed87194b05b0680421ee5"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/182695",
+    "instructions": [
+      "JSRS P.1 - Main Addon",
+      "JSRS P.2 - Cracks \u002B Impacts Patch - NEW"
+    ],
+    "patch": "Solarint",
+    "addonName": "JSRS",
+    "modDbUrl": "https://www.moddb.com/addons/solarint-gunshot-overhaul",
+    "zipName": "JSRS_Port_4.zip",
+    "md5ModDb": "1d7806de289c44abf8ea01a5bc8fea9a"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/214170",
+    "instructions": [
+      "Souvlaki\u0027s FAL 2.0 with EFT FOV"
+    ],
+    "patch": "Souvlaki",
+    "addonName": "FAL animations",
+    "modDbUrl": "https://www.moddb.com/addons/souvlakis-fal-20-with-eft-fov",
+    "zipName": "Souvlakis_FAL_2.0_with_EFT_FOV.2.rar",
+    "md5ModDb": "9f8111ec55c6b546d07a1473db051a99"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/208813",
+    "instructions": [
+      "awar_v0.97"
+    ],
+    "patch": "JCesarN",
+    "addonName": "AWAR",
+    "modDbUrl": "https://www.moddb.com/addons/anomaly-weapons-animation-redux",
+    "zipName": "awar_v0.97.zip",
+    "md5ModDb": "c7464e2638ab1cbe3e7ebd4aa392e25b"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/217186",
+    "instructions": [
+      "01. EFT repos \u002B AWAR 0.97"
+    ],
+    "patch": "sneaky",
+    "addonName": "EFT Reposition AWAR patch",
+    "modDbUrl": "https://www.moddb.com/addons/alternate-aim-sights-for-eft-reposition",
+    "zipName": "EFT-weapon_reposition.10.zip",
+    "md5ModDb": "ea77618f735ed87194b05b0680421ee5"
+  },
+  {
+    "dlLink": "https://github.com/Grokitach/blindside_reanimation_legacy/archive/refs/heads/main.zip",
+    "instructions": [
+      "blindside_reanimation_legacy-main\\main",
+      "blindside_reanimation_legacy-main\\[OPTIONALS]\\Vanilla Weapon Stats"
+    ],
+    "patch": "Blindside",
+    "addonName": "Weapons Reanimation and Rebalance",
+    "modDbUrl": "https://www.moddb.com/mods/stalker-anomaly/addons/blindsides-weapon-reanimation-and-rebalance-military",
+    "zipName": "blindside_reanimation_legacy.zip",
+    "md5ModDb": "a7a6f6dcab895744faf743a968af0389"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/215224",
+    "instructions": [],
+    "patch": "sneaky",
+    "addonName": "Adjustable Scope View",
+    "modDbUrl": "https://www.moddb.com/addons/adjustable-scope-view",
+    "zipName": "Adjustable_scopes.11.zip",
+    "md5ModDb": "5cdfa968dcf2f3a166ebecebe53a30b8"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/217186",
+    "instructions": [
+      "02. EFT repos \u002B Blindsides reanim"
+    ],
+    "patch": "sneaky",
+    "addonName": "EFT Reposition BWRR patch",
+    "modDbUrl": "https://www.moddb.com/addons/alternate-aim-sights-for-eft-reposition",
+    "zipName": "EFT-weapon_reposition.10.zip",
+    "md5ModDb": "ea77618f735ed87194b05b0680421ee5"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/217186",
+    "instructions": [
+      "02. EFT repos \u002B Blindsides reanim(vanilla stats)"
+    ],
+    "patch": "sneaky",
+    "addonName": "EFT Reposition BWRR vanilla stats patch",
+    "modDbUrl": "https://www.moddb.com/addons/alternate-aim-sights-for-eft-reposition",
+    "zipName": "EFT-weapon_reposition.10.zip",
+    "md5ModDb": "ea77618f735ed87194b05b0680421ee5"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/208351",
+    "instructions": [],
+    "patch": "sneaky",
+    "addonName": "JSRS BWRR patch",
+    "modDbUrl": "https://www.moddb.com/addons/blindsides-weapon-reanimation-and-rebalance-jsrs-patch",
+    "zipName": "BlindsidesReanimationpackJSRS_patch.6.zip",
+    "md5ModDb": "38116831d30bc9654d7fd387dfed3ddc"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/208351",
+    "instructions": [],
+    "patch": "Mich",
+    "addonName": "Boomsticks and Sharpsticks New (keep disabled)",
+    "modDbUrl": "https://www.moddb.com/addons/blindsides-weapon-reanimation-and-rebalance-jsrs-patch",
+    "zipName": "BlindsidesReanimationpackJSRS_patch.6.zip",
+    "md5ModDb": "38116831d30bc9654d7fd387dfed3ddc"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/217186",
+    "instructions": [
+      "03. Patch Boomsticks and Sharpsticks"
+    ],
+    "patch": "sneaky",
+    "addonName": "EFT Reposition BAS patch",
+    "modDbUrl": "https://www.moddb.com/addons/alternate-aim-sights-for-eft-reposition",
+    "zipName": "EFT-weapon_reposition.10.zip",
+    "md5ModDb": "ea77618f735ed87194b05b0680421ee5"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/217186",
+    "instructions": [
+      "04. Patch BaS \u002B JSRS"
+    ],
+    "patch": "sneaky",
+    "addonName": "EFT Reposition BAS JSRS patch",
+    "modDbUrl": "https://www.moddb.com/addons/alternate-aim-sights-for-eft-reposition",
+    "zipName": "EFT-weapon_reposition.10.zip",
+    "md5ModDb": "ea77618f735ed87194b05b0680421ee5"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/223016",
+    "instructions": [
+      "2d - JSRS\u002BBlindsides \u002B BAS"
+    ],
+    "patch": "Karlack",
+    "addonName": "Better silenced BAS shotguns",
+    "modDbUrl": "https://www.moddb.com/addons/update-1-jsrs-addon-better-silenced-shotguns",
+    "zipName": "JSRS_BSS_V1.2.6.rar",
+    "md5ModDb": "0765016415a8c8abb11c0c0ddd9349c6"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/219368",
+    "instructions": [
+      "MP7 Replacement"
+    ],
+    "patch": "PYP",
+    "addonName": "MP7 Replacer",
+    "modDbUrl": "https://www.moddb.com/addons/mp7-replacement-anomaly-151",
+    "zipName": "MP7_Replacement.1.7z",
+    "md5ModDb": "cdaf7aa9b8c7fd04806990cafb214f7e"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/229716",
+    "instructions": [
+      "01 MP7 retracted buttstock"
+    ],
+    "patch": "PYP",
+    "addonName": "MP7 Reposition",
+    "modDbUrl": "https://www.moddb.com/addons/mp7-replacement-repositioned",
+    "zipName": "mp7_replace_repos.zip",
+    "md5ModDb": "edf37710f83acd43ca9a8556387be79c"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/210152",
+    "instructions": [],
+    "patch": "Strogglet15",
+    "addonName": "Abakan Replacer",
+    "modDbUrl": "https://www.moddb.com/addons/an94remodel",
+    "zipName": "AN-94_Replacer_Rebalance.6.rar",
+    "md5ModDb": "75476c9e8b9d0d3a6cbb5e719b8424b3"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/210152",
+    "instructions": [
+      "patches\\EFT Style Weapons Re-position"
+    ],
+    "patch": "Strogglet15",
+    "addonName": "Abakan Replacer patch",
+    "modDbUrl": "https://www.moddb.com/addons/an94remodel",
+    "zipName": "AN-94_Replacer_Rebalance.6.rar",
+    "md5ModDb": "75476c9e8b9d0d3a6cbb5e719b8424b3"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/213259",
+    "instructions": [],
+    "patch": "Strogglet15",
+    "addonName": "Saiga 12K replacer",
+    "modDbUrl": "https://www.moddb.com/addons/saiga12k-remodel",
+    "zipName": "Saiga-12K_Remodel_Rebalance.3.zip",
+    "md5ModDb": "8eb8f051ebcd4c2e078813dfd4f57609"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/213259",
+    "instructions": [
+      "addons\\Blindside\u0027s Animation",
+      "patch\\EFT-Style Reposition Patch\\02. Blindside\u0027s Animation [USE WITH ADDON]"
+    ],
+    "patch": "Strogglet15",
+    "addonName": "Saiga 12K replacer patches",
+    "modDbUrl": "https://www.moddb.com/addons/saiga12k-remodel",
+    "zipName": "Saiga-12K_Remodel_Rebalance.3.zip",
+    "md5ModDb": "8eb8f051ebcd4c2e078813dfd4f57609"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/214696",
+    "instructions": [],
+    "patch": "Strogglet15",
+    "addonName": "G36Pack",
+    "modDbUrl": "https://www.moddb.com/addons/the-g36-pack-g36pack",
+    "zipName": "The_G36_Pack.5.zip",
+    "md5ModDb": "858e82f7af8fb3fccad92952ac265a36"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/214696",
+    "instructions": [
+      "patch\\EFT-Style Reposition Patch"
+    ],
+    "patch": "Strogglet15",
+    "addonName": "G36Pack patch",
+    "modDbUrl": "https://www.moddb.com/addons/the-g36-pack-g36pack",
+    "zipName": "The_G36_Pack.5.zip",
+    "md5ModDb": "858e82f7af8fb3fccad92952ac265a36"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/210939",
+    "instructions": [],
+    "patch": "Strogglet15",
+    "addonName": "Dragunov Replacer",
+    "modDbUrl": "https://www.moddb.com/addons/dragunovremodel",
+    "zipName": "SVD_Replacer_Rebalance.4.rar",
+    "md5ModDb": "132b30d23fc136a59c15f1db22e72c95"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/210939",
+    "instructions": [
+      "patches\\EFT Style Weapons Re-position"
+    ],
+    "patch": "Strogglet15",
+    "addonName": "Dragunov Replacer patch",
+    "modDbUrl": "https://www.moddb.com/addons/dragunovremodel",
+    "zipName": "SVD_Replacer_Rebalance.4.rar",
+    "md5ModDb": "132b30d23fc136a59c15f1db22e72c95"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/217186",
+    "instructions": [
+      "05. Patch BAN(strogglet15) guns\\00. main"
+    ],
+    "patch": "sneaky",
+    "addonName": "EFT Reposition Gun\u0027s Replacers patch",
+    "modDbUrl": "https://www.moddb.com/addons/alternate-aim-sights-for-eft-reposition",
+    "zipName": "EFT-weapon_reposition.10.zip",
+    "md5ModDb": "ea77618f735ed87194b05b0680421ee5"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/228968",
+    "instructions": [
+      "addons\\FN57 Tan Grip",
+      "addons\\MK23 No Laser",
+      "addons\\P229 Clean Finish"
+    ],
+    "patch": "Blackgrowl",
+    "addonName": "Pretty Pistols Pack",
+    "modDbUrl": "https://www.moddb.com/addons/pretty-pistols-pack",
+    "zipName": "Pretty_Pistols_Pack.19.zip",
+    "md5ModDb": "1782ebc38e9f2d1786555bd885b0a158"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/229488",
+    "instructions": [
+      "addons\\[PATCH] EFT Reposition",
+      "addons\\TRITIUM",
+      "addons\\[PATCH] THAP Hands"
+    ],
+    "patch": "Blackgrowl",
+    "addonName": "Vityaz Replacer Remake",
+    "modDbUrl": "https://www.moddb.com/addons/vityaz-virilized",
+    "zipName": "PP-19_Vityaz_Virilized.10.zip",
+    "md5ModDb": "3fbeed320c1d44784f8df68f4356a00e"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/211741",
+    "instructions": [
+      "General Fire Mode Switcher Sound"
+    ],
+    "patch": "TheVoidPancake",
+    "addonName": "Fire Mode Switcher",
+    "modDbUrl": "https://www.moddb.com/addons/general-fire-mode-switcher-sound",
+    "zipName": "General_Fire_Mode_Switcher_Sound.12.zip",
+    "md5ModDb": "68e6e41fa5f7f409f85ec7b012340638"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/207973",
+    "instructions": [
+      "ATS_1.6.3(vanilla only)",
+      "ATS_BaS_Adaptation(BaS only)"
+    ],
+    "patch": "jaymorrow",
+    "addonName": "Tacticool scopes",
+    "modDbUrl": "https://www.moddb.com/addons/anomaly-tacticool-scopes",
+    "zipName": "ATS1.6.X_BaS.14.zip",
+    "md5ModDb": "afdb0651c12d66fb2e44da9268fd4d94"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/223008",
+    "instructions": [
+      "00. Grok\u0027s Doom Weapons Inspect",
+      "OPT1. No music"
+    ],
+    "patch": "Grokitach",
+    "addonName": "Doom-like weapon inspection",
+    "modDbUrl": "https://www.moddb.com/addons/100-groks-doom-like-weapons-inspection",
+    "zipName": "1.0.0_Groks_Doom_Weapons_Inspect.zip",
+    "md5ModDb": "2b2b3670481a481ba67368c93fb9fca7"
+  },
+  {
+    "dlLink": "https://github.com/Grokitach/BAS_sound_fix/archive/refs/heads/main.zip",
+    "instructions": [
+      "BAS_sound_fix-main"
+    ],
+    "patch": "Unknown",
+    "addonName": "BAS Stealth sound fix",
+    "modDbUrl": null,
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/220572",
+    "instructions": [
+      "Green Mini"
+    ],
+    "patch": "Nrsy",
+    "addonName": "CLAD lasers for BAS",
+    "modDbUrl": "https://www.moddb.com/addons/clad-for-bas-v10-anomaly-151",
+    "zipName": "CustomLasersAndDots.1.zip",
+    "md5ModDb": "15a00794d761d55f38cb436a6e7878f1"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/217549",
+    "instructions": [
+      "Hax Bolt Reanimation"
+    ],
+    "patch": "TheShinyHaxorus",
+    "addonName": "Better Bolt Animations",
+    "modDbUrl": "https://www.moddb.com/addons/haxs-bolt-reanimation",
+    "zipName": "Hax_Bolt_Reanimation.rar",
+    "md5ModDb": "bcb2a28e2a5c7457cfdb48b4ac1723d8"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/224285",
+    "instructions": [
+      "Cobra reticles\\6 - Dot\\Green",
+      "EoTech reticles\\A - 1 dot EoTech\\Green",
+      "OKP-7 reticles\\1 - Classic",
+      "Rakurs 1P76 reticles\\1 - Rakurs\\Green",
+      "Red dots\\2 - Tiny dots",
+      "Sight window cleaning"
+    ],
+    "patch": "Kuez",
+    "addonName": "BAS Scopes Extravaganza red dots",
+    "modDbUrl": "https://www.moddb.com/addons/dots-and-reticles-extravaganza",
+    "zipName": "Dots_and_reticles_extravaganza_Mar_28.rar",
+    "md5ModDb": "bf2864e62cd9a113dd6005b501ff9519"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/224285",
+    "instructions": [
+      "2D Reticles - Realistic-ish-esque-like reticles\\2D 1P29 Tulip\\3 - PSU 1-4 reticle",
+      "2D Reticles - Realistic-ish-esque-like reticles\\2D 1P59 Giperon\\1 - 3x Reticle\\Center illuminated",
+      "2D Reticles - Realistic-ish-esque-like reticles\\2D 1P78 Kashtan\\2 - Center illuminated",
+      "2D Reticles - Realistic-ish-esque-like reticles\\2D Acog\\4 - Horseshoe with chevron\\Red",
+      "2D Reticles - Realistic-ish-esque-like reticles\\2D Elcan Specter\\1 - Crosshair (1.5-6x)\\Center illuminated",
+      "2D Reticles - Realistic-ish-esque-like reticles\\2D F2000\\2 - Illuminated",
+      "2D Reticles - Realistic-ish-esque-like reticles\\2D G28\\6 - LRH",
+      "2D Reticles - Realistic-ish-esque-like reticles\\2D G36\\2 - Dot\\Illuminated",
+      "2D Reticles - Realistic-ish-esque-like reticles\\2D Gauss\\7 - Zeller-H (Clear-no red tint)",
+      "2D Reticles - Realistic-ish-esque-like reticles\\2D Howa\\4 - Vudu 6x",
+      "2D Reticles - Realistic-ish-esque-like reticles\\2D Karabiner 98\\1 - German #1",
+      "2D Reticles - Realistic-ish-esque-like reticles\\2D Leupold\\1 - Horseshoe with dot (CMR-W)",
+      "2D Reticles - Realistic-ish-esque-like reticles\\2D March\\8 - EBR-8",
+      "2D Reticles - Realistic-ish-esque-like reticles\\2D Mark 4\\1 - Classic",
+      "2D Reticles - Realistic-ish-esque-like reticles\\2D Mosin\\3 - German #4",
+      "2D Reticles - Realistic-ish-esque-like reticles\\2D NV Scopes\\Red",
+      "2D Reticles - Realistic-ish-esque-like reticles\\2D PSOs\\Without eyecup (for PSO-1M no eyecup model)\\1 - PSO-1 Reticle\\Center illuminated",
+      "2D Reticles - Realistic-ish-esque-like reticles\\2D Susat\\4 - Valdada IOR M-2",
+      "2D Reticles - Realistic-ish-esque-like reticles\\2D SV98\\2 - Center illuminated",
+      "2D Reticles - Realistic-ish-esque-like reticles\\2D Elcan Specter\\1 - Crosshair (1.5-6x)\\Center illuminated",
+      "2D Reticles - Realistic-ish-esque-like reticles\\2D Gauss\\7 - Zeller-H (Clear-no red tint)",
+      "2D Reticles - Realistic-ish-esque-like reticles\\2D Howa\\4 - Vudu 6x",
+      "2D Reticles - Realistic-ish-esque-like reticles\\2D Leupold\\1 - Horseshoe with dot (CMR-W)",
+      "2D Reticles - Realistic-ish-esque-like reticles\\2D March\\3 - Classic",
+      "2D Reticles - Realistic-ish-esque-like reticles\\2D Mark 4\\5 - M-TMR - Flipped",
+      "2D Reticles - Realistic-ish-esque-like reticles\\2D NV Scopes\\Red",
+      "2D Reticles - Realistic-ish-esque-like reticles\\2D PSOs\\Without eyecup (for PSO-1M no eyecup model)\\3 - ZFK Reticle\\Center illuminated",
+      "2D Reticles - Realistic-ish-esque-like reticles\\2D Susat\\3 - Valday style\\Illuminated"
+    ],
+    "patch": "Kuez",
+    "addonName": "BAS Scopes Extravaganza 2d scopes",
+    "modDbUrl": "https://www.moddb.com/addons/dots-and-reticles-extravaganza",
+    "zipName": "Dots_and_reticles_extravaganza_Mar_28.rar",
+    "md5ModDb": "bf2864e62cd9a113dd6005b501ff9519"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/224285",
+    "instructions": [
+      "2D Reticles - Patch for Shader Based 2D Scopes"
+    ],
+    "patch": "Kuez",
+    "addonName": "BAS scopes extravaganza 2D shader-based scopes patch",
+    "modDbUrl": "https://www.moddb.com/addons/dots-and-reticles-extravaganza",
+    "zipName": "Dots_and_reticles_extravaganza_Mar_28.rar",
+    "md5ModDb": "bf2864e62cd9a113dd6005b501ff9519"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/225029",
+    "instructions": [
+      "UMP Source File"
+    ],
+    "patch": "FIREBREATH",
+    "addonName": "UMP Reanimation",
+    "modDbUrl": "https://www.moddb.com/addons/ump-reanimation",
+    "zipName": "UMP_Source_File.4.7z",
+    "md5ModDb": "94d12d97c74f13ce16c64d727a24eea8"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/225738",
+    "instructions": [
+      "L96 Reanimation\\01 L96 Reanimation"
+    ],
+    "patch": "FIREBREATH",
+    "addonName": "L96 Reanimation",
+    "modDbUrl": "https://www.moddb.com/addons/l96-reanimation",
+    "zipName": "L96_Reanimation.2.7z",
+    "md5ModDb": "cf81b2e5be677dbcabae7e7ca2030f0b"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/225738",
+    "instructions": [
+      "L96 Reanimation\\Patch - JSRS"
+    ],
+    "patch": "FIREBREATH",
+    "addonName": "L96 Reanimation JSRS patch",
+    "modDbUrl": "https://www.moddb.com/addons/l96-reanimation",
+    "zipName": "L96_Reanimation.2.7z",
+    "md5ModDb": "cf81b2e5be677dbcabae7e7ca2030f0b"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/229763",
+    "instructions": [],
+    "patch": "Rex1534",
+    "addonName": "Re-sound for BAS snipers and pistols",
+    "modDbUrl": "https://www.moddb.com/addons/sound-rework-for-bas-weapons-dltx",
+    "zipName": "BaS_resound_addonV15.zip",
+    "md5ModDb": "1719903f7f3fb7d40b0c277744bf8ca2"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/215899",
+    "instructions": [
+      "Remove_(BaS)_Label"
+    ],
+    "patch": "Joheed",
+    "addonName": "Remove (BAS) label from guns names",
+    "modDbUrl": "https://www.moddb.com/addons/remove-bas-label-from-broomsticks-and-sharpsticks-weapons-engrus",
+    "zipName": "Remove_BaS_Labelv091022.zip",
+    "md5ModDb": "3633c9569ad5412155cf4a98dc469bf0"
+  },
+  {
+    "dlLink": "QoL",
+    "instructions": null,
+    "patch": null,
+    "addonName": null,
+    "modDbUrl": null,
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/208216",
+    "instructions": [
+      "Remove dropping weapons from damage"
+    ],
+    "patch": "Great_Day",
+    "addonName": "Remove dropping weapons from damage",
+    "modDbUrl": "https://www.moddb.com/addons/remove-dropping-weapons-from-damage-for-151-final",
+    "zipName": "Remove_dropping_weapons_from_damage_20210410.7z",
+    "md5ModDb": "bec619f15d2339e9c29fe885bc3a3e40"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/208560",
+    "instructions": [
+      "Anomaly-Mod-Configuration-Menu"
+    ],
+    "patch": "RavenAscendant",
+    "addonName": "MCM Mod Configuration Menu",
+    "modDbUrl": "https://www.moddb.com/addons/anomaly-mod-configuration-menu",
+    "zipName": "MCM_1.7.2fix.7z",
+    "md5ModDb": "6d7dc65940c5a71d54fb7e06b9756ea4"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/208762",
+    "instructions": [],
+    "patch": "RavenAscendant",
+    "addonName": "SortingPlus",
+    "modDbUrl": "https://www.moddb.com/addons/sorting-plus",
+    "zipName": "SortingPlus.34.7z",
+    "md5ModDb": "b1e3e37e7a2fb7888e7b80e89ad8aeea"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/210584",
+    "instructions": [
+      "Immersive_Sleep_v1.2.1\\Immersive Sleep v1.2.1"
+    ],
+    "patch": "tkcrits",
+    "addonName": "Immersive Sleep",
+    "modDbUrl": "https://www.moddb.com/addons/immersive-sleep",
+    "zipName": "Immersive_Sleep_v1.2.1.zip",
+    "md5ModDb": "89d05ad539e2a33ce0cef86e3b6f0225"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/222467",
+    "instructions": [],
+    "patch": "Feel_fried",
+    "addonName": "FDDA Immersive Sleep Patch",
+    "modDbUrl": "https://www.moddb.com/mods/stalker-anomaly/addons/groks-main-menu-theme-deathcard-cabin",
+    "zipName": "Groks_main_menu_theme.zip",
+    "md5ModDb": "0f4256c9545fbbeda475f82796274d98"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/204947",
+    "instructions": [
+      "Knife-Binoc-pistol"
+    ],
+    "patch": "RavenAscendant",
+    "addonName": "Knife Pistol in Binocular Slot",
+    "modDbUrl": "https://www.moddb.com/addons/knife-and-pistol-in-binoculars-slot",
+    "zipName": "Knife-Binoc-pistol.zip",
+    "md5ModDb": "ed3ac4c0141f13246b8c0cdc2d2a529c"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/212541",
+    "instructions": [
+      "Lowered cost (15\u002B30 patches)"
+    ],
+    "patch": "Starcry_",
+    "addonName": "Aslan Lottery Fixes",
+    "modDbUrl": "https://www.moddb.com/addons/aslans-lottery-changes-and-fixes-151",
+    "zipName": "StarcrysLotteryV1.1.2.3.7z",
+    "md5ModDb": "08bccfb62d9336bb8009ae017503145b"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/209086",
+    "instructions": [
+      "cozy"
+    ],
+    "patch": "arti",
+    "addonName": "Campfire slowly regens life",
+    "modDbUrl": "https://www.moddb.com/addons/cozy-campfires",
+    "zipName": "cozy.1.7z",
+    "md5ModDb": "3c3b7f79767d67b22f762c3f1c45202c"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/198499",
+    "instructions": [
+      "Dialogue Expanded v4"
+    ],
+    "patch": "indyora",
+    "addonName": "Dialogues Expanded",
+    "modDbUrl": "https://www.moddb.com/addons/dialogue-expanded-v4",
+    "zipName": "Dialogue_Expanded_v4.1.zip",
+    "md5ModDb": "41f040deb2c714f0eecb9c25b3bc2de5"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/213337",
+    "instructions": [],
+    "patch": "Grokitach",
+    "addonName": "Gotta Go Fast",
+    "modDbUrl": "https://www.moddb.com/addons/100-grok-gotta-go-fast",
+    "zipName": "1.0.1_Grok_Gotta_Go_Fast.zip",
+    "md5ModDb": "9e34815545faae72082106fa193f9752"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/226837",
+    "instructions": [
+      "Gotta Go Also Slow"
+    ],
+    "patch": "reter",
+    "addonName": "Gotta go Also Slow",
+    "modDbUrl": "https://www.moddb.com/addons/gotta-go-also-slow",
+    "zipName": "Gotta_Go_Also_Slow.rar",
+    "md5ModDb": "e5c7a8456a66b26792b371afde4b65e9"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/214025",
+    "instructions": [
+      "addons\\HD Glowsticks",
+      "addons\\HD Icons\\HD Glowsticks"
+    ],
+    "patch": "r3zy",
+    "addonName": "HD Glowsticks",
+    "modDbUrl": "https://www.moddb.com/addons/glowsticks",
+    "zipName": "Glowsticks69.7z",
+    "md5ModDb": "42b3afe41a42ad5b96eef91679a1fb36"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/224769",
+    "instructions": [
+      "Patch Glowstick\u002BEft reposition"
+    ],
+    "patch": "Kidzukami",
+    "addonName": "Glowsticks position",
+    "modDbUrl": "https://www.moddb.com/addons/patch-for-glowstickseft-weapon-reposition",
+    "zipName": "Patch_Glowstick_Eft_reposition_NEW.zip",
+    "md5ModDb": "33929a3262235f8c6878f2ac53d0b39b"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/204482",
+    "instructions": [],
+    "patch": "RavenAscendant",
+    "addonName": "He is with me",
+    "modDbUrl": "https://www.moddb.com/addons/he-is-with-me",
+    "zipName": "he_is_with_me.zip",
+    "md5ModDb": "55e27d60458a2f91c2fd20e2e7856338"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/218478",
+    "instructions": [
+      "Oni\u0027s Tales From the Zone"
+    ],
+    "patch": "Oni",
+    "addonName": "Zone Tales in Loading Screens",
+    "modDbUrl": "https://www.moddb.com/addons/onis-tales-from-the-zone",
+    "zipName": "Onis_tales_from_the_zone.2.7z",
+    "md5ModDb": "a13bc20baadb58078909dd17f0756973"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/210450",
+    "instructions": [
+      "Talk to Everyone",
+      "Suppressor Changes",
+      "More Surrenders \u002B Faster Execute",
+      "Longer NPC Loot Range",
+      "Less NPC Jamming",
+      "Higher Wound Percent",
+      "Companions dont blow Disguises",
+      "Remove Mutant AutoAim"
+    ],
+    "patch": "Vintar0",
+    "addonName": "Modular Tweaks",
+    "modDbUrl": "https://www.moddb.com/addons/modular-miscellaneous-tweaks",
+    "zipName": "ModularMiscellaneousTweaks.7z",
+    "md5ModDb": "d3723ed979a37e177376358a75424d53"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/218608",
+    "instructions": [
+      "BoltBeGone",
+      "BoltManager",
+      "CharacterNameSaves",
+      "CrashesToRiches\\scripts",
+      "FastTransfer",
+      "GeigerHush",
+      "LogFixDefaultControls",
+      "NoInventoryCloseDisassembly",
+      "ReadWatch",
+      "SkinningWithSpace",
+      "StatsDisplay",
+      "TotalWeights",
+      "UnloadAll"
+    ],
+    "patch": "Ishmaeel",
+    "addonName": "Nitpickers Modpack",
+    "modDbUrl": "https://www.moddb.com/addons/nitpickermodpack",
+    "zipName": "NitpickerModpack.2024.10.13.zip",
+    "md5ModDb": "b317243f714f881dea4e79394a9a6105"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/216293",
+    "instructions": [],
+    "patch": "Tweaki_Breeki",
+    "addonName": "New Safe Zones",
+    "modDbUrl": "https://www.moddb.com/addons/tb-coordinate-based-safe-zones-v1-0",
+    "zipName": "TB_Coordinate_Based_Safe_Zones_v1.5.zip",
+    "md5ModDb": "4f463ae62171c7a05fad5c0c23b14245"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/214285",
+    "instructions": [],
+    "patch": "Tweaki_Breeki",
+    "addonName": "Companions no headlamps in Stealth",
+    "modDbUrl": "https://www.moddb.com/addons/tbs-companions-deactivate-headlamps-when-in-stealth",
+    "zipName": "TBs_companions_deactivate_headlamps_when_in_stealth_v1.0.zip",
+    "md5ModDb": "0e9c5804430da4f972ea894c3f99f015"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/213901",
+    "instructions": [],
+    "patch": "Ishmaeel",
+    "addonName": "Toggle Scope",
+    "modDbUrl": "https://www.moddb.com/addons/togglescope",
+    "zipName": "ToggleScope.2022.08.19.zip",
+    "md5ModDb": "cb6c6cfa29f481bfc10f9980769426a6"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/221872",
+    "instructions": [],
+    "patch": "RavenAscendant",
+    "addonName": "Guide Tasks Fix",
+    "modDbUrl": "https://www.moddb.com/addons/guide-task-fix",
+    "zipName": "Guide_Task_fix.3.zip",
+    "md5ModDb": "5f030ca584dcec4e67fb0f5ddc4686e2"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/200007",
+    "instructions": [
+      "OPT2. No Masks Only Reflections and Droplets"
+    ],
+    "patch": "Grokitach",
+    "addonName": "Mask Reflections - shader fix",
+    "modDbUrl": "https://www.moddb.com/addons/groks-4k-and-reflections-for-navs-mask-v12",
+    "zipName": "2.1.0_Groks_Masks_and_Reflections.zip",
+    "md5ModDb": "228cdedc2c5ddc717219a655b6d790f8"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/219961",
+    "instructions": [],
+    "patch": "Blindside",
+    "addonName": "Decreased Bush Earing distance for NPC",
+    "modDbUrl": "https://www.moddb.com/addons/decreased-bush-hearing-distance",
+    "zipName": "Decreased_Bush_Hearing_Distance.zip",
+    "md5ModDb": "e97f70db304daa790f9748a0531e422f"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/185349",
+    "instructions": [],
+    "patch": "ToothlessShark",
+    "addonName": "Life granter Counter",
+    "modDbUrl": "https://www.moddb.com/addons/lifegranter-counter",
+    "zipName": "lifegranter_counter.1.1.zip",
+    "md5ModDb": "7d8e970bac2c9acd9db0c1eb688b18da"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/219766",
+    "instructions": [
+      "Companion_Anti_Awol_v1.0.1"
+    ],
+    "patch": "Skieppy",
+    "addonName": "Companion anti awol",
+    "modDbUrl": "https://www.moddb.com/addons/companion-anti-awol-for-anomaly-151",
+    "zipName": "Companion_Anti_Awol_v1.0.1.zip",
+    "md5ModDb": "7311abaddc3283f3021b3c40ff9e4098"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/208741",
+    "instructions": [],
+    "patch": "RavenAscendant",
+    "addonName": "No more companions friendly fire",
+    "modDbUrl": "https://www.moddb.com/addons/nomorecompanionfriendlyfire",
+    "zipName": "nomorecompanionfriendlyfireu.zip",
+    "md5ModDb": "153b7faa1a794e1afc4ed012eafc3d52"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/227328",
+    "instructions": [
+      "Weapons Drop on Bodies"
+    ],
+    "patch": "Jabbers",
+    "addonName": "Weapons Drop on bodies",
+    "modDbUrl": "https://www.moddb.com/addons/jabbers-weapons-drop-on-bodies",
+    "zipName": "Weapons_Drop_on_Bodies.zip",
+    "md5ModDb": "fa331b70aab297d1d3ef44eb08aa19b6"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/230193",
+    "instructions": [],
+    "patch": "Banjaji",
+    "addonName": "Undercover Communications",
+    "modDbUrl": "https://www.moddb.com/addons/151-banjajis-undercover-communications",
+    "zipName": "1.5.1_Banjajis_Undercover_communications_v1.1.2.rar",
+    "md5ModDb": "669a7069f7f517366419a2147a3b65ed"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/228924",
+    "instructions": [
+      "PDA To Previous Weapon"
+    ],
+    "patch": "Demonized",
+    "addonName": "Previous weapon is automatically pulled after closing PDA",
+    "modDbUrl": "https://www.moddb.com/addons/pda-to-previous-weapon",
+    "zipName": "PDA_To_Previous_Weapon.3.zip",
+    "md5ModDb": "8caa2014750a64b09b6344e266393f1e"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/230167",
+    "instructions": [
+      "Auto-Zoomed Out Scope Draw"
+    ],
+    "patch": "Demonized",
+    "addonName": "Auto-Zoomed Out Scope Draw",
+    "modDbUrl": "https://www.moddb.com/addons/auto-zoomed-out-scope-aim-draw",
+    "zipName": "Auto-Zoomed_Out_Scope_Draw.4.zip",
+    "md5ModDb": "4c7a2bc9f99d77eb8fe6fecd4a1d79ec"
+  },
+  {
+    "dlLink": "Craft and Repair",
+    "instructions": null,
+    "patch": null,
+    "addonName": null,
+    "modDbUrl": null,
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/200532",
+    "instructions": [
+      "[1.2.0] Grok\u0027s Craft and Repair Overhaul\\Grok\u0027s Craft and Repair Overhaul - Modular\\GCRO - No recipes",
+      "[1.2.0] Grok\u0027s Craft and Repair Overhaul\\Grok\u0027s Craft and Repair Overhaul - Modular\\GCRO - Toolkits usable as workbench by 1917 and Michiko"
+    ],
+    "patch": "Grokitach",
+    "addonName": "Craft and Repair Overhaul",
+    "modDbUrl": "https://www.moddb.com/addons/groks-craft-and-repair-overhaul",
+    "zipName": "1.2.0_Groks_Craft_and_Repair_Overhaul.zip",
+    "md5ModDb": "013503f8dc9ee9226c228aaa5245b33d"
+  },
+  {
+    "dlLink": "https://github.com/ahuyn/anomaly-wpo/archive/4397a27511e8119dd947efa22c024d0d79a88764.zip",
+    "instructions": [
+      "anomaly-wpo-4397a27511e8119dd947efa22c024d0d79a88764",
+      "anomaly-wpo-4397a27511e8119dd947efa22c024d0d79a88764\\unjam keybind"
+    ],
+    "patch": "arti",
+    "addonName": "Weapon Parts Overhaul",
+    "modDbUrl": null,
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/211552",
+    "instructions": [
+      "v2.6Crafting_With_MultiUse_Items_Fix"
+    ],
+    "patch": "thisisntmysteamid",
+    "addonName": "Fixed Crafting with Multi-Use Items",
+    "modDbUrl": "https://www.moddb.com/addons/fixed-crafting-with-multi-use-items",
+    "zipName": "v2.6Crafting_With_MultiUse_Items_Fix.zip",
+    "md5ModDb": "c79cc654fec5971f927ee7f0739b3612"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/211552",
+    "instructions": [
+      "v2.5Crafting_With_MultiUse_Items_Fix \u002B Patches\\Main \u002B Weapon Parts Overhaul Patch"
+    ],
+    "patch": "thisisntmysteamid",
+    "addonName": "Fixed Crafting with Multi-Use Items WPO patch",
+    "modDbUrl": "https://www.moddb.com/addons/fixed-crafting-with-multi-use-items",
+    "zipName": "v2.6Crafting_With_MultiUse_Items_Fix.zip",
+    "md5ModDb": "c79cc654fec5971f927ee7f0739b3612"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/218205",
+    "instructions": [
+      "Keep Crafting Window Open"
+    ],
+    "patch": "Demonized",
+    "addonName": "Keep Crafting Window Opened",
+    "modDbUrl": "https://www.moddb.com/addons/keep-crafting-window-opened",
+    "zipName": "Keep_Crafting_Window_Open.13.zip",
+    "md5ModDb": "e46edc8cd5eec1b09161740ec7b3f08f"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/219778",
+    "instructions": [
+      "Prefer Best Disassembly Tool"
+    ],
+    "patch": "Demonized",
+    "addonName": "Prefer Best Disassembly Tool",
+    "modDbUrl": "https://www.moddb.com/addons/prefer-best-disassembly-tool",
+    "zipName": "Prefer_Best_Disassembly_Tool.zip",
+    "md5ModDb": "b964245f40931bdbfe208fc555147aa5"
+  },
+  {
+    "dlLink": "https://github.com/ahuyn/anomaly-compilation/archive/refs/tags/latest.zip",
+    "instructions": [
+      "anomaly-compilation-latest\\ammo maker",
+      "anomaly-compilation-latest\\ammo maker\\no recipes mode"
+    ],
+    "patch": "arti",
+    "addonName": "Ammo Maker",
+    "modDbUrl": null,
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://github.com/ahuyn/anomaly-compilation/archive/refs/tags/latest.zip",
+    "instructions": [
+      "anomaly-compilation-latest\\ammo maker\\bas_ammo"
+    ],
+    "patch": "arti",
+    "addonName": "Ammo Maker BAS Patch",
+    "modDbUrl": null,
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://github.com/ahuyn/anomaly-compilation/archive/refs/tags/latest.zip",
+    "instructions": [
+      "anomaly-compilation-latest\\streamlined_upgrades"
+    ],
+    "patch": "arti",
+    "addonName": "Streamlined Upgrades",
+    "modDbUrl": null,
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://github.com/ahuyn/anomaly-compilation/archive/refs/tags/latest.zip",
+    "instructions": [
+      "anomaly-compilation-latest\\dropit"
+    ],
+    "patch": "arti",
+    "addonName": "Outfit Drop Chance",
+    "modDbUrl": null,
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/217120",
+    "instructions": [],
+    "patch": "KronQ",
+    "addonName": "Upgrades pricing overhaul",
+    "modDbUrl": "https://www.moddb.com/addons/smoother-progression",
+    "zipName": "Smoother_Progression_1.2.1.zip",
+    "md5ModDb": "47d0433ab73a2a979ad971b1416b47b2"
+  },
+  {
+    "dlLink": "Progression",
+    "instructions": null,
+    "patch": null,
+    "addonName": null,
+    "modDbUrl": null,
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/209324",
+    "instructions": [],
+    "patch": "siXMan",
+    "addonName": "Cordon Early Game Tweak",
+    "modDbUrl": "https://www.moddb.com/addons/cordon-early-game-tweaks-easier-fanatic-training-151",
+    "zipName": "firstday_cordon.rar",
+    "md5ModDb": "67119f0845638e45b4f8ffb7bdc3d1c0"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/218259",
+    "instructions": [],
+    "patch": "dph",
+    "addonName": "Configurable loot condition",
+    "modDbUrl": "https://www.moddb.com/addons/mcm-configurable-loot-condition",
+    "zipName": "dph_configurable_loot_condition_1.2.zip",
+    "md5ModDb": "b2f8d97a9fb24740d17b61d357ec3955"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/210663",
+    "instructions": [
+      "dyn tasks"
+    ],
+    "patch": "xcvb",
+    "addonName": "More Dynamic Tasks",
+    "modDbUrl": "https://www.moddb.com/addons/more-dynamic-tasks",
+    "zipName": "More_dynamic_tasks_0.2.zip",
+    "md5ModDb": "394def497fdca15d4e82b3c55634a413"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/215032",
+    "instructions": [],
+    "patch": "Tweaki_Breeki",
+    "addonName": "RF Receiver Tasks",
+    "modDbUrl": "https://www.moddb.com/addons/tbs-rf-receiver-hidden-package-sidequests",
+    "zipName": "TBs_RF_Receiver_Hidden_Package_Sidequests_v1.8.zip",
+    "md5ModDb": "0998d5c157cea7f081b5c551b0470c2b"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/212447",
+    "instructions": [
+      "UNISG Hollow Boundaries Fixes"
+    ],
+    "patch": "Qball",
+    "addonName": "UNISG Trader Fix",
+    "modDbUrl": "https://www.moddb.com/addons/unisg-hollow-boundaries-fixes-v110",
+    "zipName": "UNISG_Hollow_Boundaries_Fixes_v130.7z",
+    "md5ModDb": "b063ba54aae053fe88b2db499c383fa7"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/212930",
+    "instructions": [
+      "01. Grok\u0027s No Exos in the South"
+    ],
+    "patch": "Grokitach",
+    "addonName": "No Exos in the South",
+    "modDbUrl": "https://www.moddb.com/addons/100-groks-no-exos-in-the-south",
+    "zipName": "1.2.0_Groks_No_Exo_in_the_South.zip",
+    "md5ModDb": "3503cebbc43beecc21843efda0abfb04"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/223014",
+    "instructions": [],
+    "patch": "Indescript",
+    "addonName": "Fixed Player Thermal Res",
+    "modDbUrl": "https://www.moddb.com/addons/fixed-player-thermal-resistance",
+    "zipName": "player_thermal_res.zip",
+    "md5ModDb": "f1bb5d76d7fbb7694f0aa103e5b836a3"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/226308",
+    "instructions": [
+      "ABF\\ABF\\ABF ) ARX - Module 2 - Anomalies \u002B Actor \u002B Poltergeist",
+      "ABF\\ABF\\ABF ARX -- Tweaks\\3. Poltergeist harder",
+      "ABF\\ABF\\ABF ARX -- Compatibility\\Soundscape Burer Compatibility"
+    ],
+    "patch": "Jurkonov",
+    "addonName": "ABF",
+    "modDbUrl": "https://www.moddb.com/addons/arx-module2-abf-anomalous-balance-fix",
+    "zipName": "ABF_Classic.1.zip",
+    "md5ModDb": "e0dbeaa113c48385d3dbc8da4d864d45"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/227214",
+    "instructions": [
+      "Extra Level Transitions"
+    ],
+    "patch": "Demonized",
+    "addonName": "Extra level transitions",
+    "modDbUrl": "https://www.moddb.com/addons/extra-cordon-darkscape-transition",
+    "zipName": "Extra_Level_Transitions.4.zip",
+    "md5ModDb": "3818bcfe4a9ec2a8b3386dba78929be6"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/226592",
+    "instructions": [
+      "bar_duty_order"
+    ],
+    "patch": "GhenTuong",
+    "addonName": "Military not attacked by duty at Rostok",
+    "modDbUrl": "https://www.moddb.com/addons/rostok-under-duty-control",
+    "zipName": "bar_duty_order.zip",
+    "md5ModDb": "63cedce2535d2ffdb3a172d685601cf3"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/217840",
+    "instructions": [
+      "Improved Ranks Revisited"
+    ],
+    "patch": "mandothreesixtee",
+    "addonName": "Improved player and NPCs ranks (longer for player, faster for companions)",
+    "modDbUrl": "https://www.moddb.com/addons/improved-ranks-revisited",
+    "zipName": "Improved_Ranks_Revisited_v1.0.7z",
+    "md5ModDb": "f8d7e9eb89a6537ff07de03fe67cbb91"
+  },
+  {
+    "dlLink": "UI",
+    "instructions": null,
+    "patch": null,
+    "addonName": null,
+    "modDbUrl": null,
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/223408",
+    "instructions": [
+      "00. Crook\u0027s Faction Identification UI",
+      "OPT01. Small Patches Display",
+      "OPT02. Grok\u0027s Body Health System patch"
+    ],
+    "patch": "CrookR",
+    "addonName": "Identification UI",
+    "modDbUrl": "https://www.moddb.com/addons/crooks-faction-identification-ui",
+    "zipName": "1.2.2_Crooks_Faction_Identification_UI.zip",
+    "md5ModDb": "4269077fc3021646179af3fbb080b28c"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/214124",
+    "instructions": [
+      "00. UI Main"
+    ],
+    "patch": "xcvb",
+    "addonName": "Hunger Thirst Sleep UI",
+    "modDbUrl": "https://www.moddb.com/addons/hunger-thirst-sleepiness-bars",
+    "zipName": "HTS_bars_1.01.zip",
+    "md5ModDb": "616af8b3f62d09212fae160393a85440"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/214124",
+    "instructions": [
+      "00. UI Main"
+    ],
+    "patch": "xcvb",
+    "addonName": "Hunger Thirst Sleep UI htsb knifebinoc patches",
+    "modDbUrl": "https://www.moddb.com/addons/hunger-thirst-sleepiness-bars",
+    "zipName": "HTS_bars_1.01.zip",
+    "md5ModDb": "616af8b3f62d09212fae160393a85440"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/202886",
+    "instructions": [
+      "Bart\u0027s_New_Sorting_Tabs_1.5.1_V1.7"
+    ],
+    "patch": "Bartoche",
+    "addonName": "New sorting tabs",
+    "modDbUrl": "https://www.moddb.com/addons/barts-new-sorting-tabs-v14-for-rc18-only",
+    "zipName": "Barts_New_Sorting_Tabs_1.5.1_V1.7.8.zip",
+    "md5ModDb": "b5c7211a8f6a187dde764ef45a14d345"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/202886",
+    "instructions": [
+      "Bart\u0027s_New_Sorting_Tabs_1.5.1_V1.7\\Compatibility Patches\\CP BNST Hunger, thirst, sleepiness bars"
+    ],
+    "patch": "Bartoche",
+    "addonName": "New sorting tabs htsb patch",
+    "modDbUrl": "https://www.moddb.com/addons/barts-new-sorting-tabs-v14-for-rc18-only",
+    "zipName": "Barts_New_Sorting_Tabs_1.5.1_V1.7.8.zip",
+    "md5ModDb": "b5c7211a8f6a187dde764ef45a14d345"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/207784",
+    "instructions": [
+      "00 AltIcons Version Two [Black\u0026White]"
+    ],
+    "patch": "Strogglet15",
+    "addonName": "Alternative icons",
+    "modDbUrl": "https://www.moddb.com/addons/alticons",
+    "zipName": "AltIcons.7.7z",
+    "md5ModDb": "1cb6b7d8edcda5ba9b6b842317c7b0d2"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/203252",
+    "instructions": [],
+    "patch": "RavenAscendant",
+    "addonName": "Body Dots on Minimap",
+    "modDbUrl": "https://www.moddb.com/addons/bodydotsminimap-white-dots-but-blue",
+    "zipName": "BodyDotsMiniMap.1.zip",
+    "md5ModDb": "50132703f613aae87711d0921d5ec2ab"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/202773",
+    "instructions": [
+      "New_mutant_icon_parts_v2.0"
+    ],
+    "patch": "TDLemon",
+    "addonName": "New mutants icons parts",
+    "modDbUrl": "https://www.moddb.com/addons/new-mutant-icon-parts-meat-151",
+    "zipName": "New_mutant_icon_parts_v2.0.1.zip",
+    "md5ModDb": "19957ac791b29bfc3a1bbd3f98d0a9bc"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/204499",
+    "instructions": [
+      "Instant_tooltip"
+    ],
+    "patch": "RavenAscendant",
+    "addonName": "Instant tooltip",
+    "modDbUrl": "https://www.moddb.com/addons/instant-tooltip-for-rc18-23",
+    "zipName": "Instant_tooltip.3.zip",
+    "md5ModDb": "c7f60c719b147c2d0f8a82dfb04f6ebc"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/204107",
+    "instructions": [
+      "Cost in Tool tip"
+    ],
+    "patch": "RavenAscendant",
+    "addonName": "Cost in tooltip",
+    "modDbUrl": "https://www.moddb.com/addons/cost-in-tool-tip-u4h8-and-rc18-23",
+    "zipName": "Cost_in_Tool_tip.2.zip",
+    "md5ModDb": "b36385cd9bb095332d5c799a137eee53"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/229617",
+    "instructions": [
+      "Parts In Tooltip"
+    ],
+    "patch": "Demonized",
+    "addonName": "Parts in tooltip",
+    "modDbUrl": "https://www.moddb.com/addons/parts-in-tooltip",
+    "zipName": "Parts_In_Tooltip.5.zip",
+    "md5ModDb": "9e4478317fe4cdf79bd41fd4d0df86a4"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/207495",
+    "instructions": [
+      "00 Custom saves only",
+      "01 Charecter name saves only"
+    ],
+    "patch": "RavenAscendant",
+    "addonName": "Save Name Change",
+    "modDbUrl": "https://www.moddb.com/addons/savegamename",
+    "zipName": "SaveGameName.2.rar",
+    "md5ModDb": "242a9f382feb2daad88dad4de967c347"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/203831",
+    "instructions": [],
+    "patch": "RavenAscendant",
+    "addonName": "Battery Warning",
+    "modDbUrl": "https://www.moddb.com/addons/batterywarning",
+    "zipName": "BatteryWarning.zip",
+    "md5ModDb": "bbdeec50e15320cc85f67e085baef8bb"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/203787",
+    "instructions": [],
+    "patch": "RavenAscendant",
+    "addonName": "Encyclopedia Messages Restored",
+    "modDbUrl": "https://www.moddb.com/addons/encyclopedia-messages-restored",
+    "zipName": "Encyclopedia_messages_restored.2.zip",
+    "md5ModDb": "f6993fa14f7bfac955b67eb46d6e8969"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/212938",
+    "instructions": [],
+    "patch": "RavenAscendant",
+    "addonName": "Minimap Toggle",
+    "modDbUrl": "https://www.moddb.com/addons/minimaptoggle",
+    "zipName": "Mini_Map_toggle.7z",
+    "md5ModDb": "f733c4b951ecdc6fe6b0326d66a95826"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/222680",
+    "instructions": [
+      "Free_Zoom"
+    ],
+    "patch": "SlowVibe",
+    "addonName": "Free Zoom",
+    "modDbUrl": "https://www.moddb.com/addons/free-zoom",
+    "zipName": "Free_Zoom.7z",
+    "md5ModDb": "e83432f04453c5b81013bf414e45b512"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/228485",
+    "instructions": [
+      "Better Stats Bars"
+    ],
+    "patch": "Demonized",
+    "addonName": "Better Stats Bar",
+    "modDbUrl": "https://www.moddb.com/addons/better-stats-bars",
+    "zipName": "Better_Stats_Bars.9.zip",
+    "md5ModDb": "736f3694f9dba42e117f0ecad0c9ac79"
+  },
+  {
+    "dlLink": "High Priority",
+    "instructions": null,
+    "patch": null,
+    "addonName": null,
+    "modDbUrl": null,
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/209945",
+    "instructions": [
+      "00. Grok\u0027s Ballistics Overhaul"
+    ],
+    "patch": "Grokitach",
+    "addonName": "Ballistics Overhaul (GBOOBS)",
+    "modDbUrl": "https://www.moddb.com/addons/100-groks-ballistics-overhaul-eft-like",
+    "zipName": "1.7.1_Groks_Balanced_Overhaul_Of_Ballistics_System.7z",
+    "md5ModDb": "fa124daf59f44e1fe8f2577553935bff"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/209945",
+    "instructions": [
+      "GBOOBS Vanilla Ammo Icons Patch"
+    ],
+    "patch": "Grokitach",
+    "addonName": "GBOOBS vanilla ammo",
+    "modDbUrl": "https://www.moddb.com/addons/100-groks-ballistics-overhaul-eft-like",
+    "zipName": "1.7.1_Groks_Balanced_Overhaul_Of_Ballistics_System.7z",
+    "md5ModDb": "fa124daf59f44e1fe8f2577553935bff"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/209945",
+    "instructions": [
+      "GBOOBS Blindside\u0027s Animation Patch"
+    ],
+    "patch": "Grokitach",
+    "addonName": "GBOOBS BWRR patch",
+    "modDbUrl": "https://www.moddb.com/addons/100-groks-ballistics-overhaul-eft-like",
+    "zipName": "1.7.1_Groks_Balanced_Overhaul_Of_Ballistics_System.7z",
+    "md5ModDb": "fa124daf59f44e1fe8f2577553935bff"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/210529",
+    "instructions": [
+      "00. Grok\u0027s Body Health System Redux",
+      "OPT 00. EFT Skin"
+    ],
+    "patch": "Grokitach",
+    "addonName": "Body Health System",
+    "modDbUrl": "https://www.moddb.com/addons/100-groks-body-health-system-redux-for-151",
+    "zipName": "2.0.2_Groks_Body_Health_System_Redux.zip",
+    "md5ModDb": "db629d774906f925b9824d7a8b65552a"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/219923",
+    "instructions": [
+      "ShaderDrivenScopes - DLTX"
+    ],
+    "patch": "CrookR",
+    "addonName": "Shader Driven Scopes",
+    "modDbUrl": "https://www.moddb.com/addons/shader-based-2d-scopes-151dx11engine-mod",
+    "zipName": "ShaderDrivenScopesV1.3.zip",
+    "md5ModDb": "6506b78b9ec0e0c129110c68a3c09092"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/219923",
+    "instructions": [
+      "ShaderDrivenScopes - BaS Patch"
+    ],
+    "patch": "CrookR",
+    "addonName": "Shader Driven Scopes BAS patch",
+    "modDbUrl": "https://www.moddb.com/addons/shader-based-2d-scopes-151dx11engine-mod",
+    "zipName": "ShaderDrivenScopesV1.3.zip",
+    "md5ModDb": "6506b78b9ec0e0c129110c68a3c09092"
+  },
+  {
+    "dlLink": "Shaders",
+    "instructions": null,
+    "patch": null,
+    "addonName": null,
+    "modDbUrl": null,
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/208873",
+    "instructions": [
+      "01 Enhanced Shaders - PBR",
+      "Optional - shader_param controls - simple",
+      "Optional - shader_param controls - simple\\appdata",
+      "Optional - Fixed Bloom"
+    ],
+    "patch": "KennShade",
+    "addonName": "Enhanced Shaders",
+    "modDbUrl": "https://www.moddb.com/addons/enhanced-shaders-and-color-grading-for-151",
+    "zipName": "Enhanced_Shaders_Color_Grading_1.10.zip",
+    "md5ModDb": "2a9eae523b89ef70cc1522cda4cf3f30"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/223134",
+    "instructions": [
+      "Beef\u0027s NVGs"
+    ],
+    "patch": "theRealBeef",
+    "addonName": "Beef\u0027s NVG",
+    "modDbUrl": "https://www.moddb.com/addons/beefs-shader-based-nvgs-v10",
+    "zipName": "Beefs_NVGs.1.zip",
+    "md5ModDb": "4d6a11b2aef180b990452053144b9b2e"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/228793",
+    "instructions": [
+      "00 - MAIN FILE",
+      "00 - MAIN FILE (MV)",
+      "00 - PATCH - [ Beefs NVGs ]",
+      "00 - PATCH - [ Enhanced Shaders 1.10 ]",
+      "01 - AO",
+      "02 - SSS",
+      "03 - SSR",
+      "04 - SSR Water",
+      "05 - Rain",
+      "05 - Rain - Footsteps",
+      "05 - Rain - HUD Raindrops",
+      "05 - Rain - Puddles",
+      "06 - Weapons DOF",
+      "07 - Indirect Light",
+      "08 - New Shadow \u0026 Light Features",
+      "09 - Interactive Grass",
+      "10 - Wind",
+      "11 - Terrain Upgrade",
+      "50 - PostProcess - LUT",
+      "51 - PostProcess - BLOOM",
+      "52 - PostProcess - Motion Blur",
+      "53 - PostProcess - TAA",
+      "90 - SKY DEBANDING",
+      "91 - FLORA FIXES \u0026 IMPROVEMENTS",
+      "92 - FOG",
+      "93 - BLOOD DECALS",
+      "94 - IMPROVED GLOSS \u0026 WET SURFACES - [ ES Required ]",
+      "95 - PARALLAX",
+      "96 - GLASS",
+      "990 - ( EXTRA ) Soft Pulse",
+      "991 - ( EXTRA ) Laser [ BAS ]"
+    ],
+    "patch": "Ascii1457",
+    "addonName": "Screen Space Shaders 23",
+    "modDbUrl": "https://www.moddb.com/addons/screen-space-shaders",
+    "zipName": "ScreenSpaceShaders_Update23_5.zip",
+    "md5ModDb": "fc481c577b5dcbdffae1cbe85373f5a8"
+  },
+  {
+    "dlLink": "Icons",
+    "instructions": null,
+    "patch": null,
+    "addonName": null,
+    "modDbUrl": null,
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/209836",
+    "instructions": [
+      "CR3PIS_ICONS\\MAIN\\1A_VANILLA_MODELS",
+      "CR3PIS_ICONS\\OPTIONALS\\6_HELMETLESS_OUTFITS_ICONS"
+    ],
+    "patch": "Cr3pis",
+    "addonName": "Cr3pis Iconpack Helmet Less Armors",
+    "modDbUrl": "https://www.moddb.com/addons/cr3pis-icon-pack",
+    "zipName": "CREPIS_ICONS_3_0_4.zip",
+    "md5ModDb": "fac81c8a596a29046df4aa8df3b75ae3"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/223090",
+    "instructions": [],
+    "patch": "Maids",
+    "addonName": "Maids HD Icons (right click and reinstall if you want to use it)",
+    "modDbUrl": "https://www.moddb.com/addons/maids-vanilla-hd-icons",
+    "zipName": "Maids_Vanilla_HD_Icons_4-31.7z",
+    "md5ModDb": "3c747d31ac3b8829b57044aa3a628a0b"
+  },
+  {
+    "dlLink": "DLTX",
+    "instructions": null,
+    "patch": null,
+    "addonName": null,
+    "modDbUrl": null,
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/224866",
+    "instructions": [],
+    "patch": "Ni7L5T",
+    "addonName": "Better blood decals",
+    "modDbUrl": "https://www.moddb.com/addons/bullethole-decals",
+    "zipName": "DLTX_bullethole_impact.zip",
+    "md5ModDb": "cd99643c1f87668efdc3ce668d4a79b2"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/219570",
+    "instructions": [
+      "Bigger Surrender Chance_DLTX",
+      "Drugs Increased Weight Boost_DLTX",
+      "Helmet_Parts_BaS_DLTX",
+      "Less Weight Parts_DLTX",
+      "Loot Crows_DLTX",
+      "More drops from drugs_DLTX",
+      "Rats_are_not_enemies_DLTX",
+      "The_G36_Pack NPC Files_DLTX",
+      "Toolkit Remap_DLTX",
+      "RE-SOUND BLINDSIDE ANIMS BY YUNGPR1NCE_DLTX",
+      "RE-SOUND BLINDSIDE ANIMS BY YUNGPR1NCE_DLTX_Patch_BaS",
+      "More Agile Mutants_DLTX"
+    ],
+    "patch": "Demonized",
+    "addonName": "DLTX Minimodpack",
+    "modDbUrl": "https://www.moddb.com/addons/dltx-required-dltx-minimod-pack",
+    "zipName": "DLTX_MiniMod_Pack.57.zip",
+    "md5ModDb": "bd91dd3dff39f35f178bf43aa22a983d"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/219570",
+    "instructions": [
+      "STORYLINES_DLTX"
+    ],
+    "patch": "Demonized",
+    "addonName": "New Storylines (DLTX minimodpack)",
+    "modDbUrl": "https://www.moddb.com/addons/dltx-required-dltx-minimod-pack",
+    "zipName": "DLTX_MiniMod_Pack.57.zip",
+    "md5ModDb": "bd91dd3dff39f35f178bf43aa22a983d"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/221876",
+    "instructions": [
+      "MotZ dialogue unlocker"
+    ],
+    "patch": "Hisalute",
+    "addonName": "Mystery of the Zone new quest",
+    "modDbUrl": "https://www.moddb.com/addons/mysteries-of-the-zone-dialogue-unlocker",
+    "zipName": "MotZ_dialogue_unlocker.7z",
+    "md5ModDb": "95f4fa8502b3a22b056334a8253b97c0"
+  },
+  {
+    "dlLink": "Minimap (pick one)",
+    "instructions": null,
+    "patch": null,
+    "addonName": null,
+    "modDbUrl": null,
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/228913",
+    "instructions": [
+      "Raven800CompassMod2.0.2\\Raven800CompassMod\\BASE",
+      "Raven800CompassMod2.0.2\\Raven800CompassMod\\OPTIONS\\COLORS AND STYLES\\ENHANCED\\ALTERNATIVE\\NATO\\Default",
+      "Raven800CompassMod2.0.2\\Raven800CompassMod\\OPTIONS\\POSITIONS AND SIZES\\CENTERED\\100"
+    ],
+    "patch": "Raven800",
+    "addonName": "Compass instead of minimap (more immersive)",
+    "modDbUrl": "https://www.moddb.com/addons/raven800scompassoverlay",
+    "zipName": "Raven800CompassMod2.0.2.rar",
+    "md5ModDb": "d545ec224d494d23883b0d9a10d9aa05"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/212823",
+    "instructions": [
+      "00 SQUAREDOV MAIN FILE [INSTALL FIRST ALWAYS]",
+      "02-X Disable Detection Bars",
+      "04 Player [ARROW] [WHITE]"
+    ],
+    "patch": "RavenAscendant",
+    "addonName": "SquareDOV (square minimap)",
+    "modDbUrl": "https://www.moddb.com/addons/squaredov",
+    "zipName": "SquareDOV.8.zip",
+    "md5ModDb": "3e96d3033f5524a17c5b40bdd9e1d73e"
+  },
+  {
+    "dlLink": "Optional",
+    "instructions": null,
+    "patch": null,
+    "addonName": null,
+    "modDbUrl": null,
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/217279",
+    "instructions": [],
+    "patch": "Ishmaeel",
+    "addonName": "YACS Better Campfire Saves (forces campfire saves but they are better)",
+    "modDbUrl": "https://www.moddb.com/addons/yetanothercampfiresaving",
+    "zipName": "YetAnotherCampfireSaving.2022.12.04.zip",
+    "md5ModDb": "ed3a3c4d45d1ba41e66770554d266b87"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/224948",
+    "instructions": [
+      "Limited Fast Travel"
+    ],
+    "patch": "Demonized",
+    "addonName": "Limited Fast Travel (walking is good for your health)",
+    "modDbUrl": "https://www.moddb.com/addons/limited-and-paid-fast-travel",
+    "zipName": "Limited_Fast_Travel.1.zip",
+    "md5ModDb": "2b967fd3b14146af3b4ba5b6a2960cdd"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/212310",
+    "instructions": [
+      "experimental_ old and new ammo merge"
+    ],
+    "patch": "Great_Day",
+    "addonName": "Old to ammo to new ammo converter (less item bloat)",
+    "modDbUrl": "https://www.moddb.com/addons/old-ammo-soft-removal-old-becomes-normal-ammo",
+    "zipName": "turn_old_ammo_into_new_1.0_for_Anomaly_1.5.1_Final.7z",
+    "md5ModDb": "83bd8f88a4def05c1449efdcf3ae975b"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/206604",
+    "instructions": [
+      "TBLWC\\RC 18 - release 1.5.1 - combat ignore"
+    ],
+    "patch": "Tom_Sharikov",
+    "addonName": "Areas transition without confirmation (smoother gameflow)",
+    "modDbUrl": "https://www.moddb.com/addons/transition-between-locations-without-confirmation",
+    "zipName": "TBLWC_-_1.2.zip",
+    "md5ModDb": "fef23566ea99a84aa6cb4b13e6e8e036"
+  },
+  {
+    "dlLink": "https://github.com/RAX-Anomaly/MagsRedux/archive/refs/heads/main.zip",
+    "instructions": [
+      "\\MagsRedux-main",
+      "\\MagsRedux-main\\aug_patch",
+      "\\MagsRedux-main\\bas_patch",
+      "\\MagsRedux-main\\ppp_patch"
+    ],
+    "patch": "RavenAscendant",
+    "addonName": "Anomaly Magazines (Disable G.A.M.M.A. Unjam Reload)",
+    "modDbUrl": "https://www.moddb.com/mods/stalker-anomaly/addons/armr-arti-and-ravenascendants-mags-redux",
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/228303",
+    "instructions": [],
+    "patch": "Jabbers",
+    "addonName": "Ironman Roguelite (for easier ironman lovers)",
+    "modDbUrl": "https://www.moddb.com/addons/jabbers-ironman-roguelite1",
+    "zipName": "Jabbers_Ironman_Roguelite_0.87.0-beta.zip",
+    "md5ModDb": "0f03aa4483ca5229e4d6d1096f0c3f0d"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/207498",
+    "instructions": [
+      "(Patch) Death Animations"
+    ],
+    "patch": "xcvb",
+    "addonName": "Death Animations (if you like shooting extra ammo on dead people)",
+    "modDbUrl": "https://www.moddb.com/addons/stealth1",
+    "zipName": "Stealth_2.31.zip",
+    "md5ModDb": "0dbbf2cce881cd40341fa75d22ec22aa"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/218608",
+    "instructions": [
+      "NahMusic"
+    ],
+    "patch": "Ishmaeel",
+    "addonName": "Disables Music in game but not in main menu (if you do not like the new OST)",
+    "modDbUrl": "https://www.moddb.com/addons/nitpickermodpack",
+    "zipName": "NitpickerModpack.2024.10.13.zip",
+    "md5ModDb": "b317243f714f881dea4e79394a9a6105"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/231037",
+    "instructions": [],
+    "patch": "Vintar0 \u0026 Nullblank",
+    "addonName": "NPC Loot Claim (NPCs will kill you if you loot what they killed)",
+    "modDbUrl": "https://www.moddb.com/addons/npc-loot-claim-continued",
+    "zipName": "No-sortingNPC_Loot_Claim-Continued.-v1.0.6.2-Bugfix.rar",
+    "md5ModDb": "83a7399f1f06407a6cad6ac1631984c8"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/224324",
+    "instructions": [],
+    "patch": "Demonized",
+    "addonName": "Trader Destockifier (shrinks and randomize traders stocks)",
+    "modDbUrl": "https://www.moddb.com/addons/trader-destockifier",
+    "zipName": "Trader_Destockifier.9.zip",
+    "md5ModDb": "8646bc1927449d7aa0ee8c11b910928d"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/184490",
+    "instructions": [
+      "Trader Overhaul (Main Folder)"
+    ],
+    "patch": "AGoodSetOfPistol",
+    "addonName": "Trader Overhaul (if you do not want the true GAMMA experience)",
+    "modDbUrl": "https://www.moddb.com/addons/trader-overhaul-complete",
+    "zipName": "1.5.2_Update_Version.zip",
+    "md5ModDb": "cba30439650b1c91651bd84771416550"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/209138",
+    "instructions": [],
+    "patch": "RavenAscendant",
+    "addonName": "New Item Highlight (not really necessary but some people like it)",
+    "modDbUrl": "https://www.moddb.com/addons/new-item-highlight",
+    "zipName": "NewItemHiLight.2.7z",
+    "md5ModDb": "756fb0b15b27bf8af726e466b3773c2a"
+  },
+  {
+    "dlLink": "Good addons with issues and bugs",
+    "instructions": null,
+    "patch": null,
+    "addonName": null,
+    "modDbUrl": null,
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/226977",
+    "instructions": [
+      "Duty Expansion (fixed version)"
+    ],
+    "patch": "GhenTuong",
+    "addonName": "Duty Expansion (dialogue camera issues, nimble and spore dialogues heavy bugs)",
+    "modDbUrl": "https://www.moddb.com/addons/duty-expansion",
+    "zipName": "Duty_Expansion_fixed_version.2.zip",
+    "md5ModDb": "cf9762160ab300f8b6b19d29de3ee5e6"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/215052",
+    "instructions": [
+      "00 Dynamic_NPC_Armor_Visuals",
+      "00 xDNPCAV ltx required for new install uncheck to keep user modified ltx"
+    ],
+    "patch": "RavenAscendant",
+    "addonName": "DNPCAV NPCs wear armor you give them (Crash to desktop sometimes with shift transfer)",
+    "modDbUrl": "https://www.moddb.com/addons/dynamic-npc-armor-visuals",
+    "zipName": "Dynamic_NPC_Armor_Visuals.13.zip",
+    "md5ModDb": "458547137d7a59b47ec73bdea64c47b9"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/212677",
+    "instructions": [
+      "Quick Companion Teleport"
+    ],
+    "patch": "RazorShultz",
+    "addonName": "Quick Companion Teleport (teleports rescue mission targets)",
+    "modDbUrl": "https://www.moddb.com/addons/quick-companion-teleport-152",
+    "zipName": "Quick_Companion_Teleport.1.7z",
+    "md5ModDb": "d5aa0217021cc6697e3f56813284d668"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/226129",
+    "instructions": [
+      "Combine All Items"
+    ],
+    "patch": "Demonized",
+    "addonName": "Combine all items (potential crash with some items)",
+    "modDbUrl": "https://www.moddb.com/addons/combine-all-items",
+    "zipName": "Combine_All_Items.zip",
+    "md5ModDb": "e73b68c70eb839dd5edcd28272fc6551"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/203251",
+    "instructions": [],
+    "patch": "RavenAscendant",
+    "addonName": "Companions Inventory Unlock (enable only to clear your companions inventory from time to time)",
+    "modDbUrl": "https://www.moddb.com/addons/companioninventoryunlockrc18",
+    "zipName": "companion_inventory_unlock.7z",
+    "md5ModDb": "ab390a0423dea6eb083248e9bfff5f98"
+  },
+  {
+    "dlLink": "Warfare (Optional, Warfare mode is unstable)",
+    "instructions": null,
+    "patch": null,
+    "addonName": null,
+    "modDbUrl": null,
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/195178",
+    "instructions": [
+      "Warfare Alife Overhaul - Main"
+    ],
+    "patch": "Vintar0",
+    "addonName": "Warfare A Life overhaul",
+    "modDbUrl": "https://www.moddb.com/addons/warfare-alife-overhaul",
+    "zipName": "WarfareALifeOverhaul_1_4_2.7z",
+    "md5ModDb": "1fcb22df452a507123742ce0002bb4ec"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/209072",
+    "instructions": [],
+    "patch": "Favkis_Nexerade",
+    "addonName": "Fluid Relations",
+    "modDbUrl": "https://www.moddb.com/addons/yastin-favkis-fluid-dynamic-relations",
+    "zipName": "Y_F_Fluid_Dynamic_Relations_1_0_5.7z",
+    "md5ModDb": "0996e27c341f73dcbb92994df979ed55"
+  },
+  {
+    "dlLink": "Newly added addons",
+    "instructions": null,
+    "patch": null,
+    "addonName": null,
+    "modDbUrl": null,
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/223022",
+    "instructions": [],
+    "patch": "xcvb",
+    "addonName": "Placeable Campfires",
+    "modDbUrl": "https://www.moddb.com/addons/campfires-placeable-01",
+    "zipName": "Campfires_placeable_0.22.zip",
+    "md5ModDb": "01f4d1bfd1a8f66de693ed3c5d38dc10"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/230595",
+    "instructions": [],
+    "patch": "Maid",
+    "addonName": "Display Campfires on Map",
+    "modDbUrl": "https://www.moddb.com/addons/displaycampfiresonmap",
+    "zipName": "DisplayCampfiresOnMap-v1.2.7z",
+    "md5ModDb": "261b4f7dc4d223221d55e2796372d980"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/230779",
+    "instructions": [
+      "Increased Companion Distance"
+    ],
+    "patch": "Dhatri",
+    "addonName": "Increased Companions Distance",
+    "modDbUrl": "https://www.moddb.com/addons/increased-companion-distance",
+    "zipName": "Increased_Companion_Distance.2.zip",
+    "md5ModDb": "6271ee1008cab1810bbcd86628469b60"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/230780",
+    "instructions": [
+      "Russian Localization RC3"
+    ],
+    "patch": "oneonline911",
+    "addonName": "Russian Localization",
+    "modDbUrl": "https://www.moddb.com/addons/russian-translation-pack-for-groks-gamma-rc3-addons",
+    "zipName": "Russian_Localization_RC3.1.7z",
+    "md5ModDb": "f7774318d256765282b9d36b1b02f377"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/230885",
+    "instructions": [
+      "Monster Unstucker"
+    ],
+    "patch": "Demonized",
+    "addonName": "Monsters Unstucker",
+    "modDbUrl": "https://www.moddb.com/addons/monster-unstucker",
+    "zipName": "Monster_Unstucker.3.zip",
+    "md5ModDb": "8a273ea743813117e557a1a3a161a09b"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/217481",
+    "instructions": [
+      "Item Details Repair Bonuses"
+    ],
+    "patch": "Demonized",
+    "addonName": "Repair Bonuses in Details Window",
+    "modDbUrl": "https://www.moddb.com/addons/repair-bonuses-in-item-details-window",
+    "zipName": "Item_Details_Repair_Bonuses.4.zip",
+    "md5ModDb": "b87c5422548e184bde086afbeeb950ac"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/231130",
+    "instructions": [
+      "More Aggressive NPC Looting"
+    ],
+    "patch": "Demonized",
+    "addonName": "More Aggressive NPC Looting (harder game, do not use with NPC Loot Claim)",
+    "modDbUrl": "https://www.moddb.com/addons/more-aggressive-npc-looting",
+    "zipName": "More_Aggressive_NPC_Looting.1.zip",
+    "md5ModDb": "72471b5cd7bb59a1b2e50a04da5cded3"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/231169",
+    "instructions": [
+      "Combat Behavior\\Xenotech, Seryoga, Gonta, Crab, Garmata, Pilot, Tourist combat behavior"
+    ],
+    "patch": "Malac88",
+    "addonName": "Xenotech Protects Cordon Base",
+    "modDbUrl": "https://www.moddb.com/addons/xenotech-behavior",
+    "zipName": "Combat_Behavior_1.02.4.rar",
+    "md5ModDb": "64a832bba2e8b07322345cca32125d36"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/231245",
+    "instructions": [
+      "Aug Augmented Source File"
+    ],
+    "patch": "Firebreath",
+    "addonName": "AUGmented Weapon Pack",
+    "modDbUrl": "https://www.moddb.com/addons/augmented-the-aug-pack",
+    "zipName": "Aug_Augmented_Source_File.2.7z",
+    "md5ModDb": "42ccd3e390e6fca8a4931eff2f257570"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/231396",
+    "instructions": [
+      "Dynamic_Anomalies_MAIN"
+    ],
+    "patch": "Demonized",
+    "addonName": "Dynamic Anomalies Overhaul",
+    "modDbUrl": "https://www.moddb.com/addons/dynamic-anomalies-overhaul-dao-read-description-please",
+    "zipName": "Dynamic_Anomalies_Overhaul.37.zip",
+    "md5ModDb": "0061a0cbead2e00348e8f4ccd341ffa8"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/233184",
+    "instructions": [
+      "Weapon_Cover_Tilt_MAIN",
+      "Weapon_Cover_Tilt_PATCH_AR_Pack",
+      "Weapon_Cover_Tilt_PATCH_BaS",
+      "Weapon_Cover_Tilt_PATCH_Blindsides",
+      "Weapon_Cover_Tilt_PATCH_PP19_AUG_L96_Reanim",
+      "Weapon_Cover_Tilt_PATCH_Souvlakis_FAL"
+    ],
+    "patch": "Demonized",
+    "addonName": "Weapon Cover Tilt",
+    "modDbUrl": "https://www.moddb.com/addons/weapon-cover-tilt-inertia",
+    "zipName": "Weapon_Cover_Tilt.22.zip",
+    "md5ModDb": "5164eee7e81acd7297776f3a90bef664"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/233156",
+    "instructions": [
+      "swm_visible_body"
+    ],
+    "patch": "Wang_Laoshi \u0026 SWM Team",
+    "addonName": "1st Person Visible Body Ported from SWM",
+    "modDbUrl": "https://www.moddb.com/addons/swm-ported-visible-body-starter-version",
+    "zipName": "swm_visible_body.12.zip",
+    "md5ModDb": "bb97b1107128f3312cd0ba6348b2c7bf"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/213337",
+    "instructions": [],
+    "patch": "Blackgrowl",
+    "addonName": "Bizon Replacer",
+    "modDbUrl": "https://www.moddb.com/addons/100-grok-gotta-go-fast",
+    "zipName": "1.0.1_Grok_Gotta_Go_Fast.zip",
+    "md5ModDb": "9e34815545faae72082106fa193f9752"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/232713",
+    "instructions": [
+      "Binocular_Reanim_update\\Binocular_Reanim"
+    ],
+    "patch": "Firebreath",
+    "addonName": "Binocular Reanimation",
+    "modDbUrl": "https://www.moddb.com/addons/binocular-reanim",
+    "zipName": "Binocular_Reanim_update.1.7z",
+    "md5ModDb": "7fdbe4206c5e28fcdbdb4176157a5a11"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/232701",
+    "instructions": [
+      "Torch animations fixed"
+    ],
+    "patch": "Ishtar",
+    "addonName": "Torch Reanimation",
+    "modDbUrl": "https://www.moddb.com/addons/torch-animation-fixed",
+    "zipName": "Torch_animations_fixed.7z",
+    "md5ModDb": "fd771717b09ecd185dcfe934ff0fbc0d"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/231497",
+    "instructions": [
+      "DLTX Version"
+    ],
+    "patch": "Grulag",
+    "addonName": "Anomaly\u0027s Name Update for Stalkers ANUS",
+    "modDbUrl": "https://www.moddb.com/addons/anomalys-name-update-for-stalkers-anus",
+    "zipName": "ANUS_-_Anomaly_Name_Update_Series_v5.7z",
+    "md5ModDb": "67849e18e92b5ecae4b283f20da7ecab"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/199639",
+    "instructions": [
+      "Simple Autumn Retexture No Leaves v1.1"
+    ],
+    "patch": "Daedalus-Prime",
+    "addonName": "Simple Autumn Retexture No leaves",
+    "modDbUrl": "https://www.moddb.com/addons/simple-autumn-retexture-no-leaves",
+    "zipName": "Simple_Autumn_Retexture_No_Leaves_v1.1.7z",
+    "md5ModDb": "3a33771389851189084c5e66c0bcac87"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/230258",
+    "instructions": [
+      "GoTZ 3.1 (fomod)\\00. Grass",
+      "GoTZ 3.1 (fomod)\\01. Trees",
+      "GoTZ 3.1 (fomod)\\02. Dead pines",
+      "GoTZ 3.1 (fomod)\\03. Autumn bush"
+    ],
+    "patch": "YuriVernadsky",
+    "addonName": "Gardener of the Zone Textures",
+    "modDbUrl": "https://www.moddb.com/addons/gardener-of-the-zone",
+    "zipName": "GoTZ_6.1_fomod.rar",
+    "md5ModDb": "d930a4c644998f4fa09f11dec913c1b0"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/231245",
+    "instructions": [
+      "Aug Augmented Source File\\addons\\JSRS Patch",
+      "Aug Augmented Source File\\addons\\Mags Patch",
+      "Aug Augmented Source File\\addons\\0.6 HUD FOV and BAS Scopes",
+      "Aug Augmented Source File\\addons\\DX8 Fix"
+    ],
+    "patch": "Firebreath",
+    "addonName": "AUGmented Weapon Pack Addons",
+    "modDbUrl": "https://www.moddb.com/addons/augmented-the-aug-pack",
+    "zipName": "Aug_Augmented_Source_File.2.7z",
+    "md5ModDb": "42ccd3e390e6fca8a4931eff2f257570"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/213337",
+    "instructions": [],
+    "patch": "Igigog",
+    "addonName": "Weird Tasks Framework",
+    "modDbUrl": "https://www.moddb.com/addons/100-grok-gotta-go-fast",
+    "zipName": "1.0.1_Grok_Gotta_Go_Fast.zip",
+    "md5ModDb": "9e34815545faae72082106fa193f9752"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/235093",
+    "instructions": [
+      "00 Main",
+      "001 Dependencies\\ahuyn",
+      "001 Dependencies\\arm",
+      "10 Nomad Module\\11 Stash Containers",
+      "10 Nomad Module\\12 Portable Lights",
+      "30 Fortress Module\\31 Weapon Displays",
+      "30 Fortress Module\\31.0 Patches\\31.3 VSSK Patch",
+      "30 Fortress Module\\31.0 Patches\\31.2 PPP Patch",
+      "30 Fortress Module\\31.0 Patches\\31.1 AUGmented Patch",
+      "30 Fortress Module\\31.0 Patches\\31.5 Bizon Patch",
+      "30 Fortress Module\\31.0 Patches\\31.6 Vityaz Patch",
+      "30 Fortress Module\\31.0 Patches\\31.7 G36 Patch",
+      "30 Fortress Module\\31.0 Patches\\31.8 Saiga-12K Patch",
+      "30 Fortress Module\\31.0 Patches\\31.9 SVD Patch",
+      "30 Fortress Module\\31.0 Patches\\31.10 AN-94 Patch",
+      "30 Fortress Module\\31.0 Patches\\31.11 KAR Patch",
+      "40 Homestead Module\\41 Portable Workshop",
+      "50 Fun Module\\51 Piano",
+      "50 Fun Module\\52 Radio",
+      "50 Fun Module\\52.0 Other Stations\\52.1 Anomaly Radios Extended",
+      "90 Addons\\91 Stash Capacities"
+    ],
+    "patch": "Aoldri",
+    "addonName": "Hideout Furniture",
+    "modDbUrl": "https://www.moddb.com/addons/hideout-furniture-hf",
+    "zipName": "HideoutFurniture-v2.3.2.zip",
+    "md5ModDb": "ec743108d0457867f9c40ba7802abea1"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/235039",
+    "instructions": [
+      "Gunslinger Controller_DLTX"
+    ],
+    "patch": "Demonized",
+    "addonName": "Gunslinger Controller Suicide",
+    "modDbUrl": "https://www.moddb.com/addons/dltx-and-wct-required-gunslinger-controller",
+    "zipName": "Gunslinger_Controller_DLTX.3.zip",
+    "md5ModDb": "140a6563c64c1e5ebd21f49a32613d0d"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/220278",
+    "instructions": [
+      "Outfit icon fix"
+    ],
+    "patch": "MissingnoBW",
+    "addonName": "Player Icon Fix",
+    "modDbUrl": "https://www.moddb.com/addons/outfit-icon-fix",
+    "zipName": "Outfit_Icon_Fix_Anomaly.zip",
+    "md5ModDb": "c78ea1db73df8e25eede18c2765c01cf"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/234461",
+    "instructions": [],
+    "patch": "xcvb",
+    "addonName": "Night Mutants",
+    "modDbUrl": "https://www.moddb.com/addons/night-mutants-01",
+    "zipName": "Night_mutants_0.2.zip",
+    "md5ModDb": "1b96d3f870a9431e60b4fb82cd564efd"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/234094",
+    "instructions": [
+      "DeadEnvoy\u0027s Icons (Backpacks)"
+    ],
+    "patch": "DeadEnvoy",
+    "addonName": "Backpack Icons",
+    "modDbUrl": "https://www.moddb.com/addons/deadenvoy-icons-backpacks",
+    "zipName": "DEI_Backpacks_R05.zip",
+    "md5ModDb": "0e6fed67aaae9a44b5d0588887f3e01c"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/233652",
+    "instructions": [
+      "V2 - Rustiest.zip"
+    ],
+    "patch": "toxicfox777",
+    "addonName": "Better Bullet Casing",
+    "modDbUrl": "https://www.moddb.com/addons/foxs-better-bullet-casing",
+    "zipName": "Foxs_Better_Bullet_Casing.zip",
+    "md5ModDb": "c76b2d5e38bbe708fffa8b37f63f744b"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/233140",
+    "instructions": [
+      "More_Portrait_Icons"
+    ],
+    "patch": "Lauta_ro",
+    "addonName": "Better Portraits Icons",
+    "modDbUrl": "https://www.moddb.com/addons/dltx-151-more-portrait-icons-and-actor-visuals",
+    "zipName": "More_Portrait_Icons_4.rar",
+    "md5ModDb": "ac118776df326ba5dee49fc1c6f85003"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/234040",
+    "instructions": [
+      "Tool_tip_in_corner"
+    ],
+    "patch": "RavenAscendant",
+    "addonName": "Tooltip in Corner",
+    "modDbUrl": "https://www.moddb.com/addons/tooltip-in-corner",
+    "zipName": "Tool_tip_in_corner.1.7z",
+    "md5ModDb": "df67b927bfebf9b6b4f68669590f9070"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/235666",
+    "instructions": [
+      "Patches by Hotkey"
+    ],
+    "patch": "Demonized",
+    "addonName": "Attach Patches with hotkey",
+    "modDbUrl": "https://www.moddb.com/addons/patches-by-hotkey",
+    "zipName": "Patches_by_Hotkey.1.zip",
+    "md5ModDb": "2ade7875445dc688242cc88539011015"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/235680",
+    "instructions": [
+      "Reworked RF Receiver v1.4\\core",
+      "Reworked RF Receiver v1.4\\tb_patch"
+    ],
+    "patch": "Coverdrave",
+    "addonName": "Better RF Receiver sound",
+    "modDbUrl": "https://www.moddb.com/addons/151152-coverdraves-reworked-rf-receiver-beeps",
+    "zipName": "Reworked_RF_Receiver_v1.4.rar",
+    "md5ModDb": "b551ab37576996ef8cc9c3c33cb5ebe1"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/235616",
+    "instructions": [
+      "new update"
+    ],
+    "patch": "sticknou",
+    "addonName": "Coffee in the Zone",
+    "modDbUrl": "https://www.moddb.com/addons/new-coffee-dltx",
+    "zipName": "New_Coffee_1.3.rar",
+    "md5ModDb": "eb13d7194f459b8b58b58bcfde9ddb77"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/235548",
+    "instructions": [],
+    "patch": "Apathy_Knight",
+    "addonName": "Water Flask Animation Rework",
+    "modDbUrl": "https://www.moddb.com/addons/water-flask-rework",
+    "zipName": "Water_Flask_Rework.4.7z",
+    "md5ModDb": "2303c7b3d5c45371b0fd245a117c2352"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/213840",
+    "instructions": [],
+    "patch": "Diphenhydramine-HCl",
+    "addonName": "Zone Customization Project (ZCP)",
+    "modDbUrl": "https://www.moddb.com/addons/survival-mode-remade-151",
+    "zipName": "zone_customization_project_1.5e.zip",
+    "md5ModDb": "f8e04367a4439224af7322b6bc1c8e59"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/224285",
+    "instructions": [
+      "2D Reticles - Patch for 21 by 9 aspect ratio monitors"
+    ],
+    "patch": "Kuez",
+    "addonName": "2D Scopes 21-9 Resolution Patch",
+    "modDbUrl": "https://www.moddb.com/addons/dots-and-reticles-extravaganza",
+    "zipName": "Dots_and_reticles_extravaganza_Mar_28.rar",
+    "md5ModDb": "bf2864e62cd9a113dd6005b501ff9519"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/224285",
+    "instructions": [
+      "2D Reticles - Patch for 16 by 10 aspect ratio monitors"
+    ],
+    "patch": "Kuez",
+    "addonName": "2D Scopes 16-10 Resolution Patch",
+    "modDbUrl": "https://www.moddb.com/addons/dots-and-reticles-extravaganza",
+    "zipName": "Dots_and_reticles_extravaganza_Mar_28.rar",
+    "md5ModDb": "bf2864e62cd9a113dd6005b501ff9519"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/224285",
+    "instructions": [
+      "2D Reticles - Patch for 32 by 9 aspect ratio monitors"
+    ],
+    "patch": "Kuez",
+    "addonName": "2D Scopes 32-9 Resolution Patch",
+    "modDbUrl": "https://www.moddb.com/addons/dots-and-reticles-extravaganza",
+    "zipName": "Dots_and_reticles_extravaganza_Mar_28.rar",
+    "md5ModDb": "bf2864e62cd9a113dd6005b501ff9519"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/236893",
+    "instructions": [],
+    "patch": "Ishmaeel",
+    "addonName": "Ammo Check",
+    "modDbUrl": "https://www.moddb.com/addons/ammocheck",
+    "zipName": "AmmoCheck.2022.11.13.zip",
+    "md5ModDb": "c1f9341888b26035d7d35485f01d91bf"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/236853",
+    "instructions": [
+      "00 Core",
+      "01 Reposition",
+      "02 No Accidental Discharge"
+    ],
+    "patch": "Aoldri",
+    "addonName": "MP412 Rex Reanimation",
+    "modDbUrl": "https://www.moddb.com/addons/mp412-rex-reanimation",
+    "zipName": "MP412_Reanimation_v3-2.zip",
+    "md5ModDb": "98ca8cf9a7354d68b407d35d53bd350d"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/236752",
+    "instructions": [],
+    "patch": "Darkasleif",
+    "addonName": "Safe Areas Transitions",
+    "modDbUrl": "https://www.moddb.com/addons/safe-start1",
+    "zipName": "Safe_Start_2.2.zip",
+    "md5ModDb": "6df23d10e224487c615ac6c90810bc98"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/236502",
+    "instructions": [
+      "02 Barry\u0027s_Better_Knives (REANIMATION ONLY)",
+      "03 Barry\u0027s_Better_Knives BaS Patch"
+    ],
+    "patch": "BarryBogs",
+    "addonName": "Barry\u0027s Better Knives Animations",
+    "modDbUrl": "https://www.moddb.com/addons/barrys-better-knives",
+    "zipName": "Barrys_Better_Knives_v1.7.zip",
+    "md5ModDb": "747ac3abae56f3c7f0506c17862f8c86"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/226231",
+    "instructions": [
+      "NPC Die in Emissions (For Real)",
+      "NPC Die in Emissions (For Real)_OPTION_Surge_Scheme",
+      "NPC Die in Emissions (For Real)_OPTION_Faster_Emissions"
+    ],
+    "patch": "TheMrDemonized",
+    "addonName": "NPCs Die in Emissions for Real",
+    "modDbUrl": "https://www.moddb.com/addons/npc-die-in-emissions-for-real",
+    "zipName": "NPC_Die_in_Emissions_For_Real.13.zip",
+    "md5ModDb": "5c833bdd558e96c3db818f520cf290b0"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/225029",
+    "instructions": [
+      "UMP Source File\\addons\\[HUDFOV 0.6] BAS Scopes",
+      "UMP Source File\\addons\\BAS Scope models"
+    ],
+    "patch": "FIREBREATH",
+    "addonName": "UMP Reanimation Addons",
+    "modDbUrl": "https://www.moddb.com/addons/ump-reanimation",
+    "zipName": "UMP_Source_File.4.7z",
+    "md5ModDb": "94d12d97c74f13ce16c64d727a24eea8"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/238645",
+    "instructions": [
+      "Dialog Dynamic UI"
+    ],
+    "patch": "Demonized",
+    "addonName": "Dynamic Dialog UI",
+    "modDbUrl": "https://www.moddb.com/addons/dialog-dynamic-ui",
+    "zipName": "Dialog_Dynamic_UI.4.zip",
+    "md5ModDb": "2607879691b0352c7fd494f8d1876754"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/238592",
+    "instructions": [
+      "VKS Reanim",
+      "Ash12 reanim"
+    ],
+    "patch": "BarryBogs",
+    "addonName": "VSSK Reanimation and Remodel",
+    "modDbUrl": "https://www.moddb.com/addons/vks-vykhlop-a-vssk-reanimation-and-remodel",
+    "zipName": "VKS-Vykhlop_a_VSSK_Reanimation_and_Remodel_V1.5.6.zip",
+    "md5ModDb": "e9382acb50f0652f3a6663e7006fff64"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/239302",
+    "instructions": [],
+    "patch": "Cr3pis",
+    "addonName": "HQ Glass Overlay",
+    "modDbUrl": "https://www.moddb.com/addons/hq-glass-overlay",
+    "zipName": "high_quality_glass_overlay.3.7z",
+    "md5ModDb": "17ce44378a8c14b54826d871cdb20fca"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/213337",
+    "instructions": [],
+    "patch": "RavenAscendant",
+    "addonName": "Headlamp Animation Fix",
+    "modDbUrl": "https://www.moddb.com/addons/100-grok-gotta-go-fast",
+    "zipName": "1.0.1_Grok_Gotta_Go_Fast.zip",
+    "md5ModDb": "9e34815545faae72082106fa193f9752"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/222467",
+    "instructions": [],
+    "patch": "GAMMA Team",
+    "addonName": "G.A.M.M.A. Large Files",
+    "modDbUrl": "https://github.com/Grokitach/gamma_large_files_v2",
+    "zipName": "Groks_main_menu_theme.zip",
+    "md5ModDb": "0f4256c9545fbbeda475f82796274d98"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/222467",
+    "instructions": [],
+    "patch": "Grulag",
+    "addonName": "Grulag\u0027s Dead Bushes",
+    "modDbUrl": "https://github.com/Grokitach/gamma_large_files_v2",
+    "zipName": "Groks_main_menu_theme.zip",
+    "md5ModDb": "0f4256c9545fbbeda475f82796274d98"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/222467",
+    "instructions": [],
+    "patch": "Longreed",
+    "addonName": "Longreed\u0027s fixed artefacts spawns under maps",
+    "modDbUrl": "https://github.com/Grokitach/gamma_large_files_v2",
+    "zipName": "Groks_main_menu_theme.zip",
+    "md5ModDb": "0f4256c9545fbbeda475f82796274d98"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/240548",
+    "instructions": [
+      "Dark signal stand alone weapon audio\\[Main file]",
+      "Dark signal stand alone weapon audio\\BaS patch DLTX 2021 [choose one ]",
+      "Dark signal stand alone weapon audio\\BaS bolt fixes 2022 [apply to main file]",
+      "Dark signal stand alone weapon audio\\Blindside compatibility patch [ apply to main file]",
+      "Dark signal stand alone weapon audio\\Blindside mosin bolt fix [ apply to main file]",
+      "Dark signal stand alone weapon audio\\Blindside weapon handling audio (bonus)",
+      "Dark signal stand alone weapon audio\\Weapon rattle - lower - raising (bonus)"
+    ],
+    "patch": "Shrike",
+    "addonName": "Dark Signal Audio Pack",
+    "modDbUrl": "https://www.moddb.com/addons/dark-signal-stand-alone-weapon-audio",
+    "zipName": "Dark_signal_Weapon_scape_audio_v2.8.rar",
+    "md5ModDb": "3e5d5e2ae5fb457dd02f2bf2fde498bb"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/240548",
+    "instructions": [
+      "Dark signal stand alone weapon audio\\Alternate foot steps V2 (bonus)"
+    ],
+    "patch": "Shrike",
+    "addonName": "Dark Signal Footsteps",
+    "modDbUrl": "https://www.moddb.com/addons/dark-signal-stand-alone-weapon-audio",
+    "zipName": "Dark_signal_Weapon_scape_audio_v2.8.rar",
+    "md5ModDb": "3e5d5e2ae5fb457dd02f2bf2fde498bb"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/241386",
+    "instructions": [
+      "Dark signal mutant audio"
+    ],
+    "patch": "Shrike",
+    "addonName": "Dark Signal Mutants Audio",
+    "modDbUrl": "https://www.moddb.com/addons/dark-signal-audioscape-mutants",
+    "zipName": "Dark_signal_mutant_audio.1.rar",
+    "md5ModDb": "30c46bce559c495b7834e3a803eec065"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/240408",
+    "instructions": [
+      "M1A1 Source File_moddb",
+      "M1A1 Source File_moddb\\addons\\mags_patch",
+      "M1A1 Source File_moddb\\addons\\jsrs_patch",
+      "M1A1 Source File_moddb\\addons\\jam_idles"
+    ],
+    "patch": "Firebreath",
+    "addonName": "Tommy Gun",
+    "modDbUrl": "https://www.moddb.com/addons/tommy-gun-drop",
+    "zipName": "M1A1_Source_File_moddb.zip",
+    "md5ModDb": "4e74717dc005c9c4c15400c4f1a00b83"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/239553",
+    "instructions": [],
+    "patch": "JadeyMoyaison",
+    "addonName": "Kar 98 Remodel and Reanimation",
+    "modDbUrl": "https://www.moddb.com/addons/kar-the-ultimate-glowup",
+    "zipName": "the_real_fixed_kar.7z",
+    "md5ModDb": "61c0aabced5498f08a967fec1a918314"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/240889",
+    "instructions": [
+      "Crafting Info in Tooltips"
+    ],
+    "patch": "Utjan",
+    "addonName": "Crafting Info in Tooltips",
+    "modDbUrl": "https://www.moddb.com/addons/crafting-info-in-tooltips",
+    "zipName": "Crafting_Info_in_Tooltips-v1.21.zip",
+    "md5ModDb": "b7c123db03b7616b9cd36c6283d81d9d"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/239712",
+    "instructions": [
+      "Desman\u0027s_Gunslinger_Controller_Audio"
+    ],
+    "patch": "DesmanMetzger",
+    "addonName": "Gunslinger Controller Audio Improved",
+    "modDbUrl": "https://www.moddb.com/addons/desmans-gunslinger-controller-audio",
+    "zipName": "Desmans_Gunslinger_Controller_Audio.7z",
+    "md5ModDb": "9ed1304e1ea9aef6cb506f1233f44020"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/241483",
+    "instructions": [
+      "02 Barry\u0027s Better Axes v1.0 REANIMATION ONLY"
+    ],
+    "patch": "BarryBogs",
+    "addonName": "Axes Remodel and Reanimation",
+    "modDbUrl": "https://www.moddb.com/addons/barrys-better-axes",
+    "zipName": "Barrys_Better_Axes_v1.1.zip",
+    "md5ModDb": "4a04bc0f05cbc9d0e9444c4447eaab8c"
+  },
+  {
+    "dlLink": "https://github.com/Grokitach/gamma_loading_screens/archive/refs/heads/main.zip",
+    "instructions": [
+      "\\gamma_loading_screens-main/CS Eden\u0027s GAMMA Loading Screens"
+    ],
+    "patch": "CS Eden",
+    "addonName": "GAMMA Loading Screens",
+    "modDbUrl": "https://github.com/Grokitach/gamma_loading_screens",
+    "zipName": "gamma_loading_screens.zip 9b60acaf459a82185cbfbd517209a37f",
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/241901",
+    "instructions": [
+      "AutumnNoLeavesLOD"
+    ],
+    "patch": "owencraig08",
+    "addonName": "Autumn No Leaves LOD Fix",
+    "modDbUrl": "https://www.moddb.com/addons/autumn-no-leaves-lod-swamp-fix",
+    "zipName": "AutumnNoLeavesLOD.2.zip",
+    "md5ModDb": "0f075a20b3b5823f51edf4549f6f98ae"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/241768",
+    "instructions": [
+      "anomaly-headlamp"
+    ],
+    "patch": "Celestrilia",
+    "addonName": "Headlamp Reanimated",
+    "modDbUrl": "https://www.moddb.com/addons/headlamp-reanimation",
+    "zipName": "anomaly-headlamp.7z",
+    "md5ModDb": "bd22b7711a2a0f4b76573a0708e3dbb2"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/241731",
+    "instructions": [
+      "Dark signal blowout and anomalies audio"
+    ],
+    "patch": "Shrike",
+    "addonName": "Dark Signal Blowout and Anomalies Audio",
+    "modDbUrl": "https://www.moddb.com/addons/dark-signal-audioscape-anomalies-and-blowouts",
+    "zipName": "Dark_signal_blowout_and_anomalies_audio.rar",
+    "md5ModDb": "7effe0350f6991570b2b3708df3d3f9a"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/241711",
+    "instructions": [],
+    "patch": "ilrathcxv",
+    "addonName": "High-level Toolkits Include Low-level Toolkits",
+    "modDbUrl": "https://www.moddb.com/addons/high-level-toolkits-include-low-level-toolkits",
+    "zipName": "High_Level_Toolkits_Include_Low_Level_Toolkits_Vanilla_-_ilrathCXV.rar",
+    "md5ModDb": "5694579439da386d00f379475d9a5427"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/243662",
+    "instructions": [],
+    "patch": "SageDaHerb and Dr.Pr1nkos",
+    "addonName": "G.A.M.M.A. Massive Text Overhaul Project",
+    "modDbUrl": "https://www.moddb.com/addons/na243662",
+    "zipName": "GMTOP_v3.0.0.2b1.7z",
+    "md5ModDb": "71c0472017c1a1d27de7007b62bb2f79"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/244792",
+    "instructions": [
+      "Ace52 Retextured Source File"
+    ],
+    "patch": "Firebreath",
+    "addonName": "ACE52 Rifle Replacer",
+    "modDbUrl": "https://www.moddb.com/addons/ace52-source-file",
+    "zipName": "Ace52_Retextured_Source_File.1.zip",
+    "md5ModDb": "80c2eff94999210b0630c98effcd2c64"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/244132",
+    "instructions": [
+      "Aydin\u0027s Grass Tweaks - SUMMER 3.0",
+      "Aydin\u0027s Grass Tweaks - SUMMER TREES 3.0"
+    ],
+    "patch": "Aydin",
+    "addonName": "Grass Tweaks (reinstall for different options)",
+    "modDbUrl": "https://www.moddb.com/addons/aydins-grass-tweaks-40",
+    "zipName": "Aydins_Grass_Tweaks_4.0.7z",
+    "md5ModDb": "46c1245d066d9926c0885ce48f4db0ad"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/244217",
+    "instructions": [
+      "00 - [REQUIRED] Sky Textures",
+      "01 - [REQUIRED] Atmospherics",
+      "09 - OPTIONAL Extra Weather Cycle",
+      "10 - OPTIONAL FOG Distance Increase",
+      "12 - OPTIONAL Improved Skybox fog blending"
+    ],
+    "patch": "Hippobot",
+    "addonName": "Atmospherics Shaders Weathers and Reshade Latest",
+    "modDbUrl": "https://www.moddb.com/addons/hippos-shaders-and-atmospherics",
+    "zipName": "Atmospherics_GAMMA_2.68.93_hotfix3.7z",
+    "md5ModDb": "e082284791f49e06ecd1f215c1ecba1d"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/244641",
+    "instructions": [
+      "Cat agility buff",
+      "Chimera agility buff",
+      "Lurker agility buff",
+      "Lurker health buff",
+      "Lurker more loot",
+      "Pseudodog attack nerf",
+      "Pseudodog no autoaim",
+      "Psy-dog clone cooldown nerf",
+      "Snork attack on move nerf",
+      "Snork jump hit range nerf",
+      "Zombie speed buff"
+    ],
+    "patch": "izperehoda",
+    "addonName": "Configurable Balanced Mutants",
+    "modDbUrl": "https://www.moddb.com/addons/dltx-izperehodas-configurable-balanced-mutants",
+    "zipName": "ICBM_2.7z",
+    "md5ModDb": "fff1e1f491938b2f7d038bb9524517d7"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/242311",
+    "instructions": [
+      "addons\\[DLTX] [PATCH] EFT Reposition",
+      "addons\\[OPTIONAL] Enhanced Shaders Metallic Boost"
+    ],
+    "patch": "Blackgrowl",
+    "addonName": "Ithaca M37 Shotgun",
+    "modDbUrl": "https://www.moddb.com/addons/sassy-ithaca-m37",
+    "zipName": "SASSY_Ithaca_M37.6.7z",
+    "md5ModDb": "f971cc2878a6ca43f8b217e5e5ea2b67"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/245451",
+    "instructions": [
+      "iTheon PDA Taskboard"
+    ],
+    "patch": "iTheon",
+    "addonName": "PDA Taskboard",
+    "modDbUrl": "https://www.moddb.com/addons/itheons-pda-taskboard",
+    "zipName": "iTheon_PDA_Taskboard.13.7z",
+    "md5ModDb": "d5bb2fd88b27edbaa2f52ee1f1d65ac9"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/245184",
+    "instructions": [
+      "iTheon\u0027s Auto Looter"
+    ],
+    "patch": "iTheon",
+    "addonName": "Autolooter",
+    "modDbUrl": "https://www.moddb.com/addons/itheons-auto-looter-v014",
+    "zipName": "iTheons_Auto_Looter.11.7z",
+    "md5ModDb": "5fb42a4da475492234bccc08c3d1a178"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/239684",
+    "instructions": [],
+    "patch": "Aoldri",
+    "addonName": "Descriptive Stash Coordinates",
+    "modDbUrl": "https://www.moddb.com/addons/descriptive-stash-coordinates",
+    "zipName": "DescriptiveStashCoordinates.2.zip",
+    "md5ModDb": "71cbf56a9c46cdb29eefd6107391588e"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/244341",
+    "instructions": [],
+    "patch": "CatspawMods",
+    "addonName": "Custom Companions Squad Size",
+    "modDbUrl": "https://www.moddb.com/addons/custom-companion-squad-size",
+    "zipName": "Catspaw_Custom_Squad_Size-1.4.zip",
+    "md5ModDb": "3a44fa9e338d203446d2c1648e51d69e"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/242562",
+    "instructions": [
+      "Safer Hip\\Grok Mode"
+    ],
+    "patch": "gyiafdsgyil",
+    "addonName": "Safer Hip Model Replacer",
+    "modDbUrl": "https://www.moddb.com/addons/safer-hip",
+    "zipName": "Safer_Hip.2.7z",
+    "md5ModDb": "3d4b2d21aded81b0e79a96c40417720d"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/243908",
+    "instructions": [
+      "Alternative Pseudodogs and PsyDogs/01 Meshes",
+      "Alternative Pseudodogs and PsyDogs/02 2k Textures",
+      "Alternative Pseudodogs and PsyDogs/03 Fixed Animations (By Barry Bogs)"
+    ],
+    "patch": "KynesPeace",
+    "addonName": "Pseudodogs and Psydogs Remodel and Retexture",
+    "modDbUrl": "https://www.moddb.com/addons/alternative-pseudodogs-and-psydogs",
+    "zipName": "Alternative_Pseudodogs_and_PsyDogs.2.7z",
+    "md5ModDb": "944e8e976913578749e22eb27783d71b"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/243303",
+    "instructions": [
+      "Alternative Blind Dogs\\01 Meshes",
+      "Alternative Blind Dogs\\02 2k Textures"
+    ],
+    "patch": "KynesPeace",
+    "addonName": "Blind Dogs Remodel and Retexture",
+    "modDbUrl": "https://www.moddb.com/addons/alternative-blind-dogs",
+    "zipName": "Alternative_Blind_Dogs.7z",
+    "md5ModDb": "db74906fe96c95addf80c2b07e266b11"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/243868",
+    "instructions": [
+      "Blood Pools"
+    ],
+    "patch": "xcvb",
+    "addonName": "Blood pool with trails and steps",
+    "modDbUrl": "https://www.moddb.com/addons/blood-pools-with-trails-and-steps",
+    "zipName": "Blood_Pools.4.zip",
+    "md5ModDb": "013e69c02fbcdc9669ade7af51583f4b"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/243177",
+    "instructions": [
+      "Immersive Skinning"
+    ],
+    "patch": "Utjan",
+    "addonName": "Immersive Skinning",
+    "modDbUrl": "https://www.moddb.com/addons/immersive-skinning",
+    "zipName": "Immersive_Skinning.1.zip",
+    "md5ModDb": "c8150564055dd3e35d7ffc7adee9c5ae"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/243177",
+    "instructions": [
+      "Immersive Skinning"
+    ],
+    "patch": "Kageeskl",
+    "addonName": "Minimalist companion UI moddb",
+    "modDbUrl": "https://www.moddb.com/addons/immersive-skinning",
+    "zipName": "Immersive_Skinning.1.zip",
+    "md5ModDb": "c8150564055dd3e35d7ffc7adee9c5ae"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/243099",
+    "instructions": [
+      "Dark signal UI sounds"
+    ],
+    "patch": "Shrike",
+    "addonName": "Dark Signal UI Audio",
+    "modDbUrl": "https://www.moddb.com/addons/dark-signal-ui-sounds",
+    "zipName": "Dark_signal_UI_sounds.rar",
+    "md5ModDb": "bba6bef0ee6a1f30b5f1c7a5d3e3022e"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/242048",
+    "instructions": [
+      "Dark signal weather ambience"
+    ],
+    "patch": "Shrike",
+    "addonName": "Dark Signal Weather and Ambiance Audio",
+    "modDbUrl": "https://www.moddb.com/addons/dark-signal-audioscape-weather-and-ambiance",
+    "zipName": "Dark_signal_weather_ambience.1.rar",
+    "md5ModDb": "e957ee2e8358a7dc78fc0063c36e85b3"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/243766",
+    "instructions": [
+      "Dux\u0027s Innumerable Character Kit Voices Pack",
+      "Dux\u0027s Innumerable Character Kit Voices Pack English ISG"
+    ],
+    "patch": "Demonized",
+    "addonName": "Dux Characters Kit Voices Pack",
+    "modDbUrl": "https://www.moddb.com/addons/duxs-innumerable-character-kit-voices-pack",
+    "zipName": "Duxs_Innumerable_Character_Kit_Voices_Pack.2.zip",
+    "md5ModDb": "b1832fdb14a1d09c47e0347a454885f7"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/242169",
+    "instructions": [
+      "00 Main Files",
+      "01 Position \u0026 Clock [Bottom Right CR]",
+      "02 Compass [Default Red North - No Numbers]",
+      "03 Player Icon [White - Default]"
+    ],
+    "patch": "lifestorock",
+    "addonName": "Modular Compass Minimap",
+    "modDbUrl": "https://www.moddb.com/addons/modular-compass-minimap-extension",
+    "zipName": "Modular_Compass_Minimap_Extension_v0.2.7z",
+    "md5ModDb": "0ff0f51ef542b01f879e7914a9042da7"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/297171",
+    "instructions": [
+      "1.Tactical1k (insecable)"
+    ],
+    "patch": "Thundard",
+    "addonName": "French Rework Improved Translation \u0026 Enhanced Style",
+    "modDbUrl": "https://www.moddb.com/addons/french-rework-improved-translation-enhanced-style-frites",
+    "zipName": "FRITES_v1.2.zip",
+    "md5ModDb": "316154a7951c8834d1fb7f0c2faa9439"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/242234",
+    "instructions": [
+      "2. Tactical F.A.R.T.S (720p, 1080p)"
+    ],
+    "patch": "CryoManne",
+    "addonName": "Tactical Fonts for Anomaly 1k",
+    "modDbUrl": "https://www.moddb.com/addons/font-for-anomaly-recreated-from-tactical-shooters-farts",
+    "zipName": "farts.s2.2.7z",
+    "md5ModDb": "6487860bbd025a82f95cbad6180efca2"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/242234",
+    "instructions": [
+      "2-2. Tactical F.A.R.T.S (2K, 1440p)"
+    ],
+    "patch": "CryoManne",
+    "addonName": "Tactical Fonts for Anomaly 2k",
+    "modDbUrl": "https://www.moddb.com/addons/font-for-anomaly-recreated-from-tactical-shooters-farts",
+    "zipName": "farts.s2.2.7z",
+    "md5ModDb": "6487860bbd025a82f95cbad6180efca2"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/242234",
+    "instructions": [
+      "2-3. Tactical F.A.R.T.S (4K, 2160p)"
+    ],
+    "patch": "CryoManne",
+    "addonName": "Tactical Fonts for Anomaly 4k",
+    "modDbUrl": "https://www.moddb.com/addons/font-for-anomaly-recreated-from-tactical-shooters-farts",
+    "zipName": "farts.s2.2.7z",
+    "md5ModDb": "6487860bbd025a82f95cbad6180efca2"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/223384",
+    "instructions": [],
+    "patch": "DTTheGunslinger",
+    "addonName": "NPC Stop Looting Dead Bodies",
+    "modDbUrl": "https://www.moddb.com/addons/npc-stops-dropping-and-looting-v101",
+    "zipName": "NPC_Stops_Dropping_and_Looting_v1.0.1.zip",
+    "md5ModDb": "f523a35da718b56ef3849b862a3ec2bf"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/222467",
+    "instructions": [],
+    "patch": "Teivazcz \u0026 Gunslinger Team",
+    "addonName": "Gunslinger Guns for Anomaly",
+    "modDbUrl": "https://github.com/Grokitach/teivaz_anomaly_gunslinger",
+    "zipName": "Groks_main_menu_theme.zip",
+    "md5ModDb": "0f4256c9545fbbeda475f82796274d98"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/244792",
+    "instructions": [
+      "Ace52 Retextured Source File\\addons\\BAS Scope models",
+      "Ace52 Retextured Source File\\addons\\Mags Redux Patch",
+      "Ace52 Retextured Source File\\addons\\[HUDFOV 0.6] BAS Scopes"
+    ],
+    "patch": "Firebreath",
+    "addonName": "ACE52 Rifle Replacer Patches",
+    "modDbUrl": "https://www.moddb.com/addons/ace52-source-file",
+    "zipName": "Ace52_Retextured_Source_File.1.zip",
+    "md5ModDb": "80c2eff94999210b0630c98effcd2c64"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/222467",
+    "instructions": [],
+    "patch": "Retrogue",
+    "addonName": "Retrogue\u0027s Additional Weapons",
+    "modDbUrl": "https://www.moddb.com/mods/stalker-anomaly/addons/groks-main-menu-theme-deathcard-cabin",
+    "zipName": "Groks_main_menu_theme.zip",
+    "md5ModDb": "0f4256c9545fbbeda475f82796274d98"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/243015",
+    "instructions": [
+      "SexVU_v1.4"
+    ],
+    "patch": "BarryBogs",
+    "addonName": "SVU Reanimation \u0026 Remodel",
+    "modDbUrl": "https://www.moddb.com/addons/svu-reanimation-remodel",
+    "zipName": "SVU_Reanimation_Remodel_v1.1_FOMOD.zip",
+    "md5ModDb": "d57402c9ebe7f04ce21bd8136e1f606a"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/255058",
+    "instructions": [
+      "Spas12 Reanimation"
+    ],
+    "patch": "Firebreath",
+    "addonName": "SPAS12 Reanimation \u0026 Remodel",
+    "modDbUrl": "https://www.moddb.com/addons/spas12-reanimation",
+    "zipName": "Spas12_Reanimation.5.zip",
+    "md5ModDb": "668205cd7df995d266fda2938147b7b1"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/255058",
+    "instructions": [
+      "Spas12 Reanimation\\addons\\PhongMetal thm",
+      "Spas12 Reanimation\\addons\\Cr3pis Retexture",
+      "Spas12 Reanimation\\addons\\Ammocheck animations"
+    ],
+    "patch": "Firebreath",
+    "addonName": "SPAS12 Reanimation \u0026 Remodel Addons",
+    "modDbUrl": "https://www.moddb.com/addons/spas12-reanimation",
+    "zipName": "Spas12_Reanimation.5.zip",
+    "md5ModDb": "668205cd7df995d266fda2938147b7b1"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/251050",
+    "instructions": [
+      "[BAS] Syn\u0027s Saiga Reanimation (V2)"
+    ],
+    "patch": "Synd1cate",
+    "addonName": "BAS Saiga Reanimation v2",
+    "modDbUrl": "https://www.moddb.com/addons/dltx-bas-saiga-reanimated",
+    "zipName": "BAS_Syns_Saiga_Reanimation_v2.0.1.2.7z",
+    "md5ModDb": "9a5fcbe9174c818bc0d936c574ca6567"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/252435",
+    "instructions": [
+      "VIHR_REANM1.0\\[1]vihr_reanm",
+      "VIHR_REANM1.0\\[2]vihr_reanm_BaS_content",
+      "VIHR_REANM1.0\\Alternative Motions BaS"
+    ],
+    "patch": "SeDzhiMol",
+    "addonName": "Vihr Reanimation",
+    "modDbUrl": "https://www.moddb.com/addons/sr-3m-vihr-reanimation",
+    "zipName": "DLTX_VIHR_REANM1.0.7z",
+    "md5ModDb": "8af3031990c50083f4368ea1e64515ff"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/252744",
+    "instructions": [
+      "PP2000_reanm_reworck1.3\\PP2000_reanm_vanilla",
+      "PP2000_reanm_reworck1.3\\PP2000_reanm_bas"
+    ],
+    "patch": "SeDzhiMol",
+    "addonName": "PP2000 Remodel \u0026 Reanimation",
+    "modDbUrl": "https://www.moddb.com/addons/pp2000-reanimation-rework",
+    "zipName": "PP2000_reanm_reworck1.3.7z",
+    "md5ModDb": "a0d227969877f8d4acdaa44453c2c48a"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/250732",
+    "instructions": [
+      "9a91_\u0026_VSK94\\9a91_\u0026_VSK94_vanila",
+      "9a91_\u0026_VSK94\\9a91_\u0026_VSK94_bas_sight"
+    ],
+    "patch": "SeDzhiMol",
+    "addonName": "9a91 Reanimation",
+    "modDbUrl": "https://www.moddb.com/addons/9a91-and-vsk-94-reanimation",
+    "zipName": "9a91_VSK94.rar",
+    "md5ModDb": "8c96a24a4ecc68f0245ad8880f518994"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/242590",
+    "instructions": [
+      "Tactical Torch Reanimation"
+    ],
+    "patch": "Skywhyz",
+    "addonName": "Tactical Torch Reanimation",
+    "modDbUrl": "https://www.moddb.com/addons/tactorchreanim",
+    "zipName": "TacTorchReanim.1.zip",
+    "md5ModDb": "3c9c1f0758c223da346c6643ba88a51f"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/252132",
+    "instructions": [
+      "01 Meshes",
+      "02 2k Textures"
+    ],
+    "patch": "KynesPeace",
+    "addonName": "Alternative Boars",
+    "modDbUrl": "https://www.moddb.com/addons/alternative-boars",
+    "zipName": "Alternative_Boars_01.7z",
+    "md5ModDb": "6d79b08f13ac6e07878fee2742b88f69"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/249401",
+    "instructions": [
+      "01 Meshes",
+      "02 2k Textures"
+    ],
+    "patch": "KynesPeace",
+    "addonName": "Alternative Fleshes",
+    "modDbUrl": "https://www.moddb.com/addons/alternative-fleshes",
+    "zipName": "Alternative_Fleshes_1.7z",
+    "md5ModDb": "eb65429a80f72d853fefd85460e7c526"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/250410",
+    "instructions": [
+      "01 Meshes",
+      "02 2k Textures",
+      "03 Glowing Eyes"
+    ],
+    "patch": "KynesPeace",
+    "addonName": "Alternative Cats",
+    "modDbUrl": "https://www.moddb.com/addons/alternative-cats",
+    "zipName": "Alternative_Cats_01.7z",
+    "md5ModDb": "648fb5012879273422e731185f2367d4"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/246394",
+    "instructions": [],
+    "patch": "Reconboi",
+    "addonName": "Miserable Axe and Sledgehammer Retexture",
+    "modDbUrl": "https://www.moddb.com/addons/miserable-axe-and-sledgehammer-retetxure-for-barrys-axes",
+    "zipName": "Grimey_Axe_And_Sledgehammer_Retetxure_for_BARRYS_Axes.rar",
+    "md5ModDb": "e7463a5da2af148eb2626858ac92be1c"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/251183",
+    "instructions": [],
+    "patch": "xcvb",
+    "addonName": "Semi Radiant AI",
+    "modDbUrl": "https://www.moddb.com/addons/semi-radiant-ai-01-dltx-required",
+    "zipName": "semi_radiant_ai_0.31.zip",
+    "md5ModDb": "14fd254b5fbbd1ce427d851e2adba18c"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/253636",
+    "instructions": [
+      "Higher Rank NPC Flashlight Disabled"
+    ],
+    "patch": "KraizerX",
+    "addonName": "Higher Rank NPCs Headlight Disabled",
+    "modDbUrl": "https://www.moddb.com/addons/higher-rank-npc-headlight-disabled",
+    "zipName": "Higher_Rank_NPC_Headlight_Disabled.zip",
+    "md5ModDb": "c0f6a598b2f0b259261c99ae83171202"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/243386",
+    "instructions": [
+      "FFT\\Main"
+    ],
+    "patch": "Catspaw",
+    "addonName": "Fair Fast Travel 2.7\u002B",
+    "modDbUrl": "https://www.moddb.com/addons/fair-fast-travel-duration-for-anomaly-151",
+    "zipName": "Catspaw_Fair_Fast_Travel-2.18.1.zip",
+    "md5ModDb": "b63b45c057b9cb4744717faf82f3339a"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/250132",
+    "instructions": [
+      "PAW\\Main"
+    ],
+    "patch": "Catspaw",
+    "addonName": "Personal Adjustable Waypoint",
+    "modDbUrl": "https://www.moddb.com/addons/personal-adjustable-waypoint-for-anomaly-151-152-and-gamma",
+    "zipName": "Catspaw_Personal_Adjustable_Waypoint-2.4.1.zip",
+    "md5ModDb": "9341f20ab0c826f0843554da6564c98a"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/252206",
+    "instructions": [],
+    "patch": "Catspaw",
+    "addonName": "Barrier Defense Task Emission Fix",
+    "modDbUrl": "https://www.moddb.com/addons/barrier-defense-task-emission-fix",
+    "zipName": "catspaw_barrier_defense_task_emission_fix-1.1.zip",
+    "md5ModDb": "bede52e4006b3e8756a3a9a8a658e971"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/246367",
+    "instructions": [
+      "RF_Receiver_Tasks_QOL_patch"
+    ],
+    "patch": "Cookbook",
+    "addonName": "QoL Patch to Tweak_Breeki\u0027s RF Receiver Hidden Packages",
+    "modDbUrl": "https://www.moddb.com/addons/rf-receiver-tasks-qol-update",
+    "zipName": "RF_Receiver_Tasks_QOL_patch_1.5.1.7z",
+    "md5ModDb": "ba35c06892b492eaa4b56f7c84035e03"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/248884",
+    "instructions": [
+      "01 Fixed Artefact Collision and Visuals",
+      "02 DLTX REQUIRED SetVisible crash fix"
+    ],
+    "patch": "KronQ and Longreed",
+    "addonName": "Fixed Artefacts Colision and Visuals",
+    "modDbUrl": "https://www.moddb.com/addons/fixed-artefact-collision-and-visuals-152",
+    "zipName": "fixed_artefact_collision_visuals_1.1.zip",
+    "md5ModDb": "da3c1fd1ad6bc79b26f3b45abaade5ee"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/232923",
+    "instructions": [
+      "Spawn Options\\No Bloodsuckers",
+      "Timer Options\\10 minutes"
+    ],
+    "patch": "_Shen_",
+    "addonName": "Defended Lab X10",
+    "modDbUrl": "https://www.moddb.com/addons/defended-lab-x10",
+    "zipName": "Defended_Lab_X10.zip",
+    "md5ModDb": "e952497ebf5d031699936498adda3419"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/247266",
+    "instructions": [
+      "ZAS Zatura\u0027s Auto-Stacking items 0.2"
+    ],
+    "patch": "Zatura",
+    "addonName": "Auto-Stacking Items",
+    "modDbUrl": "https://www.moddb.com/addons/zas-zaturas-auto-stacking-items",
+    "zipName": "ZAS_0.2.7z",
+    "md5ModDb": "bedb6f3d2065a96756b09c18db9b88cf"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/252374",
+    "instructions": [
+      "00 Item UI Improvements",
+      "00 Weapon Icon Scaling Module"
+    ],
+    "patch": "Utjan",
+    "addonName": "Item UI Improvements",
+    "modDbUrl": "https://www.moddb.com/addons/utjans-item-ui-improvements",
+    "zipName": "Utjans_Item_UI_Improvements-v1.54.zip",
+    "md5ModDb": "77b75adc2f89bed27139d2be77f84c2b"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/241950",
+    "instructions": [
+      "01 Show Total Uses",
+      "02 Fetch Task Shows Your Items",
+      "03 Weight Of Category",
+      "05 Quick Slot and Item Stack Use Priority",
+      "06 Show Icon On Task Items",
+      "08 Craft Uses Lowest Condition Items"
+    ],
+    "patch": "Utjan",
+    "addonName": "QoL Bundle",
+    "modDbUrl": "https://www.moddb.com/addons/utjans-qol-bundle",
+    "zipName": "Utjans_QoL_Bundle-v1.10.zip",
+    "md5ModDb": "b7516e9dbf2a8f438129e0818327db81"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/248557",
+    "instructions": [],
+    "patch": "Jabbers",
+    "addonName": "Soulslike Gamemode",
+    "modDbUrl": "https://www.moddb.com/addons/jabbers-soulslike-gamemode",
+    "zipName": "Jabbers_Soulslike_0.45-beta.zip",
+    "md5ModDb": "77374658813ed3f938ff86a7c3ffde3e"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/256315",
+    "instructions": [
+      "ZZ_XM4"
+    ],
+    "patch": "KeatonB_08",
+    "addonName": "XM4 Rifle",
+    "modDbUrl": "https://www.moddb.com/addons/xm4-black-ops-cold-war",
+    "zipName": "ZZ_XM4.3.zip",
+    "md5ModDb": "2a1f3cb4f588e66019d34dbfa6e79589"
+  },
+  {
+    "dlLink": "https://github.com/iam-n0x/Black_Market/archive/refs/heads/main.zip",
+    "instructions": [
+      "\\Black_Market-main"
+    ],
+    "patch": "SalamanderAnder \u0026 nox",
+    "addonName": "Black Market (Buyable Gear)",
+    "modDbUrl": null,
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/250905",
+    "instructions": [
+      "Extra level transitions - Rostok to Garbage and Yantar facing fix"
+    ],
+    "patch": "Qball",
+    "addonName": "Extra Level Transitions Rostok Garbage Yantar Facing Fix",
+    "modDbUrl": "https://www.moddb.com/addons/extra-level-transitions-rostok-to-garbage-and-yantar-facing-fix",
+    "zipName": "Extra_level_transitions_-_Rostok_to_Garbage_and_Yantar_facing_fix_v1.1.7z",
+    "md5ModDb": "7ca4c45b0ed436f0028f51c162e9104b"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/242897",
+    "instructions": [
+      "Desert Eagle Gunslinger 1.2\\0. Desert Eagle Gunslinger 1.1"
+    ],
+    "patch": "Dizmok \u0026 Pieuvre",
+    "addonName": "Desert Eagle Gunslinger Port",
+    "modDbUrl": "https://www.moddb.com/addons/desert-eagle-gunslinger",
+    "zipName": "Desert_Eagle_Gunslinger_1.2.rar",
+    "md5ModDb": "79e5ae52cb5b24581a7e79cdad225756"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/250045",
+    "instructions": [
+      "STALKER GAMMA EN-ES"
+    ],
+    "patch": "vdltman",
+    "addonName": "G.A.M.M.A. Traduccion Espanola",
+    "modDbUrl": "https://www.moddb.com/addons/gamma-spanish-translation",
+    "zipName": "GAMMA_Spanish_Localisation_vdltman_v094.2.7z",
+    "md5ModDb": "91eb8bd02589ea45214d5bd4d6489284"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/237026",
+    "instructions": [
+      "No Injure Animations"
+    ],
+    "patch": "PsychologicalBit",
+    "addonName": "Lesser Camera Sway When Hit",
+    "modDbUrl": "https://www.moddb.com/addons/no-camera-animations-when-injured",
+    "zipName": "No_Injure_Animations.rar",
+    "md5ModDb": "8c3b2fbdc522756b79ddce3d81126952"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/251692",
+    "instructions": [],
+    "patch": "bvcx",
+    "addonName": "HUD Icons Time",
+    "modDbUrl": "https://www.moddb.com/addons/hud-icons-time",
+    "zipName": "HUD_icons_time_0.zip",
+    "md5ModDb": "f367f960b718f82651ebb26df98fd414"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/208608",
+    "instructions": [
+      "controller sound replacer"
+    ],
+    "patch": "TJGSASQUATCH",
+    "addonName": "Controller Sound Replacer",
+    "modDbUrl": "https://www.moddb.com/addons/controller-sound-replacer",
+    "zipName": "controller_sound_replacer.zip",
+    "md5ModDb": "e4c6640c89841d467d8deab1c3b529d1"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/259344",
+    "instructions": [
+      "MP7_reanim_remodel\\Main",
+      "MP7_reanim_remodel\\Patches\\BaS Patch"
+    ],
+    "patch": "SeDzhiMol",
+    "addonName": "MP7 Remodel and Reanimation",
+    "modDbUrl": "https://www.moddb.com/addons/reanimodel-hk-mp7",
+    "zipName": "MP7_reanim_remodel.2.7z",
+    "md5ModDb": "708b2ccdbf7d015dc59956c0b3848bc6"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/258821",
+    "instructions": [
+      "FN2000_reanim_remodel\\Main",
+      "FN2000_reanim_remodel\\Patches\\BaA Sights"
+    ],
+    "patch": "SeDzhiMol",
+    "addonName": "FN F2000 Remodel and Reanimation",
+    "modDbUrl": "https://www.moddb.com/addons/fn-f2000-reanimation-and-remodel",
+    "zipName": "FN2000_reanim_remodel.7z",
+    "md5ModDb": "ffabf87092aff71ceaa12806d71e0f61"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/258913",
+    "instructions": [
+      "00_Main",
+      "01_Fridge_Rotting_Meat"
+    ],
+    "patch": "Maid \u0026 HarukaSai",
+    "addonName": "Hideout Furniture Expansion",
+    "modDbUrl": "https://www.moddb.com/addons/hideout-furniture-expansion",
+    "zipName": "Hideout_Furniture_Expansion_1-0-2.zip",
+    "md5ModDb": "97204fea841c3c41d3a624f785da7ba7"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/258889",
+    "instructions": [
+      "Ledge Grabbing"
+    ],
+    "patch": "Demonized",
+    "addonName": "Ledge Grabbing",
+    "modDbUrl": "https://www.moddb.com/addons/modded-exes-ledge-grabbing-mantling",
+    "zipName": "Ledge_Grabbing.11.zip",
+    "md5ModDb": "6d5cdf942487c015a5897bbe45d3d92e"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/268265",
+    "instructions": [
+      "M249 Reanimation"
+    ],
+    "patch": "NickolasNikova",
+    "addonName": "M249 Reanimation",
+    "modDbUrl": "https://www.moddb.com/addons/m249-reanimation-by-nickolasnikova",
+    "zipName": "M249_Reanimation.rar",
+    "md5ModDb": "ddc7232973be60a9cf3f62e80400cd66"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/260000",
+    "instructions": [
+      "SV98 TRG42 Reanimation"
+    ],
+    "patch": "NickolasNikova",
+    "addonName": "SV98 Reanimation",
+    "modDbUrl": "https://www.moddb.com/addons/sv98-trg42-reanimation",
+    "zipName": "SV98_TRG42_Reanimation1.1.zip",
+    "md5ModDb": "77d64a03abd40a95eb1d565113ad92b8"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/268266",
+    "instructions": [
+      "RPD Reanimation"
+    ],
+    "patch": "NickolasNikova",
+    "addonName": "RPD Reanimation",
+    "modDbUrl": "https://www.moddb.com/addons/rpd-reanimation-by-nickolasnikova",
+    "zipName": "RPD_Reanimation1.1.zip",
+    "md5ModDb": "a8f0a082ec34b467e2d6537aec13c984"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/259545",
+    "instructions": [
+      "BaS_AK12_reanim"
+    ],
+    "patch": "SeDzhiMol",
+    "addonName": "AK12 Reanimation",
+    "modDbUrl": "https://www.moddb.com/addons/bas-ak-12-reanimation",
+    "zipName": "BaS_AK12_reanim.7z",
+    "md5ModDb": "5adbdcc115862bedf2738bab81eadb8b"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/222467",
+    "instructions": [
+      "Steyr Scout Dual Pack - REDUX"
+    ],
+    "patch": "JMerc75",
+    "addonName": "Steyr Scout",
+    "modDbUrl": "https://www.moddb.com/mods/stalker-anomaly/addons/dltx-steyr-scout-dual-pack",
+    "zipName": "Groks_main_menu_theme.zip",
+    "md5ModDb": "0f4256c9545fbbeda475f82796274d98"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/259104",
+    "instructions": [
+      "HD_Lurker",
+      "HD_Lurker\\ADD THIS IF NOT USING DX11"
+    ],
+    "patch": "KeatonB_08 \u0026 KynesPeace",
+    "addonName": "Lurker HD Remodel",
+    "modDbUrl": "https://www.moddb.com/addons/hd-lurker",
+    "zipName": "HD_Lurker.zip",
+    "md5ModDb": "eec2732bda3ded4949613c604049678a"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/222467",
+    "instructions": [],
+    "patch": "Joe325",
+    "addonName": "Grey Tree Barks Begone",
+    "modDbUrl": "https://www.moddb.com/mods/stalker-anomaly/addons/groks-main-menu-theme-deathcard-cabin",
+    "zipName": "Groks_main_menu_theme.zip",
+    "md5ModDb": "0f4256c9545fbbeda475f82796274d98"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/259791",
+    "instructions": [
+      "Global Map Rework"
+    ],
+    "patch": "DeadEnvoy",
+    "addonName": "Global Map Rework",
+    "modDbUrl": "https://www.moddb.com/addons/global-map-rework",
+    "zipName": "global_map_rework-0991.zip",
+    "md5ModDb": "09eebad848b49b6cf2d4dbe69dc55a3b"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/259024",
+    "instructions": [
+      "Pretty Reanimated Pistols FOMOD"
+    ],
+    "patch": "FIREBREATH",
+    "addonName": "Pretty Pistols Reanimated",
+    "modDbUrl": "https://www.moddb.com/addons/pretty-reanimated-pistols",
+    "zipName": "Pretty_Reanimated_Pistols_FOMOD.11.zip",
+    "md5ModDb": "49107d0a0c4e11aeae66b18f65985fb7"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/259573",
+    "instructions": [
+      "GAMMA Reload Timing Fix"
+    ],
+    "patch": "aegis27",
+    "addonName": "GAMMA Reload Timing Fix",
+    "modDbUrl": "https://www.moddb.com/addons/gamma-reload-timing-fix",
+    "zipName": "GAMMA_Reload_Timing_Fix_0.7.3.7z",
+    "md5ModDb": "59135f2bc18ee8431d5e48da29c17619"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/260620",
+    "instructions": [
+      "BAS SR-2M Reanimated"
+    ],
+    "patch": "Synd1cate",
+    "addonName": "BAS SR-2M Reanimated",
+    "modDbUrl": "https://www.moddb.com/addons/dltx-bas-sr-2m-reanimated",
+    "zipName": "BAS_SR-2M_Reanimated.3.7z",
+    "md5ModDb": "d6f4779fe90c27b0ae744acad9f2bb6b"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/260795",
+    "instructions": [],
+    "patch": "MotaRin",
+    "addonName": "No More Flashlights on BAS Weapons",
+    "modDbUrl": "https://www.moddb.com/addons/no-more-flashlights-on-weapons-bas",
+    "zipName": "No_more_flashlights_on_weapons_1.1.zip",
+    "md5ModDb": "ea4984f13bdc18d6d28da886fb730c38"
+  },
+  {
+    "dlLink": "https://github.com/Grokitach/winchester_1892_billwa_stalker_anomaly/archive/refs/tags/1.0.zip",
+    "instructions": [
+      "winchester_1892_billwa_stalker_anomaly-1.0"
+    ],
+    "patch": "billwa",
+    "addonName": "Winchester 1892",
+    "modDbUrl": "https://github.com/Grokitach/winchester_1892_billwa_stalker_anomaly",
+    "zipName": "winchester_1892_billwa_stalker_anomaly-1.0.zip",
+    "md5ModDb": "255d36e7814d7f5bee3c9a5da1189466"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/261346",
+    "instructions": [
+      "01 Meshes",
+      "02 2k Textures"
+    ],
+    "patch": "KynesPeace",
+    "addonName": "Alternative Bloodsuckers",
+    "modDbUrl": "https://www.moddb.com/addons/alternative-bloodsuckers",
+    "zipName": "Alternative_Bloodsuckers.7z",
+    "md5ModDb": "b173bfbf9b03953238b1cd4711ebed95"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/222467",
+    "instructions": [],
+    "patch": "Mitch \u0026 Team",
+    "addonName": "Boomsticks and Sharpsticks 2022 Guns",
+    "modDbUrl": "https://github.com/Grokitach/gamma_large_files_v2",
+    "zipName": "Groks_main_menu_theme.zip",
+    "md5ModDb": "0f4256c9545fbbeda475f82796274d98"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/254818",
+    "instructions": [
+      "ASS_VAL\\Main_file",
+      "ASS_VAL\\BaS_patch"
+    ],
+    "patch": "SeDzhiMol",
+    "addonName": "AS VAL Reanimation",
+    "modDbUrl": "https://www.moddb.com/addons/as-val-reanimation",
+    "zipName": "ASS_VAL.7z",
+    "md5ModDb": "64d03fc1e177c601a7c5d71cbf146f71"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/253668",
+    "instructions": [
+      "addons\\Kennedith\u0027s Enhanced Shaders Patch"
+    ],
+    "patch": "Blackgrowl",
+    "addonName": "9x39 Family Beautification",
+    "modDbUrl": "https://www.moddb.com/addons/9x39mm-anomaly-pack",
+    "zipName": "9x39mm_Weapon_Family_Beautification.1.7z",
+    "md5ModDb": "d013f0ebe5cc5a80acc8c5b00226f1e5"
+  },
+  {
+    "dlLink": "https://github.com/monorio1/Tiskar-s-Burn-s-Attachment-Alignment-Fixes/archive/refs/heads/master.zip",
+    "instructions": [
+      "Tiskar-s-Burn-s-Attachment-Alignment-Fixes-master"
+    ],
+    "patch": "Tiskar \u0026 Burn",
+    "addonName": "Attachment Alignment Fixes",
+    "modDbUrl": null,
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/222467",
+    "instructions": [],
+    "patch": "gergi2000",
+    "addonName": "Psysucker Redone",
+    "modDbUrl": "https://www.moddb.com/mods/stalker-anomaly/addons/groks-main-menu-theme-deathcard-cabin",
+    "zipName": "Groks_main_menu_theme.zip",
+    "md5ModDb": "0f4256c9545fbbeda475f82796274d98"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/258006",
+    "instructions": [
+      "Smooth Campfire by Mr White"
+    ],
+    "patch": "MrWhite",
+    "addonName": "Smooth Campfire Illumination",
+    "modDbUrl": "https://www.moddb.com/addons/smoother-campfire-illumination",
+    "zipName": "Smooth_Campfire.zip",
+    "md5ModDb": "908a8fb8da57393dae3c8cc5fdbcca06"
+  },
+  {
+    "dlLink": "https://github.com/Mirrowel/FDDA-enhanced-animations-Food-n-Drinks/releases/download/1.2N/FDDA.Enhanced.Animations.-.Food.and.Drinks.1.2N.7z",
+    "instructions": [
+      "FDDA Enhanced Animations - Food and Drinks 1.2N\\Main files",
+      "FDDA Enhanced Animations - Food and Drinks 1.2N\\Optionals\\Coffee in the Zone anims replacer",
+      "FDDA Enhanced Animations - Food and Drinks 1.2N\\Optionals\\CYOA\\Bread\\mfs",
+      "FDDA Enhanced Animations - Food and Drinks 1.2N\\Optionals\\CYOA\\Sausage\\mfs",
+      "FDDA Enhanced Animations - Food and Drinks 1.2N\\Optionals\\CYOA\\Water Bottle\\Custom"
+    ],
+    "patch": "Mirrowel \u0026 MFS Team \u0026 Gunslinger Team",
+    "addonName": "FDDA Enhanced Animations",
+    "modDbUrl": "https://github.com/Mirrowel/FDDA-enhanced-animations-Food-n-Drinks",
+    "zipName": "FDDA-enhanced-animations-Food-n-Drinks.zip",
+    "md5ModDb": "aaf99d29554ef2ef8e172334f949dc60"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/272078",
+    "instructions": [],
+    "patch": "VodoXleb",
+    "addonName": "Guitar Position Fix",
+    "modDbUrl": "https://www.moddb.com/addons/modded-exes-guitar-position-fix-v2",
+    "zipName": "GuitarPositionFix.zip",
+    "md5ModDb": "31fd42961100db036e80224784484995"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/271900",
+    "instructions": [
+      "Gunslinger Binoculars"
+    ],
+    "patch": "vektacitys",
+    "addonName": "Gunslinger Binoculars",
+    "modDbUrl": "https://www.moddb.com/addons/gunslinger-binoculars",
+    "zipName": "Gunslinger_Binoculars.zip",
+    "md5ModDb": "f36395909b14759747f847e7c10db3c1"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/271534",
+    "instructions": [],
+    "patch": "Catspaw",
+    "addonName": "Stealth Kill Detection Fix",
+    "modDbUrl": "https://www.moddb.com/addons/stealth-kill-detection-fix",
+    "zipName": "Catspaw_Stealth_Kill_Detection_Fix-1.0.1.zip",
+    "md5ModDb": "263b8340da94c2e388d6664b2f57c04d"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/265033",
+    "instructions": [],
+    "patch": "Max_im16",
+    "addonName": "THAP Re-work",
+    "modDbUrl": "https://www.moddb.com/addons/thap-re-rework",
+    "zipName": "MHP_HandsPack_v1-7-3.2.7z",
+    "md5ModDb": "97eadcb3d0e2326b806132e31acabd9b"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/271165",
+    "instructions": [
+      "Main (Required)",
+      "REPACK_Barbed_Wire (Recommended)"
+    ],
+    "patch": "VodkaPivin",
+    "addonName": "Barbed Wire Shadow Fix",
+    "modDbUrl": "https://www.moddb.com/addons/camo-netting-shadow-fix",
+    "zipName": "Camo_net_Fix1.2.zip",
+    "md5ModDb": "0ec3e26a1761c40d7127245b8b73b9d8"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/270821",
+    "instructions": [
+      "GAMMA_PTBR_vX_Localisation_Pedro\\STALKER GAMMA EN-PT"
+    ],
+    "patch": "PedroAmaral89",
+    "addonName": "GAMMA Portugues Brasileiro Traducao",
+    "modDbUrl": "https://www.moddb.com/addons/gamma-ptbrv1-localisation-pedro",
+    "zipName": "GAMMA_PTBR_v1_Localisation_Pedro.rar",
+    "md5ModDb": "5a3a65c12736564e9f1019519ee6e7cc"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/270267",
+    "instructions": [
+      "main"
+    ],
+    "patch": "lizzardman",
+    "addonName": "FDDA Enhanced Animations",
+    "modDbUrl": "https://www.moddb.com/addons/fdda-enhanced-animations-enhanced",
+    "zipName": "fdda_enhanced_animations_enhanced_v1.3.zip",
+    "md5ModDb": "ec9c6529119bf3bacebc964267c9d9d8"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/264799",
+    "instructions": [
+      "Get out of my way, you stupid NPC"
+    ],
+    "patch": "NewbieRus",
+    "addonName": "Get out of my way you stupid NPC",
+    "modDbUrl": "https://www.moddb.com/addons/get-out-of-my-way-you-stupid-npc",
+    "zipName": "Get_out_of_my_way_you_stupid_NPC.2.7z",
+    "md5ModDb": "ae601890ce2c8648ef688c7e86c5812e"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/269576",
+    "instructions": [],
+    "patch": "AntGlobes",
+    "addonName": "Anomaly Subtitles",
+    "modDbUrl": "https://www.moddb.com/addons/anomaly-subtitles",
+    "zipName": "Anomaly-Subtitles_v0_12_2.7z",
+    "md5ModDb": "614629c6ab0b064f2faa53248b8e2ad7"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/269290",
+    "instructions": [
+      "Mugging Squads"
+    ],
+    "patch": "Demonized",
+    "addonName": "Mugging Squads",
+    "modDbUrl": "https://www.moddb.com/addons/modded-exes-mugging-squads",
+    "zipName": "Mugging_Squads.5.zip",
+    "md5ModDb": "2ff8ca4d6fae2b4371cc3738e92e06b7"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/268725",
+    "instructions": [],
+    "patch": "Daiviey",
+    "addonName": "Guitar Animation",
+    "modDbUrl": "https://www.moddb.com/addons/guitar-animation-for-full-enjoyment",
+    "zipName": "Guitar_Animation_for_Further_Enjoyment_0_1_6.7z",
+    "md5ModDb": "28005d994406c8284acf1749ba6fec4c"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/261674",
+    "instructions": [
+      "MAIN"
+    ],
+    "patch": "lizzardman",
+    "addonName": "Headgear Animations",
+    "modDbUrl": "https://www.moddb.com/addons/headgear-animations",
+    "zipName": "Headgear_Animations_v0.9.2.zip",
+    "md5ModDb": "7c6bff5c39d98b766999b1dbd786082f"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/250520",
+    "instructions": [
+      "Latest Version (2.0)\\Striker Reanimation"
+    ],
+    "patch": "NickolasNikova",
+    "addonName": "Armsel Protecta Reanimation",
+    "modDbUrl": "https://www.moddb.com/addons/armsel-protecta",
+    "zipName": "Armsel_Protecta_Reanimation.zip",
+    "md5ModDb": "eea9a0865b00f6d048a3acc54c53a1ff"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/267968",
+    "instructions": [
+      "00 EMHF main",
+      "01 EMHF Doors",
+      "02 EMHF Walls",
+      "03 EMHF Arti Display",
+      "06 EMHF crafting GAMMA",
+      "07 EMHF potato lights"
+    ],
+    "patch": "facelessez",
+    "addonName": "Even More Hideout Furnitures",
+    "modDbUrl": "https://www.moddb.com/addons/even-more-hideout-furniture",
+    "zipName": "Even_More_Hideout_Furniture.2.2.7z",
+    "md5ModDb": "50156e6d462650fdcbcee9b0a266db4e"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/267463",
+    "instructions": [
+      "01 MAIN",
+      "02 OPAQUE VISORS"
+    ],
+    "patch": "Strogglet15",
+    "addonName": "PS6 Voin and Aztec NPCs Overhaul",
+    "modDbUrl": "https://www.moddb.com/addons/fvm-ps6voinaztec-overhaul",
+    "zipName": "FVM_PS6VoinAztec_Overhaul.7z",
+    "md5ModDb": "225531def334fd9a0056b6e4e22a98dc"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/267232",
+    "instructions": [
+      "MK 18 Mjolnir Reanimation"
+    ],
+    "patch": "NickolasNikova",
+    "addonName": "MK18 Mjlonir Reanimation",
+    "modDbUrl": "https://www.moddb.com/addons/mk-18-mjolnir-reanimation",
+    "zipName": "BAS_MK-18_Mjolnir_Reanimation.1.zip",
+    "md5ModDb": "1038dbb693a2abdefc37e33e5ec92a5b"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/267004",
+    "instructions": [
+      "Winter"
+    ],
+    "patch": "aytabag",
+    "addonName": "Aydins Grass Tweaks SSS Terrain LOD Compatibility",
+    "modDbUrl": "https://www.moddb.com/addons/aydins-grass-tweaks-sss-terrain-lod-compatiblity",
+    "zipName": "Aydins_Grass_Tweaks_SSS_Terrain_LOD_compatiblity.rar",
+    "md5ModDb": "f44b9c31c0aa4a60d232b079c492d596"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/266956",
+    "instructions": [],
+    "patch": "zorius",
+    "addonName": "Meadow Terrain Mask Fix",
+    "modDbUrl": "https://www.moddb.com/addons/meadow-terrain-material-mask-fix-by-zorius1",
+    "zipName": "meadow_terrain_material_mask_fix_by_zorius.2.7z",
+    "md5ModDb": "943d278052ec66496c335a47d03fb6d0"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/266788",
+    "instructions": [],
+    "patch": "strangerism",
+    "addonName": "Workshop Parts Inventory",
+    "modDbUrl": "https://www.moddb.com/addons/workshops-parts-inventory",
+    "zipName": "Workshops_Parts_Inventory.2.zip",
+    "md5ModDb": "ac432801a305ab8c22229232a764f2b4"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/266619",
+    "instructions": [
+      "00 HFE ammo box patch",
+      "01 HFE ammo box patch \u002B mines and IEDS"
+    ],
+    "patch": "pesta",
+    "addonName": "Hideout Furniture Expansion Ammo Box Patch",
+    "modDbUrl": "https://www.moddb.com/addons/hideout-furniture-expansion-ammo-box-patch",
+    "zipName": "HFE_ammo_box_patch.2.zip",
+    "md5ModDb": "bf6346eed971a68b2cef0d44fcdbbbf6"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/266531",
+    "instructions": [
+      "NPC Don\u0027t Attack Boxes"
+    ],
+    "patch": "OnTuMuCT",
+    "addonName": "NPCs Don\u0027t Attack Boxes",
+    "modDbUrl": "https://www.moddb.com/addons/npc-dont-attack-boxes",
+    "zipName": "NPC_Dont_Attack_Boxes.rar",
+    "md5ModDb": "72e6b68ce23b99c8b686f4432c7f80ea"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/227969",
+    "instructions": [],
+    "patch": "Asshall",
+    "addonName": "Disassembly Item Tweaks",
+    "modDbUrl": "https://www.moddb.com/addons/disassembly-item-tweaks",
+    "zipName": "disassembly_items_tweaks.1.zip",
+    "md5ModDb": "48de386c88da77f220b69af07a128ba9"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/266042",
+    "instructions": [],
+    "patch": "Mirrowel",
+    "addonName": "Return Menu Music",
+    "modDbUrl": "https://www.moddb.com/addons/return-menu-music",
+    "zipName": "Return_Menu_Music.1.7z",
+    "md5ModDb": "35eacd50f363a68eb8c21d9fd9479742"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/265728",
+    "instructions": [
+      "Pripyat Department Store Open Doors"
+    ],
+    "patch": "ComradeCatilina",
+    "addonName": "Pripyat Department Store Open Doors",
+    "modDbUrl": "https://www.moddb.com/addons/pripyat-department-store-open-doors",
+    "zipName": "Pripyat_Department_Store_Open_Doors.zip",
+    "md5ModDb": "8c71fc2b737c822319733a8e53769038"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/265414",
+    "instructions": [
+      "main"
+    ],
+    "patch": "lizzardman",
+    "addonName": "Glowsticks Reanimated",
+    "modDbUrl": "https://www.moddb.com/addons/glowstick-reanimated-v11",
+    "zipName": "glowstick_reanimated_v1.4.zip",
+    "md5ModDb": "73ba4f037717a581c3f8ead15dc19f05"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/265228",
+    "instructions": [
+      "main"
+    ],
+    "patch": "lizzardman",
+    "addonName": "Outfits Animation",
+    "modDbUrl": "https://www.moddb.com/addons/outfit-animations-v099",
+    "zipName": "outfit_animations_v1.0.2.zip",
+    "md5ModDb": "8b22a4382a73f8b0c86eb166a2f91ac8"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/264986",
+    "instructions": [
+      "Main"
+    ],
+    "patch": "party_50",
+    "addonName": "Parallax Reflex Sights",
+    "modDbUrl": "https://www.moddb.com/addons/parallax-reflex-sights",
+    "zipName": "parallax-reflex-sights.9.zip",
+    "md5ModDb": "dd2bf68236d3ac37e43f5a720142a7f4"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/264473",
+    "instructions": [
+      "Dynamic News Heard Melee Fix",
+      "Dynamic News Task Gossip Fix",
+      "NPC Wounded Animation Fix",
+      "Stop Addon Log Spam",
+      "Surge Crow Killer Fix",
+      "Task Marker for Delivery Tasks Fix",
+      "Vintar0\u0027s Companions don\u0027t blow Disguises - Enhanced"
+    ],
+    "patch": "Tosox",
+    "addonName": "Tosox Mini Mods Repo",
+    "modDbUrl": "https://www.moddb.com/addons/tosox-mini-mods-repo",
+    "zipName": "Tosox-Mini-Mods-Repo_v2025.12.01.zip",
+    "md5ModDb": "22de6f8e3b06d08114832e5f68d87685"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/277262",
+    "instructions": [],
+    "patch": "Karobeccary",
+    "addonName": "Bar Map Edits",
+    "modDbUrl": "https://www.moddb.com/addons/map-edits-bar",
+    "zipName": "Bar_Edits_v1.0.7z",
+    "md5ModDb": "5c8bbf790210df10d0f8987c6725722e"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/264205",
+    "instructions": [
+      "Modded Exes version"
+    ],
+    "patch": "party_50",
+    "addonName": "Overheat Gunsmoke",
+    "modDbUrl": "https://www.moddb.com/addons/overheat-gunsmoke",
+    "zipName": "overheat.3.zip",
+    "md5ModDb": "2984c92957c1c2d2318f9bb9208ff1f0"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/261619",
+    "instructions": [],
+    "patch": "NLTP_ASHES",
+    "addonName": "Radial Quickslots",
+    "modDbUrl": "https://www.moddb.com/addons/radial-quickslots",
+    "zipName": "Radial_Quickslots_v1.1.0.zip",
+    "md5ModDb": "022c86f699443318cde3dc03d5fa052c"
+  },
+  {
+    "dlLink": "https://github.com/Grokitach/iTheon-New-Tasks-Addon/archive/refs/heads/master.zip",
+    "instructions": [
+      "iTheon-New-Tasks-Addon-master"
+    ],
+    "patch": "iTheon",
+    "addonName": "New Tasks",
+    "modDbUrl": "https://github.com/lTheon/iTheon-New-Tasks-Addon",
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/264827",
+    "instructions": [
+      "[weapons] DesertTech MDR"
+    ],
+    "patch": "Andtheherois \u0026 Bert",
+    "addonName": "DesertTech MDR Pack",
+    "modDbUrl": "https://www.moddb.com/addons/desert-tech-mdr-pack",
+    "zipName": "DesertTech_MDR_bert_and_ATHI.1.7z",
+    "md5ModDb": "97c464a6bf5ea58fc65004310b92456e"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/208267",
+    "instructions": [],
+    "patch": "frostychun",
+    "addonName": "IWP Benelli",
+    "modDbUrl": "https://www.moddb.com/addons/10-groks-better-sound-for-anomaly-151",
+    "zipName": "1.1.1_Groks_Better_Sound_for_Anomaly_1.5.1.zip",
+    "md5ModDb": "9a7c3a2e3eacd80f29b29cdc29858a2a"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/274243",
+    "instructions": [
+      "RPK FOMOD"
+    ],
+    "patch": "Firebreath",
+    "addonName": "Random RPK Reanimation",
+    "modDbUrl": "https://www.moddb.com/addons/random-rpk",
+    "zipName": "RPK_FOMOD.3.zip",
+    "md5ModDb": "940cd4533f0ed0d3ab831fdc077e322c"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/208267",
+    "instructions": [],
+    "patch": "frostychun",
+    "addonName": "IWP MP9",
+    "modDbUrl": "https://www.moddb.com/addons/10-groks-better-sound-for-anomaly-151",
+    "zipName": "1.1.1_Groks_Better_Sound_for_Anomaly_1.5.1.zip",
+    "md5ModDb": "9a7c3a2e3eacd80f29b29cdc29858a2a"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/273621",
+    "instructions": [
+      "BAS Pistols Reanimation Pack\\BAS Pistols Reanimation Pack"
+    ],
+    "patch": "frostychun",
+    "addonName": "BAS Pistols Reanimation Pack",
+    "modDbUrl": "https://www.moddb.com/addons/bas-pistols-reanimation-pack",
+    "zipName": "BAS_Pistols_Reanimation_Pack.14.7z",
+    "md5ModDb": "aaa80e224eb5b56a423051d8d82b5ae6"
+  },
+  {
+    "dlLink": "https://github.com/andtheherois/Mark-Switch-10-GAMMA-ver./archive/refs/heads/main.zip",
+    "instructions": [
+      "Mark-Switch-10-GAMMA-version-main\\Mark Switch (Update 10) GAMMA Version"
+    ],
+    "patch": "party50 \u0026 meowie",
+    "addonName": "Mark Switch",
+    "modDbUrl": null,
+    "zipName": null,
+    "md5ModDb": null
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/269350",
+    "instructions": [
+      "3D Shader Scopes for GAMMA"
+    ],
+    "patch": "Redotix99 \u0026 Andtheherois \u0026 party50",
+    "addonName": "3DSS for GAMMA",
+    "modDbUrl": "https://www.moddb.com/addons/3d-shader-scopes-for-gamma",
+    "zipName": "3D_Shader_Scopes_for_GAMMA_3.20.7z",
+    "md5ModDb": "7165fcdfeb0b5696a9630ba0dbf0a584"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/268102",
+    "instructions": [
+      "Renegades_fixed_guns_ports_1_2\\mods\\2_WINCHESTER",
+      "Renegades_fixed_guns_ports_1_2\\mods\\3_PP2000",
+      "Renegades_fixed_guns_ports_1_2\\mods\\4_MP7",
+      "Renegades_fixed_guns_ports_1_2\\mods\\6_RPD",
+      "Renegades_fixed_guns_ports_1_2\\mods\\8_M24_M98B"
+    ],
+    "patch": "Cr3pis",
+    "addonName": "Renegades Fixed Ports Collection",
+    "modDbUrl": "https://www.moddb.com/addons/dltx-renegades-fixed-ports-collection",
+    "zipName": "Renegades_fixed_guns_ports_1_3.zip",
+    "md5ModDb": "3d0ea8d18bae47d121e7c41715546e54"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/265945",
+    "instructions": [],
+    "patch": "RavenAscendant",
+    "addonName": "Busyhands Detection and Blame",
+    "modDbUrl": "https://www.moddb.com/addons/watch-dog-script",
+    "zipName": "bh_detect_blame.7z",
+    "md5ModDb": "b448c3a51e6e47cfc8ecf8596c15b581"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/249795",
+    "instructions": [
+      "00. Milspec PDA with Kill Tracker (required)",
+      "01. DLTX ISG-Sin-Renegade drop PDAs (for progressive mode, recommended)"
+    ],
+    "patch": "Catspaw",
+    "addonName": "Milspec PDA",
+    "modDbUrl": "https://www.moddb.com/addons/milspec-pda-for-anomaly-151-152-and-gamma",
+    "zipName": "Catspaw_Milspec_PDA-1.15.0.zip",
+    "md5ModDb": "867af28f8f5092da3dafd99399c362af"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/277063",
+    "instructions": [
+      "Alternative_Pseudogiants\\01 Meshes",
+      "Alternative_Pseudogiants\\02 2k Textures"
+    ],
+    "patch": "KynesPeace",
+    "addonName": "Alternative Pseudogiants",
+    "modDbUrl": "https://www.moddb.com/addons/alternative-pseudogiants",
+    "zipName": "Alternative_Pseudogiants.7z",
+    "md5ModDb": "2ce029a93bf00bc5faf12ae384cb3a6d"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/277049",
+    "instructions": [
+      "M98B Reanimation\\M98B Reanimation Mod"
+    ],
+    "patch": "frostychun",
+    "addonName": "M98B Reanimation",
+    "modDbUrl": "https://www.moddb.com/addons/m98b-reanimation-for-gamma",
+    "zipName": "M98B_Reanimation.5.6.7z",
+    "md5ModDb": "40338e691b7072d217dc99e889508b2c"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/261372",
+    "instructions": [
+      "Better Devices",
+      "extras\\beef_nvg_anim_fix"
+    ],
+    "patch": "BarryBogs",
+    "addonName": "Devices of Anomaly Redone",
+    "modDbUrl": "https://www.moddb.com/addons/devices-of-anomaly-redone",
+    "zipName": "DAR_v0.9.8.6.zip",
+    "md5ModDb": "b3cf30e539e568f91cf064018713eb0e"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/251981",
+    "instructions": [
+      "NERFS\\Main",
+      "NERFS\\Modules\\ARFS DLTX"
+    ],
+    "patch": "Catspaw",
+    "addonName": "New Extensible RF Sources",
+    "modDbUrl": "https://www.moddb.com/addons/new-extensible-rf-sources",
+    "zipName": "Catspaw_New_Extensible_RF_Sources-1.7.3.zip",
+    "md5ModDb": "82543c9d1d3e5250b80ee930b6ef7c9f"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/235156",
+    "instructions": [],
+    "patch": "HarukaSai",
+    "addonName": "Dynamic Icons Indicators",
+    "modDbUrl": "https://www.moddb.com/addons/dynamic-icon-indicators",
+    "zipName": "DynamicIconIndicators-1.0.1.7z",
+    "md5ModDb": "1f3605caa9c1122962d531a5427c7674"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/247989",
+    "instructions": [
+      "Artefacts Belt Scroller"
+    ],
+    "patch": "Demonized",
+    "addonName": "Artefacts Belt Scroller",
+    "modDbUrl": "https://www.moddb.com/addons/artefacts-belt-scroller-ui",
+    "zipName": "Artefacts_Belt_Scroller.2.zip",
+    "md5ModDb": "1207381d5a26e7f1acc36288b3d3d930"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/277556",
+    "instructions": [
+      "Tactical Compass FOMOD\\Main",
+      "Tactical Compass FOMOD\\G.A.M.M.A. Patch (New Icons)"
+    ],
+    "patch": "explorerbee",
+    "addonName": "Tactical Compass",
+    "modDbUrl": "https://www.moddb.com/addons/tactical-compass",
+    "zipName": "tc_rc4.1.zip",
+    "md5ModDb": "1767f87024c933fced96ddc1ad02de8b"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/273749",
+    "instructions": [
+      "AK Reanimation"
+    ],
+    "patch": "NickolasNikova",
+    "addonName": "AK Family Reanimation",
+    "modDbUrl": "https://www.moddb.com/addons/ak-reanimation-moddb-release",
+    "zipName": "AK_Reanimation_Moddb_Release.rar",
+    "md5ModDb": "581ebcccbb432bbc93ef5da3b57cac4b"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/240039",
+    "instructions": [
+      "Hax Desert Eagle Reanimation"
+    ],
+    "patch": "TheShinyHaxorus",
+    "addonName": "Desert Eagle Re-animated",
+    "modDbUrl": "https://www.moddb.com/addons/desert-eagle-re-animated",
+    "zipName": "Hax_Desert_Eagle_Reanimation.2.rar",
+    "md5ModDb": "bf69d6c82d2a887cd98ab1df743e56b9"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/278854",
+    "instructions": [
+      "[SoulCrystal] Mossberg 590A1",
+      "[SoulCrystal] Mossberg 590A1\\patches\\bas",
+      "[SoulCrystal] Mossberg 590A1\\patches\\jsrs",
+      "[SoulCrystal] Mossberg 590A1\\patches\\phongmetal"
+    ],
+    "patch": "SoulCrystal",
+    "addonName": "Mossberg 590 Reanimation",
+    "modDbUrl": "https://www.moddb.com/addons/mossberg-590",
+    "zipName": "SoulCrystal_Mossberg_590A1.3.zip",
+    "md5ModDb": "002cde0b0f1fbc1b2badc25dba13e2dd"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/279623",
+    "instructions": [],
+    "patch": "lizzardman",
+    "addonName": "Weapon Inertia Expanded",
+    "modDbUrl": "https://www.moddb.com/addons/weapon-inertia-expanded",
+    "zipName": "weapon_inertia_expanded_v1.5.2.zip",
+    "md5ModDb": "d0bd4a669c772f320a5393619ca89a71"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/275244",
+    "instructions": [],
+    "patch": "dEmergence",
+    "addonName": "Dynamic News Manager Fixes and Tweaks",
+    "modDbUrl": "https://www.moddb.com/addons/dynamic-news-manager-fixes-and-tweaks",
+    "zipName": "DNM_Fixes_and_Tweaks_121.zip",
+    "md5ModDb": "af3f2768f6ffdb4950e423522cf0bb86"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/240286",
+    "instructions": [
+      "00 Main"
+    ],
+    "patch": "Utjan",
+    "addonName": "Dynamic Emission Cover",
+    "modDbUrl": "https://www.moddb.com/addons/dynamic-emission-cover",
+    "zipName": "Dynamic_Emission_Cover-v1.2.7z",
+    "md5ModDb": "b22332e2ba871c398b08291d30c4e1da"
+  },
+  {
+    "dlLink": "https://github.com/andtheherois/3DSS-IWP-SV98-Port/releases/download/3.0/IWP.SV98.Port-3.0.zip",
+    "instructions": [],
+    "patch": "Andtheherois \u0026 IWP Team",
+    "addonName": "IWP SV98 3DSS",
+    "modDbUrl": "https://github.com/andtheherois/3DSS-IWP-SV98-Port",
+    "zipName": "3DSS-IWP-SV98-Port.zip",
+    "md5ModDb": "e555ea2a6749afa356ffa8a47f1bd530"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/280264",
+    "instructions": [
+      "ARC 3DSS\\1P29",
+      "ARC 3DSS\\1P78",
+      "ARC 3DSS\\BURRIS TAC30",
+      "ARC 3DSS\\CORTEX\\Razor EBR-9 (MRAD)",
+      "ARC 3DSS\\LEUPOLD CQBSS\\Eotech Vudu",
+      "ARC 3DSS\\MARCH F\\March FML",
+      "ARC 3DSS\\RAZOR HD\\JM-1 BDC",
+      "ARC 3DSS\\REM700\\Fine Duplex",
+      "ARC 3DSS\\SHORTY\\FMC-1 illuminated",
+      "ARC 3DSS\\SUSAT",
+      "ARC 3DSS\\UH-1",
+      "ARC 3DSS\\VALDAY PS-320"
+    ],
+    "patch": "Napolemon",
+    "addonName": "Authentic Reticle for 3DSS",
+    "modDbUrl": "https://www.moddb.com/addons/authentic-reticle-collection-for-3d-shader-scopes-for-gamma",
+    "zipName": "ARC_3DSS_v1.1.zip",
+    "md5ModDb": "3e550ed27120fc4866d7a9f78767dcfd"
+  },
+  {
+    "dlLink": "https://github.com/andtheherois/3DSS-The-Covenant-Weapon-Pack---ATHI-Edit/releases/download/3.1/TCWP.-.Custom.Mk47.MP155.RPK16.VZ61.-.ATHI.Edit-3.1.zip",
+    "instructions": [],
+    "patch": "Andtheherois \u0026 TCWP Team",
+    "addonName": "The Covenant Weapon Pack 3DSS",
+    "modDbUrl": "https://github.com/andtheherois/3DSS-The-Covenant-Weapon-Pack---ATHI-Edit",
+    "zipName": "3DSS-The-Covenant-Weapon-Pack---ATHI-Edit.zip",
+    "md5ModDb": "14bdd94fc1a65b8143aa1960419adc17"
+  },
+  {
+    "dlLink": "https://github.com/andtheherois/3DSS-M98B-Reanimation/releases/download/3.0/M98B.Reanimation-3.0.zip",
+    "instructions": [],
+    "patch": "Andtheherois \u0026 frostychun",
+    "addonName": "M98B 3DSS Update",
+    "modDbUrl": "https://github.com/andtheherois/3DSS-M98B-Reanimation",
+    "zipName": "3DSS-M98B-Reanimation.zip",
+    "md5ModDb": "dba5962ee743a88f89b825eb204ce67f"
+  },
+  {
+    "dlLink": "https://github.com/andtheherois/3DS-ISG-AK-Makeover/releases/download/3.0/ISG.AK.Makeover-.ATHI.Edit-3.0.zip",
+    "instructions": [],
+    "patch": "Andtheherois \u0026 BAS Team",
+    "addonName": "3DSS ISG AK Makeover",
+    "modDbUrl": "https://github.com/andtheherois/3DS-ISG-AK-Makeover",
+    "zipName": "3DS-ISG-AK-Makeover.zip",
+    "md5ModDb": "3f44eff450be2d211010d73c7559b1b5"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/265352",
+    "instructions": [
+      "BRN-180 Assault Rifle - ModDB"
+    ],
+    "patch": "JMerc75",
+    "addonName": "BRN-180 Assault Rifle",
+    "modDbUrl": "https://www.moddb.com/addons/brn-180-assault-rifle",
+    "zipName": "BRN-180_Assault_Rifle_-_ModDB.5.7z",
+    "md5ModDb": "270c378581a43a487a92fde27991fb1c"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/280838",
+    "instructions": [
+      "[Pillii] UDP9 Carbine"
+    ],
+    "patch": "Pilliii",
+    "addonName": "UDP-9 Carbine",
+    "modDbUrl": "https://www.moddb.com/addons/pilliis-udp-9-carbine",
+    "zipName": "Pillii_UDP9_Carbine.5.zip",
+    "md5ModDb": "920733a3459cb21ee4361743f0ce73db"
+  },
+  {
+    "dlLink": "https://github.com/andtheherois/3DSS-M4A1-Siber-Reanimation/releases/download/3.0/M4A1.Siber.Reanimation-3.0.zip",
+    "instructions": [],
+    "patch": "Andtheherois",
+    "addonName": "3DSS M4A1 Siber Reanimation",
+    "modDbUrl": "https://github.com/andtheherois/3DSS-M4A1-Siber-Reanimation",
+    "zipName": "3DSS-M4A1-Siber-Reanimation.zip",
+    "md5ModDb": "d181ed7eb2cdbd9ea1e0e504bfe94e72"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/280784",
+    "instructions": [],
+    "patch": "Strogglet15",
+    "addonName": "Fixed Artifact for Anomaly",
+    "modDbUrl": "https://www.moddb.com/addons/fafa",
+    "zipName": "Fixed_Artifacts_For_Anomaly.zip",
+    "md5ModDb": "ef48dd1caff8b2a3dba9ccc4deac41a5"
+  },
+  {
+    "dlLink": "https://github.com/Grokitach/temporary_Alpha_AKM_gamma/archive/refs/tags/1.0.2.1.zip",
+    "instructions": [
+      "temporary_Alpha_AKM_gamma-1.0.2.1"
+    ],
+    "patch": "SeDzhiMol",
+    "addonName": "Alpha AKM Reanimation",
+    "modDbUrl": "https://www.moddb.com/mods/stalker-anomaly/addons/alpha-akm-reanimation",
+    "zipName": "temporary_Alpha_AKM_gamma.zip",
+    "md5ModDb": "3cf8719d3211301a6b2fa90e9cbc9e29"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/280993",
+    "instructions": [
+      "Weighted NPC Random Loadouts"
+    ],
+    "patch": "SD",
+    "addonName": "Weighted NPC Random Loadouts",
+    "modDbUrl": "https://www.moddb.com/addons/weighted-npc-random-loadouts",
+    "zipName": "Weighted_NPC_Random_Loadouts_v1.09.7z",
+    "md5ModDb": "58cca2d35bffe911e338a425720d547a"
+  },
+  {
+    "dlLink": "https://github.com/andtheherois/Sights-and-Optics-retexture-by-Meowie/releases/download/2.9.1/Sights.Optics-2.9.1.zip",
+    "instructions": [],
+    "patch": "Meowie",
+    "addonName": "Sights and Optics Retexture",
+    "modDbUrl": "https://github.com/andtheherois/Sights-and-Optics-retexture-by-Meowie",
+    "zipName": "Sights-and-Optics-retexture-by-Meowie.zip",
+    "md5ModDb": "acf6dcef4b2ce02e4cfec1d821e2a25f"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/260590",
+    "instructions": [
+      "TFWP 1.2.1\\TFCWP"
+    ],
+    "patch": "TCWP Team",
+    "addonName": "The Covenant Weapon Pack for DX9",
+    "modDbUrl": "https://www.moddb.com/addons/tfcwp-the-former-covenant-weapon-pack",
+    "zipName": "TFCWP_1.2.1.7z",
+    "md5ModDb": "408935fee6605d76d03f49b3ea4c21b9"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/275332",
+    "instructions": [
+      "01 Meshes",
+      "02 2k Textures",
+      "03 Configs"
+    ],
+    "patch": "KynesPeace",
+    "addonName": "Alternative Snorks",
+    "modDbUrl": "https://www.moddb.com/addons/alternative-snorks",
+    "zipName": "Alternative_Snorks.7z",
+    "md5ModDb": "52a72fcf862e5ae927ca0a5b077a6d62"
+  },
+  {
+    "dlLink": "https://github.com/andtheherois/3DSS-HOWA20-Makeover/releases/download/3.0/3DSS.Howa20-3.0.zip",
+    "instructions": [],
+    "patch": "Andtheherois \u0026 Phant0m",
+    "addonName": "HOWA20 Makeover",
+    "modDbUrl": "https://github.com/andtheherois/3DSS-HOWA20-Makeover",
+    "zipName": "3DSS-HOWA20-Makeover.zip",
+    "md5ModDb": "24ebe80aee09a3fc66673bbb8823d3eb"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/284256",
+    "instructions": [
+      "Expanded_Fixed_Maps_AIO_1.6"
+    ],
+    "patch": "HailTheMonolith",
+    "addonName": "Expanded \u0026 Fixed Maps",
+    "modDbUrl": "https://www.moddb.com/addons/expandedfixed-maps-all-in-one",
+    "zipName": "Expanded_Fixed_Maps_AIO_3.1.7z",
+    "md5ModDb": "1ec211361348d14deacee2e56ecd1b85"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/237924",
+    "instructions": [],
+    "patch": "Apathy_Knight",
+    "addonName": "Photo of a Loved One Animated",
+    "modDbUrl": "https://www.moddb.com/addons/photo-of-a-loved-one-animated-dltx",
+    "zipName": "Beloved_Photo.7z",
+    "md5ModDb": "2ad39d676c9b99fe8533b3e332626bfd"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/284402",
+    "instructions": [
+      "00 BASE MOD",
+      "01 Optional - Giperon simplified (no special effects)",
+      "02 Patch for Giperon simplified (GAMMA only!)"
+    ],
+    "patch": "Napolemon",
+    "addonName": "Thick Russian Reticles",
+    "modDbUrl": "https://www.moddb.com/addons/thicc-russian-reticles",
+    "zipName": "THICC_RUSSIAN_RETICLES_v4.zip",
+    "md5ModDb": "ae6e9ab64574fbe4de42757722778646"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/291413",
+    "instructions": [
+      "m60_texture_impruvd"
+    ],
+    "patch": "Kryiron",
+    "addonName": "M60 Texture Improved",
+    "modDbUrl": "https://www.moddb.com/addons/m60-texture-impruvd",
+    "zipName": "m60_texture_impruvd.7z",
+    "md5ModDb": "b0484810fb9714ad52bbc733ab969835"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/264818",
+    "instructions": [],
+    "patch": "HarukaSai",
+    "addonName": "Quick Action Wheel",
+    "modDbUrl": "https://www.moddb.com/addons/quick-action-wheel",
+    "zipName": "QuickActionWheel-v2.0.5.zip",
+    "md5ModDb": "ad1f7d03d7f08d147d7157e5025fa08f"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/286029",
+    "instructions": [
+      "00. CORE",
+      "01. FDDA Redone",
+      "02. FDDA Redone Item Pickup",
+      "03. FDDA Redone Headgear Animations",
+      "04. FDDA Redone Outfit Animations",
+      "05. FDDA Redone Body Search",
+      "06. FDDA Redone Responsive Headlamp",
+      "07. FDDA Redone Clean Mask",
+      "08. FDDA Redone NVG",
+      "09. FDDA Redone Beef\u0027s NVG Animation [PICK ONE]",
+      "11. FDDA Redone Ballistic Plates Vanilla [PICK ONE]",
+      "12. FDDA Redone Enjoy Cigarettes",
+      "14. PATCH. FDDA Redone Exo Anims Patch",
+      "16. PATCH. Hideout Furniture Weapon Showcase",
+      "17. PATCH. Ledge Grabbing",
+      "19. PATCH. Leer\u0027s Artifact Inspect"
+    ],
+    "patch": "lizzardman",
+    "addonName": "FDDA Redone",
+    "modDbUrl": "https://www.moddb.com/addons/fdda-redone",
+    "zipName": "FDDA_Redone_v1.4.zip",
+    "md5ModDb": "93d3125aa9fe7301a65ec16caab52641"
+  },
+  {
+    "dlLink": "https://github.com/strangerism/New-Player-Experience/releases/download/v0.2.8/NPE.zip",
+    "instructions": [
+      "NPE\\Main"
+    ],
+    "patch": "strangerism",
+    "addonName": "New Player Experience",
+    "modDbUrl": "https://github.com/strangerism/New-Player-Experience",
+    "zipName": "New-Player-Experience.zip",
+    "md5ModDb": "9fa55d6bdca674751f89ffe0e66881a7"
+  },
+  {
+    "dlLink": "https://github.com/bellyillish/dart/releases/download/v3.1.1/Dynamic_Aspect_Ratio_Tweaks-3.1.1.zip",
+    "instructions": [
+      "00 a - Dart Core (Required)",
+      "00 b - (HUD) BHS",
+      "00 c - (HUD) Companion List",
+      "00 d - (HUD) Faction ID Patches",
+      "00 e - (HUD) Status Icons",
+      "00 f - (HUD) Messsages List",
+      "00 g - (PDA) Map Markers",
+      "00 h - (PDA) Font Sizes",
+      "00 i - Minimap \u0026 Compass",
+      "00 j - Ammo \u0026 Companion Wheels"
+    ],
+    "patch": "bellyillish",
+    "addonName": "Dynamic Aspect Ratio Tweaks (fixes for widescreen)",
+    "modDbUrl": "https://github.com/bellyillish/dart/",
+    "zipName": "dart.zip",
+    "md5ModDb": "923c9214d21bd12460a570faacaf5856"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/286903",
+    "instructions": [],
+    "patch": "bellyillish",
+    "addonName": "Useful Idiots",
+    "modDbUrl": "https://www.moddb.com/addons/useful-idiots",
+    "zipName": "Useful_Idiots-1.4.10.zip",
+    "md5ModDb": "a942b7e00ac18f0b23aa4a3b280b0594"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/287176",
+    "instructions": [],
+    "patch": "FreeStalkerLhan",
+    "addonName": "Ashot and Yar Special Delivery Quest",
+    "modDbUrl": "https://www.moddb.com/addons/ashot-and-yars-special-delivery",
+    "zipName": "Ashot-and-Yars-Special-Delivery.7z",
+    "md5ModDb": "4aa9c43e318f669c049ab83328ee70ea"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/293506",
+    "instructions": [
+      "DotMarks\\Main",
+      "DotMarks\\Modules\\AutoLooter",
+      "DotMarks\\Modules\\HideoutFurniture",
+      "DotMarks\\Modules\\NoItemIcons",
+      "DotMarks\\Modules\\PopupMessageFix",
+      "DotMarks\\Modules\\SkillSystem",
+      "DotMarks\\Modules\\WaterPumps",
+      "DotMarks\\Modules\\WoundedHealAnim"
+    ],
+    "patch": "Catspaw",
+    "addonName": "Interaction Dot Marks",
+    "modDbUrl": "https://www.moddb.com/addons/interaction-dot-marks",
+    "zipName": "Catspaw_Interaction_Dot_Marks-1.4.0.zip",
+    "md5ModDb": "fd25528996a6701d514eb8fd7899ee1d"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/293128",
+    "instructions": [
+      "00 MAIN"
+    ],
+    "patch": "Kute",
+    "addonName": "Items Model Drop After Usage",
+    "modDbUrl": "https://www.moddb.com/addons/items-model-drop-after-usage",
+    "zipName": "Item_Model_Drop.12.7z",
+    "md5ModDb": "32757a73863aae986e81c7f3ff02732a"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/290512",
+    "instructions": [
+      "Player\u0027s Spawning Shenanigans Prevention"
+    ],
+    "patch": "Kute",
+    "addonName": "Spawning Shenanigans Prevention",
+    "modDbUrl": "https://www.moddb.com/addons/players-spawning-shenanigans-prevention",
+    "zipName": "Players_Spawning_Shenanigans_Prevention.7z",
+    "md5ModDb": "cd9b979869ddd4b91d9c285492dc6795"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/290811",
+    "instructions": [
+      "Escape From Tarkov RSH-12 Revolver\\EFT RSH12 Setup\\EFT RSH-12",
+      "Escape From Tarkov RSH-12 Revolver\\EFT RSH12 PRS Setup"
+    ],
+    "patch": "frostychun",
+    "addonName": "EFT RSH-12",
+    "modDbUrl": "https://www.moddb.com/addons/escape-from-tarkov-rsh-12-revolver",
+    "zipName": "Escape_From_Tarkov_RSH-12_Revolver.4.7z",
+    "md5ModDb": "8ed89fb1efd6c154225a51ad3c539b28"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/293408",
+    "instructions": [
+      "FDDA Redone Fixes"
+    ],
+    "patch": "Kute",
+    "addonName": "FDDA Redone Fixes",
+    "modDbUrl": "https://www.moddb.com/addons/fdda-redone-fixes",
+    "zipName": "FDDA_Redone_Fixes.13.7z",
+    "md5ModDb": "5873962063902d4554dbb9ece22c2f2f"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/268799",
+    "instructions": [
+      "RETUNE ambience sounds"
+    ],
+    "patch": "Aphrodite_child",
+    "addonName": "RETUNE Ambiant Sounds",
+    "modDbUrl": "https://www.moddb.com/addons/retune-ambience-sounds",
+    "zipName": "RETUNE_ambience_sounds_V3.1.rar",
+    "md5ModDb": "b7c2e2b7f764b2bed26e47f40ca6ba74"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/297208",
+    "instructions": [
+      "Repair-Notifications-master"
+    ],
+    "patch": "SaloEater",
+    "addonName": "Repair Notifications",
+    "modDbUrl": "https://www.moddb.com/addons/repair-notifications",
+    "zipName": "Repair_Notifications_v1.1.zip",
+    "md5ModDb": "5d41402abc4b2a76b9719d911017c592"
+  },
+  {
+    "dlLink": "https://www.moddb.com/addons/start/272880",
+    "instructions": [],
+    "patch": "yaaargle",
+    "addonName": "Afterglow Ending Crash Fix test",
+    "modDbUrl": "https://www.moddb.com/addons/lost-to-the-zone-ending-dx11-crash-fix-gamma",
+    "zipName": "LTTZ_Ending_DX11_Crash_Fix.zip",
+    "md5ModDb": "6fcc147e1e429c5badd63082882f90af"
+  }
+]

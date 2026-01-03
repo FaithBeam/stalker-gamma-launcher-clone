@@ -14,7 +14,6 @@ public interface IDownloadableRecordFactory
     IDownloadableRecord CreateTeivazAnomalyGunslingerRecord(string gammaDir);
 
     bool TryCreate(
-        int idx,
         string gammaDir,
         ModPackMakerRecord record,
         out IDownloadableRecord? downloadableRecord
@@ -102,22 +101,20 @@ public class DownloadableRecordFactory(
         ];
 
     public bool TryCreate(
-        int idx,
         string gammaDir,
         ModPackMakerRecord record,
         out IDownloadableRecord? downloadableRecord
     )
     {
-        idx++;
         downloadableRecord = null;
 
-        if (TryParseModDbRecord(idx, gammaDir, record, out var modDbRecord))
+        if (TryParseModDbRecord(gammaDir, record, out var modDbRecord))
         {
             downloadableRecord = modDbRecord;
             return true;
         }
 
-        if (TryParseGithubRecord(idx, gammaDir, record, out var githubRecord))
+        if (TryParseGithubRecord(gammaDir, record, out var githubRecord))
         {
             downloadableRecord = githubRecord;
             return true;
@@ -127,7 +124,6 @@ public class DownloadableRecordFactory(
     }
 
     private bool TryParseGithubRecord(
-        int idx,
         string gammaDir,
         ModPackMakerRecord record,
         out GithubRecord? downloadableRecord
@@ -148,7 +144,7 @@ public class DownloadableRecordFactory(
             var instructions = ProcessInstructions(record.Instructions);
 
             var archiveName = $"{record.DlLink.Split('/')[4]}.zip";
-            var outputDirName = $"{idx}- {record.AddonName} {record.Patch}";
+            var outputDirName = $"{record.Counter}- {record.AddonName} {record.Patch}";
             downloadableRecord = new GithubRecord(
                 gammaProgress,
                 record.AddonName,
@@ -169,7 +165,6 @@ public class DownloadableRecordFactory(
     }
 
     private bool TryParseModDbRecord(
-        int idx,
         string gammaDir,
         ModPackMakerRecord record,
         out ModDbRecord? downloadableRecord
@@ -186,7 +181,7 @@ public class DownloadableRecordFactory(
             {
                 throw new DownloadableRecordFactoryException($"Invalid record: {record}");
             }
-            var outputDirName = $"{idx}- {record.AddonName} {record.Patch}";
+            var outputDirName = $"{record.Counter}- {record.AddonName} {record.Patch}";
             var instructions = ProcessInstructions(record.Instructions);
             downloadableRecord = new ModDbRecord(
                 gammaProgress,

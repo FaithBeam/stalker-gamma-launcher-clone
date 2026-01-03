@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Reactive.Linq;
+﻿using System.Reactive.Linq;
 using ConsoleAppFramework;
 using Serilog;
 using stalker_gamma.cli.Models;

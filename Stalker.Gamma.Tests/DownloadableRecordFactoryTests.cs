@@ -8,7 +8,7 @@ namespace Stalker.Gamma.Tests;
 
 public class DownloadableRecordFactoryTests
 {
-    private string ModsData { get; } = File.ReadAllText("mods.txt");
+    private string ModsData { get; } = File.ReadAllText("modpack_maker_list.txt");
 
     [Test]
     public void TestParseModsData()
