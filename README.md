@@ -1,5 +1,7 @@
 # Stalker GAMMA Launcher Clone
 
+My [stalker-gamma-cli](https://github.com/FaithBeam/stalker-gamma-cli) project is preferred over this project. Its faster, easier to work with, and more reliable.
+
 A clone of Grokitach's Stalker GAMMA Launcher with WINE compatibility and extra features.
 
 <img width="1419" height="1369" alt="image" src="https://github.com/user-attachments/assets/e879c8cd-a451-41e5-9c09-5f1d39ca2c0c" />
